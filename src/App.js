@@ -1,25 +1,19 @@
-import logo from './logo.svg';
+import { useEffect } from 'react';
 import './App.css';
+import MovieHomePage from './MovieHomePage';
+import { init} from '@noriginmedia/norigin-spatial-navigation';
+
+init({
+  debug: false,
+  visualDebug: false,
+  distanceCalculationMethod: 'center'
+});
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+return (<div className='App'>
+   <MovieHomePage />
+</div>)
 }
 
 export default App;
