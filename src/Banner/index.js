@@ -1,53 +1,88 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import './index.css'; // For custom styles
+import './index.css';
 
-const Banner = ({ data : asset }) => {
+const Banner = ({ data: asset = null, banners = [] }) => {
   const videoRef = useRef(null);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [showBanner, setShowBanner] = useState(true);
 
   useEffect(() => {
-    if (asset?.trailerUrl && videoRef.current) {
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(asset.trailerUrl);
-        hls.attachMedia(videoRef.current);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoRef.current.play();
-        });
-        return () => {
-          hls.destroy();
-        };
-      } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-        videoRef.current.src = asset.trailerUrl;
-        videoRef.current.play();
-      }
+    setShowBanner(!asset);
+  }, [asset]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!asset?.trailerUrl || !video) return;
+
+    let hls;
+
+    const onLoadedData = () => video.play();
+    const onPlaying = () => {};
+    const onEnded = () => {};
+
+    video.pause();
+    video.src = '';
+
+    video.addEventListener('loadeddata', onLoadedData);
+    video.addEventListener('playing', onPlaying);
+    video.addEventListener('ended', onEnded);
+
+    if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(asset.trailerUrl);
+      hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = asset.trailerUrl;
     }
+
+    return () => {
+      video.removeEventListener('loadeddata', onLoadedData);
+      video.removeEventListener('playing', onPlaying);
+      video.removeEventListener('ended', onEnded);
+      if (hls) hls.destroy();
+    };
   }, [asset?.trailerUrl]);
 
-  if (!asset) return null;
+  if (!asset && banners.length === 0) return null;
+
+  const renderMedia = () => {
+    if (showBanner && banners.length > 0) {
+      return <img src={banners[0].fullPageBanner} className="banner-video" />;
+    }
+
+    if (asset?.trailerUrl) {
+      return (
+        <video
+          ref={videoRef}
+          className="banner-video"
+          autoPlay
+          poster={asset.fullPageBanner}
+          playsInline
+          muted
+        />
+      );
+    }
+
+    return <img src={asset?.fullPageBanner} className="banner-video" />;
+  };
 
   return (
     <div className="top-banner">
       <div className="banner-video-container">
-        <video
-          ref={videoRef}
-          className="banner-video"
-          muted
-          autoPlay
-          playsInline
-          loop
-        />
-        <div className="banner-overlay">
-          <div className="asset-info">
-            <img src={asset.imageUrl} alt={asset.title} className="asset-logo" />
-            <h1 className="asset-title">{asset.title}</h1>
-            <p className="asset-description">{asset.description}</p>
-            <div className="asset-buttons">
-              <button className="play-btn">▶ Play</button>
-              <button className="info-btn">ℹ More Info</button>
+        {renderMedia()}
+        {showOverlay && (
+          <div className="banner-overlay">
+            <div className="banner-gradient" />
+            <div className="asset-info">
+              {/* Optionally render logo/title/description */}
+              <div className="asset-buttons">
+                <button className="play-btn">▶ Play</button>
+                <button className="info-btn">ℹ More Info</button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

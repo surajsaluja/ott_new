@@ -1,4 +1,4 @@
-import React,{useRef} from "react";
+import React,{useRef, useState} from "react";
 
 export const getResizedOptimizedImage = (url, width, height) =>{
     if(width && height)
@@ -20,6 +20,7 @@ export const sanitizeAndResizeImage = (url, width) => {
   const sanitizedUrl = url.substring(0, url.lastIndexOf("/") + 1) + lastPart;
   return getResizedOptimizedImage(sanitizedUrl, width, null);
 };
+
 
 export const processPlaylistItems = (items) => {
   return items.map((item) => ({
@@ -65,3 +66,45 @@ export const useThrottle = (callback, delay) => {
     }
   };
 };
+
+export const getProcessedPlaylistsWithContinueWatch = (playlist, continueWatchData) => {
+  if (
+    continueWatchData &&
+    continueWatchData.length > 0
+  ) {
+    const continueWatchPlaylist = {
+      playListId: 0,
+      playListTypeId: 0,
+      playlistName: 'Continue Watch',
+      playlistType: null,
+      height: null,
+      width: null,
+      playlistItems: continueWatchData,
+    };
+
+    // Add "Continue Watch" playlist to the beginning
+    playlist.unshift(continueWatchPlaylist);
+  }
+
+  return playlist;
+}
+
+export const useUser = () => {
+  const [userDetails, setUserDetails] = useState({});
+
+  const getDetails = () => {
+    return Object.keys(userDetails).length ? userDetails : false;
+  };
+
+  const setDetails = (details) => {
+    setUserDetails(details);
+  };
+
+  return {
+    getDetails,
+    setDetails,
+  };
+};
+
+
+

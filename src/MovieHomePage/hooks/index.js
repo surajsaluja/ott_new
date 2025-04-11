@@ -1,36 +1,21 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
-import { getProcessedPlaylists, useThrottle } from "../../Common";
-import { fetchHomePageData, fetchPlaylistPage } from "../Service/MovieHomePageService";
+import { getProcessedPlaylists, useThrottle, useUser, getProcessedPlaylistsWithContinueWatch } from "../../Common";
+import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../Service/MovieHomePageService";
 
 
-const useMovieHomePage = (focusKeyParam, history) => {
+const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setIsLoading) => {
     const { ref, focusKey } = useFocusable({
       focusKey: focusKeyParam,
       trackChildren: true,
       saveLastFocusedChild: true,
     });
   
-    const [data, setData] = useState([]);
     const [page, setPage] = useState(1);
-    const [userId] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
+    const [userId] = useState(675);
     const loadMoreRef = useRef(null);
     const horizontalLimit = 10;
-  
-    const loadInitialData = async () => {
-      setIsLoading(true);
-      try {
-        const raw = await fetchHomePageData(userId);
-        const processed = getProcessedPlaylists(raw, horizontalLimit);
-        setData(processed);
-      } catch (e) {
-        console.error("Failed to load homepage", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
   
     const loadMoreRows = useThrottle(async () => {
       if (isLoading) return;
@@ -46,10 +31,7 @@ const useMovieHomePage = (focusKeyParam, history) => {
         setIsLoading(false);
       }
     }, 1000);
-  
-    useEffect(() => {
-      loadInitialData();
-    }, []);
+
   
     useEffect(() => {
       const node = loadMoreRef.current;
@@ -156,6 +138,7 @@ const useAsset = (image) => {
     hasError,
     handleLoad,
     handleError,
+    
   };
 };
 
@@ -172,17 +155,51 @@ export const useContentWithBanner  = (focusKey, onFocus) =>{
       });
       
       const [focusedAssetData, setFocusedAssetData] = useState(null);
+      const [data, setData] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
+      const [banners, setBanners] = useState([]);
+      const horizontalLimit = 10;
+      const {getDetails : user } = useUser();
+
+      useEffect(() => {
+        loadInitialData();
+      }, []);
+
+      const loadInitialData = async () => {
+        setIsLoading(true);
+        try {
+          const raw = await fetchHomePageData(user ? user.userId : 0);
+          let processed = getProcessedPlaylists(raw.playlists, horizontalLimit);
+          setBanners(raw.banners);
+          if(user && user.isUserLoggedIn){
+            const continueWatchlistData = await fetchContinueWatchingData(user.userId);
+            processed = getProcessedPlaylistsWithContinueWatch(processed, continueWatchlistData);
+          }
+          setData(processed);
+        } catch (e) {
+          console.error("Failed to load homepage", e);
+        } finally {
+          setIsLoading(false);
+        }
+      };
       
         const handleAssetFocus = (data) => {
           setFocusedAssetData(data);
         };
+
 
        return {
         ref,
         currentFocusKey,
         hasFocusedChild,
         focusedAssetData,
-        handleAssetFocus
+        handleAssetFocus,
+        data,
+        setData,
+        isLoading,
+        setIsLoading,
+        banners,
+        setFocusedAssetData
        } 
     
 } 

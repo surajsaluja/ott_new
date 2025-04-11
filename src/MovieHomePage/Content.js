@@ -9,7 +9,7 @@ import FocusableButton from "../FocusableButton/FocusableButton";
 import Banner from "../Banner";
 import "./Content.css";
 
-const Asset = ({ title, color, onEnterPress, onFocus, image, data = {} }) => {
+const Asset = ({ title, color, onEnterPress, onFocus, image, data = {},setAssetData }) => {
   const {
     imgRef,
     shouldLoad,
@@ -22,7 +22,11 @@ const Asset = ({ title, color, onEnterPress, onFocus, image, data = {} }) => {
 
   const { ref, focused } = useFocusable({
     onEnterPress,
-    onFocus:() => onFocus?.(data, ref.current),
+    onFocus:() => {
+      onFocus?.(ref.current);
+      setAssetData(data);
+    },
+    onBlur:()=>setAssetData(null),
     extraProps: { title, color, image, data },
   });
 
@@ -58,19 +62,19 @@ const Asset = ({ title, color, onEnterPress, onFocus, image, data = {} }) => {
   );
 };
 
-const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, onAssetFocus }) => {
+const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData }) => {
   const {
     ref,
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-    onAssetFocus : internalOnAssetFocus,
+    onAssetFocus,
   } = useContentRow(focusKey, onFocus);
 
-  const handleFocus = (data, elRef) => {
-    internalOnAssetFocus(data, elRef);
-    onAssetFocus?.(data); // Notify parent (Banner)
-  };
+  // const handleFocus = (data, elRef) => {
+  //   internalOnAssetFocus(data, elRef);
+  //   onAssetFocus?.(data); // Notify parent (Banner)
+  // };
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
@@ -90,7 +94,8 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, onAssetFocus
                 image={item.webThumbnail}
                 data={item}
                 onEnterPress={onAssetPress}
-                onFocus={handleFocus}
+                onFocus={onAssetFocus}
+                setAssetData={setAssetData}
               />
             ))}
           </div>
@@ -100,23 +105,23 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, onAssetFocus
   );
 };
 
-const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus }) => {
+const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, setData, isLoading, setIsLoading,setAssetData }) => {
   const {
     ref,
     focusKey,
     onRowFocus,
     onAssetPress,
-    data,
+    data : movieRowsData,
     loadMoreRef,
-    isLoading,
-  } = useMovieHomePage(focusKeyParam, history);
+    isLoading : loadingSpinner,
+  } = useMovieHomePage(focusKeyParam, history, data, setData, isLoading, setIsLoading);
 
   return (
     <FocusContext.Provider value={focusKey}>
       <div className="ContentWrapper">
         <div className="ContentRow" ref={ref}>
-          {data.map((item, index) => {
-            const isThirdLast = index === data.length - 3;
+          {movieRowsData && movieRowsData.map((item, index) => {
+            const isThirdLast = index === movieRowsData.length - 3;
             return (
               <div key={item.playlistId} ref={isThirdLast ? loadMoreRef : null}>
                 <ContentRow
@@ -125,11 +130,12 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus }) => {
                   data={item.playlistItems}
                   onAssetPress={onAssetPress}
                   onAssetFocus = {onAssetFocus}
+                  setAssetData={setAssetData}
                 />
               </div>
             );
           })}
-          {isLoading && (
+          {loadingSpinner && (
             <div className="spinner-container">
               <div className="spinner" />
             </div>
@@ -149,15 +155,28 @@ const ContentWithBanner = () =>{
     currentFocusKey,
     hasFocusedChild,
     handleAssetFocus,
-    focusedAssetData
+    focusedAssetData,
+    data,
+    setData,
+    isLoading,
+    setIsLoading,
+    banners,
+    setAssetData
   } = useContentWithBanner('',onHeaderFocus)
 
   return (
   <FocusContext.Provider value={currentFocusKey}>
   <div ref = {ref} className="content-with-banner">
 
-    <Banner data={focusedAssetData} />
-    <Content onAssetFocus={handleAssetFocus} />
+    <Banner data={focusedAssetData} banners={banners} />
+    <Content 
+      onAssetFocus={handleAssetFocus} 
+      data={data} 
+      setData={setData} 
+      isLoading={isLoading} 
+      setIsLoading={setIsLoading}
+      setAssetData={setAssetData} 
+      />
     </div>
     </FocusContext.Provider>)
 }
