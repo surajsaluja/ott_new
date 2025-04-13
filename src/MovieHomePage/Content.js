@@ -161,7 +161,7 @@ const ContentWithBanner = () =>{
     isLoading,
     setIsLoading,
     banners,
-    setAssetData
+    setFocusedAssetData
   } = useContentWithBanner('',onHeaderFocus)
 
   return (
@@ -175,7 +175,7 @@ const ContentWithBanner = () =>{
       setData={setData} 
       isLoading={isLoading} 
       setIsLoading={setIsLoading}
-      setAssetData={setAssetData} 
+      setAssetData={setFocusedAssetData} 
       />
     </div>
     </FocusContext.Provider>)

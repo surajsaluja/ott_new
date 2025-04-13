@@ -1,48 +1,53 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import './index.css';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
-  const videoRef = useRef(null);
+  const [videoElement, setVideoElement] = useState(null);
   const [showOverlay, setShowOverlay] = useState(true);
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(false);
+
+  const videoRef = useCallback((node) => {
+    if (node !== null) {
+      setVideoElement(node);
+    }
+  }, []);
 
   useEffect(() => {
-    setShowBanner(!asset);
+    setShowBanner(asset == null);
   }, [asset]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!asset?.trailerUrl || !video) return;
+    if (!asset?.trailerUrl || !videoElement) return;
 
     let hls;
 
-    const onLoadedData = () => video.play();
+    const onLoadedData = () => videoElement.play();
     const onPlaying = () => {};
     const onEnded = () => {};
 
-    video.pause();
-    video.src = '';
+    videoElement.pause();
+    videoElement.src = '';
 
-    video.addEventListener('loadeddata', onLoadedData);
-    video.addEventListener('playing', onPlaying);
-    video.addEventListener('ended', onEnded);
+    videoElement.addEventListener('loadeddata', onLoadedData);
+    videoElement.addEventListener('playing', onPlaying);
+    videoElement.addEventListener('ended', onEnded);
 
     if (Hls.isSupported()) {
       hls = new Hls();
       hls.loadSource(asset.trailerUrl);
-      hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = asset.trailerUrl;
+      hls.attachMedia(videoElement);
+    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      videoElement.src = asset.trailerUrl;
     }
 
     return () => {
-      video.removeEventListener('loadeddata', onLoadedData);
-      video.removeEventListener('playing', onPlaying);
-      video.removeEventListener('ended', onEnded);
+      videoElement.removeEventListener('loadeddata', onLoadedData);
+      videoElement.removeEventListener('playing', onPlaying);
+      videoElement.removeEventListener('ended', onEnded);
       if (hls) hls.destroy();
     };
-  }, [asset?.trailerUrl]);
+  }, [asset?.trailerUrl, videoElement]);
 
   if (!asset && banners.length === 0) return null;
 
@@ -67,6 +72,59 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     return <img src={asset?.fullPageBanner} className="banner-video" />;
   };
 
+  const renderMediaDetails = () =>{
+    let mediaTitle = '';
+    let title  = '';
+    let releasedYear = '';
+    let ageRangeId  = '';
+    let shortDescription  = '';
+    let duration  = '';
+    let genre  = '';
+    let rating  = '';
+    let isWatchTrailerButton = false;
+    let isPlayButton = false;
+
+    if(showBanner && banners.length > 0){
+        title  = banners[0].title;
+        mediaTitle = banners[0].mediaTitle;
+        releasedYear = banners[0].releasedYear;
+        ageRangeId = banners[0].ageRangeId;
+        shortDescription = banners[0].shortDescription;
+        duration = banners[0].duration;
+        genre = banners[0].genre;
+        rating = banners[0].rating;
+        isWatchTrailerButton = banners[0].isWatchTrailerButton;
+        isPlayButton = banners[0].isPlayButton;
+    }
+
+    if(asset){
+        title  = asset.title;
+        mediaTitle = asset.mediaTitle;
+        releasedYear = asset.releasedYear;
+        ageRangeId = asset.ageRangeId;
+        shortDescription = asset.shortDescription;
+        duration = asset.duration;
+        genre = asset.genre;
+        rating = asset.rating;
+        isWatchTrailerButton = false;
+        isPlayButton = false;
+    }
+
+    return(<div className="asset-info">
+              <h1 className="title">{title}</h1>
+        <div className="tags">
+          <span>{releasedYear}</span>
+          <span>{rating}</span>
+          <span>{duration}</span>
+          <span>{ageRangeId}</span>
+        </div>
+        <p className="description">{shortDescription}</p>
+        <div className="genres">
+          {genre}
+        </div>
+        </div>)
+  }
+
   return (
     <div className="top-banner">
       <div className="banner-video-container">
@@ -74,13 +132,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
         {showOverlay && (
           <div className="banner-overlay">
             <div className="banner-gradient" />
-            <div className="asset-info">
-              {/* Optionally render logo/title/description */}
-              <div className="asset-buttons">
-                <button className="play-btn">▶ Play</button>
-                <button className="info-btn">ℹ More Info</button>
-              </div>
-            </div>
+            {renderMediaDetails()}
           </div>
         )}
       </div>
