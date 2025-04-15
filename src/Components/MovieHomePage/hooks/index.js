@@ -150,7 +150,7 @@ export const useContentWithBanner  = (focusKey, onFocus) =>{
       } = useFocusable({
         focusKey,
         trackChildren: true,
-        saveLastFocusedChild: true,
+        saveLastFocusedChild: false,
         onFocus,
       });
       

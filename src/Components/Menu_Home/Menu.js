@@ -6,7 +6,7 @@ import './Menu.css';
 // import { withRouter } from 'react-router-dom';
 function Menu({ focusKey, Menu, location, history }) {   
 
-    const { menuItems, loading,focusSelf, onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus, getIconComponent } = useMenu(focusKey);
+    const { menuItems, loading,focusSelf, selectedMenu,onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus, getIconComponent } = useMenu(focusKey);
     const logo = require('../../assets/images/KableoneretailLogo.webp');
 
     useEffect(()=>{
@@ -24,7 +24,7 @@ function Menu({ focusKey, Menu, location, history }) {
                     <FocusableButton
                     key={item.id}
                     text={hasFocusedChild ? item.text : ''}
-                    className='menuItem'
+                    className={`menuItem ${selectedMenu == item.id ? 'selected' : ''}`}
                     focusClass='menuItem_focused'
                     onFocus={onMenuFocus}
                     icon={getIconComponent(item)}
