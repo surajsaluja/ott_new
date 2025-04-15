@@ -1,4 +1,4 @@
-const  BASE_URL = `https://testapi.kableone.com/Api`;
+const  BASE_URL = `https://liveapi.kableone.com/Api`;
 export const API = {
     AUTH:{
         // login to TV using OTP
@@ -21,5 +21,8 @@ export const API = {
     MOVIEDETAIL:{
         GET_MOVIE_DETAILS:(mediaId,userTokenId)=>`${BASE_URL}/Media/GetMediaDetailsV2/${mediaId ?? 0}/${userTokenId ?? 0}`,
         GET_MEDIA_RELATED_ITEMS:(mediaId, languageCode, userTokenId, page, pageSize)=>`${BASE_URL}/Media/GetRelatedItemsV2/${mediaId}/${languageCode ?? 1}/${userTokenId ?? 0}/${page ?? 1}/${pageSize ?? 10}`
+    },
+    MENU:{
+        GET_APP_FEATURES:`${BASE_URL}/AdminApi/GetAppFeatures`
     }
 }

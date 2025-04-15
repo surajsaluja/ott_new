@@ -1,12 +1,37 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
+import FocusableButton from '../FocusableButton/FocusableButton'
+import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
+import { GiVibratingShield } from "react-icons/gi";
 import './index.css';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
   const [videoElement, setVideoElement] = useState(null);
   const [showOverlay, setShowOverlay] = useState(true);
   const [showBanner, setShowBanner] = useState(false);
-
+  const formatTime = (time) => {
+    const [h, m, s] = time?.split(':').map(Number);
+  
+    const styles = {
+      grey: {
+        color: 'grey',
+      },
+      white: {
+        color: 'white',
+      },
+    };
+  
+    const pad = (num) => String(num).padStart(2, '0');
+  
+    return (
+      <label>
+        <label style={h > 0 ? styles.white : styles.grey}>{pad(h)}:</label>
+        <label style={(h > 0) ||( m > 0) ? styles.white : styles.grey}>{pad(m)}:</label>
+        <label style={(h > 0) || (m >0) ||( s > 0) ? styles.white : styles.grey}>{pad(s)}</label>
+      </label>
+    );
+  };
+  
   const videoRef = useCallback((node) => {
     if (node !== null) {
       setVideoElement(node);
@@ -85,7 +110,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     let isPlayButton = false;
 
     if(showBanner && banners.length > 0){
-        title  = banners[0].title;
+        title  = banners[0].mediaTitle;
         mediaTitle = banners[0].mediaTitle;
         releasedYear = banners[0].releasedYear;
         ageRangeId = banners[0].ageRangeId;
@@ -113,14 +138,20 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     return(<div className="asset-info">
               <h1 className="title">{title}</h1>
         <div className="tags">
-          <span>{releasedYear}</span>
-          <span>{rating}</span>
-          <span>{duration}</span>
-          <span>{ageRangeId}</span>
+          {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>}
+          {rating &&  <span><i><MdStarRate /></i>{rating}</span>}
+          {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>}
+          {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>}
         </div>
         <p className="description">{shortDescription}</p>
         <div className="genres">
-          {genre}
+        {genre && genre.split(',').map((genre, idx) => (
+            <span key={idx} className="genre">{genre}</span>
+          ))}
+        </div>
+        <div className='asset-buttons'>
+          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'}/>}
+          {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play Movie'}/>}
         </div>
         </div>)
   }

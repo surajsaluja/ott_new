@@ -49,8 +49,8 @@
   border-width: 0.2em;
   border-color: transparent;
   border-style: solid;
-  border-radius: 1.3em;
-  padding: 0.3em;
+  border-radius: 0.5em;
+  padding: 0.2em;
   box-sizing: border-box;
 }
 
@@ -61,7 +61,7 @@
 .card {
   width: 15em;
   height: 100%;
-  border-radius: 1em;
+  border-radius: 0.3em;
   overflow: hidden;
   background: #fff;
   box-sizing: border-box;

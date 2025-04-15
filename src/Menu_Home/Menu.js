@@ -1,38 +1,22 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import FocusableButton from '../FocusableButton/FocusableButton'
+import useMenu from './Hooks/useMenu';
 import './Menu.css';
 // import { withRouter } from 'react-router-dom';
 function Menu({ focusKey, Menu, location, history }) {   
 
-    const { ref, focusKey: currentFocusKey, hasFocusedChild } = useFocusable({
-        focusable: true,
-        trackChildren: true,
-        focusKey,
-        saveLastFocusedChild: true
-    });
-
-    const menuScrollingRef = useRef(null);
-
-    const onMenuFocus  = useCallback((({y})=>{
-        menuScrollingRef.current.scrollTo({
-            top: y - 20,
-            behavior: 'smooth'
-        });
-    }),[menuScrollingRef]);
-
-    const onMenuEnterPress = () =>{
-       // history.push("/search",{});
-    }
+    const { menuItems, loading, selectedMenu, onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus } = useMenu(focusKey);
+    debugger;
 
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className={`menuContainer ${hasFocusedChild ? 'menuContainer_focused' : ''}`}>
                 <div className={`menuScrollingWrapper`} ref={menuScrollingRef}>
-                    {Menu.map((item)=>(
+                    {menuItems.map((item)=>(
                     <FocusableButton
                     key={item.id}
-                    text={item.label}
+                    text={item.text}
                     className='menuItem'
                     focusClass='menuItem_focused'
                     onFocus={onMenuFocus}

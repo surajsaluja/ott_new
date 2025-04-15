@@ -39,7 +39,7 @@
   
   .asset-info {
     color: white;
-    max-width: 600px;
+    max-width: 450px;
     z-index: 10;
     position: absolute;
   }
@@ -62,10 +62,12 @@
   
   .asset-buttons {
     margin-top: 1rem;
-  }
+    max-width: 300px;
+    display: flex;
+    }
   
   .play-btn,
-  .info-btn {
+  .trailer-btn {
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
     border: none;
@@ -74,11 +76,16 @@
     cursor: pointer;
     font-size: 1rem;
     border-radius: 5px;
+    border-color: transparent;
+    border-width: 2px;
+    border-style: solid;
+    max-width: 100px;
   }
   
-  .play-btn:hover,
-  .info-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+  .play-btn-focus,
+  .trailer-btn-focus {
+    background-color: rgba(255, 0, 0, 0.412);
+    border-color: azure;
   }
   
   .banner-gradient{
@@ -99,7 +106,7 @@
 
   .title {
     font-size: 2rem;
-    color: #ff4081;
+    color: white;
     margin-bottom: 10px;
   }
   
@@ -108,12 +115,28 @@
     background: #333;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+  }
+
+  .tags span i{
+    margin: 0 2px 0 0; 
+    display: flex;
   }
   
   .description {
-    margin: 10px 0;
     line-height: 1.5;
+    font-size: 1.2em;
+    font-weight: 400;
+    margin: 1em 0;
+    margin: 1em 0;
+    height: 115px;
+    text-overflow: ellipsis;
+    text-wrap: wrap;
+    overflow: hidden;
   }
   
   .genres {
@@ -126,5 +149,6 @@
     background: #222;
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 700;
   }
