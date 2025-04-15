@@ -2,7 +2,7 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { getProcessedPlaylists, useThrottle, useUser, getProcessedPlaylistsWithContinueWatch } from "../../../Hooks/Common";
-import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../Service/MovieHomePageService";
+import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../../../Service";
 
 
 const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setIsLoading) => {
