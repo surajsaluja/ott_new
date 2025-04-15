@@ -1,6 +1,6 @@
 // services/homePageService.js
-import { fetchData } from "../../Api/apiService";
-import { API } from "../../Api/constants";
+import { fetchData } from "../../../Api/apiService";
+import { API } from "../../../Api/constants";
 
 export const fetchHomePageData = async (userId) => {
   const response = await fetchData(API.HOMEPAGE.GET_HOMEPAGE_DATA(userId));

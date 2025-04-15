@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
-import FocusableButton from '../FocusableButton/FocusableButton'
+import FocusableButton from '../Common/FocusableButton/FocusableButton'
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import './index.css';

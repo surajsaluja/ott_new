@@ -1,7 +1,7 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
-import { getProcessedPlaylists, useThrottle, useUser, getProcessedPlaylistsWithContinueWatch } from "../../Common";
+import { getProcessedPlaylists, useThrottle, useUser, getProcessedPlaylistsWithContinueWatch } from "../../../Hooks/Common";
 import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../Service/MovieHomePageService";
 
 
@@ -85,7 +85,7 @@ const useContentRow = (focusKey, onFocus) => {
   const scrollingRowRef = useRef(null);
 
 const onAssetFocus = useCallback(
-    (assetData, element) => {
+    (element) => {
       if (element && scrollingRowRef.current) {
         const parentRect = scrollingRowRef.current.getBoundingClientRect();
         const elementRect = element.getBoundingClientRect();

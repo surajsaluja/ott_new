@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { fetchAppFeatures } from "../Service/MenuService";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import * as MdIcons from 'react-icons/md'
+import { IoTv,IoTvOutline,IoHeartOutline,IoHeartSharp, IoSearchOutline,IoSearchSharp  } from "react-icons/io5";
+import { RiMovie2Line, RiMovie2Fill } from "react-icons/ri";
 
 const useMenu = (focusKey) => {
   const [menuItems, setMenuItems] = useState([]);
@@ -19,8 +22,8 @@ const useMenu = (focusKey) => {
     {
       id: 2,
       text: "MOVIES",
-      iconOutline: "MdOutlineHome",
-      iconFill: "MdHome",
+      iconOutline: "RiMovie2Line",
+      iconFill: "RiMovie2Fill",
       permission: "isVODEnabled",
       redirect: "/movies",
     },
@@ -51,8 +54,8 @@ const useMenu = (focusKey) => {
     {
       id: 6,
       text: "SEARCH",
-      iconOutline: "MdOutlineSearch",
-      iconFill: "MdOutlineSearch",
+      iconOutline: "IoSearchOutline",
+      iconFill: "IoSearchSharp",
       permission: "isVODEnabled",
       redirect: "/search",
     },
@@ -74,7 +77,7 @@ const useMenu = (focusKey) => {
     },
   ];
 
-  const { ref, focusKey: currentFocusKey, hasFocusedChild } = useFocusable({
+  const { ref, focusKey: currentFocusKey, hasFocusedChild, focusSelf } = useFocusable({
           focusable: true,
           trackChildren: true,
           focusKey,
@@ -90,9 +93,9 @@ const useMenu = (focusKey) => {
           });
       }),[menuScrollingRef]);
   
-      const onMenuEnterPress = (item) =>{
+      const onMenuEnterPress = useCallback((item) => {
         setSelectedMenu(item.id);
-      }
+      }, []);
 
   const getAppFeatures = async () => {
     try {
@@ -109,11 +112,18 @@ const useMenu = (focusKey) => {
     }
   };
 
+  const getIconComponent  = (item) =>{
+    const IconKey =  item.id == selectedMenu ? item.iconFill : item.iconOutline;
+    const allIcons = {...MdIcons, IoTv, IoTvOutline,IoHeartOutline,IoHeartSharp,IoSearchOutline,IoSearchSharp,RiMovie2Fill,RiMovie2Line};
+    const IconComp = allIcons[IconKey];
+    return IconComp ? <IconComp /> : null
+  }
+
   useEffect(() => {
     getAppFeatures();
   }, []);
 
-  return { menuItems, loading, selectedMenu, onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus };
+  return { menuItems, loading, focusSelf, selectedMenu, onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus, getIconComponent };
 };
 
 export default useMenu;

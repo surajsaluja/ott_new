@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import './App.css';
-import MovieHomePage from './MovieHomePage';
+import MovieHomePage from './Components/MovieHomePage';
 import { init} from '@noriginmedia/norigin-spatial-navigation';
 
 init({
