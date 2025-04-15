@@ -12,7 +12,7 @@ init({
 });
 
 function App() {
-
+  
 return (<div className='App'>
    <MovieHomePage />
    <ToastContainer position="top-right" autoClose={3000} />

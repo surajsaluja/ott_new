@@ -1,5 +1,7 @@
 import React,{useRef, useState} from "react";
-
+import { toast } from "react-toastify";
+import { fetchApiKey } from "../../Service";
+import useAuth from '../useAuth'
 export const getResizedOptimizedImage = (url, width, height) =>{
     if(width && height)
         return url + "?im=Resize,width=" + width + ",height=" + height;
@@ -105,6 +107,3 @@ export const useUser = () => {
     setDetails,
   };
 };
-
-
-

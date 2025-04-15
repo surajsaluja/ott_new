@@ -1,9 +1,51 @@
-import { fetchData } from "../Api/apiService";
+import { fetchData, postData } from "../Api/apiService";
 import { API } from "../Api/constants";
 import { toast } from "react-toastify";
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_PLAYLIST_TYPE = "Home";
+
+// AUTH 
+export const fetchApiKey = async () => {
+  try{
+    const response = await fetchData(API.AUTH.GET_APIKEY);
+    if(response?.data && response?.data?.isSuccess){
+      const res = response?.data?.data;
+      let apiKey = res?.apiKey;
+      let appIdleTime = res?.appIdleTime;
+      let minVersion = res?.minVersions?.result?.data?.min_tizen;
+      return {
+        apiKey,
+        appIdleTime,
+        minVersion
+      }
+    }else{
+      toast.error('Api Data Not Found, GET_APIKEY')
+    }
+  }catch (error){
+    console.error("Error fetching app features:", error);
+    toast.error("Failed to load app features");
+  }
+}
+
+export const getUserAccountStatusV2 = async (data, options={}) =>{
+  try{
+  const response  = await postData(API.AUTH.POST_USERACCOUNT_STATUS,data,options)
+  return response.data || null;
+  }
+  catch(error){
+    toast.error('Error getting user Account Status');
+  }
+}
+
+export const getUserSubscriptionStatus = async (data,options={}) => {
+  try {
+    const response = await postData(API.AUTH.POST_APPSESSION, data, options);
+    return response.data || null
+} catch (error) {
+    toast.error('Error getting Subscription Status');
+}
+}
 
 // Menu
 export const fetchAppFeatures = async () => {
