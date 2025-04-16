@@ -1,8 +1,7 @@
-// network/apiClient.js
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://your-api-base-url.com/api',
+  baseURL: 'https://testapi.kableone.com/Api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -13,7 +12,15 @@ const apiClient = axios.create({
 // Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    config.headers.ApiKey = 'KableONE@74#'
+    if(!config?.requireApiKey)
+    {
+    let storedApiKey = localStorage.getItem('apiKey');
+    if(!storedApiKey)
+    {
+     console.log('apiKey not Set'); 
+    }
+    config.headers.ApiKey = storedApiKey;
+  }
     // You can attach tokens here
     // const token = localStorage.getItem('token');
     // if (token) config.headers.Authorization = `Bearer ${token}`;

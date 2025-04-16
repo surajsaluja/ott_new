@@ -1,20 +1,20 @@
 const getDeviceId = () => {
-    if (webapis && typeof webapis !== 'undefined' && webapis.appcommon) {
-        return webapis.appcommon.getUuid();
+    if (window.webapis && typeof window.webapis !== 'undefined' && window.webapis.appcommon) {
+        return window.webapis.appcommon.getUuid();
     }
     return 'unknown-device-id';
 };
 
 const getDeviceName = () => {
-    if (webapis && typeof webapis !== 'undefined' && webapis.productinfo) {
-        return webapis.productinfo.getModel();
+    if (window.webapis && typeof window.webapis !== 'undefined' && window.webapis.productinfo) {
+        return window.webapis.productinfo.getModel();
     }
     return 'unknown-device';
 };
 
 const getDeviceOS = () => {
-    if (webapis && typeof webapis !== 'undefined' && webapis.appcommon) {
-        return webapis.appcommon.getVersion();
+    if (window.webapis && typeof window.webapis !== 'undefined' && window.webapis.appcommon) {
+        return window.webapis.appcommon.getVersion();
     }
     return 'unknown-device-id';
 }
@@ -23,9 +23,9 @@ const getDeviceOS = () => {
 
 export const getDeviceInfo = () => {
     const deviceInfo = {
-        deviceId: getDeviceId,
-        deviceName: getDeviceName,
-        deviceOS: getDeviceOS
+        deviceId: getDeviceId(),
+        deviceName: getDeviceName(),
+        deviceOS: getDeviceOS()
     }
     return deviceInfo;
 }

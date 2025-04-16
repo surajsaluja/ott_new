@@ -8,9 +8,9 @@ const DEFAULT_PLAYLIST_TYPE = "Home";
 // AUTH 
 export const fetchApiKey = async () => {
   try{
-    const response = await fetchData(API.AUTH.GET_APIKEY);
-    if(response?.data && response?.data?.isSuccess){
-      const res = response?.data?.data;
+    const response = await fetchData(API.AUTH.GET_APIKEY,{requireApiKey: false});
+    if(response && response?.isSuccess){
+      const res = response?.data;
       let apiKey = res?.apiKey;
       let appIdleTime = res?.appIdleTime;
       let minVersion = res?.minVersions?.result?.data?.min_tizen;
@@ -45,6 +45,24 @@ export const getUserSubscriptionStatus = async (data,options={}) => {
 } catch (error) {
     toast.error('Error getting Subscription Status');
 }
+}
+
+export const LoginTv = async (data,options={}) =>{
+  try{
+    const response = await postData(API.AUTH.LOGIN,data,options);
+    return response;
+  } catch(error){
+    toast.error('Error Loginng in User');
+  }
+}
+
+export const fetchUserProfile = async (data,options={}) =>{
+ try{
+  const response = await postData(API.AUTH.GET_USER_PROFILE,data,options);
+  return response || {};
+ } catch(error){
+  toast.error('Error fetching user profile');
+ }
 }
 
 // Menu
