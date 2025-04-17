@@ -6,7 +6,8 @@ export const API = {
         GET_APIKEY: '/Account/GetApikeyV2',
         GET_USERACTIVE_INDICATOR: '/User/GetUserActiveIndicator',
         POST_LOGOUT_DEVICE: '/Account/LogoutDevice',
-        GET_USER_PROFILE: '/LiveTV/Profile'
+        GET_USER_PROFILE: '/LiveTV/Profile',
+        GET_USER_SUBSCRIPTION_STATUS: '/User/GetSubscriptionStatus'
     },
     HOMEPAGE: {
         GET_HOMEPAGE_DATA: (userId) =>

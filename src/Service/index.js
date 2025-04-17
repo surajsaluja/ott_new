@@ -31,17 +31,17 @@ export const fetchApiKey = async () => {
 export const getUserAccountStatusV2 = async (data, options={}) =>{
   try{
   const response  = await postData(API.AUTH.POST_USERACCOUNT_STATUS,data,options)
-  return response.data || null;
+  return response || null;
   }
   catch(error){
     toast.error('Error getting user Account Status');
   }
 }
 
-export const getUserSubscriptionStatus = async (data,options={}) => {
+export const getUserAppSession = async (data,options={}) => {
   try {
     const response = await postData(API.AUTH.POST_APPSESSION, data, options);
-    return response.data || null
+    return response || null
 } catch (error) {
     toast.error('Error getting Subscription Status');
 }
@@ -56,6 +56,15 @@ export const LoginTv = async (data,options={}) =>{
   }
 }
 
+export const LogoutTV = async(data,options ={}) =>{
+  try{
+    const response = await postData(API.AUTH.POST_LOGOUT_DEVICE,data,options);
+    return response;
+  } catch(error){
+    toast.error('Error Logout TV');
+  }
+}
+
 export const fetchUserProfile = async (data,options={}) =>{
  try{
   const response = await postData(API.AUTH.GET_USER_PROFILE,data,options);
@@ -63,6 +72,15 @@ export const fetchUserProfile = async (data,options={}) =>{
  } catch(error){
   toast.error('Error fetching user profile');
  }
+}
+
+export const fetchUserSubscriptionStatus = async (options={}) =>{
+  try{
+    const response = await fetchData(API.AUTH.GET_USER_SUBSCRIPTION_STATUS,options);
+    return response || {};
+   } catch(error){
+    toast.error('Error fetching user profile');
+   }
 }
 
 // Menu

@@ -5,24 +5,21 @@ const apiClient = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*'
   },
 });
 
 // Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    if(!config?.requireApiKey)
-    {
-    let storedApiKey = localStorage.getItem('apiKey');
-    if(!storedApiKey)
-    {
-     console.log('apiKey not Set'); 
+    if (!config?.requireApiKey) {
+      let storedApiKey = localStorage.getItem('apiKey');
+      if (!storedApiKey) {
+        console.log('apiKey not Set');
+      }
+      config.headers.ApiKey = storedApiKey;
     }
-    config.headers.ApiKey = storedApiKey;
-  }
     // You can attach tokens here
-    // const token = localStorage.getItem('token');
     // if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },

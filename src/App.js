@@ -6,6 +6,7 @@ import useAuth from './Hooks/useAuth';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoginScreen from './Components/Login/LoginScreen';
+import Menu from './Components/Menu_Home/Menu';
 
 init({
   debug: false,
@@ -28,7 +29,9 @@ function App() {
   }
 
 return (<div className='App'>
-   <LoginScreen/>
+  {/* <MovieHomePage /> */}
+  <LoginScreen />
+  {/* <Menu /> */}
    <ToastContainer position="top-right" autoClose={3000} />
 </div>)
 }

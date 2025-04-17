@@ -1,9 +1,7 @@
 import React,{useRef, useState} from "react";
-import { toast } from "react-toastify";
-import { fetchApiKey } from "../../Service";
-import useAuth from '../useAuth'
+
 export const getResizedOptimizedImage = (url, width, height) =>{
-    if(width && height)
+  if(width && height)
         return url + "?im=Resize,width=" + width + ",height=" + height;
     else if(width && !height)
         return url + "?im=Resize,width=" + width;
@@ -90,20 +88,3 @@ export const getProcessedPlaylistsWithContinueWatch = (playlist, continueWatchDa
 
   return playlist;
 }
-
-export const useUser = () => {
-  const [userDetails, setUserDetails] = useState({});
-
-  const getDetails = () => {
-    return Object.keys(userDetails).length ? userDetails : false;
-  };
-
-  const setDetails = (details) => {
-    setUserDetails(details);
-  };
-
-  return {
-    getDetails,
-    setDetails,
-  };
-};

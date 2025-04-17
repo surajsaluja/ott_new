@@ -1,9 +1,9 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
-import { getProcessedPlaylists, useThrottle, useUser, getProcessedPlaylistsWithContinueWatch } from "../../../Hooks/Common";
+import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Hooks/Common";
 import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../../../Service";
-
+import { useUserContext } from "../../../Context/userContext";
 
 const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setIsLoading) => {
     const { ref, focusKey } = useFocusable({
@@ -159,7 +159,7 @@ export const useContentWithBanner  = (focusKey, onFocus) =>{
       const [isLoading, setIsLoading] = useState(false);
       const [banners, setBanners] = useState([]);
       const horizontalLimit = 10;
-      const {getDetails : user } = useUser();
+      const {profileInfo,uid,isLoggedIn} = useUserContext();
 
       useEffect(() => {
         loadInitialData();
@@ -168,11 +168,11 @@ export const useContentWithBanner  = (focusKey, onFocus) =>{
       const loadInitialData = async () => {
         setIsLoading(true);
         try {
-          const raw = await fetchHomePageData(user ? user.userId : 0);
+          const raw = await fetchHomePageData(isLoggedIn ? uid : 0);
           let processed = getProcessedPlaylists(raw.playlists, horizontalLimit);
           setBanners(raw.banners);
-          if(user && user.isUserLoggedIn){
-            const continueWatchlistData = await fetchContinueWatchingData(user.userId);
+          if(isLoggedIn && uid){
+            const continueWatchlistData = await fetchContinueWatchingData(isLoggedIn ? uid : 0);
             processed = getProcessedPlaylistsWithContinueWatch(processed, continueWatchlistData);
           }
           setData(processed);

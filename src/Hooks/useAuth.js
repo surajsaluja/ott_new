@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { fetchApiKey, getUserSubscriptionStatus, getUserAccountStatusV2} from "../Service";
-import { getDeviceInfo } from "../Utils";
+import { fetchApiKey} from "../Service";
+import { useUserContext } from "../Context/userContext";
 
 const useAuth = () => {
-
-    const deviceInfo = getDeviceInfo();
+    
     const [apiKey, setApiKey] = useState();
-    const[IsLoadingSession,setIsLoadingSession] = useState(true); 
+    const[IsLoadingSession,setIsLoadingSession] = useState(true);
+    const {logout,startAppSession,getUserAccountStatus} = useUserContext(); 
     useEffect(() => {
         const fetchAndSetApiKey = async () => {
             setIsLoadingSession(true);
@@ -30,8 +30,6 @@ const useAuth = () => {
         };
         fetchAndSetApiKey();
     }, []);
-
-
 
     const checkAppVersion = (minVersion) => {
         let tizen = window.tizen;
@@ -69,60 +67,18 @@ const useAuth = () => {
         }
     };
 
-    const getAppSession = async () => {
-
-        const appStartTime = new Date();
-        const data = {
-            TokenId: localStorage.getItem('token'),
-            StartTime: appStartTime,
-            DeviceId: deviceInfo.deviceId,
-            DeviceName: deviceInfo.deviceName,
-            DeviceType: 5
-        };
-
-        const appSessionData = await getUserSubscriptionStatus(data);
-        if (appSessionData && appSessionData.appSessionId) {
-            localStorage.setItem('appSessionId', appSessionData.appSessionId);
-
-        }
-    };
-
-    const getUserAccountStatus = async () => {
-        let jwttoken = localStorage.getItem('jwttoken')?.replace(/^"(.*)"$/, '$1').replace('Bearer ', '');
-        const uid = localStorage.getItem('uid');
-
-        const data = {
-            token: jwttoken,
-            userId: uid,
-            deviceId: deviceInfo.deviceId
-        };
-
-        try {
-            const response = await getUserAccountStatusV2(data);
-
-            const responseData = response.data.data;
-            if (responseData?.token) {
-                localStorage.setItem('jwttoken', JSON.stringify(responseData.token));
-            }
-
-            if (!responseData?.isactive) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('profileData');
-            }
-        } catch (error) {
-            alert('Something went wrong while validating user status');
-            console.error(error);
-        }
-    };
-
-    const fetchApiKeyAndSetSession = () => {
-        const token = localStorage.getItem("token");
+    const fetchApiKeyAndSetSession = async () => {
+        try{
+        const token = localStorage.getItem("tokenId");
         if (token) {
-            getAppSession();
-            getUserAccountStatus();
+            await startAppSession();
+            await getUserAccountStatus();
         } else {
-            console.warn("No token found in localStorage, skipping session and account status check.");
+            logout();
         }
+    }catch(error){
+        console.log(error);
+    }
     }
 
     return {

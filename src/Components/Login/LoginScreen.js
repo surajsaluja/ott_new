@@ -1,49 +1,69 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useUserContext } from '../../Context/userContext';
+import FocusableButton from '../Common/FocusableButton/FocusableButton';
+import {
+  FocusContext,
+  useFocusable,
+} from '@noriginmedia/norigin-spatial-navigation';
+import './LoginScreen.css';
 
 const LoginScreen = () => {
   const OTP_LENGTH = 6;
   const [otpValues, setOtpValues] = useState(Array(OTP_LENGTH).fill(''));
+  const [selectedInputIndex, setSelectedInputIndex] = useState(0);
   const inputRefs = useRef([]);
   const [alertMsg, setAlertMsg] = useState('');
   const [isSubmittingOTP, setIsSubmittingOTP] = useState(false);
-  const { handleOTPLogin } = useUserContext();
+  const { handleOTPLogin, isLoggedIn, logout } = useUserContext();
+  const { ref, focusSelf } = useFocusable({ focusKey: 'LOGIN_KEYPAD' });
 
   useEffect(() => {
-    inputRefs.current[0]?.focus();
+    focusSelf();
   }, []);
 
-  const handleOtpChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return;
-    const newOtp = [...otpValues];
-    newOtp[index] = value;
-    setOtpValues(newOtp);
-    setAlertMsg('');
+  const handleDigitInput = (digit) => {
+    if (selectedInputIndex >= OTP_LENGTH) return;
 
-    if (value && index < OTP_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus();
+    const newOtp = [...otpValues];
+    newOtp[selectedInputIndex] = digit;
+    setOtpValues(newOtp);
+
+    const nextIndex = selectedInputIndex + 1;
+    setSelectedInputIndex(nextIndex);
+
+    if (nextIndex < OTP_LENGTH) {
+      inputRefs.current[nextIndex]?.focus();
+    }
+
+    if (nextIndex === OTP_LENGTH) {
+      const inputOTP = newOtp.join('');
+      submitOtpWithValue(inputOTP);
     }
   };
 
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key !== 'Backspace' && index === OTP_LENGTH - 1 && otpValues[index]) {
-      submitOtp();
-    }
+  const handleDelete = () => {
+    if (selectedInputIndex === 0) return;
+
+    const prevIndex = selectedInputIndex - 1;
+    const newOtp = [...otpValues];
+    newOtp[prevIndex] = '';
+    setOtpValues(newOtp);
+    setSelectedInputIndex(prevIndex);
+    inputRefs.current[prevIndex]?.focus();
   };
 
   const handlePaste = (e) => {
     const pasteData = e.clipboardData.getData('text').trim();
     if (/^\d+$/.test(pasteData) && pasteData.length === OTP_LENGTH) {
-      setOtpValues(pasteData.split(''));
+      const split = pasteData.split('');
+      setOtpValues(split);
+      setSelectedInputIndex(OTP_LENGTH);
       inputRefs.current[OTP_LENGTH - 1]?.focus();
+      submitOtpWithValue(pasteData);
     }
   };
 
-  const submitOtp = async () => {
-    const inputOTP = otpValues.join('');
+  const submitOtpWithValue = async (inputOTP) => {
     if (inputOTP.length !== OTP_LENGTH) {
       setAlertMsg(`Please enter a ${OTP_LENGTH}-digit OTP`);
       return;
@@ -57,6 +77,7 @@ const LoginScreen = () => {
       } else {
         setAlertMsg(response.message);
         setOtpValues(Array(OTP_LENGTH).fill(''));
+        setSelectedInputIndex(0);
         inputRefs.current[0]?.focus();
       }
     } catch (err) {
@@ -66,91 +87,68 @@ const LoginScreen = () => {
     }
   };
 
+  const submitOtp = () => {
+    const inputOTP = otpValues.join('');
+    submitOtpWithValue(inputOTP);
+  };
+
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Enter OTP</h2>
-      <div style={styles.otpGroup}>
+    <div className="login-container">
+      <h2 className="login-title">Enter OTP</h2>
+      <div className="otp-group">
         {otpValues.map((digit, index) => (
           <input
             key={index}
             type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             maxLength="1"
             value={digit}
-            onChange={(e) => handleOtpChange(index, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(index, e)}
-            onPaste={index === 0 ? handlePaste : undefined}
             ref={(ref) => (inputRefs.current[index] = ref)}
-            style={styles.otpInput}
+            onFocus={() => setSelectedInputIndex(index)}
+            onPaste={index === 0 ? handlePaste : undefined}
+            className="otp-input"
+            readOnly
           />
         ))}
       </div>
-      {alertMsg && <p style={styles.alert}>{alertMsg}</p>}
+
+      {alertMsg && <p className="alert-msg">{alertMsg}</p>}
+      <FocusContext.Provider value="LOGIN_KEYPAD">
+        <div className="keypad" ref={ref}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => (
+            <FocusableButton
+              key={num}
+              className="keypad-key"
+              focusClass='keypad-key-focus'
+              text={num}
+              onEnterPress={() => handleDigitInput(num.toString())}
+            />
+          ))}
+          <FocusableButton
+            className="keypad-key"
+             focusClass='keypad-key-focus'
+            text="⌫"
+            onEnterPress={handleDelete}
+          />
+        </div>
+      </FocusContext.Provider>
+
       <button
         onClick={submitOtp}
         disabled={isSubmittingOTP}
-        style={{
-          ...styles.button,
-          ...(isSubmittingOTP ? styles.buttonDisabled : {}),
-        }}
+        className={`submit-button ${isSubmittingOTP ? 'disabled' : ''}`}
       >
         {isSubmittingOTP ? 'Logging in...' : 'Login'}
       </button>
+
+      {isLoggedIn && (
+        <button onClick={logout} className="submit-button">
+          Logout
+        </button>
+      )}
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    background: '#121212',
-    color: '#fff',
-    padding: '2rem',
-  },
-  title: {
-    marginBottom: '1.5rem',
-    fontSize: '2rem',
-    fontWeight: 'bold',
-  },
-  otpGroup: {
-    display: 'flex',
-    gap: '1rem',
-    marginBottom: '1rem',
-  },
-  otpInput: {
-    width: '3rem',
-    height: '3.5rem',
-    fontSize: '2rem',
-    textAlign: 'center',
-    borderRadius: '8px',
-    border: '2px solid #ccc',
-    background: '#1e1e1e',
-    color: '#fff',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  alert: {
-    color: 'salmon',
-    marginBottom: '1rem',
-    fontSize: '0.9rem',
-  },
-  button: {
-    padding: '0.75rem 2rem',
-    fontSize: '1rem',
-    backgroundColor: '#2979ff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-  },
-  buttonDisabled: {
-    backgroundColor: '#555',
-    cursor: 'not-allowed',
-  },
 };
 
 export default LoginScreen;
