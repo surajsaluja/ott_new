@@ -3,11 +3,11 @@ import { FocusContext} from '@noriginmedia/norigin-spatial-navigation'
 import FocusableButton from '../Common/FocusableButton/FocusableButton'
 import useMenu from './Hooks/useMenu';
 import './Menu.css';
+import { kableOneLogo } from '../../assets';
 // import { withRouter } from 'react-router-dom';
 function Menu({ focusKey, Menu, location, history }) {   
 
     const { menuItems, loading,focusSelf, selectedMenu,onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus, getIconComponent } = useMenu(focusKey);
-    const logo = require('../../assets/images/KableoneretailLogo.webp');
 
     useEffect(()=>{
         focusSelf();
@@ -17,7 +17,7 @@ function Menu({ focusKey, Menu, location, history }) {
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className={`menuContainer ${hasFocusedChild ? 'menuContainer_focused' : ''}`}>
                 <div className='menu-logo-container'>
-                <img src={logo} className={hasFocusedChild ? 'menu-logo' : 'menu-logo-small'}></img>
+                <img src={kableOneLogo} className={hasFocusedChild ? 'menu-logo' : 'menu-logo-small'}></img>
                 </div>
                 <div className={`menuScrollingWrapper`} ref={menuScrollingRef}>
                     {menuItems.map((item)=>(
