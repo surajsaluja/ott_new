@@ -1,7 +1,7 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
-import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Hooks/Common";
+import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
 import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../../../Service";
 import { useUserContext } from "../../../Context/userContext";
 
