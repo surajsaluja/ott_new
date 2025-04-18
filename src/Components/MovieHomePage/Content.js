@@ -105,7 +105,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
   );
 };
 
-const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, setData, isLoading, setIsLoading,setAssetData }) => {
+const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, setData, isLoading, setIsLoading,setAssetData,loadMoreRows }) => {
   const {
     ref,
     focusKey,
@@ -114,7 +114,7 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, 
     data : movieRowsData,
     loadMoreRef,
     isLoading : loadingSpinner,
-  } = useMovieHomePage(focusKeyParam, history, data, setData, isLoading, setIsLoading);
+  } = useMovieHomePage(focusKeyParam, history, data, setData, isLoading, setIsLoading,loadMoreRows);
 
   return (
     <FocusContext.Provider value={focusKey}>
@@ -161,7 +161,8 @@ const ContentWithBanner = () =>{
     isLoading,
     setIsLoading,
     banners,
-    setFocusedAssetData
+    setFocusedAssetData,
+    loadMoreRows
   } = useContentWithBanner('',onHeaderFocus)
 
   return (
@@ -175,7 +176,8 @@ const ContentWithBanner = () =>{
       setData={setData} 
       isLoading={isLoading} 
       setIsLoading={setIsLoading}
-      setAssetData={setFocusedAssetData} 
+      setAssetData={setFocusedAssetData}
+      loadMoreRows={loadMoreRows} 
       />
     </div>
     </FocusContext.Provider>)

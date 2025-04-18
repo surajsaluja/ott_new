@@ -15,11 +15,11 @@ const useBanner = (asset, banners) => {
     const pad = (num) => String(num).padStart(2, "0");
 
     return (
-      <span>
-        <span style={h > 0 ? styles.white : styles.grey}>{pad(h)}:</span>
-        <span style={h > 0 || m > 0 ? styles.white : styles.grey}>{pad(m)}:</span>
-        <span style={h > 0 || m > 0 || s > 0 ? styles.white : styles.grey}>{pad(s)}</span>
-      </span>
+      <label>
+        <label style={h > 0 ? styles.white : styles.grey}>{pad(h)}:</label>
+        <label style={h > 0 || m > 0 ? styles.white : styles.grey}>{pad(m)}:</label>
+        <label style={h > 0 || m > 0 || s > 0 ? styles.white : styles.grey}>{pad(s)}</label>
+      </label>
     );
   };
 

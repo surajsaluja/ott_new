@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ContentWithBanner from "./Content";
-import Menu from "../Menu_Home";
+import Menu_Home from "../Menu_Home";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import './index.css'
 
@@ -14,7 +14,7 @@ const MovieHomePage = () =>{
 
 return (
     <div style={{flex:1, display: 'flex', width:'100%'}}>
-     <Menu focusKey='Menu_Abc' />
+     <Menu_Home focusKey='Menu_Abc' />
    <ContentWithBanner />
    </div>
 )
