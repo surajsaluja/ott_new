@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { FocusContext} from '@noriginmedia/norigin-spatial-navigation'
-import FocusableButton from '../Common/FocusableButton/FocusableButton'
+import FocusableButton from '../Common/FocusableButton'
 import useMenu from './Hooks/useMenu';
-import './Menu.css';
+import './index.css';
 import { kableOneLogo } from '../../assets';
 // import { withRouter } from 'react-router-dom';
 function Menu({ focusKey, Menu, location, history }) {   

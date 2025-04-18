@@ -1,80 +1,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
-import FocusableButton from '../Common/FocusableButton/FocusableButton'
+import FocusableButton from '../Common/FocusableButton'
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
+import useBanner from './Hooks/useBanner'
 import './index.css';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
-  const [videoElement, setVideoElement] = useState(null);
-  const [showOverlay, setShowOverlay] = useState(true);
-  const [showBanner, setShowBanner] = useState(false);
-  const formatTime = (time) => {
-    const [h, m, s] = time?.split(':').map(Number);
   
-    const styles = {
-      grey: {
-        color: 'grey',
-      },
-      white: {
-        color: 'white',
-      },
-    };
-  
-    const pad = (num) => String(num).padStart(2, '0');
-  
-    return (
-      <label>
-        <label style={h > 0 ? styles.white : styles.grey}>{pad(h)}:</label>
-        <label style={(h > 0) ||( m > 0) ? styles.white : styles.grey}>{pad(m)}:</label>
-        <label style={(h > 0) || (m >0) ||( s > 0) ? styles.white : styles.grey}>{pad(s)}</label>
-      </label>
-    );
-  };
-  
-  const videoRef = useCallback((node) => {
-    if (node !== null) {
-      setVideoElement(node);
-    }
-  }, []);
+const {
+showBanner,
+videoRef,
+formatTime,
+showOverlay
+} = useBanner(asset,banners);
 
-  useEffect(() => {
-    setShowBanner(asset == null);
-  }, [asset]);
-
-  useEffect(() => {
-    if (!asset?.trailerUrl || !videoElement) return;
-
-    let hls;
-
-    const onLoadedData = () => videoElement.play();
-    const onPlaying = () => {};
-    const onEnded = () => {};
-
-    videoElement.pause();
-    videoElement.src = '';
-
-    videoElement.addEventListener('loadeddata', onLoadedData);
-    videoElement.addEventListener('playing', onPlaying);
-    videoElement.addEventListener('ended', onEnded);
-
-    if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(asset.trailerUrl);
-      hls.attachMedia(videoElement);
-    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-      videoElement.src = asset.trailerUrl;
-    }
-
-    return () => {
-      videoElement.removeEventListener('loadeddata', onLoadedData);
-      videoElement.removeEventListener('playing', onPlaying);
-      videoElement.removeEventListener('ended', onEnded);
-      if (hls) hls.destroy();
-    };
-  }, [asset?.trailerUrl, videoElement]);
-
-  if (!asset && banners.length === 0) return null;
+if (!asset && banners.length === 0) return null;
 
   const renderMedia = () => {
     if (showBanner && banners.length > 0) {

@@ -4,8 +4,8 @@ import {
   useFocusable,
 } from "@noriginmedia/norigin-spatial-navigation";
 import { withRouter } from "react-router-dom";
-import { useAsset, useContentRow, useMovieHomePage, useContentWithBanner } from "./hooks";
-import FocusableButton from "../Common/FocusableButton/FocusableButton";
+import { useAsset, useContentRow, useMovieHomePage, useContentWithBanner } from "./hooks/useContent";
+import FocusableButton from "../Common/FocusableButton";
 import Banner from "../Banner";
 import "./Content.css";
 

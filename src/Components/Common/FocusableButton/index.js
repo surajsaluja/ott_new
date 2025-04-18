@@ -1,6 +1,6 @@
 import React from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import './FocusableButton.css'
+import './index.css'
 
 const FocusableButton = ({
     text = '',

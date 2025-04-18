@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ContentWithBanner from "./Content";
-import Menu from "../Menu_Home/Menu";
+import Menu from "../Menu_Home";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import './index.css'
 

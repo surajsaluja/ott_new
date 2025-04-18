@@ -5,8 +5,8 @@ import { init} from '@noriginmedia/norigin-spatial-navigation';
 import useAuth from './Hooks/useAuth';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LoginScreen from './Components/Login/LoginScreen';
-import Menu from './Components/Menu_Home/Menu';
+import LoginScreen from './Components/Login';
+import Menu from './Components/Menu_Home';
 
 init({
   debug: false,

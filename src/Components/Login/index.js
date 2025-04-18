@@ -1,10 +1,10 @@
 import React from 'react';
-import FocusableButton from '../Common/FocusableButton/FocusableButton';
+import FocusableButton from '../Common/FocusableButton';
 import {
   FocusContext,
 } from '@noriginmedia/norigin-spatial-navigation';
-import useLoginScreen from './useLoginScreen'
-import './LoginScreen.css';
+import useLoginScreen from './Hooks/useLoginSceen'
+import './index.css';
 import {kableOneLogo} from '../../assets'
 
 const LoginScreen = () => {
