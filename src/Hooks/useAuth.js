@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchApiKey} from "../Service";
+import { fetchApiKey} from "../Service/AuthService";
 import { useUserContext } from "../Context/userContext";
 
 const useAuth = () => {

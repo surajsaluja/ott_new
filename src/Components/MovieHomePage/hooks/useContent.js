@@ -2,7 +2,7 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
-import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../../../Service";
+import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../../../Service/MediaService";
 import { useUserContext } from "../../../Context/userContext";
 
 const useAsset = (image) => {

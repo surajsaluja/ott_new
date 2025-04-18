@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
-    LoginTv,
-    LogoutTV,
+    loginTv,
+    logoutTv,
     fetchUserProfile,
     fetchUserSubscriptionStatus,
     getUserAppSession,
     getUserAccountStatusV2
-} from '../Service'
+} from '../Service/AuthService'
 import { getDeviceInfo } from "../Utils";
 
 const UserContext = createContext();
@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
                 "deviceOS": deviceInfo.deviceOS,
                 "deviceType": "Tizen"
             }
-            const response = await LoginTv(data);
+            const response = await loginTv(data);
             if (response.status) {
                 const data = response.data;
                 loginStatus = true;
@@ -50,7 +50,7 @@ export const UserProvider = ({ children }) => {
                 localStorage.setItem('tokenId', data.tokenId);
                 localStorage.setItem('uid', data.id);
                 message = 'User Logged In Successfully'
-                await fetchProfile(data.tokenId,data.id);
+                await fetchProfile(data.tokenId, data.id);
                 startAppSession();
             } else {
                 setIsLoggedIn(false);
@@ -63,19 +63,19 @@ export const UserProvider = ({ children }) => {
         }
         finally {
             return {
-                isLoggedIn : loginStatus,
+                isLoggedIn: loginStatus,
                 message,
             };
         }
     };
 
-    const fetchProfile = async (tokenIdParam,uidParam) => {
+    const fetchProfile = async (tokenIdParam, uidParam) => {
         const tokenId = tokenIdParam || localStorage.getItem('tokenId');
         const userId = uidParam || localStorage.getItem('uid');
         if (!tokenId || !userId) {
             return false;
         }
-    
+
         try {
             const data = {
                 "TokenId": tokenId
@@ -105,146 +105,126 @@ export const UserProvider = ({ children }) => {
     };
 
     const getUserSubscriptionStatus = async () => {
-        let token = localStorage.getItem('jwttoken');
-        if (token) {
-            token = 'Bearer ' + token.replace('Bearer ', '').replace(/"/g, '');
-            const options = {
-                headers: {
-                    Authorization: token,
-                }
-            }
-            const response = await fetchUserSubscriptionStatus(options);
-            if (response.statusCode == 200 && (response.isUserSubscribed || response.isUserSubscribed == 'true')) {
-                setIsUserSubscribed(true);
-            }
-            else {
-                setIsUserSubscribed(false);
-            }
-            return response;
+        const response = await fetchUserSubscriptionStatus();
+        if (response.statusCode == 200 && (response.isUserSubscribed || response.isUserSubscribed == 'true')) {
+            setIsUserSubscribed(true);
         }
         else {
-            return false;
+            setIsUserSubscribed(false);
         }
+        return response;
     }
 
-    const startAppSession = async () => {
 
-        const appStartTime = new Date();
+
+const startAppSession = async () => {
+
+    const appStartTime = new Date();
+    const data = {
+        "TokenId": localStorage.getItem('tokenId'),
+        "StartTime": appStartTime,
+        "DeviceId": deviceInfo.deviceId,
+        "DeviceName": deviceInfo.deviceName,
+        "DeviceType": 5
+    };
+
+    const appSessionData = await getUserAppSession(data);
+    if (appSessionData && appSessionData.appSessionId) {
+        setSessionStartTime(appStartTime);
+        setSessionId(appSessionData.appSessionId);
+    }
+};
+
+const endAppSession = async () => {
+
+    if (sessionId && sessionStartTime) {
+        const sessionEndTime = new Date();
         const data = {
             "TokenId": localStorage.getItem('tokenId'),
-            "StartTime": appStartTime,
-            "DeviceId": deviceInfo.deviceId,
+            "StartTime": sessionStartTime,
+            "EndTime": sessionEndTime,
+            "DeviceId": deviceInfo.deviceID,
             "DeviceName": deviceInfo.deviceName,
+            "AppSessionId": sessionId,
             "DeviceType": 5
         };
 
         const appSessionData = await getUserAppSession(data);
         if (appSessionData && appSessionData.appSessionId) {
-            setSessionStartTime(appStartTime);
+            localStorage.setItem('appSessionId', appSessionData.appSessionId);
             setSessionId(appSessionData.appSessionId);
         }
-    };
+    }
+};
 
-    const endAppSession = async () => {
+const getUserAccountStatus = async () => {
+    try {
+        const response = await getUserAccountStatusV2();
 
-        if (sessionId && sessionStartTime) {
-            const sessionEndTime = new Date();
-            const data = {
-                "TokenId": localStorage.getItem('tokenId'),
-                "StartTime": sessionStartTime,
-                "EndTime": sessionEndTime,
-                "DeviceId": deviceInfo.deviceID,
-                "DeviceName": deviceInfo.deviceName,
-                "AppSessionId": sessionId,
-                "DeviceType": 5
-            };
-
-            const appSessionData = await getUserAppSession(data);
-            if (appSessionData && appSessionData.appSessionId) {
-                localStorage.setItem('appSessionId', appSessionData.appSessionId);
-                setSessionId(appSessionData.appSessionId);
-            }
+        const responseData = response?.data;
+        if (responseData?.token) {
+            localStorage.setItem('jwttoken', JSON.stringify(responseData.token));
+            setJwtToken(responseData.token);
         }
-    };
 
-    const getUserAccountStatus = async () => {
-        let jwttoken = localStorage.getItem('jwttoken')?.replace(/^"(.*)"$/, '$1').replace('Bearer ', '');
-        const uid = localStorage.getItem('uid');
+        if (!responseData?.isactive) {
+            logout();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 
+
+const logout = async () => {
+    let token = localStorage.getItem('jwttoken');
+    if (token) {
         const data = {
-            token: jwttoken,
-            userId: uid,
-            deviceId: deviceInfo.deviceId
-        };
-
-        try {
-            const response = await getUserAccountStatusV2(data);
-
-            const responseData = response.data;
-            if (responseData?.token) {
-                localStorage.setItem('jwttoken', JSON.stringify(responseData.token));
-                setJwtToken(responseData.token);
-            }
-
-            if (!responseData?.isactive) {
-                logout();
-            }
-        } catch (error) {
-            //toast.error('Something went wrong while validating user status');
-            console.error(error);
-        }
-    };
-
-
-    const logout = async () => {
-        let token = localStorage.getItem('jwttoken');
-        if (token) {
-            const data = {
-                "deviceId": deviceInfo.deviceId,
-                "TokenAuthId": jwtToken,
-                "tokenId": tokenId
-            }
-
-            const response = await LogoutTV(data);
-            if (response.isSuccess) {
-                endAppSession();
-            }
+            "deviceId": deviceInfo.deviceId,
+            "TokenAuthId": jwtToken,
+            "tokenId": tokenId
         }
 
-        setIsLoggedIn(false);
-        setJwtToken(null);
-        setTokenId(null);
-        setProfileInfo(null);
-        setUid(null);
-        setIsUserSubscribed(false);
-        localStorage.removeItem('tokenId');
-        localStorage.removeItem('appSessionId');
-        localStorage.removeItem('isUserSubscribed');
-        localStorage.removeItem('jwttoken');
-        localStorage.removeItem('uid');
-        localStorage.removeItem('profileData');
-    };
+        const response = await logoutTv(data);
+        if (response.isSuccess) {
+            endAppSession();
+        }
+    }
 
-    return (
-        <UserContext.Provider
-            value={{
-                isLoggedIn,
-                jwtToken,
-                tokenId,
-                uid,
-                profileInfo,
-                isUserSubscribed,
-                startAppSession,
-                endAppSession,
-                handleOTPLogin,
-                logout,
-                getUserSubscriptionStatus,
-                getUserAccountStatus
-            }}
-        >
-            {children}
-        </UserContext.Provider>
-    );
+    setIsLoggedIn(false);
+    setJwtToken(null);
+    setTokenId(null);
+    setProfileInfo(null);
+    setUid(null);
+    setIsUserSubscribed(false);
+    localStorage.removeItem('tokenId');
+    localStorage.removeItem('appSessionId');
+    localStorage.removeItem('isUserSubscribed');
+    localStorage.removeItem('jwttoken');
+    localStorage.removeItem('uid');
+    localStorage.removeItem('profileData');
+};
+
+return (
+    <UserContext.Provider
+        value={{
+            isLoggedIn,
+            jwtToken,
+            tokenId,
+            uid,
+            profileInfo,
+            isUserSubscribed,
+            startAppSession,
+            endAppSession,
+            handleOTPLogin,
+            logout,
+            getUserSubscriptionStatus,
+            getUserAccountStatus
+        }}
+    >
+        {children}
+    </UserContext.Provider>
+);
 };
 
 export const useUserContext = () => useContext(UserContext);

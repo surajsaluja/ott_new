@@ -19,8 +19,6 @@ apiClient.interceptors.request.use(
       }
       config.headers.ApiKey = storedApiKey;
     }
-    // You can attach tokens here
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)

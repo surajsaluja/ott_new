@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { fetchAppFeatures } from "../../../Service";
+import { fetchAppFeatures } from "../../../Service/AuthService";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import * as MdIcons from 'react-icons/md'
 import { IoTv,IoTvOutline,IoHeartOutline,IoHeartSharp, IoSearchOutline,IoSearchSharp  } from "react-icons/io5";
