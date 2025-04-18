@@ -29,8 +29,8 @@ export const API = {
             `/Content/GetContinueWatchRail?section=Home&userId=${userId ?? DEFAULTS.USER_ID}`,
     },
     MOVIEDETAIL: {
-        GET_MOVIE_DETAILS: (mediaId, userTokenId) =>
-            `/Media/GetMediaDetailsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userTokenId ?? DEFAULTS.USER_TOKEN_ID}`,
+        GET_MOVIE_DETAILS: (mediaId, userId) =>
+            `/Media/GetMediaDetailsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userId ?? DEFAULTS.USER_ID}`,
         GET_MEDIA_RELATED_ITEMS: (mediaId, languageCode, userTokenId, page, pageSize) =>
             `/Media/GetRelatedItemsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userTokenId ?? DEFAULTS.USER_TOKEN_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
     },
