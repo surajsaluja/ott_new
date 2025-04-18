@@ -5,7 +5,8 @@
     align-items: center;
     max-width: 5em;
     /* background-color: rgb(15, 2, 51); */
-    background-color: black;
+    /* background-color: black; */
+    background-color: #263348;
 }
 
 .menuScrollingWrapper {

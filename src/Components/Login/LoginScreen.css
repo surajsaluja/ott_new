@@ -1,13 +1,59 @@
 .login-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     width: 100%;
-    background: #121212;
+    /* background: #121212; */
     color: #fff;
-    padding: 2rem;
+    padding: 1rem;
+    background: linear-gradient(115deg, #585656, #010101);
   }
+
+  .otp-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 2;
+  }
+
+  .logo-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    height: 100%
+    }
+
+  .image-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(0, -50%);
+  }
+
+  
+  .image-container img{
+    max-width: 150px;
+
+  }
+
+  .info-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .info-container p{
+    font-weight: 500;
+    margin: 0.1em;
+    width: 100%;
+    font-size: 1.2em;
+  }
+
   
   .login-title {
     margin-bottom: 1.5rem;
@@ -60,19 +106,27 @@
   }
 
   .keypad-key-focus {
-    border-color: azure;
+    border-color: azure !important;
   }
   
   .submit-button {
-    margin-top: 1.5rem;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
     background-color: #2979ff;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    font-size: 1.2rem;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logout-button {
+    margin-top: 20px;
+    width: 10em;
+    height: 2em;
+    border-radius: 0.5em;
+    background-color: #a12626;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 2px;
   }
   
   .submit-button.disabled {
