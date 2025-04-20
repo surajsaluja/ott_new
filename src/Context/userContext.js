@@ -50,7 +50,7 @@ export const UserProvider = ({ children }) => {
                 localStorage.setItem('tokenId', data.tokenId);
                 localStorage.setItem('uid', data.id);
                 message = 'User Logged In Successfully'
-                await fetchProfile(data.tokenId, data.id);
+                await fetchUserProfile(data.tokenId, data.id);
                 startAppSession();
             } else {
                 setIsLoggedIn(false);
@@ -69,7 +69,7 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const fetchProfile = async (tokenIdParam, uidParam) => {
+    const fetchUserProfileData = async (tokenIdParam, uidParam) => {
         const tokenId = tokenIdParam || localStorage.getItem('tokenId');
         const userId = uidParam || localStorage.getItem('uid');
         if (!tokenId || !userId) {
@@ -94,10 +94,9 @@ export const UserProvider = ({ children }) => {
                     userId: uidParam
                 };
                 setProfileInfo(profile);
-                setIsUserSubscribed(data.isSubscriptionActive);
+                getUserSubscriptionStatus();
 
                 localStorage.setItem('profileData', JSON.stringify(profile));
-                localStorage.setItem('isUserSubscribed', data.isSubscriptionActive);
             }
         } catch (error) {
             console.error("Profile fetch error", error);
@@ -108,9 +107,10 @@ export const UserProvider = ({ children }) => {
         const response = await fetchUserSubscriptionStatus();
         if (response.statusCode == 200 && (response.isUserSubscribed || response.isUserSubscribed == 'true')) {
             setIsUserSubscribed(true);
+            localStorage.setItem('isUserSubscribed', true);
         }
         else {
-            setIsUserSubscribed(false);
+            localStorage.setItem('isUserSubscribed', false);
         }
         return response;
     }
@@ -215,6 +215,7 @@ return (
             profileInfo,
             isUserSubscribed,
             startAppSession,
+            fetchUserProfileData,
             endAppSession,
             handleOTPLogin,
             logout,

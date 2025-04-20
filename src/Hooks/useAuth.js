@@ -6,7 +6,7 @@ const useAuth = () => {
     
     const [apiKey, setApiKey] = useState();
     const[IsLoadingSession,setIsLoadingSession] = useState(true);
-    const {logout,startAppSession,getUserAccountStatus} = useUserContext(); 
+    const {logout,startAppSession,getUserAccountStatus,fetchUserProfileData} = useUserContext(); 
     useEffect(() => {
         const fetchAndSetApiKey = async () => {
             setIsLoadingSession(true);
@@ -73,6 +73,7 @@ const useAuth = () => {
         if (token) {
             await startAppSession();
             await getUserAccountStatus();
+            await fetchUserProfileData();
         } else {
             logout();
         }
