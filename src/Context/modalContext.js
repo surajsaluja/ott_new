@@ -17,19 +17,29 @@ export const ModalProvider = ({ children }) => {
       isOpen: true,
       title,
       content: description,
-      buttons,
+      buttons: [
+        ...buttons,
+        {
+          label: 'Close',
+          className: 'secondary',
+          action: setFocusToPrevElement,
+        },
+      ],
     });
   }, []);
 
-  const closeModal = useCallback(() => {
-    setModalConfig({ isOpen: false });
-    // Delay restoring focus until after Modal unmounts
+  const setFocusToPrevElement = () =>{
+    if(!previousFocusKeyRef.current) return false;
     setTimeout(() => {
       if (previousFocusKeyRef.current) {
         setFocus(previousFocusKeyRef.current);
         previousFocusKeyRef.current = null;
       }
     }, 0);
+  }
+
+  const closeModal = useCallback(() => {
+    setModalConfig({ isOpen: false });
   }, []);
 
   useEffect(() => {
