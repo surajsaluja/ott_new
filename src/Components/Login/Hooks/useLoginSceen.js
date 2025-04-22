@@ -3,6 +3,7 @@ import { useUserContext } from '../../../Context/userContext';
 import {
     useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const useLoginScreen = () => {
 
@@ -14,6 +15,10 @@ const useLoginScreen = () => {
     const [isSubmittingOTP, setIsSubmittingOTP] = useState(false);
     const { handleOTPLogin, isLoggedIn, logout } = useUserContext();
     const { ref, focusSelf } = useFocusable({ focusKey: 'LOGIN_KEYPAD' });
+    const history = useHistory();
+  const location = useLocation();
+
+  const { from, props } = location.state || { from: { pathname: '/' } , props:{} };
 
     useEffect(() => {
         focusSelf();
@@ -74,6 +79,7 @@ const useLoginScreen = () => {
             const response = await handleOTPLogin(inputOTP);
             if (response.isLoggedIn) {
                 setAlertMsg(response.message);
+                history.replace(from,props);
             } else {
                 setAlertMsg(response.message);
                 setOtpValues(Array(OTP_LENGTH).fill(''));

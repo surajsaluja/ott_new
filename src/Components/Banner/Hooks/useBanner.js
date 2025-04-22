@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useCallback, use } from "react";
 import { useUserContext } from "../../../Context/userContext";
-import {getMediaDetails} from '../../../Utils/MediaDetails'
+import useMedia from '../../../Hooks/useMedia'
 import { showModal } from "../../../Utils";
 import Hls from "hls.js";
+import { useHistory } from "react-router-dom";
 
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);
   const [showOverlay, setShowOverlay] = useState(true);
   const [showBanner, setShowBanner] = useState(false);
   const {userObjectId,uid,isLoggedIn} = useUserContext();
+  const history = useHistory();
+
+  const {getMediaDetails} = useMedia();
 
   const formatTime = (time) => {
     const [h = 0, m = 0, s = 0] = time?.split(":").map(Number);
@@ -62,15 +66,19 @@ const useBanner = (asset, banners) => {
     };
   }, [asset?.trailerUrl, videoElement]);
 
+  const redirectToLogin = () =>{
+    history.replace('/login',{from: '/detail'});
+  }
+
   const watchMediaVOD = () =>{
     if(isLoggedIn && userObjectId){
-      const mediaDetails =  getMediaDetails(asset.mediaId,userObjectId,asset.category);
+      const mediaDetails =  getMediaDetails(asset.mediaID,userObjectId,asset.category);
     }
     else{
       showModal('Login',
         'You are not logged in !!',
         [
-          {label: 'Login', action: () => console.log('Login Clicked'), className: 'primary'}
+          {label: 'Login', action: redirectToLogin, className: 'primary'}
         ]
       )
     }

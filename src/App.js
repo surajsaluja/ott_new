@@ -5,7 +5,7 @@ import { init} from '@noriginmedia/norigin-spatial-navigation';
 import useAuth from './Hooks/useAuth';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LoginScreen from './Components/Login';
+import AppNavigation from './Navigation';
 
 init({
   debug: false,
@@ -28,9 +28,7 @@ function App() {
   }
 
 return (<div className='App'>
-  {/* <MovieHomePage /> */}
-  <LoginScreen />
-  {/* <Menu /> */}
+  <AppNavigation />
    <ToastContainer position="top-right" autoClose={3000} />
 </div>)
 }
