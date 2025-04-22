@@ -1,0 +1,11 @@
+.text-center{
+    color: white;
+    font-size: xx-large;
+    display: flex;
+    /* justify-self: center; */
+    /* align-self: center; */
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback, use } from "react";
 import { useUserContext } from "../../../Context/userContext";
 import {getMediaDetails} from '../../../Utils/MediaDetails'
+import { showModal } from "../../../Utils";
 import Hls from "hls.js";
 
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);
   const [showOverlay, setShowOverlay] = useState(true);
   const [showBanner, setShowBanner] = useState(false);
-  const {uid,isLoggedIn} = useUserContext();
+  const {userObjectId,uid,isLoggedIn} = useUserContext();
 
   const formatTime = (time) => {
     const [h = 0, m = 0, s = 0] = time?.split(":").map(Number);
@@ -62,11 +63,16 @@ const useBanner = (asset, banners) => {
   }, [asset?.trailerUrl, videoElement]);
 
   const watchMediaVOD = () =>{
-    if(isLoggedIn && uid){
-      const mediaDetails =  getMediaDetails(asset.mediaId,uid,asset.category);
+    if(isLoggedIn && userObjectId){
+      const mediaDetails =  getMediaDetails(asset.mediaId,userObjectId,asset.category);
     }
     else{
-      // open popup and ask user to login
+      showModal('Login',
+        'You are not logged in !!',
+        [
+          {label: 'Login', action: () => console.log('Login Clicked'), className: 'primary'}
+        ]
+      )
     }
   }
 
@@ -75,6 +81,7 @@ const useBanner = (asset, banners) => {
     videoRef,
     formatTime,
     showOverlay,
+    watchMediaVOD
   };
 };
 

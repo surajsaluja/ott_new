@@ -12,7 +12,8 @@ const {
 showBanner,
 videoRef,
 formatTime,
-showOverlay
+showOverlay,
+watchMediaVOD
 } = useBanner(asset,banners);
 
 if (!asset && banners.length === 0) return null;
@@ -91,7 +92,7 @@ if (!asset && banners.length === 0) return null;
           ))}
         </div>
         <div className='asset-buttons'>
-          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'}/>}
+          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={watchMediaVOD}/>}
           {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play Movie'}/>}
         </div>
         </div>)

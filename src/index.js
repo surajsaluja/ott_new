@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {UserProvider} from './Context/userContext'
+import { UserProvider } from './Context/userContext'
+import { ModalProvider } from './Context/modalContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <UserProvider>
-    <App />
+      <ModalProvider>
+        <App />
+      </ModalProvider>
     </UserProvider>
   </React.StrictMode>
 );

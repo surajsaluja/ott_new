@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { getDeviceOS, getDeviceId, getDeviceName } from './deviceInfo'
-import CryptoJS from "crypto-js";
+import { useModal } from "../Context/modalContext";
+
+let modalOpener = null;
 
 export const getResizedOptimizedImage = (url, width, height) => {
   if (width && height)
@@ -106,15 +108,60 @@ export const getDeviceInfo = () => {
   return deviceInfo;
 }
 
-export const DecryptAESString = (encrypted) => {
-  const key = "K@bleOnE1736!@KAblEOnE1736!1NA#A";
-  const iv = "K@bleOnE1736!@!#";
+let scrollAnimationFrame = null;
 
-  const decrypted = CryptoJS.AES.decrypt(encrypted, CryptoJS.enc.Utf8.parse(key), {
-    iv: CryptoJS.enc.Utf8.parse(iv),
-    padding: CryptoJS.pad.Pkcs7,
-    mode: CryptoJS.mode.CBC
-  });
+export const smoothScrollTo = (
+  element,
+  to,
+  duration = 300,
+  direction = "horizontal"
+) => {
+  if (!element) return;
 
-  return decrypted.toString(CryptoJS.enc.Utf8);
+  // Cancel any ongoing animation
+  if (scrollAnimationFrame) {
+    cancelAnimationFrame(scrollAnimationFrame);
+    scrollAnimationFrame = null;
+  }
+
+  const start = direction === "horizontal" ? element.scrollLeft : element.scrollTop;
+  const change = to - start;
+  const startTime = performance.now();
+
+  // TV-friendly easing (cheap + smooth)
+  const easeOutQuad = (t) => t * (2 - t);
+
+  const animate = (currentTime) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOutQuad(progress);
+
+    const value = Math.round(start + change * eased);
+
+    if (direction === "horizontal") {
+      element.scrollLeft = value;
+    } else {
+      element.scrollTop = value;
+    }
+
+    if (progress < 1) {
+      scrollAnimationFrame = requestAnimationFrame(animate);
+    } else {
+      scrollAnimationFrame = null;
+    }
+  };
+
+  scrollAnimationFrame = requestAnimationFrame(animate);
+};
+
+export const setModalOpener = (fn) => {
+  modalOpener = fn;
+};
+
+export const showModal = (title = 'Title', description = 'Short description', buttons = []) => {
+  if (modalOpener) {
+    modalOpener({ title, description, buttons });
+  } else {
+    console.warn('Modal opener not set yet.');
+  }
 };
