@@ -5,7 +5,7 @@ const DEFAULTS = {
     PAGE_SIZE: 10,
     LANGUAGE_CODE: 1,
     MEDIA_ID: 0,
-    USER_TOKEN_ID: 0
+    USER_OBJECT_ID: 0
 }
 
 
@@ -29,14 +29,14 @@ export const API = {
             `/Content/GetContinueWatchRail?section=Home&userId=${userId ?? DEFAULTS.USER_ID}`,
     },
     MOVIEDETAIL: {
-        GET_MOVIE_DETAILS: (mediaId, userId) =>
-            `/Media/GetMediaDetailsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userId ?? DEFAULTS.USER_ID}`,
-        GET_MEDIA_RELATED_ITEMS: (mediaId, languageCode, userTokenId, page, pageSize) =>
-            `/Media/GetRelatedItemsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userTokenId ?? DEFAULTS.USER_TOKEN_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
+        GET_MOVIE_DETAILS: (mediaId, userObjectId) =>
+            `/Media/GetMediaDetailsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
+        GET_MEDIA_RELATED_ITEMS: (mediaId, languageCode, userObjectId, page, pageSize) =>
+            `/Media/GetRelatedItemsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
     },
     WEBSERIES:{
-        GET_WEBSERIES_DETAILS: (mediaId, userTokenId) =>
-            `/Media/WebSeriesDetailsV3/${mediaId ?? DEFAULTS.MEDIA_ID}/${userTokenId ?? DEFAULTS.USER_TOKEN_ID}`,
+        GET_WEBSERIES_DETAILS: (mediaId, userObjectId) =>
+            `/Media/WebSeriesDetailsV3/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
     },
     MENU: {
         GET_APP_FEATURES: '/AdminApi/GetAppFeatures',

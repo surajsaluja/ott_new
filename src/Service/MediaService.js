@@ -41,7 +41,7 @@ export const fetchContinueWatchingData = async (userId) => {
   }
 };
 
-export const loadMediaDetailById = async (mediaId, userId, isWebSeries,options={}) => {
+export const loadMediaDetailById = async (mediaId, userObjectId, isWebSeries,options={}) => {
   try {
     const token = getSanitizedToken();
     let url = null;
@@ -59,10 +59,12 @@ export const loadMediaDetailById = async (mediaId, userId, isWebSeries,options={
       url = API.MOVIEDETAIL.GET_MOVIE_DETAILS;
     }
 
-    await fetchData(url(mediaId, userId), {
+    const response  = await fetchData(url(mediaId, userObjectId), {
       ...options,
       headers
     });
+
+    return response;
   } catch (error) {
     return ThrowError('loadMediaDetailById', error);
   }

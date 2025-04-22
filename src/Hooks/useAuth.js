@@ -69,11 +69,13 @@ const useAuth = () => {
 
     const fetchApiKeyAndSetSession = async () => {
         try{
-        const token = localStorage.getItem("tokenId");
+        const token = localStorage.getItem("userObjectId");
         if (token) {
+            let res = await getUserAccountStatus();
+            if(res){
             await startAppSession();
-            await getUserAccountStatus();
             await fetchUserProfileData();
+            }
         } else {
             logout();
         }

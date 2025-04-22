@@ -14,7 +14,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('jwttoken'));
     const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwttoken') || null);
-    const [tokenId, setTokenId] = useState(localStorage.getItem('tokenId') || null);
+    const [userObjectId, setUserObjectId] = useState(localStorage.getItem('userObjectId') || null);
     const [uid, setUid] = useState(localStorage.getItem('uid') || null);
     const [sessionStartTime, setSessionStartTime] = useState(null);
     const [sessionId, setSessionId] = useState(null);
@@ -44,18 +44,18 @@ export const UserProvider = ({ children }) => {
                 loginStatus = true;
                 setIsLoggedIn(true);
                 setJwtToken(data.token);
-                setTokenId(data.tokenId);
+                setUserObjectId(data.tokenId);
                 setUid(data.id);
                 localStorage.setItem('jwttoken', data.token);
-                localStorage.setItem('tokenId', data.tokenId);
+                localStorage.setItem('userObjectId', data.tokenId);
                 localStorage.setItem('uid', data.id);
                 message = 'User Logged In Successfully'
-                await fetchUserProfile(data.tokenId, data.id);
+                await fetchUserProfileData(data.tokenId, data.id);
                 startAppSession();
             } else {
                 setIsLoggedIn(false);
                 setJwtToken(null);
-                setTokenId(null);
+                setUserObjectId(null);
                 message = response.message || "Login failed!";
             }
         } catch (error) {
@@ -69,16 +69,16 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const fetchUserProfileData = async (tokenIdParam, uidParam) => {
-        const tokenId = tokenIdParam || localStorage.getItem('tokenId');
+    const fetchUserProfileData = async (userObjectIdParam, uidParam) => {
+        const userObjectId = userObjectIdParam || localStorage.getItem('userObjectId');
         const userId = uidParam || localStorage.getItem('uid');
-        if (!tokenId || !userId) {
+        if (!userObjectId || !userId) {
             return false;
         }
 
         try {
             const data = {
-                "TokenId": tokenId
+                "TokenId": userObjectId
             };
             const response = await fetchUserProfile(data);
             if (response.status) {
@@ -121,7 +121,7 @@ const startAppSession = async () => {
 
     const appStartTime = new Date();
     const data = {
-        "TokenId": localStorage.getItem('tokenId'),
+        "TokenId": localStorage.getItem('userObjectId'),
         "StartTime": appStartTime,
         "DeviceId": deviceInfo.deviceId,
         "DeviceName": deviceInfo.deviceName,
@@ -140,7 +140,7 @@ const endAppSession = async () => {
     if (sessionId && sessionStartTime) {
         const sessionEndTime = new Date();
         const data = {
-            "TokenId": localStorage.getItem('tokenId'),
+            "TokenId": localStorage.getItem('userObjectId'),
             "StartTime": sessionStartTime,
             "EndTime": sessionEndTime,
             "DeviceId": deviceInfo.deviceID,
@@ -169,6 +169,10 @@ const getUserAccountStatus = async () => {
 
         if (!responseData?.isactive) {
             logout();
+            return false;
+        }
+        else{
+            return true;
         }
     } catch (error) {
         console.error(error);
@@ -182,7 +186,7 @@ const logout = async () => {
         const data = {
             "deviceId": deviceInfo.deviceId,
             "TokenAuthId": jwtToken,
-            "tokenId": tokenId
+            "tokenId": userObjectId
         }
 
         const response = await logoutTv(data);
@@ -193,11 +197,11 @@ const logout = async () => {
 
     setIsLoggedIn(false);
     setJwtToken(null);
-    setTokenId(null);
+    setUserObjectId(null);
     setProfileInfo(null);
     setUid(null);
     setIsUserSubscribed(false);
-    localStorage.removeItem('tokenId');
+    localStorage.removeItem('userObjectId');
     localStorage.removeItem('appSessionId');
     localStorage.removeItem('isUserSubscribed');
     localStorage.removeItem('jwttoken');
@@ -210,7 +214,7 @@ return (
         value={{
             isLoggedIn,
             jwtToken,
-            tokenId,
+            userObjectId,
             uid,
             profileInfo,
             isUserSubscribed,
