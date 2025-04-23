@@ -7,7 +7,11 @@ import { useUserContext } from "../../../Context/userContext";
 import { debounce } from 'lodash';
 
 /* ------------------ Utility: Smooth Scroll Animation ------------------ */
-const smoothScroll = (element, target, duration = 300, direction = "horizontal") => {
+let scrollAnimationFrame = null;
+
+const smoothScroll = (element, target, duration = 200, direction = "horizontal") => {
+  if (scrollAnimationFrame) cancelAnimationFrame(scrollAnimationFrame);
+
   const start = direction === "horizontal" ? element.scrollLeft : element.scrollTop;
   const change = target - start;
   const startTime = performance.now();
@@ -27,11 +31,11 @@ const smoothScroll = (element, target, duration = 300, direction = "horizontal")
     }
 
     if (progress < 1) {
-      requestAnimationFrame(animateScroll);
+      scrollAnimationFrame = requestAnimationFrame(animateScroll);
     }
   };
 
-  requestAnimationFrame(animateScroll);
+  scrollAnimationFrame = requestAnimationFrame(animateScroll);
 };
 
 
@@ -72,23 +76,55 @@ const useContentRow = (focusKey, onFocus) => {
   });
 
   const scrollingRowRef = useRef(null);
-  const focusTimeout = useRef(null);
+  
+// const onScrollToElement = 
+//   debounce((element) => {
+//     if (element && scrollingRowRef.current) {
+//       const parentRect = scrollingRowRef.current.getBoundingClientRect();
+//       const elementRect = element.getBoundingClientRect();
 
-const onAssetFocus = useCallback(
-  debounce((element) => {
-    if (element && scrollingRowRef.current) {
+//       const scrollLeft =
+//         scrollingRowRef.current.scrollLeft +
+//         (elementRect.left - parentRect.left - parentRect.x);
+
+//       smoothScroll(scrollingRowRef.current, scrollLeft);
+//     }
+//   }, 200);
+
+  // const onScrollToElement = useThrottle((element) => {
+  //   if (element && scrollingRowRef.current) {
+  //     const parentRect = scrollingRowRef.current.getBoundingClientRect();
+  //     const elementRect = element.getBoundingClientRect();
+  
+  //     const scrollLeft =
+  //       scrollingRowRef.current.scrollLeft +
+  //       (elementRect.left - parentRect.left - 80);
+  
+  //     smoothScroll(scrollingRowRef.current, scrollLeft);
+  //   }
+  // }, 300); // Adjust throttle interval to your liking
+
+  const onScrollToElement = (element) => {
+    if (!element || !scrollingRowRef.current) return;
+  
+    cancelAnimationFrame(onAssetFocus.rafId); // cancel previous frame if any
+  
+    onAssetFocus.rafId = requestAnimationFrame(() => {
       const parentRect = scrollingRowRef.current.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
-
+  
       const scrollLeft =
         scrollingRowRef.current.scrollLeft +
-        (elementRect.left - parentRect.left) - 80;
-
-      smoothScroll(scrollingRowRef.current, scrollLeft);
-    }
-  }, 50),
-  []
-);
+        (elementRect.left - parentRect.left - parentRect.x);
+  
+      smoothScroll(scrollingRowRef.current, scrollLeft, 150); // shorter scroll duration
+    });
+  }
+  
+  
+  const onAssetFocus = useCallback((element) => {
+    onScrollToElement(element);
+  }, [onScrollToElement]);
 
 
   return {
