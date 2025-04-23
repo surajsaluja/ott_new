@@ -3,7 +3,7 @@ import {
   FocusContext,
   useFocusable,
 } from "@noriginmedia/norigin-spatial-navigation";
-import { withRouter } from "react-router-dom";
+// import { withRouter } from "react-router-dom";
 import { useAsset, useContentRow, useMovieHomePage, useContentWithBanner } from "./hooks/useContent";
 import FocusableButton from "../Common/FocusableButton";
 import Banner from "../Banner";
@@ -89,7 +89,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
               <Asset
                 index={index}
                 title={item.title}
-                key={item.mediaID}
+                key={`${item.playListId}_${item.mediaID}_${index}`}
                 color={"blue"}
                 image={item.webThumbnail}
                 data={item}
@@ -123,8 +123,9 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, 
           {movieRowsData && movieRowsData.map((item, index) => {
             const isThirdLast = index === movieRowsData.length - 3;
             return (
-              <div key={item.playlistId} ref={isThirdLast ? loadMoreRef : null}>
+              <div key={index} ref={isThirdLast ? loadMoreRef : null}>
                 <ContentRow
+                key={`${item.playListId}_${index}`}
                   title={item.playlistName}
                   onFocus={onRowFocus}
                   data={item.playlistItems}

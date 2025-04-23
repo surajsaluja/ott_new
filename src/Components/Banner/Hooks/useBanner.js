@@ -42,6 +42,7 @@ const useBanner = (asset, banners) => {
   }, [asset]);
 
   useEffect(() => {
+  const delayPlay = setTimeout(() => {
     if (!asset?.trailerUrl || !videoElement) return;
 
     let hls;
@@ -64,10 +65,14 @@ const useBanner = (asset, banners) => {
       videoElement.removeEventListener("loadeddata", onLoadedData);
       if (hls) hls.destroy();
     };
-  }, [asset?.trailerUrl, videoElement]);
+  }, 400); // Debounce delay
+
+  return () => clearTimeout(delayPlay);
+}, [asset?.trailerUrl, videoElement]);
+
 
   const redirectToLogin = () =>{
-    history.replace('/login',{from: '/detail'});
+    history.replace('/login',{from: '/'});
   }
 
   const watchMediaVOD = () =>{

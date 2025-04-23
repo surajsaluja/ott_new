@@ -5,8 +5,8 @@
     align-items: center;
     max-width: 5em;
     /* background-color: rgb(15, 2, 51); */
-    /* background-color: black; */
-    background-color: #263348;
+    background-color: black;
+    /* background-color: #25395a8f; */
 }
 
 .menuScrollingWrapper {
@@ -31,7 +31,7 @@
 }
 
 .menu-logo-small{
-    max-width: 20px;
+    max-width: 70px;
 }
 
  .menuContainer_focused {
@@ -69,4 +69,12 @@
 .menuItem_focused span{
     font-weight: 700;
     stroke-width: 1px;
+}
+
+.menuItem .focusableButton_icon {
+    font-size: 30px;
+}
+
+.menuItem .focusableButton_text{
+    font-size: 18px;
 }

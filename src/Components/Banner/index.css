@@ -1,3 +1,7 @@
+:root {
+  --debug-color: 0, 0, 0; /* Bright red for easy visibility */
+}
+
 .top-banner {
     position: relative;
     width: 100%;
@@ -9,7 +13,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    /* background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)); */
     box-shadow: inset 20px 16px 20px 20px #000000;
   }
   
@@ -20,8 +24,10 @@
     height: 100%;
     object-fit: cover;
     box-shadow: inset 19px -20px 20px 20px #005df9;
-    background: linear-gradient(138deg, black, transparent);
-    scale: 1.2
+    /* background: linear-gradient(138deg, black, transparent); */
+    scale: 1.2;
+    transform: scale(1.2);
+    -webkit-transform: scale(1.2);
   }
   
   .banner-overlay {
@@ -29,7 +35,7 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    /* background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)); */
     display: flex;
     align-items: flex-start;
     padding: 2rem;
@@ -59,6 +65,17 @@
     font-size: 1rem;
     color: #ccc;
   }
+
+  .banner-video,
+.banner-video-container img {
+  transition: opacity cubic-bezier(0.39, 0.575, 0.565, 1);
+  opacity: 1;
+}
+
+.banner-video.fade-out,
+.banner-video-container img.fade-out {
+  opacity: 0;
+}
   
   .asset-buttons {
     margin-top: 1rem;
@@ -89,11 +106,11 @@
   }
   
   .banner-gradient{
-    width: 86%;
+    width: 100%;
     /* border-top-left-radius: 20%; */
     border-bottom-left-radius: 20%;
     /* z-index: 100; */
-    top: 0;
+    top: -10px;
     background-color: #000000;
     left: 10%;
     position: relative;
@@ -102,6 +119,8 @@
     box-shadow: -20px 12px 20px 20px #000000;
     background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(251, 250, 250, 0));
     scale: 1.2;
+    transform: scale(1.2);
+    -webkit-transform: scale(1.2);
   }
 
   .title {
@@ -151,4 +170,53 @@
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 700;
+  }
+
+  .overlay{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 10%;
+    background-color: red;
+  }
+
+  .overlay-ltr {
+    background: 
+      linear-gradient(178.5deg,
+        rgba(var(--debug-color), 0) 57.9%,
+        rgba(var(--debug-color), 0) 64.8%,
+        rgba(var(--debug-color), 0.05) 67.56%,
+        rgba(var(--debug-color), 1) 96.94%),
+      linear-gradient(90deg,
+        rgba(var(--debug-color), 1) 0%,
+        rgba(var(--debug-color), 0.9) 20.15%,
+        rgba(var(--debug-color), 0.7) 25.52%,
+        rgba(var(--debug-color), 0.6) 35.81%,
+        rgba(var(--debug-color), 0.5) 45.08%,
+        rgba(var(--debug-color), 0) 65.1%);
+  }
+  
+  .overlay-rtl {
+    background: 
+      linear-gradient(178.5deg,
+        rgba(16, 14, 17, 0) 57.9%,
+        rgba(16, 14, 17, 0) 64.8%,
+        rgba(16, 14, 17, 0.05) 67.56%,
+        rgba(16, 14, 17, 1) 96.94%),
+      linear-gradient(270deg,
+        rgba(16, 14, 17, 1) 0%,
+        rgba(16, 14, 17, 0.9) 16.15%,
+        rgba(16, 14, 17, 0.7) 25.52%,
+        rgba(16, 14, 17, 0.6) 32.81%,
+        rgba(16, 14, 17, 0.5) 52.08%,
+        rgba(16, 14, 17, 0) 65.1%);
+  }
+
+  .overlay-bottom-gradient {
+    background: linear-gradient(
+      180deg,
+      rgba(16, 14, 17, 0) 0%,
+      rgba(16, 14, 17, 1) 100%
+    );
   }

@@ -18,26 +18,27 @@ watchMediaVOD
 
 if (!asset && banners.length === 0) return null;
 
-  const renderMedia = () => {
-    if (showBanner && banners.length > 0) {
-      return <img src={banners[0].fullPageBanner} className="banner-video" />;
-    }
+const renderMedia = () => {
+  if (showBanner && banners.length > 0) {
+    return <img src={banners[0].fullPageBanner} className={`banner-video ${fadeClass}`} />;
+  }
 
-    if (asset?.trailerUrl) {
-      return (
-        <video
-          ref={videoRef}
-          className="banner-video"
-          autoPlay
-          poster={asset.fullPageBanner}
-          playsInline
-          muted
-        />
-      );
-    }
+  if (asset?.trailerUrl) {
+    return (
+      <video
+        ref={videoRef}
+        className={`banner-video`}
+        autoPlay
+        poster={asset.fullPageBanner}
+        playsInline
+        muted
+      />
+    );
+  }
 
-    return <img src={asset?.fullPageBanner} className="banner-video" />;
-  };
+  return <img src={asset?.fullPageBanner} className={`banner-video`} />;
+};
+
 
   const renderMediaDetails = () =>{
     let mediaTitle = '';
@@ -105,6 +106,7 @@ if (!asset && banners.length === 0) return null;
         {showOverlay && (
           <div className="banner-overlay">
             <div className="banner-gradient" />
+            <div className='overlay overlay-ltr'></div>
             {renderMediaDetails()}
           </div>
         )}
