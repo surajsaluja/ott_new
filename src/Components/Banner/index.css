@@ -220,3 +220,13 @@
       rgba(16, 14, 17, 1) 100%
     );
   }
+
+  .fade-in {
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
