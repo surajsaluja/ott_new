@@ -1,33 +1,36 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { DecryptAESString, findCurrentEpisode } from "../Utils/MediaUtils";
-import { loadMediaDetailById } from "../Service/MediaService";
 import { useUserContext } from "../Context/userContext";
+import { showModal } from "../Utils";
+import useMediaService from "../Service/useMediaService";
 
-const useMedia = () => {
-  const [mediaDetails, setMediaDetails] = useState(null);
+const useMedia = (mediaId, category, isTrailer, userObjectId) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isCancelled = useRef(false);
-  const {isUserSubscribed} = useUserContext();
-  let isTrailer = false;
+  const { loadMediaDetailById, getTokanizedMediaUrl } = useMediaService();
+  let isUserSubscribed = false;
+  let mediaDetail = null;
+  let skipInfo = null;
+  let onScreenInfo = null;
+  let mediaUrl = null;
+  let subtitleUrl = null;
+  let currentEpisode = null;
+  let decryptedUrl = null;
+  let mediaTitle = null;
   let isFree = false;
 
+  const { userObjectId: userObjId } = useUserContext();
+
   useEffect(() => {
-    // Cleanup on unmount
+    getMediaDetails();
     return () => {
       isCancelled.current = true;
     };
   }, []);
 
-  const checkMediaUserSubscriptionStatus  = () =>{
-    if(isUserSubscribed || isFree)
-    {}
-
-  }
-
-  const getMediaDetails = async (mediaId, userObjectId, category) => {
-    if (!mediaId || !userObjectId || !category) return;
+  const getMediaDetails = async () => {
 
     setLoading(true);
     setError(null);
@@ -36,74 +39,80 @@ const useMedia = () => {
     const isWebSeries = category.toLowerCase() === "web series";
 
     try {
-      let response = await loadMediaDetailById(mediaId, userObjectId, isWebSeries);
+      let response = await loadMediaDetailById(mediaId, isWebSeries, userObjectId ?? userObjId);
 
       if (response && response.isSuccess) {
         response = response.data;
-        const detail = response.detail;
+        mediaDetail = response.detail;
 
-        if (!detail) {
-          toast.error("Failed to get media detail");
-          setError("No media detail found");
-          return;
+        if (!mediaDetail) {
+          throw new Error({ message: 'Media Details Not Found' });
         }
 
-        const isUserSubscribed = detail.isUserSubscribed;
-        const isPaid = detail.isPaid;
-        const isFree = typeof isPaid === "string"
+        isUserSubscribed = mediaDetail.isUserSubscribed;
+        let isPaid = mediaDetail.isPaid;
+        isFree = typeof isPaid === "string"
           ? isPaid.toLowerCase() === "false" || isPaid === "0"
           : !isPaid;
 
-        const skipInfo = {
-          skipIntroST: parseInt(detail.skipIntroST),
-          skipIntroET: parseInt(detail.skipIntroET),
-          skipRecapST: parseInt(detail.skipRecapST),
-          skipRecapET: parseInt(detail.skipRecapET),
-          nextEpisodeST: isWebSeries ? parseInt(detail.nextEpisodeST) : null,
+        mediaId = mediaDetail.mediaID;
+
+        skipInfo = {
+          skipIntroST: parseInt(mediaDetail.skipIntroST),
+          skipIntroET: parseInt(mediaDetail.skipIntroET),
+          skipRecapST: parseInt(mediaDetail.skipRecapST),
+          skipRecapET: parseInt(mediaDetail.skipRecapET),
+          nextEpisodeST: isWebSeries ? parseInt(mediaDetail.nextEpisodeST) : null,
         };
 
-        const onScreenInfo = {
-          onScreenDescription: detail.onScreenDescription,
-          onScreenDescription2: detail.onScreenDescription2,
-          onScreenDescriptionST: parseInt(detail.onScreenDescriptionST),
-          onScreenDescriptionET: parseInt(detail.onScreenDescriptionET),
-          onScreenDescription2ST: parseInt(detail.onScreenDescription2ST),
-          onScreenDescription2ET: parseInt(detail.onScreenDescription2ET),
-          ageRatedText: `RATED ${detail.ageRangeId}+`,
+        onScreenInfo = {
+          onScreenDescription: mediaDetail.onScreenDescription,
+          onScreenDescription2: mediaDetail.onScreenDescription2,
+          onScreenDescriptionST: parseInt(mediaDetail.onScreenDescriptionST),
+          onScreenDescriptionET: parseInt(mediaDetail.onScreenDescriptionET),
+          onScreenDescription2ST: parseInt(mediaDetail.onScreenDescription2ST),
+          onScreenDescription2ET: parseInt(mediaDetail.onScreenDescription2ET),
+          ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
         };
 
-        let subtitleUrl = null;
-        let mediaUrl = "";
+        mediaTitle = mediaDetail.title;
 
-        if (detail.isMediaPublished && (isUserSubscribed || isFree)) {
-          subtitleUrl = detail.smiSubtitleUrl;
-          mediaUrl = detail.mediaUrlWithoutSRT;
-        } else {
-          subtitleUrl = detail.smiSubtitleTrailerUrl || null;
-          mediaUrl = detail.trailerUrl;
-
-          skipInfo.skipIntroST = 0;
-          skipInfo.skipIntroET = 0;
-          skipInfo.skipRecapST = 0;
-          skipInfo.skipRecapET = 0;
-          skipInfo.nextEpisodeST = 0;
-        }
-
-        const currentEpisode = isWebSeries
-          ? findCurrentEpisode(detail?.seasons, mediaId)
+        currentEpisode = isWebSeries
+          ? findCurrentEpisode(mediaDetail?.seasons, mediaId)
           : null;
 
-        const decryptedUrl = DecryptAESString(mediaUrl);
-
-        if (!isCancelled.current) {
-          setMediaDetails({
-            detail,
-            skipInfo,
-            currentEpisode,
-            onScreenInfo,
-            decryptedUrl
-          });
+        if (isUserSubscribed || isFree || isTrailer) {
+          let tokenisedResponse = await getTokanizedMediaUrl(mediaId, userObjectId ?? userObjId);
+          if (tokenisedResponse.isSuccess) {
+            const tokenisedData = tokenisedResponse.data;
+            isUserSubscribed = tokenisedData.isUserSubscribed;
+            isPaid = tokenisedData.isPaid;
+            isFree = typeof isPaid === "string"
+              ? isPaid.toLowerCase() === "false" || isPaid === "0"
+              : !isPaid;
+            //mediaUrl = isTrailer ? tokenisedData.trailerUrl : tokenisedData.mediaUrl;
+            if (tokenisedData.isMediaPublished && (isUserSubscribed || isFree)) {
+              subtitleUrl = mediaDetail.smiSubtitleUrl;
+              mediaUrl = mediaDetail.mediaUrl;
+            } else {
+              subtitleUrl = mediaDetail.smiSubtitleTrailerUrl || null;
+              mediaUrl = mediaDetail.trailerUrl;
+    
+              skipInfo.skipIntroST = 0;
+              skipInfo.skipIntroET = 0;
+              skipInfo.skipRecapST = 0;
+              skipInfo.skipRecapET = 0;
+              skipInfo.nextEpisodeST = 0;
+            }
+          } else {
+            throw new Error({ message: 'Could Not Get Tokenised Media Url' });
+          }
+        } else {
+          // showModal('Subscription Not Valid','You Are Not Subscribed To Watch This Content');
+          throw new Error({ message: 'User Not Subscribed' });
+          return false;
         }
+
       } else {
         toast.error("Response Not Found for Media Detail");
         setError("Invalid response");
@@ -120,8 +129,7 @@ const useMedia = () => {
   };
 
   return {
-    getMediaDetails,
-    mediaDetails,
+    mediaDetail,
     loading,
     error
   };

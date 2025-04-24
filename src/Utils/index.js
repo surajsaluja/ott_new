@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { getDeviceOS, getDeviceId, getDeviceName } from './deviceInfo'
-import { useModal } from "../Context/modalContext";
 
 let modalOpener = null;
 
