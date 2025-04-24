@@ -28,13 +28,13 @@ export const API = {
         GET_CONTINUE_WATCH: (userId) =>
             `/Content/GetContinueWatchRail?section=Home&userId=${userId ?? DEFAULTS.USER_ID}`,
     },
-    MOVIEDETAIL: {
+    MEDIA: {
         GET_MOVIE_DETAILS: (mediaId, userObjectId) =>
             `/Media/GetMediaDetailsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
         GET_MEDIA_RELATED_ITEMS: (mediaId, languageCode, userObjectId, page, pageSize) =>
             `/Media/GetRelatedItemsV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
-    },
-    WEBSERIES:{
+        GET_TOKENIZED_MEDIA_URL : (mediaId, userObjectId) =>
+            `Media/GetTokanizedMediaUrlV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
         GET_WEBSERIES_DETAILS: (mediaId, userObjectId) =>
             `/Media/WebSeriesDetailsV3/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
     },
