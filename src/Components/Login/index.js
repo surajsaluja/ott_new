@@ -57,7 +57,7 @@ const LoginScreen = () => {
         ))}
       </div>
 
-      {alertMsg && <p className="alert-msg">{alertMsg}</p>}
+      <p className="alert-msg">{alertMsg}</p>
       <FocusContext.Provider value="LOGIN_KEYPAD">
         <div className="keypad" ref={ref}>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'delete', 0].map((num) => (

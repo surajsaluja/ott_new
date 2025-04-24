@@ -34,7 +34,6 @@
   .modal-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
   }
   
   .modal-button {
@@ -46,6 +45,7 @@
     border-width: 2px;
     border-color: transparent;
     border-style: solid;
+    margin-left: 10px;
   }
   
   .modal-button.primary {

@@ -36,7 +36,7 @@
 
   
   .image-container img{
-    max-width: 150px;
+    max-width: 15rem;
 
   }
 
@@ -51,7 +51,7 @@
     font-weight: 500;
     margin: 0.1em;
     width: 100%;
-    font-size: 1.2em;
+    font-size: 1.3rem;
   }
 
   
@@ -63,7 +63,6 @@
   
   .otp-group {
     display: flex;
-    gap: 1rem;
     margin-bottom: 1rem;
   }
   
@@ -77,12 +76,14 @@
     background: #1e1e1e;
     color: #fff;
     outline: none;
+    margin-left: 1rem;
   }
   
   .alert-msg {
     color: salmon;
     margin-bottom: 1rem;
     font-size: 0.9rem;
+    height: 1rem;
   }
   
   .keypad {
