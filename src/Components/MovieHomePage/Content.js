@@ -68,13 +68,8 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-    onAssetFocus,
+    onAssetFocus
   } = useContentRow(focusKey, onFocus);
-
-  // const handleFocus = (data, elRef) => {
-  //   internalOnAssetFocus(data, elRef);
-  //   onAssetFocus?.(data); // Notify parent (Banner)
-  // };
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
@@ -113,7 +108,7 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, 
     onAssetPress,
     data : movieRowsData,
     loadMoreRef,
-    isLoading : loadingSpinner,
+    isLoading : loadingSpinner
   } = useMovieHomePage(focusKeyParam, history, data, setData, isLoading, setIsLoading,loadMoreRows);
 
   return (

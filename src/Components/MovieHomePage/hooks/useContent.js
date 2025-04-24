@@ -2,12 +2,18 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
-import { fetchContinueWatchingData, fetchHomePageData, fetchPlaylistPage } from "../../../Service/MediaService";
 import { useUserContext } from "../../../Context/userContext";
 import { debounce } from 'lodash';
+import useMediaService from "../../../Service/useMediaService";
+
 
 /* ------------------ Utility: Smooth Scroll Animation ------------------ */
 let scrollAnimationFrame = null;
+
+const easeInOutQuad = (t) =>
+  t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+const linear = (t) => t;
 
 const smoothScroll = (element, target, duration = 200, direction = "horizontal") => {
   if (scrollAnimationFrame) cancelAnimationFrame(scrollAnimationFrame);
@@ -16,13 +22,11 @@ const smoothScroll = (element, target, duration = 200, direction = "horizontal")
   const change = target - start;
   const startTime = performance.now();
 
-  const easeInOutQuad = (t) =>
-    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
   const animateScroll = (currentTime) => {
     const timeElapsed = currentTime - startTime;
     const progress = Math.min(timeElapsed / duration, 1);
-    const newVal = start + change * easeInOutQuad(progress);
+    const easingFunction = direction === 'horizontal' ? linear : easeInOutQuad;
+    const newVal = start + change * easingFunction(progress);
 
     if (direction === "horizontal") {
       element.scrollLeft = newVal;
@@ -115,7 +119,7 @@ const useContentRow = (focusKey, onFocus) => {
   
       const scrollLeft =
         scrollingRowRef.current.scrollLeft +
-        (elementRect.left - parentRect.left - parentRect.x);
+        (elementRect.left - parentRect.left - parentRect.x); // center alignment
   
       smoothScroll(scrollingRowRef.current, scrollLeft, 150); // shorter scroll duration
     });
@@ -124,7 +128,7 @@ const useContentRow = (focusKey, onFocus) => {
   
   const onAssetFocus = useCallback((element) => {
     onScrollToElement(element);
-  }, [onScrollToElement]);
+  }, [onScrollToElement,smoothScroll]);
 
 
   return {
@@ -169,9 +173,10 @@ const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setI
   const onRowFocus = useCallback((element) => {
     if (element && ref.current) {
       const scrollTop = element.top - ref.current.offsetTop;
-      ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
+       ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
+      //smoothScroll(verticalScrollingRowRef.current,scrollTop,250,'vertical');
     }
-  }, [ref]);
+  }, [ref,smoothScroll]);
 
   const onAssetPress = (item) => {
     console.log("Selected asset:", item.data);
@@ -186,7 +191,7 @@ const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setI
     data,
     loadMoreRef,
     isLoading,
-  };
+    };
 };
 
 /* ------------------ Content with Banner Hook ------------------ */
@@ -209,6 +214,7 @@ export const useContentWithBanner = (focusKey, onFocus) => {
   const horizontalLimit = 10;
   const [page, setPage] = useState(1);
   const { profileInfo, uid, isLoggedIn } = useUserContext();
+  const {fetchHomePageData, fetchContinueWatchingData, fetchPlaylistPage} = useMediaService();
 
   useEffect(() => {
     loadInitialData();
@@ -238,7 +244,7 @@ export const useContentWithBanner = (focusKey, onFocus) => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const raw = await fetchPlaylistPage(uid, page + 1);
+      const raw = await fetchPlaylistPage(page + 1, uid);
       const processed = getProcessedPlaylists(raw, horizontalLimit);
       setData((prev) => [...prev, ...processed]);
       setPage((prev) => prev + 1);

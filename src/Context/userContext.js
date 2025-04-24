@@ -27,6 +27,10 @@ export const UserProvider = ({ children }) => {
     );
     const deviceInfo = getDeviceInfo();
 
+    useEffect(()=>{
+        localStorage.setItem('isUserSubscribed',isUserSubscribed);
+    },[isUserSubscribed])
+
     const handleOTPLogin = async (inputOTP) => {
         let message = null;
         let loginStatus = false;
@@ -107,10 +111,13 @@ export const UserProvider = ({ children }) => {
         const response = await fetchUserSubscriptionStatus();
         if (response.statusCode == 200 && (response.isUserSubscribed || response.isUserSubscribed == 'true')) {
             setIsUserSubscribed(true);
-            localStorage.setItem('isUserSubscribed', true);
+        }
+        else if (response.statusCode == 401){
+            endAppSession();
+            setIsUserSubscribed(false);
         }
         else {
-            localStorage.setItem('isUserSubscribed', false);
+            setIsUserSubscribed(false);
         }
         return response;
     }
