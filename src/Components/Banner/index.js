@@ -112,8 +112,8 @@ const Banner = ({ data: asset = null, banners = [] }) => {
         ))}
       </div>
       <div className='asset-buttons'>
-        {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={watchMediaVOD} />}
-        {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={watchMediaVOD} />} {/* Assuming watchMediaVOD also handles playing the full content */}
+        {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={()=>watchMediaVOD(true)} />}
+        {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={()=>watchMediaVOD(false)} />} {/* Assuming watchMediaVOD also handles playing the full content */}
       </div>
     </div>);
   };
