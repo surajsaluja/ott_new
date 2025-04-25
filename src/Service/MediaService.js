@@ -5,6 +5,9 @@ import { getSanitizedToken } from "../Utils";
 
 const DEFAULT_PLAYLIST_TYPE = "Home";
 const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_LANGUAGE = 1;
+const DEFAULT_PAGE = 1;
+const RELATED_MEDIA_DEFAULT_PAGE_SIZE = 50;
 const userObjId = localStorage.getItem('userObjectId') ?? null;
 const uid = localStorage.getItem('uid') ?? null;
 
@@ -71,6 +74,15 @@ export const loadMediaDetailById = async (mediaId, isWebSeries, userObjectId, op
     }
 }
 
+export const getMediaRelatedItem = async (mediaId, userObjId,page,pageSize,language,options = {}) => {
+    try{
+        const response  = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId,language ?? DEFAULT_LANGUAGE,userObjId ?? userObjId,page ?? DEFAULT_PAGE,pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE),options);
+        return response;
+    }catch(error){
+        return ThrowError('getRelatedMedia',error);
+
+    }
+}
 
 export const getTokanizedMediaUrl = async (mediaId, userObjectId = null, options = {}) => {
     try {
