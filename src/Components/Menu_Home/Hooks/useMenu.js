@@ -4,11 +4,13 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import * as MdIcons from 'react-icons/md'
 import { IoTv,IoTvOutline,IoHeartOutline,IoHeartSharp, IoSearchOutline,IoSearchSharp  } from "react-icons/io5";
 import { RiMovie2Line, RiMovie2Fill } from "react-icons/ri";
+import { useHistory } from "react-router-dom";
 
 const useMenu = (focusKey) => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMenu,setSelectedMenu] = useState(1);
+  const history = useHistory();
 
   const menu = [
     {
@@ -73,7 +75,7 @@ const useMenu = (focusKey) => {
       iconOutline: "MdPersonOutline",
       iconFill: "MdPerson",
       permission: "isVODEnabled",
-      redirect: "/profile",
+      redirect: "/login",
     },
   ];
 
@@ -95,6 +97,7 @@ const useMenu = (focusKey) => {
   
       const onMenuEnterPress = useCallback((item) => {
         setSelectedMenu(item.id);
+        history.replace(item.redirect);
       }, []);
 
   const getAppFeatures = async () => {
