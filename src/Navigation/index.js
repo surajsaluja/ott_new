@@ -4,6 +4,7 @@ import MovieHomePage from '../Components/MovieHomePage';
 import Movie_Detail from '../Components/Movie_Detail';
 import LoginScreen from '../Components/Login';
 import PrivateRoute from './PrivateRoute';
+import Error404 from '../Components/Error404';
 
 function AppNavigation() {
 
@@ -13,7 +14,7 @@ function AppNavigation() {
         <Route exact path="/" component={MovieHomePage} />
         <PrivateRoute path="/detail" component={Movie_Detail}/>
         <Route path="/login" component={LoginScreen} />
-        <Route path="*" component={MovieHomePage} />
+        <Route path="*" component={Error404} />
       </Switch>
     </Router>
   );
