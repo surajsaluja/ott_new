@@ -12,7 +12,7 @@ function AppNavigation() {
     <Router>
       <Switch>
         <Route exact path="/" component={MovieHomePage} />
-        <PrivateRoute path="/detail" component={Movie_Detail}/>
+        <PrivateRoute path="/detail/:mediaId" component={Movie_Detail}/>
         <Route path="/login" component={LoginScreen} />
         <Route path="*" component={Error404} />
       </Switch>

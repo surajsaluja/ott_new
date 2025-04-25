@@ -1,34 +1,78 @@
-import { toast } from "react-toastify";
-import { DecryptAESString, findCurrentEpisode } from "../Utils/MediaUtils";
-import { showModal } from "../Utils";
-import useMediaService from "../Service/useMediaService";
+import { DecryptAESString} from "../Utils/MediaUtils";
+import { loadMediaDetailById, getTokanizedMediaUrl } from "../Service/MediaService";
 import { useUserContext } from "../Context/userContext";
+import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
 
 const findCurrentEpisode = (seasons, currentMediaId) => {
-    for (const season of seasons || []) {
-      for (const episode of season.episodes || []) {
-        if (episode.mediaID === currentMediaId) {
-          return episode;
-        }
+  for (const season of seasons || []) {
+    for (const episode of season.episodes || []) {
+      if (episode.mediaID === currentMediaId) {
+        return episode;
       }
     }
-    return null;
+  }
+  return null;
+};
+
+const getIsContentFree = (isPaid) => {
+  return typeof isPaid === "string"
+    ? isPaid.toLowerCase() === "false" || isPaid === "0"
+    : !isPaid;
+}
+
+const groupStarCasts = (starCastArray = []) => {
+  const groupedStarCasts = {
+    Producer: [],
+    Director: [],
+    Writer: [],
+    Starcast: []
   };
 
-const getMediaDetails = async (mediaId, category, isTrailer, userObjectId) => {
-  const { loadMediaDetailById, getTokanizedMediaUrl } = useMediaService();
-  const { userObjectId: userObjId } = useUserContext();
+  if (Array.isArray(starCastArray) && starCastArray.length > 0) {
+    starCastArray.forEach((starcast) => {
+      const { iStarcastType, displayName } = starcast;
+      if (groupedStarCasts[iStarcastType]) {
+        groupedStarCasts[iStarcastType].push(displayName);
+      }
+    });
+  }
 
-  let isUserSubscribed = false;
+  return groupedStarCasts;
+};
+
+
+export const getMediaDetails = async (mediaId = null, category = 'movie', isTrailer = true, userObjectId = null) => {
+  const userObjId  = localStorage.getItem('userObjectId');
+
+  if(!mediaId)
+    {
+      return {
+        isSuccess: false,
+        message: 'Media Id is required field'
+      }
+    }
+
+  if(userObjectId == null && userObjId == null)
+  {
+    return {
+      isSuccess: false,
+      message: 'UserObjectId not found'
+    }
+  }
+
   let mediaDetail = null;
   let skipInfo = null;
   let onScreenInfo = null;
   let mediaUrl = null;
-  let subtitleUrl = null;
   let currentEpisode = null;
-  let decryptedUrl = null;
-  let mediaTitle = null;
   let isFree = false;
+  let isMediaPublished = false;
+  let userCurrentPlayTime = null;
+  let success = false;
+  let message = null;
+  let webThumbnailUrl = null;
+  let fullPageBannerUrl = null;
+  let groupedStartCasts = null;
 
   try {
     const isWebSeries = category.toLowerCase() === "web series";
@@ -42,13 +86,14 @@ const getMediaDetails = async (mediaId, category, isTrailer, userObjectId) => {
         throw new Error('Media Details Not Found');
       }
 
-      isUserSubscribed = mediaDetail.isUserSubscribed;
       let isPaid = mediaDetail.isPaid;
-      isFree = typeof isPaid === "string"
-        ? isPaid.toLowerCase() === "false" || isPaid === "0"
-        : !isPaid;
-
-      mediaId = mediaDetail.mediaID;
+      isFree = getIsContentFree(isPaid);
+      userCurrentPlayTime = mediaDetail.playDuration;
+      isMediaPublished = mediaDetail.isMediaPublished;
+      mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
+      webThumbnailUrl =  sanitizeAndResizeImage(mediaDetail.webThumbnailUrl,450);
+      fullPageBannerUrl = getResizedOptimizedImage(mediaDetail.fullPageBanner,1920);
+      groupedStartCasts =  groupStarCasts(mediaDetail.starCast);
 
       skipInfo = {
         skipIntroST: parseInt(mediaDetail.skipIntroST),
@@ -68,62 +113,151 @@ const getMediaDetails = async (mediaId, category, isTrailer, userObjectId) => {
         ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
       };
 
-      mediaTitle = mediaDetail.title;
-
       currentEpisode = isWebSeries
         ? findCurrentEpisode(mediaDetail?.seasons, mediaId)
         : null;
 
-      if (isUserSubscribed || isFree || isTrailer) {
-        let tokenisedResponse = await getTokanizedMediaUrl(mediaId, userObjectId ?? userObjId);
-        if (tokenisedResponse.isSuccess) {
-          const tokenisedData = tokenisedResponse.data;
-          isUserSubscribed = tokenisedData.isUserSubscribed;
-          isPaid = tokenisedData.isPaid;
-          isFree = typeof isPaid === "string"
-            ? isPaid.toLowerCase() === "false" || isPaid === "0"
-            : !isPaid;
-
-          if (tokenisedData.isMediaPublished && (isUserSubscribed || isFree) &!isTrailer) {
-            subtitleUrl = mediaDetail.smiSubtitleUrl;
-            mediaUrl = mediaDetail.mediaUrl;
-          } else {
-            subtitleUrl = mediaDetail.smiSubtitleTrailerUrl || null;
-            mediaUrl = mediaDetail.trailerUrl;
-
-            skipInfo.skipIntroST = 0;
-            skipInfo.skipIntroET = 0;
-            skipInfo.skipRecapST = 0;
-            skipInfo.skipRecapET = 0;
-            skipInfo.nextEpisodeST = 0;
-          }
-        } else {
-          throw new Error('Could Not Get Tokenised Media Url');
-        }
-      } else {
-        throw new Error('User Not Subscribed');
-      }
-
-      return {
-        mediaDetail,
-        mediaUrl,
-        subtitleUrl,
-        skipInfo,
-        onScreenInfo,
-        currentEpisode,
-        mediaTitle,
-        isFree,
-      };
+      mediaUrl = mediaUrl ? DecryptAESString(mediaUrl) : mediaUrl;
+      success = true;
+      message = 'Data Retrived SuccessFully'
 
     } else {
       throw new Error("Invalid response for media detail");
     }
 
   } catch (error) {
-    console.error("Error fetching media detail:", error);
-    toast.error("Failed to load media details");
-    throw new Error(error.message || "Unknown error");
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    };
   }
+
+  return {
+    isSuccess: success,
+    message: message,
+    data: {
+      mediaDetail,
+      skipInfo,
+      onScreenInfo,
+      currentEpisode,
+      userCurrentPlayTime,
+      webThumbnailUrl,
+      fullPageBannerUrl,
+      groupedStartCasts,
+      // isUserSubscribed,
+      // mediaUrl,
+      // subtitleUrl,
+      // isFree,
+      // isMediaPublished,
+      //mediaTitle,
+      
+    }
+  };
 };
 
-export default getMediaDetails;
+export const getTokenisedMedia = async (mediaId, isTrailer, userObjectId = null) => {
+  const userObjId  = localStorage.getItem('userObjectId');
+
+  if(!mediaId)
+    {
+      return {
+        isSuccess: false,
+        message: 'Media Id is required field'
+      }
+    }
+
+  if(userObjId == null && userObjectId == null)
+  {
+    return {
+      isSuccess: false,
+      message: 'UserObjectId not found'
+    }
+  }
+
+  let isUserSubscribed = false;
+  let isMediaPublished = false;
+  let isFree = false;
+  let mediaUrl = null;
+  let success = false;
+  let message = null;
+
+  try {
+    let response = await getTokanizedMediaUrl(mediaId, userObjectId ?? userObjId);
+    if (response && response.isSuccess) {
+      response = response.data;
+      isUserSubscribed = response.isUserSubscribed;
+      isMediaPublished = response.isMediaPublished;
+      isFree = getIsContentFree(response.isPaid);
+
+      if (isUserSubscribed || isFree || isTrailer) {
+        mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
+        mediaUrl = DecryptAESString(mediaUrl);
+        success = true;
+        message = 'Media Tokenised SuccessFully';
+      } else {
+        throw new Error("You are not a subscribed user to watch this movie!");
+      }
+    } else {
+      throw new Error("Invalid response for Tokenised Media");
+    }
+
+  } catch (error) {
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    };
+  }
+
+  return {
+    isSuccess: success,
+    data: {
+    mediaUrl,
+    isUserSubscribed,
+    isFree,
+    isMediaPublished
+    }
+  }
+}
+
+export const getMediaDetailWithTokenisedMedia = async (mediaId, category, isTrailer, userObjectId = null) => {
+
+
+  let success = false;
+  let mediaDetailReponse = null;
+  let tokenisedMediaResponse = null;
+  try {
+    mediaDetailReponse = await this.getMediaDetails(mediaId, category, isTrailer, userObjectId);
+    if (mediaDetailReponse.isSuccess) {
+      tokenisedMediaResponse = await this.getTokenisedMedia(mediaId, isTrailer, userObjectId);
+      if (tokenisedMediaResponse.isSuccess) {
+        success = true;
+      }
+      else {
+        throw new Error(`Could Not Get Tokenised Detail : ${tokenisedMediaResponse.error}`);
+      }
+    } else {
+      throw new Error(`Could Not Get Media Detail : ${mediaDetailReponse.error}`)
+    }
+  } catch (error) {
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    }
+  }
+
+  return{
+    isSuccess : success,
+    data:{
+      ...mediaDetailReponse.data,
+      ...tokenisedMediaResponse.data
+    }
+  }
+}
+
+
+export const getMediaRelatedItemDetails = async (mediaId,userObjectId) =>{
+
+}

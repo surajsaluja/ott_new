@@ -1,0 +1,253 @@
+.movie-detail-page {
+    color: white;
+    display: flex;
+    position: relative;
+    background-color: black;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100vh;
+    overflow: auto;
+  }
+  
+  .movie-detail-page-poster {
+    position: absolute;
+    width: 100%;
+    height: 85vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+  }
+  
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 85vh;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3));
+  }
+  
+  /* 🔥 Content Section */
+  .content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+    max-width: 90%;
+    text-align: left;
+    padding: 200px 50px 50px 50px;
+  }
+  
+  .details {
+    margin-left: 40px;
+    max-width: 600px;
+  }
+  
+  /* 🔥 Movie Title */
+  .title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    position: relative;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+  }
+  
+  /* 🔥 Movie Description */
+  .description {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+  
+  /* 🔥 Movie Info (Genre, Year, Rating) */
+  .info {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    opacity: 0.8;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .info span {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  
+  /* 🔥 Buttons (Watch & Trailer) */
+  .buttons {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+  }
+  
+  /* 🔥 Button Styling */
+  .detail-play-button {
+    font-size: 1.1rem;
+    width: 10em;
+    padding: 1em;
+    border: 2px solid white;
+    border-radius: 5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    color: white;
+    background: transparent;
+  }
+  
+  .detail-play-button:hover {
+    background-color: rgba(211, 20, 20, 0.8);
+    border-color: red;
+  }
+  
+  /* 🔥 Button Focus (for TV Remote Navigation) */
+  .detail-play-button-focus {
+    background-color: red;
+    border-color: red;
+    transform: scale(1.05);
+  }
+  
+  /* ⭐ Star Cast Section */
+  .start-cast-container {
+    width: 100%;
+    max-width: 1100px;
+    text-align: left;
+    padding: 30px;
+    margin-top: 30px;
+  }
+  
+  .start-cast-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid red;
+    display: inline-block;
+  }
+  
+  /* 🔥 Cast List with Smooth Scroll */
+  .cast-list {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
+  }
+  
+  .cast-list::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome/Safari */
+  }
+  
+  /* 🔥 Individual Cast Member */
+  .cast-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .cast-member:hover {
+    transform: scale(1.1);
+  }
+  
+  /* 🔥 Cast Image */
+  .cast-image {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .cast-image:hover {
+    border-color: red;
+  }
+  
+  /* 🔥 Cast Info */
+  .cast-info {
+    margin-top: 8px;
+  }
+  
+  .cast-name {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  .cast-character {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  /*  Shimmer Loading */
+.shimmer-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .details-shimmer {
+    padding: 20px 40px;
+  }
+
+
+  
+  .shimmer {
+    background: linear-gradient(to right, #222 8%, #333 18%, #222 33%);
+    background-size: 800px 104px;
+    animation: shimmer 1.2s infinite linear;
+    border-radius: 5px;
+  }
+  
+  .shimmer.title {
+    width: 80%;
+    height: 40px;
+  }
+  
+  .shimmer.description {
+    width: 100%;
+    height: 80px;
+  }
+  
+  .shimmer.info {
+    width: 60%;
+    height: 20px;
+  }
+  
+  .shimmer.buttons {
+    width: 200px;
+    height: 40px;
+  }
+
+  .shimmer-image-container{
+    display: flex;
+    flex: 1;
+    justify-content: end;
+  }
+
+  .shimmer-content-container{
+    display: flex;
+    width: 35%;
+    margin-top: 25%;
+    flex-direction: column;
+  }
+
+  .shimmer.image{
+    width: 500px;
+    height: 500px;
+    margin-right: 10%;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -800px 0;
+    }
+    100% {
+      background-position: 800px 0;
+    }
+  }
+  
