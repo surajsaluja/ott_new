@@ -9,7 +9,7 @@ import FocusableButton from "../Common/FocusableButton";
 import Banner from "../Banner";
 import "./Content.css";
 
-const Asset = ({ title, color, onEnterPress, onFocus, image, data = {},setAssetData }) => {
+const Asset = ({ title, color, onEnterPress, onAssetFocus, image, data = {},setAssetData }) => {
   const {
     imgRef,
     shouldLoad,
@@ -23,7 +23,7 @@ const Asset = ({ title, color, onEnterPress, onFocus, image, data = {},setAssetD
   const { ref, focused } = useFocusable({
     onEnterPress,
     onFocus:() => {
-      onFocus?.(ref.current);
+      onAssetFocus?.(ref.current, data);
       setAssetData(data);
     },
     onBlur:()=>setAssetData(null),
@@ -38,7 +38,7 @@ const Asset = ({ title, color, onEnterPress, onFocus, image, data = {},setAssetD
             className={`seeMore`}
             text={`See More`}
             onEnterPress={onEnterPress}
-            onFocus={onFocus}
+            onFocus={onAssetFocus}
           />
         ) : shouldLoad && !hasError ? (
           <>
@@ -62,14 +62,14 @@ const Asset = ({ title, color, onEnterPress, onFocus, image, data = {},setAssetD
   );
 };
 
-const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData }) => {
+const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData, handleAssetFocus }) => {
   const {
     ref,
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
     onAssetFocus
-  } = useContentRow(focusKey, onFocus);
+  } = useContentRow(focusKey, onFocus , handleAssetFocus);
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
@@ -89,7 +89,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
                 image={item.webThumbnail}
                 data={item}
                 onEnterPress={onAssetPress}
-                onFocus={onAssetFocus}
+                onAssetFocus={onAssetFocus}
                 setAssetData={setAssetData}
               />
             ))}
@@ -100,7 +100,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
   );
 };
 
-const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, setData, isLoading, setIsLoading,setAssetData,loadMoreRows }) => {
+const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, setData, isLoading, setIsLoading,setAssetData,loadMoreRows, handleAssetFocus }) => {
   const {
     ref,
     focusKey,
@@ -127,6 +127,7 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, 
                   onAssetPress={onAssetPress}
                   onAssetFocus = {onAssetFocus}
                   setAssetData={setAssetData}
+                  handleAssetFocus = {handleAssetFocus}
                 />
               </div>
             );
@@ -173,7 +174,8 @@ const ContentWithBanner = () =>{
       isLoading={isLoading} 
       setIsLoading={setIsLoading}
       setAssetData={setFocusedAssetData}
-      loadMoreRows={loadMoreRows} 
+      loadMoreRows={loadMoreRows}
+      handleAssetFocus = {handleAssetFocus} 
       />
     </div>
     </FocusContext.Provider>)

@@ -3,6 +3,14 @@ import { getDeviceOS, getDeviceId, getDeviceName } from './deviceInfo'
 
 let modalOpener = null;
 
+let scrollAnimationFrame = null;
+
+const easeInOutQuad = (t) =>
+  t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+const linear = (t) => t;
+
+
 export const getResizedOptimizedImage = (url, width, height) => {
   if (width && height)
     return url + "?im=Resize,width=" + width + ",height=" + height;
@@ -107,51 +115,33 @@ export const getDeviceInfo = () => {
   return deviceInfo;
 }
 
-let scrollAnimationFrame = null;
-
-export const smoothScrollTo = (
-  element,
-  to,
-  duration = 300,
-  direction = "horizontal"
-) => {
-  if (!element) return;
-
-  // Cancel any ongoing animation
-  if (scrollAnimationFrame) {
-    cancelAnimationFrame(scrollAnimationFrame);
-    scrollAnimationFrame = null;
-  }
+export const smoothScroll = (element, target, duration = 200, direction = "horizontal") => {
+  if (scrollAnimationFrame) cancelAnimationFrame(scrollAnimationFrame);
 
   const start = direction === "horizontal" ? element.scrollLeft : element.scrollTop;
-  const change = to - start;
+  const change = target - start;
   const startTime = performance.now();
 
-  // TV-friendly easing (cheap + smooth)
-  const easeOutQuad = (t) => t * (2 - t);
-
-  const animate = (currentTime) => {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = easeOutQuad(progress);
-
-    const value = Math.round(start + change * eased);
+  const animateScroll = (currentTime) => {
+    const timeElapsed = currentTime - startTime;
+    const progress = Math.min(timeElapsed / duration, 1);
+    const easingFunction = direction === 'horizontal' ? linear : easeInOutQuad;
+    const newVal = start + change * easingFunction(progress);
 
     if (direction === "horizontal") {
-      element.scrollLeft = value;
+      element.scrollLeft = newVal;
     } else {
-      element.scrollTop = value;
+      element.scrollTop = newVal;
     }
 
     if (progress < 1) {
-      scrollAnimationFrame = requestAnimationFrame(animate);
-    } else {
-      scrollAnimationFrame = null;
+      scrollAnimationFrame = requestAnimationFrame(animateScroll);
     }
   };
 
-  scrollAnimationFrame = requestAnimationFrame(animate);
+  scrollAnimationFrame = requestAnimationFrame(animateScroll);
 };
+
 
 export const setModalOpener = (fn) => {
   modalOpener = fn;

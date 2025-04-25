@@ -3,45 +3,8 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
 import { useUserContext } from "../../../Context/userContext";
-import { debounce } from 'lodash';
-import useMediaService from "../../../Service/useMediaService";
-
-
-/* ------------------ Utility: Smooth Scroll Animation ------------------ */
-let scrollAnimationFrame = null;
-
-const easeInOutQuad = (t) =>
-  t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
-const linear = (t) => t;
-
-const smoothScroll = (element, target, duration = 200, direction = "horizontal") => {
-  if (scrollAnimationFrame) cancelAnimationFrame(scrollAnimationFrame);
-
-  const start = direction === "horizontal" ? element.scrollLeft : element.scrollTop;
-  const change = target - start;
-  const startTime = performance.now();
-
-  const animateScroll = (currentTime) => {
-    const timeElapsed = currentTime - startTime;
-    const progress = Math.min(timeElapsed / duration, 1);
-    const easingFunction = direction === 'horizontal' ? linear : easeInOutQuad;
-    const newVal = start + change * easingFunction(progress);
-
-    if (direction === "horizontal") {
-      element.scrollLeft = newVal;
-    } else {
-      element.scrollTop = newVal;
-    }
-
-    if (progress < 1) {
-      scrollAnimationFrame = requestAnimationFrame(animateScroll);
-    }
-  };
-
-  scrollAnimationFrame = requestAnimationFrame(animateScroll);
-};
-
+import { smoothScroll } from "../../../Utils";
+import {fetchHomePageData, fetchContinueWatchingData, fetchPlaylistPage} from "../../../Service/MediaService";
 
 /* ------------------ Asset Hook ------------------ */
 const useAsset = (image) => {
@@ -67,7 +30,7 @@ const useAsset = (image) => {
 };
 
 /* ------------------ Content Row Hook ------------------ */
-const useContentRow = (focusKey, onFocus) => {
+const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   const {
     ref,
     focusKey: currentFocusKey,
@@ -108,26 +71,30 @@ const useContentRow = (focusKey, onFocus) => {
   //   }
   // }, 300); // Adjust throttle interval to your liking
 
+  const rafRef = useRef(null);
+
   const onScrollToElement = (element) => {
     if (!element || !scrollingRowRef.current) return;
   
-    cancelAnimationFrame(onAssetFocus.rafId); // cancel previous frame if any
+    cancelAnimationFrame(rafRef.current);
   
-    onAssetFocus.rafId = requestAnimationFrame(() => {
+    rafRef.current = requestAnimationFrame(() => {
       const parentRect = scrollingRowRef.current.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
   
       const scrollLeft =
         scrollingRowRef.current.scrollLeft +
-        (elementRect.left - parentRect.left - parentRect.x); // center alignment
+        (elementRect.left - parentRect.left - parentRect.x);
   
-      smoothScroll(scrollingRowRef.current, scrollLeft, 150); // shorter scroll duration
+      smoothScroll(scrollingRowRef.current, scrollLeft, 150);
     });
-  }
+  };
   
   
-  const onAssetFocus = useCallback((element) => {
+  
+  const onAssetFocus = useCallback((element,data) => {
     onScrollToElement(element);
+    handleAssetFocus(data);
   }, [onScrollToElement,smoothScroll]);
 
 
@@ -174,7 +141,6 @@ const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setI
     if (element && ref.current) {
       const scrollTop = element.top - ref.current.offsetTop;
        ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
-      //smoothScroll(verticalScrollingRowRef.current,scrollTop,250,'vertical');
     }
   }, [ref,smoothScroll]);
 
@@ -213,11 +179,16 @@ export const useContentWithBanner = (focusKey, onFocus) => {
   const [banners, setBanners] = useState([]);
   const horizontalLimit = 10;
   const [page, setPage] = useState(1);
-  const { profileInfo, uid, isLoggedIn } = useUserContext();
-  const {fetchHomePageData, fetchContinueWatchingData, fetchPlaylistPage} = useMediaService();
+  const { uid, isLoggedIn } = useUserContext();
+
+  const settleTimerRef = useRef(null);
+  const SETTLE_DELAY = 200; 
 
   useEffect(() => {
     loadInitialData();
+    return () => {
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+    };
   }, []);
 
   const loadInitialData = async () => {
@@ -255,9 +226,18 @@ export const useContentWithBanner = (focusKey, onFocus) => {
     }
   }, 1000);
 
-  const handleAssetFocus = (data) => {
-    setFocusedAssetData(data);
-  };
+  const handleAssetFocus = useCallback((asset) => {
+    // Cancel any pending update
+    if (settleTimerRef.current) {
+      clearTimeout(settleTimerRef.current);
+    }
+
+    // Fire a new timer
+    settleTimerRef.current = setTimeout(() => {
+      setFocusedAssetData(asset);      // <-- update happens only after the delay
+      settleTimerRef.current = null;   // clean up
+    }, SETTLE_DELAY);
+  }, []);
 
   return {
     ref,
