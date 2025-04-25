@@ -12,10 +12,17 @@ const useMovieDetail = (mediaId) => {
     useEffect(() => {
         if (!mediaId) {
             returnUserToHomePage();
-        };
+            return;
+        }
         fetchMediaDetail(mediaId);
-        focusSelf();
-    }, [mediaId, focusSelf,isLoading]);
+    }, [mediaId]); // Only runs when mediaId changes
+    
+    useEffect(() => {
+        if (!isLoading) {
+            focusSelf(); // Focus only after data is loaded
+        }
+    }, [isLoading]);
+    
 
     const returnUserToHomePage = () => {
         history.replace('/');
@@ -28,7 +35,6 @@ const useMovieDetail = (mediaId) => {
         const mediaDetailsResponse  =  await getMediaDetails(mediaId);
         if(mediaDetailsResponse.isSuccess){
             setMediaDetail(mediaDetailsResponse.data);
-            setIsLoading(false);
         }
         else{
             toast.error(mediaDetailsResponse.message);
