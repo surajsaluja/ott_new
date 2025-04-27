@@ -42,20 +42,21 @@ function Movie_Detail() {
           : "none",
       }}
     ></div>
-    <div className="overlay"></div>
+    <div className="overlay-detail overlay-detail-ltr"></div>
 
-    <div className="content">
+    <div className="content-detail">
       <div className="details">
-        <h1 className="title">{mediaDetail.title}</h1>
-        <p className="description">{mediaDetail.shortDescription}</p>
-        <div className="info">
-          <span>{mediaDetail.releasedYear}</span> •{" "}
-          <span>{mediaDetail.genre}</span> •{" "}
-          <span>⭐ {mediaDetail.rating}</span>
+        {mediaDetail.title && <h1 className="title-detail">{mediaDetail.title}</h1>}
+        <div className="info-detail">
+          {mediaDetail.releasedYear && <><span>{mediaDetail.releasedYear}</span> •</>} 
+          {mediaDetail.genre && <><span>{mediaDetail.genre}</span> •</>}
+          {mediaDetail.duration && <><span>{mediaDetail.duration}</span> •</>}
+          {mediaDetail.rating && <><span>⭐ {mediaDetail.rating}</span></>}
         </div>
+        {mediaDetail.description && <p className="description-detail">{mediaDetail.description}</p>}
 
         <FocusContext.Provider value={currentFocusKey}>
-          <div ref={ref} className="buttons">
+          <div ref={ref} className="buttons-detail">
             <FocusableButton
               className="detail-play-button"
               focusClass="detail-play-button-focus"

@@ -34,7 +34,7 @@ const useMovieDetail = (mediaId) => {
         setIsLoading(true);
         const mediaDetailsResponse  =  await getMediaDetails(mediaId);
         if(mediaDetailsResponse.isSuccess){
-            setMediaDetail(mediaDetailsResponse.data);
+            setMediaDetail(mediaDetailsResponse.data.mediaDetail);
         }
         else{
             toast.error(mediaDetailsResponse.message);

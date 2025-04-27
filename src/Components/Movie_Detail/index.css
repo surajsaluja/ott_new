@@ -12,29 +12,45 @@
   .movie-detail-page-poster {
     position: absolute;
     width: 100%;
-    height: 85vh;
+    height: 100vh;
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: center;
   }
   
-  .overlay {
+  .overlay-detail {
     position: absolute;
     width: 100%;
-    height: 85vh;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3));
+    height: 100vh;
+    /* background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3)); */
+  }
+
+  .overlay-detail-ltr {
+    background: 
+      linear-gradient(178.5deg,
+        rgba(var(--debug-color), 0) 57.9%,
+        rgba(var(--debug-color), 0) 64.8%,
+        rgba(var(--debug-color), 0.05) 67.56%,
+        rgba(var(--debug-color), 1) 96.94%),
+      linear-gradient(90deg,
+        rgba(var(--debug-color), 1) 0%,
+        rgba(var(--debug-color), 0.9) 30.15%,
+        rgba(var(--debug-color), 0.7) 40.52%,
+        rgba(var(--debug-color), 0.6) 50.81%,
+        rgba(var(--debug-color), 0.5) 60.08%,
+        rgba(var(--debug-color), 0) 80.1%);
   }
   
   /* 🔥 Content Section */
-  .content {
+  .content-detail {
     position: relative;
     display: flex;
     align-items: center;
     z-index: 2;
     max-width: 90%;
     text-align: left;
-    padding: 200px 50px 50px 50px;
+    padding: 50px 50px 50px 50px;
   }
   
   .details {
@@ -43,7 +59,7 @@
   }
   
   /* 🔥 Movie Title */
-  .title {
+  .title-detail {
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: 10px;
@@ -52,7 +68,7 @@
   }
   
   /* 🔥 Movie Description */
-  .description {
+  .description-detail {
     font-size: 1.2rem;
     opacity: 0.9;
     margin-bottom: 15px;
@@ -60,7 +76,7 @@
   }
   
   /* 🔥 Movie Info (Genre, Year, Rating) */
-  .info {
+  .info-detail {
     font-size: 1rem;
     margin-bottom: 15px;
     opacity: 0.8;
@@ -68,16 +84,15 @@
     gap: 10px;
   }
   
-  .info span {
+  .info-detail span {
     background-color: rgba(255, 255, 255, 0.2);
     padding: 5px 10px;
     border-radius: 5px;
   }
   
   /* 🔥 Buttons (Watch & Trailer) */
-  .buttons {
+  .buttons-detail {
     display: flex;
-    gap: 20px;
     margin-top: 10px;
   }
   
@@ -93,6 +108,7 @@
     cursor: pointer;
     color: white;
     background: transparent;
+    margin-left: 10px;
   }
   
   .detail-play-button:hover {
