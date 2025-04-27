@@ -93,7 +93,7 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
       mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
       webThumbnailUrl =  sanitizeAndResizeImage(mediaDetail.webThumbnailUrl,450);
       fullPageBannerUrl = getResizedOptimizedImage(mediaDetail.fullPageBanner,1920);
-      groupedStartCasts =  groupStarCasts(mediaDetail.starCast);
+      groupedStartCasts =  groupStarCasts(response.starcasts);
 
       skipInfo = {
         skipIntroST: parseInt(mediaDetail.skipIntroST),
