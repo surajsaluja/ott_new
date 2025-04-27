@@ -1,5 +1,5 @@
 :root {
-  --debug-color: 0, 0, 0; /* Bright red for easy visibility */
+  --debug-color: 0, 0, 0;
 }
 
 .top-banner {
@@ -13,8 +13,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    /* background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)); */
-    box-shadow: inset 20px 16px 20px 20px #000000;
   }
   
   .banner-video {
@@ -23,8 +21,6 @@
     position: relative;
     height: 100%;
     object-fit: cover;
-    box-shadow: inset 19px -20px 20px 20px #005df9;
-    /* background: linear-gradient(138deg, black, transparent); */
     scale: 1.2;
     transform: scale(1.2);
     -webkit-transform: scale(1.2);
@@ -35,12 +31,10 @@
     top: 0;
     width: 100%;
     height: 100%;
-    /* background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)); */
     display: flex;
     align-items: flex-start;
     padding: 2rem;
     box-sizing: border-box;
-    box-shadow: inset 20px -20px 20px 20px #000000;
   }
   
   .asset-info {
@@ -107,16 +101,12 @@
   
   .banner-gradient{
     width: 100%;
-    /* border-top-left-radius: 20%; */
     border-bottom-left-radius: 20%;
-    /* z-index: 100; */
     top: -10px;
     background-color: #000000;
     left: 10%;
     position: relative;
     height: 60vh;
-    /* transform: rotate(338deg); */
-    box-shadow: -20px 12px 20px 20px #000000;
     background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(251, 250, 250, 0));
     scale: 1.2;
     transform: scale(1.2);
@@ -178,7 +168,7 @@
     height: 100%;
     top: 0;
     left: 10%;
-    background-color: red;
+    /* background-color: red; */
   }
 
   .overlay-ltr {
