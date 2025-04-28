@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation"
+import { useFocusable,setFocus } from "@noriginmedia/norigin-spatial-navigation"
 import { getMediaDetails } from "../../../Utils/MediaDetails";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
@@ -7,6 +7,7 @@ const useMovieDetail = (mediaId) => {
     const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable('MOVIE_DETAIL_PAGE');
     const [mediaDetail, setMediaDetail] = useState('');
     const [isLoading,setIsLoading] = useState(true);
+    const [isDrawerOpen,setDrawerOpen] = useState(false);
     const history = useHistory();
 
     useEffect(() => {
@@ -58,13 +59,30 @@ const useMovieDetail = (mediaId) => {
 
     }
 
+    const handleBottomDrawerClose = () =>{
+        setDrawerOpen(false);
+        setFocus('detailBtnWatchMovie');
+    }
+
+    const handleBottomDrawerOpen = () => {
+        if (!isDrawerOpen) { 
+          setTimeout(() => {
+            setDrawerOpen(true);
+            setFocus('tabBottomDrawer')
+          }, 100);
+        }
+      };
+
     return {
         ref,
         currentFocusKey,
         mediaDetail,
         isLoading,
+        isDrawerOpen,
         onMovieWatchPress,
-        onTrailerWatchPress
+        onTrailerWatchPress,
+        handleBottomDrawerClose,
+        handleBottomDrawerOpen,
     }
 }
 
