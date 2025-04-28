@@ -11,6 +11,23 @@ const easeInOutQuad = (t) =>
 const linear = (t) => t;
 
 
+  export const formatTime = (time) => {
+    const [h = 0, m = 0, s = 0] = time?.split(":").map(Number);
+    const styles = {
+      grey: { color: "grey" },
+      white: { color: "white" },
+    };
+    const pad = (num) => String(num).padStart(2, "0");
+
+    return (
+      <label>
+        <label style={h > 0 ? styles.white : styles.grey}>{pad(h)}:</label>
+        <label style={h > 0 || m > 0 ? styles.white : styles.grey}>{pad(m)}:</label>
+        <label style={h > 0 || m > 0 || s > 0 ? styles.white : styles.grey}>{pad(s)}</label>
+      </label>
+    );
+  };
+
 export const getResizedOptimizedImage = (url, width, height) => {
   if (width && height)
     return url + "?im=Resize,width=" + width + ",height=" + height;
