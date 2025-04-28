@@ -3,13 +3,13 @@ import FocusableButton from '../Common/FocusableButton';
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import useBanner from './Hooks/useBanner'
+import {formatTime} from '../../Utils';
 import './index.css';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
   const {
     showBanner,
     videoRef,
-    formatTime,
     showOverlay,
     watchMediaVOD,
     isVideoLoaded,
@@ -26,7 +26,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       setTimeout(() => {
         setCurrentAsset(asset);
         setTransitionClass('fade-in');
-      }, 300); // Duration of the fade-out transition
+      }, 300);
     }
   }, [asset, currentAsset]);
 
