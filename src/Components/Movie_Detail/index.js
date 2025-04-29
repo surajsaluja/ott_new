@@ -23,9 +23,12 @@ function Movie_Detail() {
     isLoading,
     handleBottomDrawerOpen,
     isDrawerOpen,
-    handleBottomDrawerClose
+    handleBottomDrawerClose,
+    tabs,
+    bottomDrawerActiveTab,
+    setBottomDrawerActiveTab
   } = useMovieDetail(mediaId);
-  
+
 
   return (
     <div className="movie-detail-page">
@@ -68,53 +71,62 @@ function Movie_Detail() {
               <FocusContext.Provider value={currentFocusKey}>
                 <div ref={ref}>
                   <div className="buttons-detail">
-                  <FocusableButton
-                    className="detail-play-button"
-                    focusClass="detail-play-button-focus"
-                    text={"Watch Movie"}
-                    focuskey={'detailBtnWatchMovie'}
-                    onEnterPress={() =>
-                      onMovieWatchPress(`${mediaDetail.mediaUrl}`)
-                    }
-                  />
-                  <FocusableButton
-                    className="detail-play-button"
-                    focusClass="detail-play-button-focus"
-                    text={"Watch Trailer"}
-                    onEnterPress={() =>
-                      onTrailerWatchPress(`${mediaDetail.preview_url}`)
-                    }
-                  />
-                  <FocusableButton
-                    className="detail-play-button"
-                    focusClass="detail-play-button-focus"
-                    text={"Continue Watching"}
-                    onEnterPress={() =>
-                      onTrailerWatchPress(`${mediaDetail.preview_url}`)
-                    }
-                  />
-                  <FocusableButton
-                    className="detail-play-button"
-                    focusClass="detail-play-button-focus"
-                    text={"Add To Favourutes"}
-                    onEnterPress={() =>
-                      onTrailerWatchPress(`${mediaDetail.preview_url}`)
-                    }
-                  />
-                  <div className={'buttons-bottom-dummy'}>
-                  <FocusableButton
-          text='Seasons and Episodes'
-          className={'btn-bottom-detail'}
-          focusClass={'btn-bottom-detail-focused'}
-          onFocus={handleBottomDrawerOpen}
-          />
-          <FocusableButton
-          text='More Like This'
-          className={'btn-bottom-detail'}
-          focusClass={'btn-bottom-detail-focused'}
-          onFocus={handleBottomDrawerOpen}
-          />
-                  </div>
+                    <FocusableButton
+                      className="detail-play-button"
+                      focusClass="detail-play-button-focus"
+                      text={"Watch Movie"}
+                      focuskey={'detailBtnWatchMovie'}
+                      onEnterPress={() =>
+                        onMovieWatchPress(`${mediaDetail.mediaUrl}`)
+                      }
+                    />
+                    <FocusableButton
+                      className="detail-play-button"
+                      focusClass="detail-play-button-focus"
+                      text={"Watch Trailer"}
+                      onEnterPress={() =>
+                        onTrailerWatchPress(`${mediaDetail.preview_url}`)
+                      }
+                    />
+                    <FocusableButton
+                      className="detail-play-button"
+                      focusClass="detail-play-button-focus"
+                      text={"Continue Watching"}
+                      onEnterPress={() =>
+                        onTrailerWatchPress(`${mediaDetail.preview_url}`)
+                      }
+                    />
+                    <FocusableButton
+                      className="detail-play-button"
+                      focusClass="detail-play-button-focus"
+                      text={"Add To Favourutes"}
+                      onEnterPress={() =>
+                        onTrailerWatchPress(`${mediaDetail.preview_url}`)
+                      }
+                    />
+                    <div className={'buttons-bottom-dummy'}>
+                      {tabs.map((el, idx) =>
+                        idx === 0 ? (
+                          <FocusableButton
+                            key={`${el.focusKey}_dummy`}
+                            text={el.name}
+                            className={'btn-bottom-detail'}
+                            focusClass={'btn-bottom-detail-focused'}
+                            focuskey={`${el.focusKey}_dummy`}
+                            onEnterPress={el.action}
+                            onFocus={handleBottomDrawerOpen}
+                          />
+                        ) : (
+                          <div
+                            key={`${el.focusKey}_nonfocus`}
+                            className={'btn-bottom-detail'}
+                          >
+                            {el.name}
+                          </div>
+                        )
+                      )}
+
+                    </div>
                   </div>
                 </div>
               </FocusContext.Provider>
@@ -123,26 +135,30 @@ function Movie_Detail() {
         </>
       )}
 
-{isDrawerOpen && <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose}>
-<div className='bottom-content-detail'>
-        <div className='bottomDrawer-detail-tabs'>
-        <FocusableButton
-          text='Seasons and Episodes'
-          className={'btn-bottomDrawer-detail-tab'}
-          focusClass={'btn-bottomDrawer-detail-tab-focused'}
-          focuskey={'tabBottomDrawer'}
-          />
-          <FocusableButton
-           text='More Like This'
-           className={'btn-bottomDrawer-detail-tab'}
-           focusClass={'btn-bottomDrawer-detail-tab-focused'}
-          />
-            
+      {isDrawerOpen && <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose}>
+        <div className='bottom-content-detail'>
+          <div className='bottomDrawer-detail-tabs'>
+            {tabs.map((el) => (
+              <FocusableButton
+                key={el.focusKey}
+                text={el.name}
+                className={'btn-bottomDrawer-detail-tab'}
+                focusClass={'btn-bottomDrawer-detail-tab-focused'}
+                focuskey={el.focusKey}
+                onEnterPress={() => {
+                  setBottomDrawerActiveTab(el.id);
+                }}
+              />
+            ))}
+
+
+          </div>
+          <div className='bottomDrawer-detail-assets-container'>
+          {bottomDrawerActiveTab === 1 && <FullPageAssetContainer category="similar" />}
+          {bottomDrawerActiveTab === 2 && <p>Related Items</p>}
+          {bottomDrawerActiveTab === 3 && <p>Cast & Crew</p>}
+          </div>
         </div>
-        <div className='bottomDrawer-detail-assets-container'>
-          <FullPageAssetContainer />
-        </div>
-      </div>
       </BottomDrawer>}
 
 
