@@ -21,6 +21,10 @@ const getIsContentFree = (isPaid) => {
 }
 
 const groupStarCasts = (starCastArray = []) => {
+  if (!Array.isArray(starCastArray) || starCastArray.length === 0) {
+    return null;
+  }
+
   const groupedStarCasts = {
     Producer: [],
     Director: [],
@@ -28,17 +32,17 @@ const groupStarCasts = (starCastArray = []) => {
     Starcast: []
   };
 
-  if (Array.isArray(starCastArray) && starCastArray.length > 0) {
-    starCastArray.forEach((starcast) => {
-      const { iStarcastType, displayName } = starcast;
-      if (groupedStarCasts[iStarcastType]) {
-        groupedStarCasts[iStarcastType].push(displayName);
-      }
-    });
-  }
+  starCastArray.forEach(({ iStarcastType, displayName }) => {
+    if (groupedStarCasts[iStarcastType]) {
+      groupedStarCasts[iStarcastType].push(displayName);
+    }
+  });
 
-  return groupedStarCasts;
+  // Check if all groups are still empty
+  const hasAnyStarCast = Object.values(groupedStarCasts).some(list => list.length > 0);
+  return hasAnyStarCast ? groupedStarCasts : null;
 };
+
 
 
 export const getMediaDetails = async (mediaId = null, category = 'movie', isTrailer = true, userObjectId = null) => {
