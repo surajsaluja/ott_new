@@ -10,11 +10,14 @@ function FullPageAssetContainer({ assets, onAssetPress }) {
     return (
         <>
             {isLoading ? (
-                <div className='asset-container'>
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                     {Array.from({ length: dummyAssetBoxCount }).map((_, idx) => (
-                        <div key={idx} className={'shimmer-wrapper dummyAsset_box'} />
+                        <div
+                            key={idx}
+                            className="dummyAsset_box"
+                        >
+                        </div>
                     ))}
-                    <div className="shimmer" />
                 </div>
             ) : (
                 <FocusContext.Provider value={currentFocusKey}>
