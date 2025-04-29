@@ -1,6 +1,6 @@
 const DEFAULTS = {
     USER_ID : 0,
-    SECTION:5,
+    SECTION:5, // 5 FOR HOME,2 FOR WEB SERIES,1 FOR MOVIES
     PAGE: 1,
     PAGE_SIZE: 10,
     LANGUAGE_CODE: 1,
@@ -27,6 +27,8 @@ export const API = {
             `/Content/GetPlaylistData/${section ?? DEFAULTS.SECTION}/${userId ?? DEFAULTS.USER_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_sIZE}`,
         GET_CONTINUE_WATCH: (userId) =>
             `/Content/GetContinueWatchRail?section=Home&userId=${userId ?? DEFAULTS.USER_ID}`,
+        GET_BANNER_DATA:(section,languageCode,userId) =>
+            `/Content/GetPromotionItems/Banner/${section ?? DEFAULTS.SECTION}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userId ?? DEFAULTS.USER_ID}/tv4`
     },
     MEDIA: {
         GET_MOVIE_DETAILS: (mediaId, userObjectId) =>

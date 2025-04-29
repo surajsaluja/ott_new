@@ -7,7 +7,8 @@ const DEFAULT_PLAYLIST_TYPE = "Home";
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_LANGUAGE = 1;
 const DEFAULT_PAGE = 1;
-const RELATED_MEDIA_DEFAULT_PAGE_SIZE = 50;
+const RELATED_MEDIA_DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_SECTION = 5;
 const userObjId = localStorage.getItem('userObjectId') ?? null;
 const uid = localStorage.getItem('uid') ?? null;
 
@@ -26,10 +27,19 @@ export const fetchHomePageData = async (userId = null) => {
     }
 };
 
-export const fetchPlaylistPage = async (page, userId = null) => {
+export const fetchBannersBySection = async(section, language = null, userId = null) => {
+    try{
+        const response = await fetchData(API.HOMEPAGE.GET_BANNER_DATA(section ?? DEFAULT_SECTION,language ?? DEFAULT_LANGUAGE,userId ?? uid));
+        return response || null;
+    }catch(error){
+        return ThrowError('fetchBannersBySection',error);
+    }
+}
+
+export const fetchPlaylistPage = async (section,page, userId = null) => {
     try {
         const response = await fetchData(
-            API.HOMEPAGE.GET_PLAYLIST_DATA(DEFAULT_PLAYLIST_TYPE, userId ?? uid, page, DEFAULT_PAGE_SIZE)
+            API.HOMEPAGE.GET_PLAYLIST_DATA(section ?? DEFAULT_PLAYLIST_TYPE, userId ?? uid, page, DEFAULT_PAGE_SIZE)
         );
         return response?.data || [];
     } catch (error) {

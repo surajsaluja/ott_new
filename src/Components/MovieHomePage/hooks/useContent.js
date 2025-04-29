@@ -4,7 +4,7 @@ import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
 import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
-import {fetchHomePageData, fetchContinueWatchingData, fetchPlaylistPage} from "../../../Service/MediaService";
+import { fetchHomePageData, fetchContinueWatchingData, fetchPlaylistPage, fetchBannersBySection } from "../../../Service/MediaService";
 
 /* ------------------ Asset Hook ------------------ */
 const useAsset = (image) => {
@@ -43,30 +43,30 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   });
 
   const scrollingRowRef = useRef(null);
-  
-// const onScrollToElement = 
-//   debounce((element) => {
-//     if (element && scrollingRowRef.current) {
-//       const parentRect = scrollingRowRef.current.getBoundingClientRect();
-//       const elementRect = element.getBoundingClientRect();
 
-//       const scrollLeft =
-//         scrollingRowRef.current.scrollLeft +
-//         (elementRect.left - parentRect.left - parentRect.x);
+  // const onScrollToElement = 
+  //   debounce((element) => {
+  //     if (element && scrollingRowRef.current) {
+  //       const parentRect = scrollingRowRef.current.getBoundingClientRect();
+  //       const elementRect = element.getBoundingClientRect();
 
-//       smoothScroll(scrollingRowRef.current, scrollLeft);
-//     }
-//   }, 200);
+  //       const scrollLeft =
+  //         scrollingRowRef.current.scrollLeft +
+  //         (elementRect.left - parentRect.left - parentRect.x);
+
+  //       smoothScroll(scrollingRowRef.current, scrollLeft);
+  //     }
+  //   }, 200);
 
   // const onScrollToElement = useThrottle((element) => {
   //   if (element && scrollingRowRef.current) {
   //     const parentRect = scrollingRowRef.current.getBoundingClientRect();
   //     const elementRect = element.getBoundingClientRect();
-  
+
   //     const scrollLeft =
   //       scrollingRowRef.current.scrollLeft +
   //       (elementRect.left - parentRect.left - 80);
-  
+
   //     smoothScroll(scrollingRowRef.current, scrollLeft);
   //   }
   // }, 300); // Adjust throttle interval to your liking
@@ -75,27 +75,27 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
 
   const onScrollToElement = (element) => {
     if (!element || !scrollingRowRef.current) return;
-  
+
     cancelAnimationFrame(rafRef.current);
-  
+
     rafRef.current = requestAnimationFrame(() => {
       const parentRect = scrollingRowRef.current.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
-  
+
       const scrollLeft =
         scrollingRowRef.current.scrollLeft +
         (elementRect.left - parentRect.left - parentRect.x);
-  
+
       smoothScroll(scrollingRowRef.current, scrollLeft, 150);
     });
   };
-  
-  
-  
-  const onAssetFocus = useCallback((element,data) => {
+
+
+
+  const onAssetFocus = useCallback((element, data) => {
     onScrollToElement(element);
     handleAssetFocus(data);
-  }, [onScrollToElement,smoothScroll]);
+  }, [onScrollToElement, smoothScroll]);
 
 
   return {
@@ -140,9 +140,9 @@ const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setI
   const onRowFocus = useCallback((element) => {
     if (element && ref.current) {
       const scrollTop = element.top - ref.current.offsetTop;
-       ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
+      ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
     }
-  }, [ref,smoothScroll]);
+  }, [ref, smoothScroll]);
 
   const onAssetPress = (item) => {
     console.log("Selected asset:", item.data);
@@ -157,11 +157,11 @@ const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setI
     data,
     loadMoreRef,
     isLoading,
-    };
+  };
 };
 
 /* ------------------ Content with Banner Hook ------------------ */
-export const useContentWithBanner = (focusKey, onFocus) => {
+export const useContentWithBanner = (focusKey, onFocus,section = 5) => {
   const {
     ref,
     focusKey: currentFocusKey,
@@ -182,7 +182,7 @@ export const useContentWithBanner = (focusKey, onFocus) => {
   const { uid, isLoggedIn } = useUserContext();
 
   const settleTimerRef = useRef(null);
-  const SETTLE_DELAY = 200; 
+  const SETTLE_DELAY = 200;
 
   useEffect(() => {
     loadInitialData();
@@ -194,15 +194,20 @@ export const useContentWithBanner = (focusKey, onFocus) => {
   const loadInitialData = async () => {
     setIsLoading(true);
     try {
-      const raw = await fetchHomePageData(isLoggedIn ? uid : 0);
-      let processed = getProcessedPlaylists(raw.playlists, horizontalLimit);
-      setBanners(raw.banners);
+      const bannerData = await fetchBannersBySection(section);
+      if (bannerData) {
+        setBanners(bannerData?.data);
+      }
 
-      if (isLoggedIn && uid) {
+      const playlistData = await fetchPlaylistPage(section, 1, uid);
+      let processed = getProcessedPlaylists(playlistData, horizontalLimit);
+
+      if (isLoggedIn && uid && section == 5) {
         const continueWatchlistData = await fetchContinueWatchingData(isLoggedIn ? uid : 0);
         processed = getProcessedPlaylistsWithContinueWatch(processed, continueWatchlistData);
       }
 
+      setPage(1); // initially setting page to 1
       setData(processed);
     } catch (e) {
       console.error("Failed to load homepage", e);
@@ -215,7 +220,7 @@ export const useContentWithBanner = (focusKey, onFocus) => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const raw = await fetchPlaylistPage(page + 1, uid);
+      const raw = await fetchPlaylistPage(section, page + 1, uid);
       const processed = getProcessedPlaylists(raw, horizontalLimit);
       setData((prev) => [...prev, ...processed]);
       setPage((prev) => prev + 1);
