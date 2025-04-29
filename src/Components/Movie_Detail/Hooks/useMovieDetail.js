@@ -4,6 +4,7 @@ import { getMediaDetails } from "../../../Utils/MediaDetails";
 import { getMediaRelatedItem } from "../../../Service/MediaService";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
+import { getProcessedPlaylists } from "../../../Utils";
 
 const useMovieDetail = (mediaId) => {
     const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable('MOVIE_DETAIL_PAGE');
@@ -13,6 +14,7 @@ const useMovieDetail = (mediaId) => {
     const history = useHistory();
     const [bottomDrawerActiveTab,setBottomDrawerActiveTab] = useState(1);
     const [tabs, setTabs] = useState([]);
+    const [relatedItems, setRelatedItems] = useState([]);
 
     const generateTabs = (detail) =>{
         const dynamicTabs = [];
@@ -59,6 +61,13 @@ const useMovieDetail = (mediaId) => {
             focusSelf(); // Focus only after data is loaded
         }
     }, [isLoading]);
+
+    useEffect(() => {
+        if (isDrawerOpen && bottomDrawerActiveTab === 2) {
+          getRelatedMediaItems(mediaId);
+        }
+      }, [isDrawerOpen, bottomDrawerActiveTab]);
+      
 
 
     const returnUserToHomePage = () => {
@@ -112,10 +121,18 @@ const useMovieDetail = (mediaId) => {
     };
 
     const getRelatedMediaItems = async (mediaId) => {
-        // Not Passing Page Number as Pagination is not applied Server Side fetch 10 records: Navveen Sir UNISYS
-        const relatedMediaItems = await getMediaRelatedItem(mediaId);
-
-    }
+        try {
+          const response = await getMediaRelatedItem(mediaId);
+          if (response.isSuccess && response.data?.length) {
+            setRelatedItems(getProcessedPlaylists(response.data,10));
+          } else {
+            setRelatedItems([]);
+          }
+        } catch (err) {
+          toast.error("Failed to load related items");
+          setRelatedItems([]);
+        }
+      };
 
     return {
         ref,
@@ -129,7 +146,8 @@ const useMovieDetail = (mediaId) => {
         handleBottomDrawerOpen,
         tabs,
         bottomDrawerActiveTab,
-        setBottomDrawerActiveTab
+        setBottomDrawerActiveTab,
+        relatedItems
     }
 }
 

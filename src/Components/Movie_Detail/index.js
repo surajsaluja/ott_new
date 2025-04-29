@@ -26,7 +26,8 @@ function Movie_Detail() {
     handleBottomDrawerClose,
     tabs,
     bottomDrawerActiveTab,
-    setBottomDrawerActiveTab
+    setBottomDrawerActiveTab,
+    relatedItems
   } = useMovieDetail(mediaId);
 
 
@@ -154,9 +155,12 @@ function Movie_Detail() {
 
           </div>
           <div className='bottomDrawer-detail-assets-container'>
-          {bottomDrawerActiveTab === 1 && <FullPageAssetContainer category="similar" />}
-          {bottomDrawerActiveTab === 2 && <p>Related Items</p>}
-          {bottomDrawerActiveTab === 3 && <p>Cast & Crew</p>}
+            {bottomDrawerActiveTab === 1 && <FullPageAssetContainer category="similar" />}
+            {bottomDrawerActiveTab === 2 && (<FullPageAssetContainer
+              assets={relatedItems}
+              onAssetPress={(asset) => console.log('Related item clicked', asset)}
+            />)}
+            {bottomDrawerActiveTab === 3 && <p>Cast & Crew</p>}
           </div>
         </div>
       </BottomDrawer>}

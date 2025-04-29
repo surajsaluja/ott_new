@@ -323,6 +323,7 @@
   .bottomDrawer-detail-tabs{
     display: flex;
     flex-direction: row;
+    margin-bottom: 10px;
   }
 
   .bottom-content-detail{
