@@ -15,9 +15,9 @@ export default function BottomDrawer({ isOpen, onClose, children }) {
     }
   }, [isOpen, hasMounted]);
 
-  // useEffect(()=>{
-  //   focusSelf();
-  // },[focusSelf,isOpen])
+  useEffect(()=>{
+    focusSelf();
+  },[focusSelf,isOpen])
 
   return (
     isOpen && (
@@ -34,7 +34,7 @@ export default function BottomDrawer({ isOpen, onClose, children }) {
             </div>
             {children}
           </div>
-        </FocusContext.Provider>
+          </FocusContext.Provider>
       </div>
     )
   );

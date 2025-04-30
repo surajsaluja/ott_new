@@ -14,23 +14,23 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {} }) {
   }, [assets]);
 
   return (
-    <>
-      {isLoading ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {Array.from({ length: dummyAssetBoxCount }).map((_, idx) => (
+    <FocusContext.Provider value={currentFocusKey}>
+      <div ref={ref} className="asset-container">
+        {isLoading ? (
+          Array.from({ length: dummyAssetBoxCount }).map((_, idx) => (
             <div key={idx} className="dummyAsset_box" />
-          ))}
-        </div>
-      ) : (
-        <FocusContext.Provider value={currentFocusKey}>
-          <div ref={ref} style={{ display: 'flex', flexWrap: 'wrap' }}>
-            {assets.map((asset, idx) => (
-              <AssetCard key={asset.id || idx} asset={asset} onClick={() => onAssetPress(asset)} />
-            ))}
-          </div>
-        </FocusContext.Provider>
-      )}
-    </>
+          ))
+        ) : (
+          assets.map((asset, idx) => (
+            <AssetCard
+              key={asset.id ?? idx}
+              asset={asset}
+              onClick={() => onAssetPress(asset)}
+            />
+          ))
+        )}
+      </div>
+    </FocusContext.Provider>
   );
 }
 
@@ -46,13 +46,15 @@ function AssetCard({ asset, onClick }) {
     setIsImgLoaded(true);
   };
 
-  const imageUrl = asset?.webThumbnail || ''; // Adjust based on actual asset structure
+  const imageUrl = asset?.webThumbnail || '';
 
   return (
     <div
       ref={ref}
       onClick={onClick}
-      className={'asset_box'}
+      className="asset_box"
+      tabIndex={-1}
+      role="button"
     >
       {!isImgLoaded && (
         <div className="shimmer-placeholder card-image" />
