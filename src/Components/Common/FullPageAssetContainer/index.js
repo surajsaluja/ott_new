@@ -1,6 +1,7 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
+import FocusableButton from '../FocusableButton';
 
 function FullPageAssetContainer({ assets = [], onAssetPress = () => {},focusKey }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({  
@@ -62,23 +63,21 @@ function AssetCard({ asset, onClick,focusKey }) {
     setIsImgLoaded(true);
   };
 
-  const imageUrl = asset?.webThumbnail || '';
+  const imageUrl = asset?.webThumbnail || null;
 
   return (
     <div
       ref={ref}
       onClick={onClick}
-      className="asset_box"
-      tabIndex={-1}
-      role="button"
+      className={`asset_box ${focused ? 'focused' : ''}`}
     >
       {!isImgLoaded && (
-        <div className="shimmer-placeholder card-image" />
+        <div className={`card-image shimmer-placeholder`}><p>{asset.title}</p></div>
       )}
-      {!hasImgError && (
+      {!hasImgError && imageUrl && (
         <img
           ref={imgRef}
-          className={`card-image ${focused ? 'focused' : ''} ${isImgLoaded ? 'show' : 'hide'}`}
+          className={`card-image ${isImgLoaded ? 'show' : 'hide'}`}
           src={imageUrl}
           alt={asset.title || ''}
           onLoad={handleLoad}

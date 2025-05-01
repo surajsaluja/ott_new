@@ -122,7 +122,7 @@ const useMediaDetail = (mediaId, focusKey) => {
         if (isRelatedItemsLoading) return <p>Loading related items...</p>;
         if (!relatedItems.length) return <p>No related items available.</p>;
     
-        return <FullPageAssetContainer assets={relatedItems} />;
+        return <FullPageAssetContainer assets={relatedItems} focusKey={'AST_CNT_DET_REL'}/>;
       }, [isRelatedItemsLoading, relatedItems]);
 
     const tabs = useMemo(() => {
@@ -153,7 +153,7 @@ const useMediaDetail = (mediaId, focusKey) => {
           renderContent: RenderRelatedItems,
         });
       
-        // if (mediaDetail.groupedStartCasts) {
+         if (mediaDetail.groupedStartCasts) {
           dynamicTabs.push({
             name: 'StarCast',
             action: null,
@@ -161,7 +161,7 @@ const useMediaDetail = (mediaId, focusKey) => {
             id: 3,
             renderContent: () => <p>Cast & Crew</p>,
           });
-        // }
+        }
       
         return dynamicTabs;
       }, [mediaDetail, RenderRelatedItems]);

@@ -63,21 +63,25 @@ function Movie_Detail(focusKey) {
                             {mediaDetail &&
                                 <div className="buttons-detail" ref={ref}>
                                     <FocusableButton
+                                    key={'detail_watch'}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={"Watch Movie"}
                                     />
                                     <FocusableButton
+                                    key={'detail_trailer'}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={"Watch Trailer"}
                                     />
                                     <FocusableButton
+                                    key={'detail_continue_watch'}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={"Continue Watching"}
                                     />
                                     <FocusableButton
+                                    key={'detail-wishlist'}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={"Add To Favourutes"}
@@ -95,7 +99,7 @@ function Movie_Detail(focusKey) {
                                 className={'btn-bottomDrawer-detail-tab'}
                                 focusClass={'btn-bottomDrawer-detail-tab-focused'}
                                 onFocus={handleBottomDrawerOpen}
-                            />) : (<div className={'btn-bottomDrawer-detail-tab'}> {el.name}
+                            />) : (<div key={`btn_dummy_${idx}`}className={'btn-bottomDrawer-detail-tab'}> {el.name}
                             </div>)
                         ))}
                     </div>

@@ -98,6 +98,7 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
       webThumbnailUrl =  sanitizeAndResizeImage(mediaDetail.webThumbnailUrl,450);
       fullPageBannerUrl = getResizedOptimizedImage(mediaDetail.fullPageBanner,1920);
       groupedStartCasts =  groupStarCasts(response.starcasts);
+      mediaDetail.groupedStartCasts = groupedStartCasts;
 
       skipInfo = {
         skipIntroST: parseInt(mediaDetail.skipIntroST),
@@ -148,13 +149,7 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
       userCurrentPlayTime,
       webThumbnailUrl,
       fullPageBannerUrl,
-      groupedStartCasts,
-      // isUserSubscribed,
-      // mediaUrl,
-      // subtitleUrl,
-      // isFree,
-      // isMediaPublished,
-      //mediaTitle,
+      groupedStartCasts
       
     }
   };
