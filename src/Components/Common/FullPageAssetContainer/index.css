@@ -1,11 +1,10 @@
 .asset-container{
-    display: flex;
-    flex-wrap: wrap;
-    height: 100%;
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1.5fr 1.5fr;
 }
 
 .dummyAsset_box{
-    width: 250px;
+    width: 15%;
     height: 150px;
     margin: 20px;
     border-radius: 5px;

@@ -1,6 +1,4 @@
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { useEffect } from "react";
-import FullPageAssetContainer from "../Common/FullPageAssetContainer";
 import FocusableButton from "../Common/FocusableButton";
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
@@ -8,8 +6,9 @@ import { formatTime } from "../../Utils";
 import useMediaDetail from "./Hooks/useMediaDetail";
 import BottomDrawer from "../Common/BottomDrawer";
 import './index.css'
+import BottomTabbedComponent from "./BottomTabbedComponent";
 
-function Movie_Detail() {
+function Movie_Detail(focusKey) {
     const {
         ref,
         btnControlsFocusKey,
@@ -17,17 +16,15 @@ function Movie_Detail() {
         mediaDetail,
         isDrawerOpen,
         tabs,
-        relatedItems,
-        bottomDrawerActiveTab,
         isDrawerContentReady,
-        setBottomDrawerActiveTab,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
-    } = useMediaDetail(207);
+    } = useMediaDetail(207, focusKey);
 
 
-    return (<>
-        <div className="movie-detail-page">
+    return (<FocusContext.Provider value={btnControlsFocusKey}>
+
+        <div className="movie-detail-page" ref={ref}>
             {isLoading || !mediaDetail ? (
                 <div className="details-shimmer shimmer-wrapper">
                     <div className="shimmer-content-container">
@@ -63,7 +60,7 @@ function Movie_Detail() {
                                 {mediaDetail?.cultures && <span>{mediaDetail?.cultures}</span>}
                             </div>
                             {mediaDetail.description && <p className="description-detail">{mediaDetail.description}</p>}
-                            {mediaDetail && <FocusContext.Provider value={btnControlsFocusKey}>
+                            {mediaDetail &&
                                 <div className="buttons-detail" ref={ref}>
                                     <FocusableButton
                                         className="detail-play-button"
@@ -86,87 +83,37 @@ function Movie_Detail() {
                                         text={"Add To Favourutes"}
                                     />
                                 </div>
-                                <div className="btn-dummy-bottom">
-                                    <FocusableButton
-                                        key={'Bottom 1'}
-                                        text={'More Like This'}
-                                        className={'btn-bottomDrawer-detail-tab'}
-                                        focusClass={'btn-bottomDrawer-detail-tab-focused'}
-                                        onFocus={handleBottomDrawerOpen}
-                                    />
-                                </div>
-                            </FocusContext.Provider>}
+
+                            }
                         </div>
+                    </div>
+                    <div className="buttons-bottom-dummy">
+                        {tabs.map((el, idx) => (
+                            idx == 0 ? (<FocusableButton
+                                key={'Bottom 1'}
+                                text={el.name}
+                                className={'btn-bottomDrawer-detail-tab'}
+                                focusClass={'btn-bottomDrawer-detail-tab-focused'}
+                                onFocus={handleBottomDrawerOpen}
+                            />) : (<div className={'btn-bottomDrawer-detail-tab'}> {el.name}
+                            </div>)
+                        ))}
                     </div>
                 </>
             )}
         </div>
         {isDrawerOpen && (
-            <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose}>
-                <RenderMediaBottomDrawerData
-                    isDrawerContentReady={isDrawerContentReady}
+            <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose} focusKey={'BTM_DRWR'}>
+               {isDrawerContentReady && tabs.length > 0 && <BottomTabbedComponent
                     tabs={tabs}
-                    bottomDrawerActiveTab={bottomDrawerActiveTab}
-                    setBottomDrawerActiveTab={setBottomDrawerActiveTab}
-                    relatedItems={relatedItems}
-                />
+                    isDrawerContentReady={isDrawerContentReady}
+                    focusKey={'TAB_COMP'}
+                />}
             </BottomDrawer>
 
         )}
-    </>
+    </FocusContext.Provider>
     );
 }
-
-const RenderMediaBottomDrawerData = ({
-    isDrawerContentReady,
-    tabs,
-    bottomDrawerActiveTab,
-    setBottomDrawerActiveTab,
-    relatedItems
-}) => {
-    const {
-        ref: tabsRef,
-        focusKey: tabsFocusKey,
-        focusSelf: focusTabs
-    } = useFocusable({ focusKey: 'TABS_CONTAINER' });
-
-    useEffect(() => {
-        if (isDrawerContentReady) {
-            focusTabs(); // focus tabs when drawer is ready
-        }
-    }, [isDrawerContentReady]);
-
-    if (!isDrawerContentReady) return null;
-
-    return (
-        <div className="bottom-content-detail" style={{ margin: '20px 30px' }}>
-            <FocusContext.Provider value={tabsFocusKey}>
-                <div className="bottomDrawer-detail-tabs" ref={tabsRef}>
-                    {tabs.map((el) => (
-                        <FocusableButton
-                            key={el.focusKey}
-                            focusKey={el.focusKey} // ✅ correct prop name
-                            text={el.name}
-                            className="btn-bottomDrawer-detail-tab"
-                            focusClass="btn-bottomDrawer-detail-tab-focused"
-                            onEnterPress={() => setBottomDrawerActiveTab(el.id)}
-                        />
-                    ))}
-                </div>
-
-                <div className="bottomDrawer-detail-assets-container">
-                    {bottomDrawerActiveTab === 1 && <FullPageAssetContainer category="similar" />}
-                    {bottomDrawerActiveTab === 2 && (
-                        <FullPageAssetContainer
-                            assets={relatedItems}
-                            onAssetPress={(asset) => console.log('Related item clicked', asset)}
-                        />
-                    )}
-                    {bottomDrawerActiveTab === 3 && <p>Cast & Crew</p>}
-                </div>
-            </FocusContext.Provider>
-        </div>
-    );
-};
 
 export default Movie_Detail

@@ -2,12 +2,19 @@ import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-naviga
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 
-function FullPageAssetContainer({ assets = [], onAssetPress = () => {} }) {
-  const { ref, focusKey: currentFocusKey } = useFocusable({ focusKey: 'Assets_Container' });
+function FullPageAssetContainer({ assets = [], onAssetPress = () => {},focusKey }) {
+  const { ref, focusKey: currentFocusKey } = useFocusable({  
+    focusable: true,
+    trackChildren: true,
+    focusKey,
+    saveLastFocusedChild: false });
   const [isLoading, setIsLoading] = useState(true);
   const dummyAssetBoxCount = 10;
 
   useEffect(() => {
+    if(assets && assets.length == 0){
+      setIsLoading(false);
+    }
     if (assets && assets.length > 0) {
       setIsLoading(false);
     }
@@ -15,27 +22,36 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {} }) {
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
-      <div ref={ref} className="asset-container">
+      <div ref={ref}>
+    {assets.length > 0 ? (
+      <div className="asset-container">
         {isLoading ? (
           Array.from({ length: dummyAssetBoxCount }).map((_, idx) => (
             <div key={idx} className="dummyAsset_box" />
           ))
+        ) : assets.length === 0 ? (
+          <div className="no-assets-message">No assets found</div>
         ) : (
           assets.map((asset, idx) => (
             <AssetCard
-              key={asset.id ?? idx}
+              key={`${asset.id}_${idx}`}
+              focusKey={`${asset.id}_${idx}`}
               asset={asset}
+              index={idx}
               onClick={() => onAssetPress(asset)}
             />
           ))
         )}
       </div>
+    ):(<p>No Assets Found</p>)}
+    </div>
     </FocusContext.Provider>
   );
 }
 
-function AssetCard({ asset, onClick }) {
-  const { ref, focused } = useFocusable();
+
+function AssetCard({ asset, onClick,focusKey }) {
+  const { ref, focused } = useFocusable({focusKey});
   const [isImgLoaded, setIsImgLoaded] = useState(false);
   const [hasImgError, setHasImgError] = useState(false);
   const imgRef = useRef(null);

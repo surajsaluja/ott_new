@@ -4,10 +4,14 @@ import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-naviga
 import FocusableButton from "../FocusableButton";
 import { MdArrowBack } from "react-icons/md";
 
-export default function BottomDrawer({ isOpen, onClose, children }) {
-  const drawerRef = useRef();
+export default function BottomDrawer({ isOpen, onClose, children,focusKey }) {
   const [hasMounted, setHasMounted] = useState(false);
-  const { focusKey: currentFocusKey,ref, focusSelf } = useFocusable('BOTTOM_DRAWER');
+  const { focusKey: currentFocusKey,ref, focusSelf } = useFocusable({
+    focusable: true,
+        trackChildren: false,
+        focusKey,
+        saveLastFocusedChild: false
+  });
 
   useEffect(() => {
     if (isOpen && !hasMounted) {
@@ -21,12 +25,13 @@ export default function BottomDrawer({ isOpen, onClose, children }) {
 
   return (
     isOpen && (
+      <FocusContext.Provider value={currentFocusKey}>
       <div
         className={`bottom-drawer ${isOpen && hasMounted ? "drawer-open" : "drawer-closed"}`}
-      >
-        <FocusContext.Provider value={currentFocusKey}>
-          <div className="drawer-content" ref={ref}>
-            <div className="back-btn-bottom-drawer">
+        >
+        
+          <div className="drawer-content">
+            <div className="back-btn-bottom-drawer" ref={ref}>
                 <FocusableButton
                 icon={<MdArrowBack/>}
                 onEnterPress={onClose}
@@ -34,8 +39,8 @@ export default function BottomDrawer({ isOpen, onClose, children }) {
             </div>
             {children}
           </div>
-          </FocusContext.Provider>
       </div>
+      </FocusContext.Provider>
     )
   );
 }

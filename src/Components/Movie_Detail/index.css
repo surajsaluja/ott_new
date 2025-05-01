@@ -226,6 +226,7 @@
     display: flex;
     position: fixed;
     bottom: 5%;
+    padding: 0px 50px;
   }
 
   .related-content-detail{
@@ -340,6 +341,7 @@
     border-width: 2px;
     padding: 8px;
     border-radius: 4px;
+    color: white
 
   }
 
@@ -351,3 +353,22 @@
     width: 100%;
     height: 100%;
   }
+
+  .bottomDrawer-detail-assets-slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+  }
+  
+  .bottomDrawer-detail-assets-slider {
+    display: flex;
+    transition: transform 0.3s linear;
+  }
+  
+  .bottomDrawer-detail-tab-content {
+    width: 100%;
+    flex-shrink: 0;
+    padding: 0 10px;
+    color: wheat;
+  }
+  

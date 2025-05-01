@@ -1,59 +1,31 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback,useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import { getMediaDetails } from "../../../Utils/MediaDetails";
 import { getMediaRelatedItem } from "../../../Service/MediaService";
 import { getProcessedPlaylists } from "../../../Utils";
-import { toast } from "react-toastify";
-import FocusableButton from "../../Common/FocusableButton";
 import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
+import { toast } from "react-toastify";
 
-const useMediaDetail = (mediaId) => {
-
-    // References for Focusable 
-    const { ref, focusKey: btnControlsFocusKey, focusSelf } = useFocusable('BTNS_CONTROLS');
+const useMediaDetail = (mediaId, focusKey) => {
+    // References for Focusable
+    const { ref, focusKey: btnControlsFocusKey, hasFocusedChild, focusSelf } = useFocusable({
+        focusable: true,
+        trackChildren: true,
+        focusKey,
+        saveLastFocusedChild: true
+    });
 
     //states
     const [isLoading, setIsLoading] = useState(false);
-    const [tabs, setTabs] = useState([]);
     const [mediaDetail, setMediaDetail] = useState(null);
     const [relatedItems, setRelatedItems] = useState([]);
     const [isDrawerOpen, setDrawerOpen] = useState(false);
-    const [bottomDrawerActiveTab, setBottomDrawerActiveTab] = useState(1);
     const [isDrawerContentReady, setDrawerContentReady] = useState(false);
+    const [isRelatedItemsLoading, setIsRelatedItemsLoading] = useState(true); // Add a loading state for related items
 
     // Support Functions
     const history = useHistory();
-
-    const generateTabs = (detail) => {
-        const dynamicTabs = [];
-
-        if (detail?.mediaDetail?.category === 'Web Series') {
-            dynamicTabs.push({
-                name: 'Seasons & Episodes',
-                action: null,
-                focusKey: 'tabDetail_Season',
-                id: 1,
-            });
-        }
-
-        dynamicTabs.push({
-            name: 'More Like This',
-            action: null,
-            focusKey: 'tabDetail_RelatedItems',
-            id: 2,
-        });
-
-        if (detail?.groupedStartCasts) {
-            dynamicTabs.push({
-                name: 'StarCast',
-                action: null,
-                focusKey: 'tabDetail_startCast',
-                id: 3,
-            })
-        }
-        return dynamicTabs
-    }
 
     const returnUserToHomePage = () => {
         history.replace('/');
@@ -67,21 +39,16 @@ const useMediaDetail = (mediaId) => {
             return;
         }
         fetchMediaDetail(mediaId);
+        setRelatedItems(null); // Reset related items when mediaId changes
+        setIsRelatedItemsLoading(true); // Reset loading state
     }, [mediaId]);
 
     // set Focus to Page when media Loads
-
     useEffect(() => {
         if (!isLoading) {
             focusSelf();
         }
     }, [isLoading]);
-
-    useEffect(() => {
-        if (isDrawerOpen && bottomDrawerActiveTab === 2) {
-            getRelatedMediaItems(mediaId);
-        }
-    }, [isDrawerOpen, bottomDrawerActiveTab]);
 
     useEffect(() => {
         if (isDrawerOpen) {
@@ -102,7 +69,7 @@ const useMediaDetail = (mediaId) => {
             const mediaDetailsResponse = await getMediaDetails(mediaId);
             if (mediaDetailsResponse.isSuccess) {
                 setMediaDetail(mediaDetailsResponse.data.mediaDetail);
-                setTabs(generateTabs(mediaDetailsResponse.data));
+                getRelatedMediaItems(mediaId);
             }
             else {
                 toast.error(mediaDetailsResponse.message);
@@ -129,6 +96,8 @@ const useMediaDetail = (mediaId) => {
         } catch (err) {
             toast.error("Failed to load related items");
             setRelatedItems([]);
+        } finally {
+            setIsRelatedItemsLoading(false); // Set loading to false after fetching (success or failure)
         }
     };
 
@@ -141,66 +110,73 @@ const useMediaDetail = (mediaId) => {
 
     const handleBottomDrawerOpen = () => {
         if (!isDrawerOpen) {
-            setTimeout(() => {
-                setDrawerOpen(true);
-                // setFocus(tabs[0].focusKey);
-                setBottomDrawerActiveTab(tabs[0].id);
-            }, 100);
+            setTimeout(()=>{
+            setDrawerOpen(true);
+        },100)
         }
     };
 
     // Render Data On Bottom Drawer
 
-    const renderMediaBottomDrawerData = () => {
-        return (
-                <div className='bottom-content-detail' style={{margin:"20px 30px"}}>
-                    {isDrawerContentReady && (
-                        <>
-                            <div className='bottomDrawer-detail-tabs'>
-                                {tabs.map((el) => (
-                                    <FocusableButton
-                                        key={el.focusKey}
-                                        text={el.name}
-                                        className={'btn-bottomDrawer-detail-tab'}
-                                        focusClass={'btn-bottomDrawer-detail-tab-focused'}
-                                        focuskey={el.focusKey}
-                                        onEnterPress={() => {
-                                            setBottomDrawerActiveTab(el.id);
-                                        }}
-                                    />
-                                ))}
-                            </div>
+    const RenderRelatedItems = useCallback(() => {
+        if (isRelatedItemsLoading) return <p>Loading related items...</p>;
+        if (!relatedItems.length) return <p>No related items available.</p>;
     
-                            <div className='bottomDrawer-detail-assets-container'>
-                                {bottomDrawerActiveTab === 1 && <FullPageAssetContainer category="similar" />}
-                                {bottomDrawerActiveTab === 2 && (
-                                    <FullPageAssetContainer
-                                        assets={relatedItems}
-                                        onAssetPress={(asset) => console.log('Related item clicked', asset)}
-                                    />
-                                )}
-                                {bottomDrawerActiveTab === 3 && <p>Cast & Crew</p>}
-                            </div>
-                        </>
-                    )}
-                </div>
-        );
-    };
+        return <FullPageAssetContainer assets={relatedItems} />;
+      }, [isRelatedItemsLoading, relatedItems]);
+
+    const tabs = useMemo(() => {
+        if (!mediaDetail) return [];
+      
+        const dynamicTabs = [];
+      
+        if (mediaDetail.category === 'Web Series') {
+          dynamicTabs.push({
+            name: 'Seasons & Episodes',
+            action: null,
+            id: 1,
+            renderContent: () => (
+              <FullPageAssetContainer
+                assets={[]}
+                onAssetPress={(asset) => console.log('Episode clicked', asset)}
+                focusKey={'AST_CNT_DET'}
+              />
+            ),
+          });
+        }
+      
+        dynamicTabs.push({
+          name: 'More Like This',
+          action: null,
+          focusKey: 'tabDetail_RelatedItems',
+          id: 2,
+          renderContent: RenderRelatedItems,
+        });
+      
+        // if (mediaDetail.groupedStartCasts) {
+          dynamicTabs.push({
+            name: 'StarCast',
+            action: null,
+            focusKey: 'tabDetail_startCast',
+            id: 3,
+            renderContent: () => <p>Cast & Crew</p>,
+          });
+        // }
+      
+        return dynamicTabs;
+      }, [mediaDetail, RenderRelatedItems]);
 
 
     return {
         ref,
-    btnControlsFocusKey,
-    isLoading,
-    mediaDetail,
-    isDrawerOpen,
-    tabs,
-    relatedItems,
-    bottomDrawerActiveTab,
-    isDrawerContentReady,
-    setBottomDrawerActiveTab,
-    handleBottomDrawerOpen,
-    handleBottomDrawerClose,
+        btnControlsFocusKey,
+        isLoading,
+        mediaDetail,
+        isDrawerOpen,
+        tabs,
+        isDrawerContentReady,
+        handleBottomDrawerOpen,
+        handleBottomDrawerClose,
     }
 }
 
