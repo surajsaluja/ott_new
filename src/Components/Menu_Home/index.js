@@ -4,10 +4,22 @@ import FocusableButton from '../Common/FocusableButton'
 import useMenu from './Hooks/useMenu';
 import './index.css';
 import { kableOneLogo } from '../../assets';
-// import { withRouter } from 'react-router-dom';
-function Menu_Home({ focusKey, Menu, location, history }) {   
 
-    const { menuItems, loading,focusSelf, selectedMenu,onMenuEnterPress, ref, currentFocusKey, hasFocusedChild,menuScrollingRef, onMenuFocus, getIconComponent } = useMenu(focusKey);
+function Menu_Home({ focusKey}) {   
+
+    const { 
+        menuItems, 
+        loading,
+        focusSelf, 
+        selectedMenu,
+        onMenuEnterPress, 
+        ref, 
+        currentFocusKey, 
+        hasFocusedChild,
+        menuScrollingRef, 
+        onMenuFocus, 
+        getIconComponent 
+    } = useMenu(focusKey);
 
     useEffect(()=>{
         focusSelf();
