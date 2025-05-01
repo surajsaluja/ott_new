@@ -5,6 +5,7 @@ import Movie_Detail from '../Components/Movie_Detail';
 import LoginScreen from '../Components/Login';
 import PrivateRoute from './PrivateRoute';
 import Error404 from '../Components/Error404';
+import TestComp from '../Components/TestComp';
 
 function AppNavigation() {
 
@@ -14,6 +15,7 @@ function AppNavigation() {
         <Route exact path="/" component={MovieHomePage} />
         <PrivateRoute path="/detail/:mediaId" component={Movie_Detail}/>
         <Route path="/login" component={LoginScreen} />
+        <Route path = '/test' component={TestComp}/>
         <Route path="*" component={Error404} />
       </Switch>
     </Router>
