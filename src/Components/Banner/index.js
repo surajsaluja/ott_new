@@ -124,7 +124,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
         {renderMedia()}
         {showOverlay && (
           <div className="banner-overlay">
-            <div className="banner-gradient" />
+            {/* <div className="banner-gradient" /> */}
             <div className='overlay overlay-ltr'></div>
             {renderMediaDetails()}
           </div>

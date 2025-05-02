@@ -1,16 +1,4 @@
-.ContentRow {
-  overflow-x: hidden;
-  overflow-y: hidden;
-  flex-shrink: 1;
-  flex-grow: 1;
-}
-
-.ContentWrapper {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+/* Content Row Component */
 
 .contentRowWrapper {
   margin-bottom: 2.5em;
@@ -46,83 +34,23 @@
   flex-direction: row;
 }
 
-.asset-wrapper {
-  display: inline-block;
-  transition: transform 0.2s ease-in-out;
-  margin: 1em;
-  height: 10em;
-  border-width: 0.2em;
-  border-color: transparent;
-  border-style: solid;
-  border-radius: 0.5em;
-  padding: 0.2em;
-  box-sizing: border-box;
-}
+/* Content Component */
 
-.asset-wrapper.focused {
-  border-color: white;
-}
-
-.card {
-  width: 15em;
-  height: 100%;
-  border-radius: 0.3em;
+.ContentWrapper {
+  flex: 1;
   overflow: hidden;
-  background: #fff;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
-/* .card-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    } */
-
-.card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 0.3s ease-in-out;
+.ContentRow {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  flex-shrink: 1;
+  flex-grow: 1;
 }
 
-.card-image.hidden {
-  opacity: 0;
-}
-
-.card-image.fade-in {
-  opacity: 1;
-}
-
-.shimmer-placeholder {
-  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-  width: 100%;
-  height: 100%;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.seeMore{
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.4));
-    color: white;
-    display: flex;
-    flex-flow: wrap;
-    justify-content: center;
-    align-items: center;
-    font-size: 2em;
-    text-align: center;
-}
-
+/* Content With Banner */
 .content-with-banner{
   display: flex;
   flex: 1;

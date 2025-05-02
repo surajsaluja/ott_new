@@ -3,66 +3,13 @@ import {
   FocusContext,
   useFocusable,
 } from "@noriginmedia/norigin-spatial-navigation";
-// import { withRouter } from "react-router-dom";
 import { useAsset, useContentRow, useMovieHomePage, useContentWithBanner } from "./hooks/useContent";
 import FocusableButton from "../Common/FocusableButton";
 import Banner from "../Banner";
+import AssetCard from "../Common/AssetCard";
 import "./Content.css";
 
-const Asset = ({ title, color, onEnterPress, onAssetFocus, image, data = {},setAssetData }) => {
-  const {
-    imgRef,
-    shouldLoad,
-    imageUrl,
-    isLoaded,
-    hasError,
-    handleLoad,
-    handleError,
-  } = useAsset(image);
-
-  const { ref, focused } = useFocusable({
-    onEnterPress,
-    onFocus:() => {
-      onAssetFocus?.(ref.current, data);
-      setAssetData(data);
-    },
-    onBlur:()=>setAssetData(null),
-    extraProps: { title, color, image, data },
-  });
-
-  return (
-    <div ref={ref} className={`asset-wrapper ${focused ? "focused" : ""}`}>
-      <div className={`card ${focused ? "focused" : ""}`}>
-        {data.isSeeMore ? (
-          <FocusableButton
-            className={`seeMore`}
-            text={`See More`}
-            onEnterPress={onEnterPress}
-            onFocus={onAssetFocus}
-          />
-        ) : shouldLoad && !hasError ? (
-          <>
-            {!isLoaded && <div className="shimmer-placeholder card-image" />}
-            <img
-              ref={imgRef}
-              className={`card-image ${focused ? "focused" : ""} ${
-                isLoaded ? "show" : "hide"
-              }`}
-              src={imageUrl}
-              alt=""
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          </>
-        ) : (
-          <div className="shimmer-placeholder card-image" ref={imgRef} />
-        )}
-      </div>
-    </div>
-  );
-};
-
-const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData, handleAssetFocus }) => {
+const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus }) => {
   const {
     ref,
     currentFocusKey,
@@ -81,16 +28,12 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
         <div className="ContentRowScrollingWrapper" ref={scrollingRowRef}>
           <div className="ContentRowScrollingContent">
             {data.map((item, index) => (
-              <Asset
+              <AssetCard
                 index={index}
-                title={item.title}
                 key={`${item.playListId}_${item.mediaID}_${index}`}
-                color={"blue"}
-                image={item.webThumbnail}
-                data={item}
+                assetData={item}
                 onEnterPress={onAssetPress}
                 onAssetFocus={onAssetFocus}
-                setAssetData={setAssetData}
               />
             ))}
           </div>
@@ -100,7 +43,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, setAssetData
   );
 };
 
-const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, setData, isLoading, setIsLoading,setAssetData,loadMoreRows, handleAssetFocus }) => {
+const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoading, setIsLoading,loadMoreRows, handleAssetFocus }) => {
   const {
     ref,
     focusKey,
@@ -109,7 +52,7 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, 
     data : movieRowsData,
     loadMoreRef,
     isLoading : loadingSpinner
-  } = useMovieHomePage(focusKeyParam, history, data, setData, isLoading, setIsLoading,loadMoreRows);
+  } = useMovieHomePage(focusKeyParam, data, setData, isLoading, setIsLoading,loadMoreRows,handleAssetFocus);
 
   return (
     <FocusContext.Provider value={focusKey}>
@@ -126,7 +69,6 @@ const Content = ({ focusKey: focusKeyParam, history = null, onAssetFocus, data, 
                   data={item.playlistItems}
                   onAssetPress={onAssetPress}
                   onAssetFocus = {onAssetFocus}
-                  setAssetData={setAssetData}
                   handleAssetFocus = {handleAssetFocus}
                 />
               </div>
@@ -158,7 +100,6 @@ const ContentWithBanner = () =>{
     isLoading,
     setIsLoading,
     banners,
-    setFocusedAssetData,
     loadMoreRows
   } = useContentWithBanner('',onHeaderFocus)
 
@@ -173,7 +114,6 @@ const ContentWithBanner = () =>{
       setData={setData} 
       isLoading={isLoading} 
       setIsLoading={setIsLoading}
-      setAssetData={setFocusedAssetData}
       loadMoreRows={loadMoreRows}
       handleAssetFocus = {handleAssetFocus} 
       />

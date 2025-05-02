@@ -1,7 +1,7 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
-import FocusableButton from '../FocusableButton';
+import AssetCard from '../AssetCard';
 
 function FullPageAssetContainer({ assets = [], onAssetPress = () => {},focusKey }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({  
@@ -37,9 +37,10 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {},focusKey 
             <AssetCard
               key={`${asset.id}_${idx}`}
               focusKey={`${asset.id}_${idx}`}
-              asset={asset}
+              assetData={asset}
               index={idx}
-              onClick={() => onAssetPress(asset)}
+              onEnterPress={() => onAssetPress(asset)}
+              onAssetFocus={()=>{}}
             />
           ))
         )}
@@ -47,47 +48,6 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {},focusKey 
     ):(<p>No Assets Found</p>)}
     </div>
     </FocusContext.Provider>
-  );
-}
-
-
-function AssetCard({ asset, onClick,focusKey }) {
-  const { ref, focused } = useFocusable({focusKey});
-  const [isImgLoaded, setIsImgLoaded] = useState(false);
-  const [hasImgError, setHasImgError] = useState(false);
-  const imgRef = useRef(null);
-
-  const handleLoad = () => setIsImgLoaded(true);
-  const handleError = () => {
-    setHasImgError(true);
-    setIsImgLoaded(true);
-  };
-
-  const imageUrl = asset?.webThumbnail || null;
-
-  return (
-    <div
-      ref={ref}
-      onClick={onClick}
-      className={`asset_box ${focused ? 'focused' : ''}`}
-    >
-      {!isImgLoaded && (
-        <div className={`card-image shimmer-placeholder`}><p>{asset.title}</p></div>
-      )}
-      {!hasImgError && imageUrl && (
-        <img
-          ref={imgRef}
-          className={`card-image ${isImgLoaded ? 'show' : 'hide'}`}
-          src={imageUrl}
-          alt={asset.title || ''}
-          onLoad={handleLoad}
-          onError={handleError}
-        />
-      )}
-      {hasImgError && (
-        <div className="error-placeholder">Image not available</div>
-      )}
-    </div>
   );
 }
 

@@ -1,33 +1,9 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
-import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
 import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
-import { fetchHomePageData, fetchContinueWatchingData, fetchPlaylistPage, fetchBannersBySection } from "../../../Service/MediaService";
-
-/* ------------------ Asset Hook ------------------ */
-const useAsset = (image) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const { imgRef, shouldLoad, imageUrl } = useIntersectionImageLoader(image);
-
-  const handleLoad = () => setIsLoaded(true);
-  const handleError = () => {
-    setHasError(true);
-    setIsLoaded(true);
-  };
-
-  return {
-    imgRef,
-    shouldLoad,
-    imageUrl,
-    isLoaded,
-    hasError,
-    handleLoad,
-    handleError,
-  };
-};
+import { fetchContinueWatchingData, fetchPlaylistPage, fetchBannersBySection } from "../../../Service/MediaService";
 
 /* ------------------ Content Row Hook ------------------ */
 const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
@@ -108,12 +84,18 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
 };
 
 /* ------------------ Movie Home Page Hook ------------------ */
-const useMovieHomePage = (focusKeyParam, history, data, setData, isLoading, setIsLoading, loadMoreRows) => {
-  const { ref, focusKey } = useFocusable({
+const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus) => {
+  const { ref, focusKey, hasFocusedChild } = useFocusable({
     focusKey: focusKeyParam,
     trackChildren: true,
     saveLastFocusedChild: true,
   });
+
+  useEffect(()=>{
+    if(!hasFocusedChild){
+      handleAssetFocus(null);
+    }
+  },[hasFocusedChild]);
 
   const loadMoreRef = useRef(null);
 
@@ -260,4 +242,4 @@ export const useContentWithBanner = (focusKey, onFocus,section = 5) => {
   };
 };
 
-export { useAsset, useContentRow, useMovieHomePage };
+export { useContentRow, useMovieHomePage };
