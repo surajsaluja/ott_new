@@ -23,9 +23,9 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {},focusKey 
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
-      <div ref={ref}>
+      <div ref={ref} className="asset-container">
     {assets.length > 0 ? (
-      <div className="asset-container">
+      <div>
         {isLoading ? (
           Array.from({ length: dummyAssetBoxCount }).map((_, idx) => (
             <div key={idx} className="dummyAsset_box" />

@@ -1,0 +1,46 @@
+.tabbedContent-wrapper{
+    height: 100%;
+  }
+
+  .tabbedContent-tabs-wrapper{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+  }
+
+  .tabbedContent-tab{
+    display: flex;
+    font-weight: 700;
+    margin: 10px;
+    font-size: 1.2rem;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 2px;
+    padding: 8px;
+    border-radius: 4px;
+    color: white
+
+  }
+
+  .tabbedContent-tab-focused{
+    border-color: white;
+  }
+
+  .tabbedContent-window-slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    height: 100%;
+  }
+  
+  .tabbedContent-window-slider {
+    display: flex;
+    transition: transform 0.3s linear;
+  }
+  
+  .tabbedContent-tab-detail {
+    width: 100%;
+    flex-shrink: 0;
+    padding: 0 10px;
+    color: wheat;
+  }

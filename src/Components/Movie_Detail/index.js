@@ -6,7 +6,7 @@ import { formatTime } from "../../Utils";
 import useMediaDetail from "./Hooks/useMediaDetail";
 import BottomDrawer from "../Common/BottomDrawer";
 import './index.css'
-import BottomTabbedComponent from "./BottomTabbedComponent";
+import TabbedComponent from "../Common/TabbedComponent";
 
 function Movie_Detail(focusKey) {
     const {
@@ -91,15 +91,15 @@ function Movie_Detail(focusKey) {
                             }
                         </div>
                     </div>
-                    <div className="buttons-bottom-dummy">
+                    <div className="details-dummy-buttons-wrapper">
                         {tabs.map((el, idx) => (
                             idx == 0 ? (<FocusableButton
                                 key={'Bottom 1'}
                                 text={el.name}
-                                className={'btn-bottomDrawer-detail-tab'}
-                                focusClass={'btn-bottomDrawer-detail-tab-focused'}
+                                className={'details-dummy-buttons'}
+                                focusClass={'details-dummy-buttons-focused'}
                                 onFocus={handleBottomDrawerOpen}
-                            />) : (<div key={`btn_dummy_${idx}`}className={'btn-bottomDrawer-detail-tab'}> {el.name}
+                            />) : (<div key={`btn_dummy_${idx}`}className={'details-dummy-buttons'}> {el.name}
                             </div>)
                         ))}
                     </div>
@@ -108,7 +108,8 @@ function Movie_Detail(focusKey) {
         </div>
         {isDrawerOpen && (
             <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose} focusKey={'BTM_DRWR'}>
-               {isDrawerContentReady && tabs.length > 0 && <BottomTabbedComponent
+               {isDrawerContentReady && tabs.length > 0 && 
+               <TabbedComponent
                     tabs={tabs}
                     isDrawerContentReady={isDrawerContentReady}
                     focusKey={'TAB_COMP'}
