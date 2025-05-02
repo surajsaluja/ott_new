@@ -32,4 +32,10 @@
     overflow-y: auto;
     height: 100%;
   }
+
+  .back-btn-bottom-drawer{
+    color: white;
+    font-size: 2.5rem;
+
+  }
   

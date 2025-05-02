@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./BottomDrawer.css";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../FocusableButton";
-import { MdArrowBack } from "react-icons/md";
+import { IoArrowBackCircleOutline } from "react-icons/io5";
 
 export default function BottomDrawer({ isOpen, onClose, children,focusKey }) {
   const [hasMounted, setHasMounted] = useState(false);
@@ -28,12 +28,13 @@ export default function BottomDrawer({ isOpen, onClose, children,focusKey }) {
       <FocusContext.Provider value={currentFocusKey}>
       <div
         className={`bottom-drawer ${isOpen && hasMounted ? "drawer-open" : "drawer-closed"}`}
+        ref={ref}
         >
         
           <div className="drawer-content">
-            <div className="back-btn-bottom-drawer" ref={ref}>
+            <div className="back-btn-bottom-drawer">
                 <FocusableButton
-                icon={<MdArrowBack/>}
+                icon={<IoArrowBackCircleOutline/>}
                 onEnterPress={onClose}
                 />
             </div>
