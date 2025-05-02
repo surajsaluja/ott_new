@@ -7,6 +7,10 @@ import useMediaDetail from "./Hooks/useMediaDetail";
 import BottomDrawer from "../Common/BottomDrawer";
 import './index.css'
 import TabbedComponent from "../Common/TabbedComponent";
+import FocusableButtonIconTooltip from "../Common/FocusableButtonIconTooltip";
+import { MdOutlineRestartAlt, MdMovie } from "react-icons/md";
+import { IoHeartSharp } from "react-icons/io5";
+import { FaPlay } from "react-icons/fa6";
 
 function Movie_Detail(focusKey) {
     const {
@@ -63,30 +67,26 @@ function Movie_Detail(focusKey) {
                             {mediaDetail &&
                                 <div className="buttons-detail" ref={ref}>
                                     <FocusableButton
-                                    key={'detail_watch'}
+                                        key={'detail_watch'}
+                                        icon={<FaPlay />}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={"Watch Movie"}
                                     />
-                                    <FocusableButton
-                                    key={'detail_trailer'}
-                                        className="detail-play-button"
-                                        focusClass="detail-play-button-focus"
-                                        text={"Watch Trailer"}
+                                    <FocusableButtonIconTooltip
+                                        icon={<MdOutlineRestartAlt />}
+                                        text={'Start Over'}
                                     />
-                                    <FocusableButton
-                                    key={'detail_continue_watch'}
-                                        className="detail-play-button"
-                                        focusClass="detail-play-button-focus"
-                                        text={"Continue Watching"}
+                                    <FocusableButtonIconTooltip
+                                        icon={<MdMovie />}
+                                        text={'Watch Trailer'}
                                     />
-                                    <FocusableButton
-                                    key={'detail-wishlist'}
-                                        className="detail-play-button"
-                                        focusClass="detail-play-button-focus"
-                                        text={"Add To Favourutes"}
+                                    <FocusableButtonIconTooltip
+                                        icon={<IoHeartSharp />}
+                                        text={'Add To Wishlist'}
                                     />
                                 </div>
+
 
                             }
                         </div>
@@ -99,7 +99,7 @@ function Movie_Detail(focusKey) {
                                 className={'details-dummy-buttons'}
                                 focusClass={'details-dummy-buttons-focused'}
                                 onFocus={handleBottomDrawerOpen}
-                            />) : (<div key={`btn_dummy_${idx}`}className={'details-dummy-buttons'}> {el.name}
+                            />) : (<div key={`btn_dummy_${idx}`} className={'details-dummy-buttons'}> {el.name}
                             </div>)
                         ))}
                     </div>
@@ -108,12 +108,12 @@ function Movie_Detail(focusKey) {
         </div>
         {isDrawerOpen && (
             <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose} focusKey={'BTM_DRWR'}>
-               {isDrawerContentReady && tabs.length > 0 && 
-               <TabbedComponent
-                    tabs={tabs}
-                    isDrawerContentReady={isDrawerContentReady}
-                    focusKey={'TAB_COMP'}
-                />}
+                {isDrawerContentReady && tabs.length > 0 &&
+                    <TabbedComponent
+                        tabs={tabs}
+                        isDrawerContentReady={isDrawerContentReady}
+                        focusKey={'TAB_COMP'}
+                    />}
             </BottomDrawer>
 
         )}

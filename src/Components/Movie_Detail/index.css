@@ -113,14 +113,15 @@
   /* 🔥 Buttons (Watch & Trailer) */
   .buttons-detail {
     display: flex;
-    margin-top: 10px;
+    margin-top: 40px;
     flex-direction: row;
+    align-items: center;
   }
   
   /* 🔥 Button Styling */
   .detail-play-button {
     font-size: 0.9rem;
-    width: 15em;
+    width: 10em;
     padding: 1em;
     border: 2px solid white;
     border-radius: 5px;
@@ -129,15 +130,29 @@
     cursor: pointer;
     color: white;
     margin: 7px;
-    background: linear-gradient(45deg, #00000000, #f90000b5);
+    display: flex;
+    align-items: center;
+    /* background: linear-gradient(45deg, #00000000, #f90000b5); */
   }
   
   
   /* 🔥 Button Focus (for TV Remote Navigation) */
   .detail-play-button-focus {
     font-weight: 700;
-    transform: scale(1.05);
+    background: white;
+    color: black
   }
+
+  .detail-play-button .focusableButton_icon{
+    margin-right: 10px;
+    color: white;
+  }
+
+  .detail-play-button-focus .focusableButton_icon{
+    color: black;
+  }
+
+
   
   /* ⭐ Star Cast Section */
   .start-cast-container {
