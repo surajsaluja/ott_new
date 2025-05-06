@@ -42,7 +42,7 @@ const TabbedComponent = ({
             <FocusableButton
               key={tab.id}
               text={tab.name}
-              className="tabbedContent-tab"
+              className={`tabbedContent-tab ${activeTabIndex == index ? 'tab-active' : ''}`}
               focusClass="tabbedContent-tab-focused"
               onFocus={() => setActiveTabIndex(index)}
             />

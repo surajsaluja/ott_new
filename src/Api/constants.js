@@ -5,6 +5,8 @@ const DEFAULTS = {
     PAGE_SIZE: 10,
     LANGUAGE_CODE: 1,
     MEDIA_ID: 0,
+    WEBSERIES_ID: 74,
+    SEASON_ID: 51,
     USER_OBJECT_ID: 0
 }
 
@@ -39,6 +41,10 @@ export const API = {
             `Media/GetTokanizedMediaUrlV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
         GET_WEBSERIES_DETAILS: (mediaId, userObjectId) =>
             `/Media/WebSeriesDetailsV3/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
+        GET_WEBSERIES_EPISODES:(webSeriesId,seasonId,languageCode,userObjectId,page,pageSize) =>
+            `/Media/GetEpisodeItemsV2/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${seasonId ?? DEFAULTS.SEASON_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
+        GET_WEBSERIES_DETAILS_WITH_EPISODES:(webSeriesId,userObjectId) =>
+            `/Media/WebSeriesDetailsV4/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`
     },
     MENU: {
         GET_APP_FEATURES: '/AdminApi/GetAppFeatures',

@@ -19,11 +19,24 @@
     padding: 8px;
     border-radius: 4px;
     color: white
+  }
 
+  .tabbedContent-tab span{
+    color: var(--BTN-WHITE3);
+    font-size: var(--BUTTON1-MEDIUM-SIZE);
+    font-weight: var(--BUTTON1-MEDIUM-WEIGHT);
+    line-height: var(--BUTTON1-MEDIUM-HEIGHT);
   }
 
   .tabbedContent-tab-focused{
     border-color: white;
+  }
+
+  .tab-active span{
+    color: var(--BTN-WHITE1);
+    font-size: var(--BUTTON1-SEMIBOLD-SIZE);
+    font-weight: var(--BUTTON1-SEMIBOLD-WEIGHT);
+    line-height: var(--BUTTON1-SEMIBOLD-HEIGHT);
   }
 
   .tabbedContent-window-slider-wrapper {
@@ -36,6 +49,7 @@
   .tabbedContent-window-slider {
     display: flex;
     transition: transform 0.3s linear;
+    height: 100%;
   }
   
   .tabbedContent-tab-detail {

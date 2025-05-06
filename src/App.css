@@ -1,22 +1,55 @@
+:root {
+  --debug-color: 0, 0, 0;
+  --BTN-WHITE1: #fff;
+  --BTN-WHITE2: hsla(0, 0%, 100%, 0.84);
+  --BTN-WHITE3: hsla(0, 0%, 100%, 0.6);
+  --BTN-WHITE4: hsla(0, 0%, 100%, 0.32);
+  --BUTTON1-SEMIBOLD-WEIGHT: 600;
+  --BUTTON1-SEMIBOLD-HEIGHT: 28px;
+  --BUTTON1-SEMIBOLD-SIZE: 18px;
+  --BUTTON1-MEDIUM-WEIGHT: 500;
+  --BUTTON1-MEDIUM-HEIGHT: 28px;
+  --BUTTON1-MEDIUM-SIZE: 18px;
+  --BUTTON2-SEMIBOLD-WEIGHT: 600;
+  --BUTTON2-SEMIBOLD-HEIGHT: 24px;
+  --BUTTON2-SEMIBOLD-SIZE: 16px;
+  --BUTTON2-MEDIUM-WEIGHT: 500;
+  --BUTTON2-MEDIUM-HEIGHT: 24px;
+  --BUTTON2-MEDIUM-SIZE: 16px;
+  --BUTTON3-SEMIBOLD-WEIGHT: 600;
+  --BUTTON3-SEMIBOLD-HEIGHT: 20px;
+  --BUTTON3-SEMIBOLD-SIZE: 14px;
+  --BUTTON3-MEDIUM-WEIGHT: 500;
+  --BUTTON3-MEDIUM-HEIGHT: 20px;
+  --BUTTON3-MEDIUM-SIZE: 14px;
+  --BUTTON4-SEMIBOLD-WEIGHT: 600;
+  --BUTTON4-SEMIBOLD-HEIGHT: 16px;
+  --BUTTON4-SEMIBOLD-SIZE: 12px;
+  --BUTTON4-SEMIBOLD-SPACING: 0.2px;
+  --BUTTON4-MEDIUM-WEIGHT: 500;
+  --BUTTON4-MEDIUM-HEIGHT: 16px;
+  --BUTTON4-MEDIUM-SIZE: 12px;
+  --BUTTON4-MEDIUM-SPACING: 0.2px;
+}
+
 .App {
   display: flex;
   background-color: black;
   height: 100vh;
 }
 
-
 .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
 
-.loading{
+.loading {
   justify-self: center;
-    align-self: center;
-    color: white;
-    width: 100%;
-    text-align: center;
-    font-size: 2em;
+  align-self: center;
+  color: white;
+  width: 100%;
+  text-align: center;
+  font-size: 2em;
 }
 
 @media (prefers-reduced-motion: no-preference) {

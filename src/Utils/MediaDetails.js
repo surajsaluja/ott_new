@@ -1,6 +1,10 @@
-import { DecryptAESString} from "../Utils/MediaUtils";
-import { loadMediaDetailById, getTokanizedMediaUrl } from "../Service/MediaService";
-import { useUserContext } from "../Context/userContext";
+import { DecryptAESString } from "../Utils/MediaUtils";
+import {
+  fetchMediaDetailById,
+  fetchTokanizedMediaUrl,
+  fetchMediaRelatedItem,
+  fetchWebSeriesEpisodeBySeasonId,
+} from "../Service/MediaService";
 import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
 
 const findCurrentEpisode = (seasons, currentMediaId) => {
@@ -18,7 +22,7 @@ const getIsContentFree = (isPaid) => {
   return typeof isPaid === "string"
     ? isPaid.toLowerCase() === "false" || isPaid === "0"
     : !isPaid;
-}
+};
 
 const groupStarCasts = (starCastArray = []) => {
   if (!Array.isArray(starCastArray) || starCastArray.length === 0) {
@@ -29,7 +33,7 @@ const groupStarCasts = (starCastArray = []) => {
     Producer: [],
     Director: [],
     Writer: [],
-    Starcast: []
+    Starcast: [],
   };
 
   starCastArray.forEach(({ iStarcastType, displayName }) => {
@@ -39,29 +43,32 @@ const groupStarCasts = (starCastArray = []) => {
   });
 
   // Check if all groups are still empty
-  const hasAnyStarCast = Object.values(groupedStarCasts).some(list => list.length > 0);
+  const hasAnyStarCast = Object.values(groupedStarCasts).some(
+    (list) => list.length > 0
+  );
   return hasAnyStarCast ? groupedStarCasts : null;
 };
 
+export const getMediaDetails = async (
+  mediaId = null,
+  category = "movie",
+  isTrailer = true,
+  userObjectId = null
+) => {
+  const userObjId = localStorage.getItem("userObjectId");
 
-
-export const getMediaDetails = async (mediaId = null, category = 'movie', isTrailer = true, userObjectId = null) => {
-  const userObjId  = localStorage.getItem('userObjectId');
-
-  if(!mediaId)
-    {
-      return {
-        isSuccess: false,
-        message: 'Media Id is required field'
-      }
-    }
-
-  if(userObjectId == null && userObjId == null)
-  {
+  if (!mediaId) {
     return {
       isSuccess: false,
-      message: 'UserObjectId not found'
-    }
+      message: "Media Id is required field",
+    };
+  }
+
+  if (userObjectId == null && userObjId == null) {
+    return {
+      isSuccess: false,
+      message: "UserObjectId not found",
+    };
   }
 
   let mediaDetail = null;
@@ -80,14 +87,18 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
 
   try {
     const isWebSeries = category.toLowerCase() === "web series";
-    let response = await loadMediaDetailById(mediaId, isWebSeries, userObjectId ?? userObjId);
+    let response = await fetchMediaDetailById(
+      mediaId,
+      isWebSeries,
+      userObjectId ?? userObjId
+    );
 
     if (response && response.isSuccess) {
       response = response.data;
       mediaDetail = response.detail;
 
       if (!mediaDetail) {
-        throw new Error('Media Details Not Found');
+        throw new Error("Media Details Not Found");
       }
 
       let isPaid = mediaDetail.isPaid;
@@ -95,10 +106,17 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
       userCurrentPlayTime = mediaDetail.playDuration;
       isMediaPublished = mediaDetail.isMediaPublished;
       mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
-      webThumbnailUrl =  sanitizeAndResizeImage(mediaDetail.webThumbnailUrl,450);
-      fullPageBannerUrl = getResizedOptimizedImage(mediaDetail.fullPageBanner,1920);
-      groupedStartCasts =  groupStarCasts(response.starcasts);
+      webThumbnailUrl = sanitizeAndResizeImage(
+        mediaDetail.webThumbnailUrl,
+        450
+      );
+      fullPageBannerUrl = getResizedOptimizedImage(
+        mediaDetail.fullPageBanner,
+        1920
+      );
+      groupedStartCasts = groupStarCasts(isWebSeries ? response.starcastList : response.starcasts);
       mediaDetail.groupedStartCasts = groupedStartCasts;
+      mediaDetail.seasons = isWebSeries ? response.seasons : null;
 
       skipInfo = {
         skipIntroST: parseInt(mediaDetail.skipIntroST),
@@ -119,17 +137,15 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
       };
 
       currentEpisode = isWebSeries
-        ? findCurrentEpisode(mediaDetail?.seasons, mediaId)
+        ? findCurrentEpisode(response?.seasons, mediaId)
         : null;
 
       mediaUrl = mediaUrl ? DecryptAESString(mediaUrl) : mediaUrl;
       success = true;
-      message = 'Data Retrived SuccessFully'
-
+      message = "Data Retrived SuccessFully";
     } else {
       throw new Error("Invalid response for media detail");
     }
-
   } catch (error) {
     success = false;
     return {
@@ -149,29 +165,30 @@ export const getMediaDetails = async (mediaId = null, category = 'movie', isTrai
       userCurrentPlayTime,
       webThumbnailUrl,
       fullPageBannerUrl,
-      groupedStartCasts
-      
-    }
+      groupedStartCasts,
+    },
   };
 };
 
-export const getTokenisedMedia = async (mediaId, isTrailer, userObjectId = null) => {
-  const userObjId  = localStorage.getItem('userObjectId');
+export const getTokenisedMedia = async (
+  mediaId,
+  isTrailer,
+  userObjectId = null
+) => {
+  const userObjId = localStorage.getItem("userObjectId");
 
-  if(!mediaId)
-    {
-      return {
-        isSuccess: false,
-        message: 'Media Id is required field'
-      }
-    }
-
-  if(userObjId == null && userObjectId == null)
-  {
+  if (!mediaId) {
     return {
       isSuccess: false,
-      message: 'UserObjectId not found'
-    }
+      message: "Media Id is required field",
+    };
+  }
+
+  if (userObjId == null && userObjectId == null) {
+    return {
+      isSuccess: false,
+      message: "UserObjectId not found",
+    };
   }
 
   let isUserSubscribed = false;
@@ -182,7 +199,10 @@ export const getTokenisedMedia = async (mediaId, isTrailer, userObjectId = null)
   let message = null;
 
   try {
-    let response = await getTokanizedMediaUrl(mediaId, userObjectId ?? userObjId);
+    let response = await fetchTokanizedMediaUrl(
+      mediaId,
+      userObjectId ?? userObjId
+    );
     if (response && response.isSuccess) {
       response = response.data;
       isUserSubscribed = response.isUserSubscribed;
@@ -193,14 +213,13 @@ export const getTokenisedMedia = async (mediaId, isTrailer, userObjectId = null)
         mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
         mediaUrl = DecryptAESString(mediaUrl);
         success = true;
-        message = 'Media Tokenised SuccessFully';
+        message = "Media Tokenised SuccessFully";
       } else {
         throw new Error("You are not a subscribed user to watch this movie!");
       }
     } else {
       throw new Error("Invalid response for Tokenised Media");
     }
-
   } catch (error) {
     success = false;
     return {
@@ -212,51 +231,145 @@ export const getTokenisedMedia = async (mediaId, isTrailer, userObjectId = null)
   return {
     isSuccess: success,
     data: {
-    mediaUrl,
-    isUserSubscribed,
-    isFree,
-    isMediaPublished
-    }
-  }
-}
+      mediaUrl,
+      isUserSubscribed,
+      isFree,
+      isMediaPublished,
+    },
+  };
+};
 
-export const getMediaDetailWithTokenisedMedia = async (mediaId, category, isTrailer, userObjectId = null) => {
-
-
+export const getMediaDetailWithTokenisedMedia = async (
+  mediaId = null,
+  category = null,
+  isTrailer = true,
+  userObjectId = null
+) => {
   let success = false;
   let mediaDetailReponse = null;
   let tokenisedMediaResponse = null;
   try {
-    mediaDetailReponse = await this.getMediaDetails(mediaId, category, isTrailer, userObjectId);
+    mediaDetailReponse = await this.getMediaDetails(
+      mediaId,
+      category,
+      isTrailer,
+      userObjectId
+    );
     if (mediaDetailReponse.isSuccess) {
-      tokenisedMediaResponse = await this.getTokenisedMedia(mediaId, isTrailer, userObjectId);
+      tokenisedMediaResponse = await this.getTokenisedMedia(
+        mediaId,
+        isTrailer,
+        userObjectId
+      );
       if (tokenisedMediaResponse.isSuccess) {
         success = true;
-      }
-      else {
-        throw new Error(`Could Not Get Tokenised Detail : ${tokenisedMediaResponse.error}`);
+      } else {
+        throw new Error(
+          `Could Not Get Tokenised Detail : ${tokenisedMediaResponse.error}`
+        );
       }
     } else {
-      throw new Error(`Could Not Get Media Detail : ${mediaDetailReponse.error}`)
+      throw new Error(
+        `Could Not Get Media Detail : ${mediaDetailReponse.error}`
+      );
     }
   } catch (error) {
     success = false;
     return {
       isSuccess: success,
       message: error.message || "Something went wrong",
-    }
+    };
   }
 
-  return{
-    isSuccess : success,
-    data:{
+  return {
+    isSuccess: success,
+    data: {
       ...mediaDetailReponse.data,
-      ...tokenisedMediaResponse.data
+      ...tokenisedMediaResponse.data,
+    },
+  };
+};
+
+export const getMediaRelatedItemDetails = async (
+  mediaId = null,
+  userObjectId = null,
+  page = 1,
+  pageSize = 10,
+  language = 1
+) => {
+  let success = false;
+  let relatedItemsReponse = null;
+  try {
+    if (mediaId == null) {
+      throw new Error("mediaId can not be null");
+    } else {
+      relatedItemsReponse = await fetchMediaRelatedItem(
+        mediaId,
+        userObjectId,
+        page,
+        pageSize,
+        language
+      );
+      if (relatedItemsReponse.isSuccess) {
+        success = true;
+      } else {
+        throw new Error(`Could Not Get Related Media Items`);
+      }
     }
+  } catch (error) {
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    };
   }
-}
 
+  return {
+    isSuccess: success,
+    data: relatedItemsReponse.data,
+  };
+};
 
-export const getMediaRelatedItemDetails = async (mediaId,userObjectId) =>{
+export const getWebSeriesEpisodesBySeason = async (
+  webSeriesId = null,
+  seasonId = null,
+  language = null ,
+  userObjectId = null,
+  page = 1,
+  pageSize = 10
+) => {
+  let success = false;
+  let webSeriesEpisodesResponse = null;
+  try {
+    if (webSeriesId == null) {
+      throw new Error("WebSeries Id can not be null");
+    } else if(seasonId == null) {
+      throw new Error("Season Id can not be null");
+    } else {
+      webSeriesEpisodesResponse = await fetchWebSeriesEpisodeBySeasonId(
+        webSeriesId,
+        seasonId,
+        language,
+        userObjectId,
+        page,
+        pageSize
+      );
+      if (webSeriesEpisodesResponse.isSuccess) {
+        success = true;
+      } else {
+        throw new Error(`Could Not Get Episode Related To Items`);
+      }
+    }
+  } catch (error) {
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    };
+  }
 
-}
+  return {
+    isSuccess: success,
+    data: webSeriesEpisodesResponse.data,
+  };
+};

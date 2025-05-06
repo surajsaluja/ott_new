@@ -23,7 +23,7 @@ function Movie_Detail(focusKey) {
         isDrawerContentReady,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
-    } = useMediaDetail(207, focusKey);
+    } = useMediaDetail(285, 'web series', focusKey);
 
 
     return (<FocusContext.Provider value={btnControlsFocusKey}>

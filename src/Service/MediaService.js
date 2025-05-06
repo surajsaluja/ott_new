@@ -56,7 +56,7 @@ export const fetchContinueWatchingData = async (userId = null) => {
     }
 };
 
-export const loadMediaDetailById = async (mediaId, isWebSeries, userObjectId, options = {}) => {
+export const fetchMediaDetailById = async (mediaId, isWebSeries, userObjectId, options = {}) => {
     try {
         const token = getSanitizedToken();
         let url = null;
@@ -84,7 +84,7 @@ export const loadMediaDetailById = async (mediaId, isWebSeries, userObjectId, op
     }
 }
 
-export const getMediaRelatedItem = async (mediaId, userObjId,page,pageSize,language,options = {}) => {
+export const fetchMediaRelatedItem = async (mediaId, userObjId,page,pageSize,language,options = {}) => {
     try{
         const response  = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId,language ?? DEFAULT_LANGUAGE,userObjId ?? userObjId,page ?? DEFAULT_PAGE,pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE),options);
         return response;
@@ -94,7 +94,7 @@ export const getMediaRelatedItem = async (mediaId, userObjId,page,pageSize,langu
     }
 }
 
-export const getTokanizedMediaUrl = async (mediaId, userObjectId = null, options = {}) => {
+export const fetchTokanizedMediaUrl = async (mediaId, userObjectId = null, options = {}) => {
     try {
         const token = getSanitizedToken();
         if (!token) throw new Error("User Token Not Found");
@@ -111,5 +111,21 @@ export const getTokanizedMediaUrl = async (mediaId, userObjectId = null, options
         return response;
     } catch (error) {
         return ThrowError('getTokenisedMediaUrl', error);
+    }
+}
+
+export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId,seasonId,language,userObjectId,page,pageSize) =>{
+    try{
+        if(!webSeriesId || webSeriesId == null){
+            throw Error('Webseries ID is an compulsary field');
+        }
+        if(!seasonId || seasonId == null){
+            throw Error('Season Id is an compulsary field');
+        }
+        const response = await fetchData(API.MEDIA.GET_WEBSERIES_EPISODES(webSeriesId,seasonId,language ?? DEFAULT_LANGUAGE,userObjectId ?? userObjectId,page??DEFAULT_PAGE,pageSize ?? DEFAULT_PAGE_SIZE));
+        return response;
+
+    }catch(error){
+        return ThrowError('fetchWebSeriesEpisodeBySeasonId',error);
     }
 }
