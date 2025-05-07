@@ -90,7 +90,6 @@
     margin-bottom: 15px;
     opacity: 0.8;
     display: flex;
-    gap: 10px;
   }
   
   .info-detail span{
@@ -103,6 +102,7 @@
     justify-content: center;
     align-items: center;
     font-weight: 700;
+    margin-right: 10px;
   }
 
   .info-detail span i{

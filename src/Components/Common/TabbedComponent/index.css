@@ -1,11 +1,16 @@
-.tabbedContent-wrapper{
-    height: 100%;
-  }
+.tabbedContent-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 10px;
+}
 
   .tabbedContent-tabs-wrapper{
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 10px;
+    flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
   }
 
   .tabbedContent-tab{
@@ -18,7 +23,9 @@
     border-width: 2px;
     padding: 8px;
     border-radius: 4px;
-    color: white
+    color: white;
+    justify-content: center;
+    align-items: center;
   }
 
   .tabbedContent-tab span{
@@ -40,21 +47,23 @@
   }
 
   .tabbedContent-window-slider-wrapper {
-    overflow: hidden;
-    width: 100%;
-    position: relative;
+    flex: 1 1 auto;
+    display: flex;
     height: 100%;
+    overflow: hidden;
   }
   
   .tabbedContent-window-slider {
+    flex: 1 1 auto;
     display: flex;
-    transition: transform 0.3s linear;
+    overflow: hidden;
     height: 100%;
   }
   
   .tabbedContent-tab-detail {
-    width: 100%;
-    flex-shrink: 0;
-    padding: 0 10px;
-    color: wheat;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
   }

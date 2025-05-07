@@ -27,9 +27,10 @@
   
   /* Content styles inside the drawer */
   .drawer-content {
-    padding: 16px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    overflow: hidden;
   }
 
   .back-btn-bottom-drawer{

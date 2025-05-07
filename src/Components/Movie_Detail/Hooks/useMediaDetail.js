@@ -7,6 +7,7 @@ import { getProcessedPlaylists } from "../../../Utils";
 import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
 import { toast } from "react-toastify";
 import Seasons_Tab from "../../Season_EpisodeList/Seasons_Tab";
+import Season_EpisodeList from "../../Season_EpisodeList";
 
 const useMediaDetail = (mediaId, category,focusKey) => {
     // References for Focusable
@@ -174,7 +175,7 @@ const useMediaDetail = (mediaId, category,focusKey) => {
       const RenderSeasonEpisodes  = useCallback(()=>{
         if (!webSeriesSeasons || webSeriesSeasons.length === 0) return <p>No Seasons available</p>;
 
-        return <Seasons_Tab seasons={webSeriesSeasons} selectedSeason={selectedSeasonId} onSeasonSelect={handleSeasonSelect} episodes={episodesCache[selectedSeasonId] || []} focusKey={'SEASON_CNT'}/>
+        return <Season_EpisodeList seasons={webSeriesSeasons} selectedSeason={selectedSeasonId} onSeasonSelect={handleSeasonSelect} episodes={episodesCache[selectedSeasonId] || []} focusKey={'SEASON_CNT'}/>
       },[selectedSeasonId, webSeriesSeasons,handleSeasonSelect,setSelectedSeasonId,episodesCache]);
 
     const tabs = useMemo(() => {

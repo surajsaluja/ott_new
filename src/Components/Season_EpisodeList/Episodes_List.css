@@ -1,0 +1,91 @@
+.episode-list-container {
+  flex: 1 1 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+
+.episode-list {
+  flex: 1 1 auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+  
+  .episode-item {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .image-thumbnail-placeholder{
+    padding: 4px;
+    border-width: 4px;
+    border-radius: 6px;
+    border-style: solid;
+    border-color: transparent;
+  }
+
+  .image-thumbnail-placeholder.focused{
+    border-color: white;
+
+  }
+  
+  .episode-thumbnail {
+    width: 250px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+  
+  .episode-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-left: 50px;
+    color: white;
+    padding: 10px;
+  }
+  
+  .episode-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .episode-info {
+    font-size: 1rem;
+    opacity: 0.8;
+    display: flex;
+    padding: 5px 0px;
+  }
+  
+  .episode-info span{
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    margin-right: 10px;
+  }
+
+  .episode-info span i{
+    margin: 0 3px 0 0; 
+    display: flex;
+  }
+  
+  .episode-desc {
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  
+  .no-episodes {
+    padding: 20px;
+    color: #888;
+    font-style: italic;
+  }
+  

@@ -1,0 +1,13 @@
+.season-episode-list{
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.episode-error-container{
+    color: #888;
+    font-style: italic;
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+    flex: 1 1 auto;
+}

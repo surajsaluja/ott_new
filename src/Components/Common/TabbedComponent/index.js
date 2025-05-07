@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
-import { useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
+import {
+  useFocusable,
+  FocusContext,
+} from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../FocusableButton";
-import './index.css';
+import "./index.css";
 
 const TabbedComponent = ({
   isParentContentReady = true,
   tabs = [],
-  focusKey
+  focusKey,
 }) => {
   const {
     ref,
     focusKey: currentFocusKey,
-    focusSelf
+    focusSelf,
   } = useFocusable({
     focusable: true,
     trackChildren: true,
     focusKey,
-    saveLastFocusedChild: true
+    saveLastFocusedChild: true,
   });
 
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -42,7 +45,9 @@ const TabbedComponent = ({
             <FocusableButton
               key={tab.id}
               text={tab.name}
-              className={`tabbedContent-tab ${activeTabIndex == index ? 'tab-active' : ''}`}
+              className={`tabbedContent-tab ${
+                activeTabIndex == index ? "tab-active" : ""
+              }`}
               focusClass="tabbedContent-tab-focused"
               onFocus={() => setActiveTabIndex(index)}
             />
@@ -51,19 +56,11 @@ const TabbedComponent = ({
       </FocusContext.Provider>
 
       {/* Tab Content Carousel */}
-      <div className="tabbedContent-window-slider-wrapper">
-        <div className="tabbedContent-window-slider">
-          {tabs.map((tab, index) => (
-            <div
-              key={tab.id}
-              style={{
-                display: activeTabIndex === index ? 'block' : 'none',
-              }}
-              className="tabbedContent-tab-detail"
-            >
-              {typeof tab.renderContent === 'function' ? tab.renderContent() : null}
-            </div>
-          ))}
+      <div className="tabbedContent-window-slider">
+        <div className="tabbedContent-tab-detail">
+          {typeof tabs[activeTabIndex].renderContent === "function"
+            ? tabs[activeTabIndex].renderContent()
+            : null}
         </div>
       </div>
     </div>
