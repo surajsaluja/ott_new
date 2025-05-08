@@ -34,6 +34,11 @@
     justify-content: center;
 }
 
+.tab_season .focusableButton_text{
+    display: flex;
+    flex: 1 1 auto;
+}
+
 .tab_season span{
     color: var(--BTN-WHITE3);
     font-size: var(--BUTTON2-MEDIUM-SIZE);
