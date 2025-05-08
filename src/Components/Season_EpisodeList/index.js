@@ -22,7 +22,7 @@ function Season_EpisodeList({ seasons, selectedSeason, onSeasonSelect, episodes,
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div ref={ref} className={'season-episode-list'}>
-      <Seasons_Tab seasons={seasons} selectedSeason={selectedSeason} onSeasonSelect={onSeasonSelect} focusKey={SEASON_TABS_FOCUS_KEY}/>
+      <Seasons_Tab seasons={seasons} selectedSeason={selectedSeason} onSeasonSelect={onSeasonSelect} episodesLength={episodes.length} focusKey={SEASON_TABS_FOCUS_KEY}/>
       {episodes && episodes.length > 0 ? (<Episodes_List episodes={episodes} focusKey={EPISODES_LIST_FOCUS_KEY}/>) : (<div className='episode-error-container'>No Episodes Available</div>)}
       </div>
     </FocusContext.Provider>

@@ -11,7 +11,7 @@ function Seasons_Tab({
   seasons,
   selectedSeason,
   onSeasonSelect,
-  episodes,
+  episodesLength = 0,
   focusKey,
 }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({
@@ -43,7 +43,7 @@ function Seasons_Tab({
             {seasons.map((season) => (
               <FocusableButton
                 key={season.id}
-                text={season.seasonName}
+                text={<div className="season-button-text"><p className="season-name">{season.seasonName}</p><p className="episodes-length">{`${episodesLength} Episodes`}</p></div>}
                 className={`tab_season ${
                   selectedSeason === season.id ? "tab_season_selected" : ""
                 }`}
