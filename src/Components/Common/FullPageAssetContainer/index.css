@@ -10,7 +10,7 @@
 
 .asset-scrolling-wrapper {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch; /* for Tizen/smooth scroll */
 }
 
