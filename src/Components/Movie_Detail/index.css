@@ -126,13 +126,13 @@
     border: 2px solid white;
     border-radius: 5px;
     text-transform: uppercase;
-    /* transition: scale 0.3s ease-in-out; */
+    transition: scale 0.3s ease-in-out;
     cursor: pointer;
     color: white;
     margin: 7px;
     display: flex;
     align-items: center;
-    /* background: linear-gradient(45deg, #00000000, #f90000b5); */
+    background: linear-gradient(45deg, #00000000, #f90000b5);
   }
   
   

@@ -11,10 +11,15 @@
     transition: background-color 0.2s ease;
     flex-shrink: 0;
     margin-left: 15px;
+    border: 3px solid white
 }
 
 .defaultFocusClass-tooltip-button {
-    background-color: #666; /* highlight on focus */
+    background-color: white; /* highlight on focus */
+}
+
+.defaultFocusClass-tooltip-button .focusableButton_icon-tooltip-button{
+    color: black !important;
 }
 
 .focusableButton_icon-tooltip-button {
@@ -25,9 +30,9 @@
 /* Tooltip-style text shown only when focused */
 .focusableButton_tooltip {
     position: absolute;
-    bottom: 110%; /* above the button */
-    background-color: rgba(0, 0, 0, 0.85);
-    color: #fff;
+    bottom: 130%; /* above the button */
+    background-color: rgba(255, 255, 255, 0.85);
+    color: black;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 14px;

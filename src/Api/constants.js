@@ -44,7 +44,8 @@ export const API = {
         GET_WEBSERIES_EPISODES:(webSeriesId,seasonId,languageCode,userObjectId,page,pageSize) =>
             `/Media/GetEpisodeItemsV2/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${seasonId ?? DEFAULTS.SEASON_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
         GET_WEBSERIES_DETAILS_WITH_EPISODES:(webSeriesId,userObjectId) =>
-            `/Media/WebSeriesDetailsV4/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`
+            `/Media/WebSeriesDetailsV4/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
+        POST_FAVOURITE_MEDIA_ITEM:`User/AddToMylist`,
     },
     MENU: {
         GET_APP_FEATURES: '/AdminApi/GetAppFeatures',

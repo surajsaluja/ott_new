@@ -1,6 +1,6 @@
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
-import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
+import { MdOutlineTimer, MdOutlineDateRange, MdStarRate, MdAdd } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import { formatTime } from "../../Utils";
 import useMediaDetail from "./Hooks/useMediaDetail";
@@ -23,6 +23,9 @@ function Movie_Detail(focusKey) {
         isDrawerContentReady,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
+        isMediaFavourite,
+        showResumeBtn,
+        updateMediaWishlistStatus
     } = useMediaDetail(285, 'web series', focusKey);
 
 
@@ -71,19 +74,20 @@ function Movie_Detail(focusKey) {
                                         icon={<FaPlay />}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
-                                        text={"Watch Movie"}
+                                        text={showResumeBtn ? `Resume Movie` : `Watch Movie`}
                                     />
-                                    <FocusableButtonIconTooltip
+                                    {showResumeBtn && <FocusableButtonIconTooltip
                                         icon={<MdOutlineRestartAlt />}
                                         text={'Start Over'}
-                                    />
+                                    />}
                                     <FocusableButtonIconTooltip
                                         icon={<MdMovie />}
                                         text={'Watch Trailer'}
                                     />
                                     <FocusableButtonIconTooltip
-                                        icon={<IoHeartSharp />}
-                                        text={'Add To Wishlist'}
+                                        icon={isMediaFavourite ? <IoHeartSharp /> : <MdAdd />}
+                                        text={isMediaFavourite ? 'Remove From Wishlist' : 'Add To Wishlist'}
+                                        onEnterPress={updateMediaWishlistStatus}
                                     />
                                 </div>
 

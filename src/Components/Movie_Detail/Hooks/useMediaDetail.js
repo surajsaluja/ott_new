@@ -2,7 +2,7 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useEffect, useState, useCallback,useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import { getMediaDetails, getMediaRelatedItemDetails, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
-import { getMediaRelatedItem } from "../../../Service/MediaService";
+import { getMediaRelatedItem, updateMediaItemToWishlist } from "../../../Service/MediaService";
 import { getProcessedPlaylists } from "../../../Utils";
 import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
 import { toast } from "react-toastify";
@@ -31,6 +31,8 @@ const useMediaDetail = (mediaId, category,focusKey) => {
     const [isRelatedItemsLoading, setIsRelatedItemsLoading] = useState(true); // Add a loading state for related items
     const [groupedStarCasts, setGroupedStarCasts] = useState(null);
     const [isSeasonsLoading, setIsSeasonsLoading] = useState(true);
+    const [showResumeBtn, setShowResumeButton] = useState(false);
+    const [isMediaFavourite,setIsMediaFavourite] = useState(false);
 
     // Support Functions
     const history = useHistory();
@@ -89,11 +91,13 @@ const useMediaDetail = (mediaId, category,focusKey) => {
             if (mediaDetailsResponse.isSuccess) {
                 let mediaDet  =  mediaDetailsResponse.data.mediaDetail;
                 setMediaDetail(mediaDet);
+                setGroupedStarCasts(mediaDet.groupedStarCasts);
+                setIsMediaFavourite(mediaDet.isAddedByUser);
+                setShowResumeButton(mediaDet.playDuration > 0);
                 if(category == 'web series' && mediaDet.seasons && mediaDet.seasons.length > 0){
                     setWebSeriesId(mediaDet.webSeriesId);
                     setWebSeriesSeasons(mediaDet.seasons);
                     setSelectedSeasonId(mediaDet.seasons[0].id);
-                    setGroupedStarCasts(mediaDet.groupedStarCasts);
                 }
                 getRelatedMediaItems(mediaId);
             }
@@ -126,6 +130,22 @@ const useMediaDetail = (mediaId, category,focusKey) => {
             setIsRelatedItemsLoading(false); // Set loading to false after fetching (success or failure)
         }
     };
+
+    const updateMediaWishlistStatus = async()=>{
+        try{
+            const data = {
+                "VideoId": mediaId
+            }
+            let favouriteResponse = await updateMediaItemToWishlist(data);
+            if(favouriteResponse?.isSuccess){
+                setIsMediaFavourite(favouriteResponse.message.includes('removed') ? false : true);
+            }else{
+                throw new Error('Error Updating Wishlist')
+            }
+        }catch(error){
+
+        }
+    }
 
     // Seasons and Episodes Functions
 
@@ -187,6 +207,8 @@ const useMediaDetail = (mediaId, category,focusKey) => {
         return <StarCastContainer data={groupedStarCasts}/>
       },[groupedStarCasts])
 
+    // dynamic tabs based on movies or webseries
+
     const tabs = useMemo(() => {
         if (!mediaDetail) return [];
       
@@ -233,6 +255,9 @@ const useMediaDetail = (mediaId, category,focusKey) => {
         isDrawerContentReady,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
+        showResumeBtn,
+        isMediaFavourite,
+        updateMediaWishlistStatus
     }
 }
 

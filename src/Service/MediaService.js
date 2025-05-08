@@ -1,4 +1,4 @@
-import { fetchData } from "../Api/apiService";
+import { fetchData, postData } from "../Api/apiService";
 import { API } from "../Api/constants";
 import { toast } from "react-toastify";
 import { getSanitizedToken } from "../Utils";
@@ -128,4 +128,24 @@ export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId,seasonId,langu
     }catch(error){
         return ThrowError('fetchWebSeriesEpisodeBySeasonId',error);
     }
+}
+
+export const updateMediaItemToWishlist = async (data,options={}) =>{
+    try {
+          const token = getSanitizedToken();
+          if(!data) throw new Error("Post Data Required");
+          if (!token) throw new Error("User Token Not Found");
+    
+          const headers = {
+            Authorization: token,
+          };
+          
+          const response = await postData(API.MEDIA.POST_FAVOURITE_MEDIA_ITEM, data,{
+            ...options,
+            headers,
+          });
+          return response;
+        } catch (error) {
+          return ThrowError("fetchUserSubscriptionStatus", error);
+        }
 }
