@@ -1,4 +1,4 @@
-.focusableButton-wrapper {
+.focusableButton-tooltip-wrapper {
     position: relative;
     width: 48px;
     height: 48px;
@@ -13,11 +13,11 @@
     margin-left: 15px;
 }
 
-.defaultFocusClass {
+.defaultFocusClass-tooltip-button {
     background-color: #666; /* highlight on focus */
 }
 
-.focusableButton_icon {
+.focusableButton_icon-tooltip-button {
     font-size: 20px;
     color: white;
 }

@@ -23,10 +23,10 @@ const FocusableButtonIconTooltip = ({
     return (
         <div
             ref={ref}
-            className={`focusableButton-wrapper ${styleClass} ${focused ? (focusClass || 'defaultFocusClass') : ''}`}
+            className={`focusableButton-tooltip-wrapper ${styleClass} ${focused ? (focusClass || 'defaultFocusClass-tooltip-button') : ''}`}
             style={customStyles}
         >
-            <span className='focusableButton_icon'>{icon}</span>
+            <span className='focusableButton_icon-tooltip-button'>{icon}</span>
             {focused && (
                 <span className='focusableButton_tooltip'>{text}</span>
             )}
