@@ -6,8 +6,8 @@ import { getMediaRelatedItem } from "../../../Service/MediaService";
 import { getProcessedPlaylists } from "../../../Utils";
 import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
 import { toast } from "react-toastify";
-import Seasons_Tab from "../../Season_EpisodeList/Seasons_Tab";
 import Season_EpisodeList from "../../Season_EpisodeList";
+import StarCastContainer from "../../StarCastContainer";
 
 const useMediaDetail = (mediaId, category,focusKey) => {
     // References for Focusable
@@ -29,6 +29,7 @@ const useMediaDetail = (mediaId, category,focusKey) => {
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const [isDrawerContentReady, setDrawerContentReady] = useState(false);
     const [isRelatedItemsLoading, setIsRelatedItemsLoading] = useState(true); // Add a loading state for related items
+    const [groupedStarCasts, setGroupedStarCasts] = useState(null);
     const [isSeasonsLoading, setIsSeasonsLoading] = useState(true);
 
     // Support Functions
@@ -50,6 +51,7 @@ const useMediaDetail = (mediaId, category,focusKey) => {
         setIsRelatedItemsLoading(true); // Reset loading state
         setWebSeriesSeasons(null);
         setIsSeasonsLoading(true);
+        setGroupedStarCasts(null);
     }, [mediaId]);
 
     // set Focus to Page when media Loads
@@ -91,6 +93,7 @@ const useMediaDetail = (mediaId, category,focusKey) => {
                     setWebSeriesId(mediaDet.webSeriesId);
                     setWebSeriesSeasons(mediaDet.seasons);
                     setSelectedSeasonId(mediaDet.seasons[0].id);
+                    setGroupedStarCasts(mediaDet.groupedStarCasts);
                 }
                 getRelatedMediaItems(mediaId);
             }
@@ -178,6 +181,12 @@ const useMediaDetail = (mediaId, category,focusKey) => {
         return <Season_EpisodeList seasons={webSeriesSeasons} selectedSeason={selectedSeasonId} onSeasonSelect={handleSeasonSelect} episodes={episodesCache[selectedSeasonId] || []} focusKey={'SEASON_CNT'}/>
       },[selectedSeasonId, webSeriesSeasons,handleSeasonSelect,setSelectedSeasonId,episodesCache]);
 
+      const RenderCastData = useCallback(()=>{
+        if(groupedStarCasts == null) return <p>No Star Cast Available</p>;
+
+        return <StarCastContainer data={groupedStarCasts}/>
+      },[groupedStarCasts])
+
     const tabs = useMemo(() => {
         if (!mediaDetail) return [];
       
@@ -200,13 +209,13 @@ const useMediaDetail = (mediaId, category,focusKey) => {
           renderContent: RenderRelatedItems,
         });
       
-         if (mediaDetail.groupedStartCasts) {
+         if (groupedStarCasts != null) {
           dynamicTabs.push({
             name: 'StarCast',
             action: null,
             focusKey: 'tabDetail_startCast',
             id: 3,
-            renderContent: () => <p>Cast & Crew</p>,
+            renderContent: RenderCastData,
           });
         }
       

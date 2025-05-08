@@ -36,9 +36,9 @@ const groupStarCasts = (starCastArray = []) => {
     Starcast: [],
   };
 
-  starCastArray.forEach(({ iStarcastType, displayName }) => {
+  starCastArray.forEach(({ iStarcastType, displayName, profileImage }) => {
     if (groupedStarCasts[iStarcastType]) {
-      groupedStarCasts[iStarcastType].push(displayName);
+      groupedStarCasts[iStarcastType].push({displayName, profileImage});
     }
   });
 
@@ -83,7 +83,7 @@ export const getMediaDetails = async (
   let message = null;
   let webThumbnailUrl = null;
   let fullPageBannerUrl = null;
-  let groupedStartCasts = null;
+  let groupedStarCasts = null;
 
   try {
     const isWebSeries = category.toLowerCase() === "web series";
@@ -114,8 +114,8 @@ export const getMediaDetails = async (
         mediaDetail.fullPageBanner,
         1920
       );
-      groupedStartCasts = groupStarCasts(isWebSeries ? response.starcastList : response.starcasts);
-      mediaDetail.groupedStartCasts = groupedStartCasts;
+      groupedStarCasts = groupStarCasts(isWebSeries ? response.starcastList : response.starcasts);
+      mediaDetail.groupedStarCasts = groupedStarCasts;
       mediaDetail.seasons = isWebSeries ? response.seasons : null;
 
       skipInfo = {
@@ -165,7 +165,7 @@ export const getMediaDetails = async (
       userCurrentPlayTime,
       webThumbnailUrl,
       fullPageBannerUrl,
-      groupedStartCasts,
+      groupedStarCasts,
     },
   };
 };

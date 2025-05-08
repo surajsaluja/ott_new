@@ -1,0 +1,41 @@
+.credits-container {
+    padding: 1rem;
+    color: white;
+  }
+  
+  .credits-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  
+  .credits-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 7rem;
+  }
+  
+  .credits-image {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 9999px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+  }
+  
+  .credits-name {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  
+  .credits-role {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+    font-weight: 700;
+  }
+  
