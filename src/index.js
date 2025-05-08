@@ -1,18 +1,21 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { UserProvider } from './Context/userContext'
-import { ModalProvider } from './Context/modalContext';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { UserProvider } from "./Context/userContext";
+import { ModalProvider } from "./Context/modalContext";
+import { BackHandlerProvider } from "./Context/BackHandlerContext";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <UserProvider>
-      <ModalProvider>
-        <App />
-      </ModalProvider>
+      <BackHandlerProvider>
+        <ModalProvider>
+          <App />
+        </ModalProvider>
+      </BackHandlerProvider>
     </UserProvider>
   </React.StrictMode>
 );
