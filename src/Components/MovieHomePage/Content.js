@@ -85,7 +85,7 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
   );
 };
 
-const ContentWithBanner = () =>{
+const ContentWithBanner = ({category,focusKey}) =>{
 
  const onHeaderFocus = () =>{};
  
@@ -101,7 +101,7 @@ const ContentWithBanner = () =>{
     setIsLoading,
     banners,
     loadMoreRows
-  } = useContentWithBanner('',onHeaderFocus)
+  } = useContentWithBanner(onHeaderFocus,category,focusKey)
 
   return (
   <FocusContext.Provider value={currentFocusKey}>

@@ -5,7 +5,7 @@ import useMenu from './Hooks/useMenu';
 import './index.css';
 import { kableOneLogo } from '../../assets';
 
-function Menu_Home({ focusKey}) {   
+function Menu_Home({ activeTab, focusKey}) {   
 
     const { 
         menuItems, 
@@ -19,7 +19,7 @@ function Menu_Home({ focusKey}) {
         menuScrollingRef, 
         onMenuFocus, 
         getIconComponent 
-    } = useMenu(focusKey);
+    } = useMenu(activeTab,focusKey);
 
     useEffect(()=>{
         focusSelf();

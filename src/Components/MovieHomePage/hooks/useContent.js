@@ -4,6 +4,7 @@ import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWa
 import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
 import { fetchContinueWatchingData, fetchPlaylistPage, fetchBannersBySection } from "../../../Service/MediaService";
+import { useHistory } from "react-router-dom";
 
 /* ------------------ Content Row Hook ------------------ */
 const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
@@ -85,6 +86,8 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
 
 /* ------------------ Movie Home Page Hook ------------------ */
 const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus) => {
+  const history = useHistory();
+
   const { ref, focusKey, hasFocusedChild } = useFocusable({
     focusKey: focusKeyParam,
     trackChildren: true,
@@ -128,7 +131,7 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
 
   const onAssetPress = (item) => {
     console.log("Selected asset:", item.data);
-    // history.push("/detail", item.data);
+     history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
   };
 
   return {
@@ -143,7 +146,7 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
 };
 
 /* ------------------ Content with Banner Hook ------------------ */
-export const useContentWithBanner = (focusKey, onFocus,section = 5) => {
+export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   const {
     ref,
     focusKey: currentFocusKey,
@@ -171,20 +174,20 @@ export const useContentWithBanner = (focusKey, onFocus,section = 5) => {
     return () => {
       if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     };
-  }, []);
+  }, [category]);
 
   const loadInitialData = async () => {
     setIsLoading(true);
     try {
-      const bannerData = await fetchBannersBySection(section);
+      const bannerData = await fetchBannersBySection(category);
       if (bannerData) {
         setBanners(bannerData?.data);
       }
 
-      const playlistData = await fetchPlaylistPage(section, 1, uid);
+      const playlistData = await fetchPlaylistPage(category, 1, uid);
       let processed = getProcessedPlaylists(playlistData, horizontalLimit);
 
-      if (isLoggedIn && uid && section == 5) {
+      if (isLoggedIn && uid && category == 5) {
         const continueWatchlistData = await fetchContinueWatchingData(isLoggedIn ? uid : 0);
         processed = getProcessedPlaylistsWithContinueWatch(processed, continueWatchlistData);
       }
@@ -202,7 +205,7 @@ export const useContentWithBanner = (focusKey, onFocus,section = 5) => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const raw = await fetchPlaylistPage(section, page + 1, uid);
+      const raw = await fetchPlaylistPage(category, page + 1, uid);
       const processed = getProcessedPlaylists(raw, horizontalLimit);
       setData((prev) => [...prev, ...processed]);
       setPage((prev) => prev + 1);

@@ -6,77 +6,21 @@ import { IoTv,IoTvOutline,IoHeartOutline,IoHeartSharp, IoSearchOutline,IoSearchS
 import { RiMovie2Line, RiMovie2Fill } from "react-icons/ri";
 import { useHistory } from "react-router-dom";
 
-const useMenu = (focusKey) => {
+const useMenu = (activeTabId,focusKey) => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMenu,setSelectedMenu] = useState(1);
   const history = useHistory();
 
   const menu = [
-    {
-      id: 1,
-      text: "HOME",
-      iconOutline: "MdOutlineHome",
-      iconFill: "MdHome",
-      permission: "isVODEnabled",
-      redirect: "/home",
-    },
-    {
-      id: 2,
-      text: "MOVIES",
-      iconOutline: "RiMovie2Line",
-      iconFill: "RiMovie2Fill",
-      permission: "isVODEnabled",
-      redirect: "/movies",
-    },
-    {
-      id: 3,
-      text: "WEB SERIES",
-      iconOutline: "MdOutlineWebStories",
-      iconFill: "MdWebStories",
-      permission: "isWebseriesEnabled",
-      redirect: "/webseries",
-    },
-    {
-      id: 4,
-      text: "LIVE TV",
-      iconOutline: "IoTvOutline",
-      iconFill: "IoTv",
-      permission: "isTVEnabled",
-      redirect: "/liveTV",
-    },
-    {
-      id: 5,
-      text: "RADIO",
-      iconOutline: "MdOutlineRadio",
-      iconFill: "MdRadio",
-      permission: "isRadioEnabled",
-      redirect: "/radio",
-    },
-    {
-      id: 6,
-      text: "SEARCH",
-      iconOutline: "IoSearchOutline",
-      iconFill: "IoSearchSharp",
-      permission: "isVODEnabled",
-      redirect: "/search",
-    },
-    {
-      id: 7,
-      text: "FAVOURITES",
-      iconOutline: "IoHeartOutline",
-      iconFill: "IoHeartSharp",
-      permission: "isVODEnabled",
-      redirect: "/wishlist",
-    },
-    {
-      id: 8,
-      text: "PROFILE",
-      iconOutline: "MdPersonOutline",
-      iconFill: "MdPerson",
-      permission: "isVODEnabled",
-      redirect: "/login",
-    },
+    { id: 1, text: "HOME", iconOutline: "MdOutlineHome", iconFill: "MdHome", permission: "isVODEnabled", redirect: "/home", categoryId: 5 },
+    { id: 2, text: "MOVIES", iconOutline: "RiMovie2Line", iconFill: "RiMovie2Fill", permission: "isVODEnabled", redirect: "/movies", categoryId: 1 },
+    { id: 3, text: "WEB SERIES", iconOutline: "MdOutlineWebStories", iconFill: "MdWebStories", permission: "isWebseriesEnabled", redirect: "/webseries", categoryId: 2 },
+    { id: 4, text: "LIVE TV", iconOutline: "IoTvOutline", iconFill: "IoTv", permission: "isTVEnabled", redirect: "/liveTV", categoryId: 3 },
+    { id: 5, text: "RADIO", iconOutline: "MdOutlineRadio", iconFill: "MdRadio", permission: "isRadioEnabled", redirect: "/radio", categoryId: 4 },
+    { id: 6, text: "SEARCH", iconOutline: "IoSearchOutline", iconFill: "IoSearchSharp", permission: "isVODEnabled", redirect: "/search", categoryId: 6 },
+    { id: 7, text: "FAVOURITES", iconOutline: "IoHeartOutline", iconFill: "IoHeartSharp", permission: "isVODEnabled", redirect: "/wishlist", categoryId: 7 },
+    { id: 8, text: "PROFILE", iconOutline: "MdPersonOutline", iconFill: "MdPerson", permission: "isVODEnabled", redirect: "/login", categoryId: 8 },
   ];
 
   const { ref, focusKey: currentFocusKey, hasFocusedChild, focusSelf } = useFocusable({
@@ -98,7 +42,7 @@ const useMenu = (focusKey) => {
       const onMenuEnterPress = useCallback((item) => {
         setSelectedMenu(item.id);
         history.replace(item.redirect);
-      }, []);
+      }, [selectedMenu,history]);
 
   const getAppFeatures = async () => {
     try {
@@ -121,6 +65,13 @@ const useMenu = (focusKey) => {
     const IconComp = allIcons[IconKey];
     return IconComp ? <IconComp /> : null
   }
+
+  useEffect(()=>{
+    const selectedMenuItem  = menu.find(item => item.categoryId == activeTabId);
+    if(selectedMenuItem){
+      setSelectedMenu(selectedMenuItem.id);
+    }
+  },[activeTabId])
 
   useEffect(() => {
     getAppFeatures();

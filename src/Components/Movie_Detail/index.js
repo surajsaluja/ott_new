@@ -1,5 +1,6 @@
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
+import { useParams } from 'react-router-dom';
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate, MdAdd } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import { formatTime } from "../../Utils";
@@ -13,6 +14,7 @@ import { IoHeartSharp } from "react-icons/io5";
 import { FaPlay } from "react-icons/fa6";
 
 function Movie_Detail(focusKey) {
+    const {categoryId, mediaId} = useParams();
     const {
         ref,
         btnControlsFocusKey,
@@ -26,7 +28,7 @@ function Movie_Detail(focusKey) {
         isMediaFavourite,
         showResumeBtn,
         updateMediaWishlistStatus
-    } = useMediaDetail(285, 'web series', focusKey);
+    } = useMediaDetail(mediaId, categoryId, focusKey);
 
 
     return (<FocusContext.Provider value={btnControlsFocusKey}>
@@ -63,10 +65,10 @@ function Movie_Detail(focusKey) {
                                 {mediaDetail?.releasedYear && <span><i><MdOutlineDateRange /></i>{mediaDetail?.releasedYear}</span>}
                                 {mediaDetail?.rating && <span><i><MdStarRate /></i>{mediaDetail?.rating}</span>}
                                 {mediaDetail?.duration && <span><i><MdOutlineTimer /></i>{formatTime(mediaDetail?.duration)}</span>}
-                                {mediaDetail?.ageRangeId && <span><i><GiVibratingShield /></i>{mediaDetail?.ageRangeId}</span>}
+                                {mediaDetail?.ageRangeId && <span><i><GiVibratingShield /></i>{`${mediaDetail?.ageRangeId}+`}</span>}
                                 {mediaDetail?.cultures && <span>{mediaDetail?.cultures}</span>}
                             </div>
-                            {mediaDetail.description && <p className="description-detail">{mediaDetail.description}</p>}
+                            <p className="description-detail">{mediaDetail.description}</p>
                             {mediaDetail &&
                                 <div className="buttons-detail" ref={ref}>
                                     <FocusableButton

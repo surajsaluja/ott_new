@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import Season_EpisodeList from "../../Season_EpisodeList";
 import StarCastContainer from "../../StarCastContainer";
 
-const useMediaDetail = (mediaId, category,focusKey) => {
+const useMediaDetail = (mediaId, categoryId,focusKey) => {
     // References for Focusable
     const { ref, focusKey: btnControlsFocusKey, hasFocusedChild, focusSelf } = useFocusable({
         focusable: true,
@@ -87,14 +87,14 @@ const useMediaDetail = (mediaId, category,focusKey) => {
     const fetchMediaDetail = async (mediaId) => {
         try {
             setIsLoading(true);
-            const mediaDetailsResponse = await getMediaDetails(mediaId,category);
+            const mediaDetailsResponse = await getMediaDetails(mediaId,categoryId);
             if (mediaDetailsResponse.isSuccess) {
                 let mediaDet  =  mediaDetailsResponse.data.mediaDetail;
                 setMediaDetail(mediaDet);
                 setGroupedStarCasts(mediaDet.groupedStarCasts);
                 setIsMediaFavourite(mediaDet.isAddedByUser);
                 setShowResumeButton(mediaDet.playDuration > 0);
-                if(category == 'web series' && mediaDet.seasons && mediaDet.seasons.length > 0){
+                if(categoryId == 2 && mediaDet.seasons && mediaDet.seasons.length > 0){
                     setWebSeriesId(mediaDet.webSeriesId);
                     setWebSeriesSeasons(mediaDet.seasons);
                     setSelectedSeasonId(mediaDet.seasons[0].id);
@@ -214,7 +214,7 @@ const useMediaDetail = (mediaId, category,focusKey) => {
       
         const dynamicTabs = [];
       
-        if (category === 'web series' && webSeriesSeasons.length > 0) {
+        if (categoryId == 2 && webSeriesSeasons.length > 0) {
           dynamicTabs.push({
             name: 'Seasons & Episodes',
             action: null,

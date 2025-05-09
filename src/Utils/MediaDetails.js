@@ -51,7 +51,7 @@ const groupStarCasts = (starCastArray = []) => {
 
 export const getMediaDetails = async (
   mediaId = null,
-  category = "movie",
+  categoryId = 1,
   isTrailer = true,
   userObjectId = null
 ) => {
@@ -86,7 +86,7 @@ export const getMediaDetails = async (
   let groupedStarCasts = null;
 
   try {
-    const isWebSeries = category.toLowerCase() === "web series";
+    const isWebSeries = categoryId == 2;
     let response = await fetchMediaDetailById(
       mediaId,
       isWebSeries,
@@ -241,7 +241,7 @@ export const getTokenisedMedia = async (
 
 export const getMediaDetailWithTokenisedMedia = async (
   mediaId = null,
-  category = null,
+  categoryId = null,
   isTrailer = true,
   userObjectId = null
 ) => {
@@ -251,7 +251,7 @@ export const getMediaDetailWithTokenisedMedia = async (
   try {
     mediaDetailReponse = await this.getMediaDetails(
       mediaId,
-      category,
+      categoryId,
       isTrailer,
       userObjectId
     );
