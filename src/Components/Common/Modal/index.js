@@ -5,19 +5,19 @@ import { useFocusable, setFocus, FocusContext } from '@noriginmedia/norigin-spat
 import './index.css';
 
 const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
-  const { ref, focusSelf } = useFocusable({ focusKey: 'MODAL_BUTTONS' });
+  const { ref, focusSelf, focusKey: currentFocusKey } = useFocusable({ focusKey: 'MODAL_BUTTONS' });
 
   useEffect(() => {
       focusSelf();
   }, [isOpen]);
 
   return createPortal(
-    <div className="modal-overlay">
+    <FocusContext.Provider value={currentFocusKey}>
+    <div className="modal-overlay" ref={ref}>
         <div className="modal-box">
           {title && <h2 className="modal-title">{title}</h2>}
           <div className="modal-content">{content}</div>
-          <FocusContext.Provider value="MODAL_BUTTONS">
-          <div ref={ref} className="modal-buttons">
+          <div className="modal-buttons">
             {buttons.map(({ label, action, className = '' }, index) => (
               <FocusableButton
                 key={`${label}_${index}`}
@@ -28,9 +28,9 @@ const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
               />
             ))}
           </div>
-          </FocusContext.Provider>
         </div>
-    </div>,
+    </div>
+    </FocusContext.Provider>,
     document.body
   );
 };

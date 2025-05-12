@@ -1,30 +1,38 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
-import {  MdSettings, MdArrowBack, MdOutlineSubtitles } from 'react-icons/md'
+import { MdSettings, MdArrowBack, MdOutlineSubtitles } from 'react-icons/md'
 import './Popup.css';
 import SeekBar from './SeekBar'
 
-const Popup = ({ focusKey: focusKeyParam,
+const Popup = ({ focusKey,
   onVideoSettingsPressed,
   onAudioSubtitlesSettingsPressed,
   onBackPress,
   videoRef,
-    title }) => {
-  const { ref, focusKey, focusSelf } = useFocusable();
+  title,
+  style = {},
+  isVisible,
+  resetInactivityTimeout }) => {
+  const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey });
 
-  useEffect(()=>{
-    focusSelf();
-  },[focusSelf])
+  useEffect(() => {
+    if (isVisible) {
+      focusSelf();
+    }
+  }, [focusSelf, isVisible])
 
-  return (<FocusContext.Provider value={focusKey}>
+  return (<FocusContext.Provider value={currentFocusKey}>
     <div style={{
       display: 'flex',
       flexDirection: 'row',
       gap: '20px',
       width: '100%',
       height: '100%',
-      zIndex: 10
+      zIndex: 10,
+      opacity: isVisible ? 1 : 0,
+      pointerEvents: isVisible ? 'auto' : 'none',
+      transition: 'opacity 0.3s ease-in-out',
     }}>
       <div ref={ref}>
         <FocusableButton
@@ -37,28 +45,30 @@ const Popup = ({ focusKey: focusKeyParam,
         />
         <p className={'popup_title'}>{title}</p>
         <div className={'settings_icons'}>
-        <FocusableButton
-          key={2}
-          focuskey={'settingsBtn'}
-          onEnterPress={onVideoSettingsPressed}
-          icon={<MdSettings />}
-          className={`popup_settingButton`}
-          focusClass={`popup_settingButton_focus`}
-          text={'Quality'}
-        />
-        <FocusableButton
-        key={3}
-        focuskey={'subtitlesBtn'}
-        onEnterPress={onAudioSubtitlesSettingsPressed}
-        icon={<MdOutlineSubtitles />}
-        className={`popup_settingButton`}
-        focusClass={`popup_settingButton_focus`}
-        text={'Audio & Subtitles'}
-        />
+          <FocusableButton
+            key={2}
+            focuskey={'settingsBtn'}
+            onEnterPress={onVideoSettingsPressed}
+            icon={<MdSettings />}
+            className={`popup_settingButton`}
+            focusClass={`popup_settingButton_focus`}
+            text={'Quality'}
+          />
+          <FocusableButton
+            key={3}
+            focuskey={'subtitlesBtn'}
+            onEnterPress={onAudioSubtitlesSettingsPressed}
+            icon={<MdOutlineSubtitles />}
+            className={`popup_settingButton`}
+            focusClass={`popup_settingButton_focus`}
+            text={'Audio & Subtitles'}
+          />
         </div>
 
         <SeekBar
           videoRef={videoRef}
+          resetInactivityTimeout={resetInactivityTimeout}
+          focusKey={'SeekBar_Container'}
         />
       </div>
     </div>

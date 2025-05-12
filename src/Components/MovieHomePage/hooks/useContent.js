@@ -1,6 +1,6 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useState, useRef, useEffect } from "react";
-import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
+import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch, showModal } from "../../../Utils";
 import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
 import { fetchContinueWatchingData, fetchPlaylistPage, fetchBannersBySection } from "../../../Service/MediaService";
@@ -87,6 +87,7 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
 /* ------------------ Movie Home Page Hook ------------------ */
 const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus) => {
   const history = useHistory();
+  const { userObjectId, isLoggedIn } = useUserContext();
 
   const { ref, focusKey, hasFocusedChild } = useFocusable({
     focusKey: focusKeyParam,
@@ -129,9 +130,22 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     }
   }, [ref, smoothScroll]);
 
+  const redirectToLogin = () => {
+    history.replace('/login', { from: '/' });
+  };
+
   const onAssetPress = (item) => {
-    console.log("Selected asset:", item.data);
-     history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
+    if (isLoggedIn && userObjectId) {
+      history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
+        }
+        else {
+          showModal('Login',
+            'You are not logged in !!',
+            [
+              { label: 'Login', action: redirectToLogin, className: 'primary' }
+            ]
+          );
+        }
   };
 
   return {
