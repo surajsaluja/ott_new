@@ -7,6 +7,7 @@ import LoginScreen from "../Components/Login";
 import TestComp from "../Components/TestComp";
 import Error404 from "../Components/Error404";
 import PrivateRoute from "./PrivateRoute";
+import VideoPlayer from "../Components/VideoPlayer";
 
 const AppNavigation = () => {
   return (
@@ -14,6 +15,7 @@ const AppNavigation = () => {
       <Switch>
         <Route path="/login" component={LoginScreen} />
         <Route path="/test" component={TestComp} />
+        <Route path="/play" component={VideoPlayer} />
 
         {/* Dynamic route for details page */}
         <PrivateRoute path="/detail/:categoryId/:mediaId" component={Movie_Detail} />

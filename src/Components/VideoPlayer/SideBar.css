@@ -1,0 +1,75 @@
+/* Sidebar.css */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background-color: #242a31;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 50px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.5s linear(0 0%, 0 1.8%, 0.01 3.6%, 0.03 6.35%, 0.07 9.1%, 0.13 11.4%, 0.19 13.4%, 0.27 15%, 0.34 16.1%, 0.54 18.35%, 0.66 20.6%, 0.72 22.4%, 0.77 24.6%, 0.81 27.3%, 0.85 30.4%, 0.88 35.1%, 0.92 40.6%, 0.94 47.2%, 0.96 55%, 0.98 64%, 0.99 74.4%, 1 86.4%, 1 100%);
+  z-index: 100;
+  color: white;
+  overflow: hidden;
+  transform: translateX(100%);
+  border-radius: 50px 0 0 50px;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sideBar_Main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0.5em;
+  margin: 10px;
+}
+
+.context_data {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 250px;
+  padding: 10px;
+}
+
+.context_data p{
+  font-size: 1.2em;
+    text-align: left;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 0 0 0 30px;
+}
+
+
+.focusableButton {
+  background: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+    border-radius: 4px;
+    font-size: 18px;
+    margin: 5px;
+    cursor: pointer;
+    padding: 10px;
+  text-align: left;
+}
+
+.focusableButton .focusableButton_text {
+  font-weight: 500;
+  padding: 0 0 0 5px;
+}
+
+.focusableButton .focusableButton_icon {
+  font-weight: 500;
+  min-width: 1em;
+}
+
+.focusableButton-focused {
+  border-color: azure;
+}
+

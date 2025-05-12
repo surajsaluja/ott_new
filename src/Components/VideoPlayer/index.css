@@ -1,0 +1,21 @@
+.seekbar {
+    height: 6px;
+    background: #333;
+    margin: 10px;
+    position: relative;
+  }
+  .progress {
+    height: 100%;
+    background: red;
+  }
+  .thumbnail-preview img {
+    position: absolute;
+    bottom: 50px;
+    width: 120px;
+  }
+  .drawer-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  

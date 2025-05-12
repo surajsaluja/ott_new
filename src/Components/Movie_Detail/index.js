@@ -27,7 +27,8 @@ function Movie_Detail(focusKey) {
         handleBottomDrawerClose,
         isMediaFavourite,
         showResumeBtn,
-        updateMediaWishlistStatus
+        updateMediaWishlistStatus,
+        watchMovie
     } = useMediaDetail(mediaId, categoryId, focusKey);
 
 
@@ -77,6 +78,7 @@ function Movie_Detail(focusKey) {
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={showResumeBtn ? `Resume Movie` : `Watch Movie`}
+                                        onEnterPress={watchMovie}
                                     />
                                     {showResumeBtn && <FocusableButtonIconTooltip
                                         icon={<MdOutlineRestartAlt />}

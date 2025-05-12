@@ -1,0 +1,151 @@
+/* src/VideoPlayer.css */
+.video-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: black;
+}
+
+.video-js {
+    width: 100%;
+    height: 100%;
+}
+
+.video-player{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+  
+  .vjs-play-pause-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 1em;
+    border-radius: 0.5em;
+  }
+
+  .video-js .vjs-play-progress:before {
+    font-size: 1.6em;
+    line-height: 0.5em;
+  }
+
+  .video-js .vjs-progress-holder{
+    height: 0.8em;
+  }
+
+  .video-js .vjs-control-bar {
+    width: 93%;
+    background-color: transparent;
+  }
+
+  .video-js .vjs-time-control,.video-js .vjs-control-bar {
+    line-height: 3em;
+    height: 5em;
+    font-size: 1.5em;
+  }
+  
+  .vjs-settings-button {
+    margin-left: 1em;
+  }
+
+  .video-js .vjs-big-play-button {
+    display: none;
+  }
+
+  .vjs-paused.vjs-has-started .icon-overlay {
+    display: flex !important;
+  }
+
+  .icon-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    gap: 1em; 
+    color: white;
+    z-index: 20;
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out;
+    /* pointer-events: none; Prevent mouse events on icons */
+  }
+
+.icon-overlay::before,
+.icon-overlay::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+}
+
+.icon-overlay::before {
+    top: 0;
+    background: linear-gradient(to bottom, rgb(0, 0, 0), transparent);
+}
+
+.icon-overlay::after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0), transparent);
+}
+
+  .icon-overlay.hide{
+    display: none;
+  }
+
+.icon-overlay.show{
+    display: flex;
+  }
+
+  .video-js .vjs-play-progress {
+    background-color: red;
+  }
+
+  .seek-icon {
+    position: absolute;
+    top: 42%;
+    font-size: 3.5em;
+    width: 100%;
+    color: azure;
+}
+
+.seek-icon .forward{
+    position: relative;
+    left:56%;
+    display: flex;
+    align-items: center;
+}
+
+.seek-icon .rewind{
+    position: relative;
+    left: 36%;
+    display: flex;
+    align-items: center;
+}
+
+.seek-icon  p{
+    font-size: 0.5em;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 4em;
+  transform: translate(-50%, -50%);
+  color: azure;
+}

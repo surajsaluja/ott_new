@@ -9,8 +9,8 @@ import AppNavigation from './Navigation';
 import { useBackHandler } from './Context/BackHandlerContext';
 
 init({
-  debug: false,
-  visualDebug: false,
+  debug: true,
+  visualDebug: true,
   distanceCalculationMethod: 'center'
 });
 

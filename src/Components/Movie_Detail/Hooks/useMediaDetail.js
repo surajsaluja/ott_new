@@ -1,7 +1,7 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useEffect, useState, useCallback,useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import { getMediaDetails, getMediaRelatedItemDetails, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
+import { getMediaDetails, getMediaRelatedItemDetails, getTokenisedMedia, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
 import { getMediaRelatedItem, updateMediaItemToWishlist } from "../../../Service/MediaService";
 import { getProcessedPlaylists } from "../../../Utils";
 import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
@@ -186,6 +186,15 @@ const useMediaDetail = (mediaId, categoryId,focusKey) => {
         }
     };
 
+    // watch functions
+
+    const watchMovie  = async () =>{
+        const tokenisedResponse = await getTokenisedMedia(mediaId, false);
+        if(tokenisedResponse.isSuccess){
+            history.replace('/play',{src: tokenisedResponse.data.mediaUrl});
+        }
+    }
+
     // Render Data On Bottom Drawer
 
     const RenderRelatedItems = useCallback(() => {
@@ -257,7 +266,8 @@ const useMediaDetail = (mediaId, categoryId,focusKey) => {
         handleBottomDrawerClose,
         showResumeBtn,
         isMediaFavourite,
-        updateMediaWishlistStatus
+        updateMediaWishlistStatus,
+        watchMovie
     }
 }
 
