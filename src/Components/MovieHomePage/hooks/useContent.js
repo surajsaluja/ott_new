@@ -175,6 +175,7 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   const [focusedAssetData, setFocusedAssetData] = useState(null);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPagingRows,setIsLoadingPagingRows] = useState(false);
   const [banners, setBanners] = useState([]);
   const horizontalLimit = 10;
   const [page, setPage] = useState(1);
@@ -216,8 +217,8 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   };
 
   const loadMoreRows = useThrottle(async () => {
-    if (isLoading) return;
-    setIsLoading(true);
+    if (isLoading || isLoadingPagingRows) return;
+    setIsLoadingPagingRows(true);
     try {
       const raw = await fetchPlaylistPage(category, page + 1, uid);
       const processed = getProcessedPlaylists(raw, horizontalLimit);
@@ -226,7 +227,7 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
     } catch (e) {
       console.error("Pagination error", e);
     } finally {
-      setIsLoading(false);
+      setIsLoadingPagingRows(false);
     }
   }, 1000);
 

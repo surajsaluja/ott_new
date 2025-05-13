@@ -1,0 +1,55 @@
+/* Add this to your CSS file or in a <style> tag */
+.skeleton {
+    background: #444;
+    background-image: linear-gradient(90deg, #444 0px, #555 40px, #444 80px);
+    background-size: 600px;
+    animation: shimmer 1.2s infinite linear;
+    border-radius: 4px;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -600px 0;
+    }
+    100% {
+      background-position: 600px 0;
+    }
+  }
+  
+  .content-with-banner-sekeleton {
+    padding: 16px;
+    display: flex;
+    flex: 1 1;
+    overflow-y: hidden;
+    flex-direction: column;
+  }
+  
+  .banner-skeleton {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 24px;
+    min-height: 60vh;
+    display: flex;
+  }
+  
+  .row-skeleton {
+    margin-bottom: 32px;
+  }
+  
+  .row-title-skeleton {
+    width: 25%;
+    height: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .row-thumbnails-skeleton {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .thumbnail-skeleton {
+    width: 160px;
+    height: 240px;
+    border-radius: 8px;
+  }
+  

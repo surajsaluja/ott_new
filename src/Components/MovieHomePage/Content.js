@@ -8,6 +8,7 @@ import FocusableButton from "../Common/FocusableButton";
 import Banner from "../Banner";
 import AssetCard from "../Common/AssetCard";
 import "./Content.css";
+import LoadingSkeleton from "./LoadingSkeleton";
 
 const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus }) => {
   const {
@@ -101,7 +102,14 @@ const ContentWithBanner = ({category,focusKey}) =>{
     setIsLoading,
     banners,
     loadMoreRows
-  } = useContentWithBanner(onHeaderFocus,category,focusKey)
+  } = useContentWithBanner(onHeaderFocus,category,focusKey);
+
+  if(isLoading)
+  {
+    return (
+      <LoadingSkeleton />
+    )
+  }
 
   return (
   <FocusContext.Provider value={currentFocusKey}>
