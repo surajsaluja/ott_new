@@ -43,7 +43,7 @@ export const UserProvider = ({ children }) => {
                 "deviceType": "Tizen"
             }
             const response = await loginTv(data);
-            if (response.status) {
+            if (response && response.status) {
                 const data = response.data;
                 loginStatus = true;
                 setIsLoggedIn(true);
@@ -85,7 +85,7 @@ export const UserProvider = ({ children }) => {
                 "TokenId": userObjectId
             };
             const response = await fetchUserProfile(data);
-            if (response.status) {
+            if (response && response.status) {
                 const data = response.data;
                 const profile = {
                     username: data.name,
@@ -109,10 +109,10 @@ export const UserProvider = ({ children }) => {
 
     const getUserSubscriptionStatus = async () => {
         const response = await fetchUserSubscriptionStatus();
-        if (response.statusCode == 200 && (response.isUserSubscribed || response.isUserSubscribed == 'true')) {
+        if (response && response.statusCode == 200 && (response.isUserSubscribed || response.isUserSubscribed == 'true')) {
             setIsUserSubscribed(true);
         }
-        else if (response.statusCode == 401){
+        else if (response && response.statusCode == 401){
             endAppSession();
             setIsUserSubscribed(false);
         }
@@ -197,7 +197,7 @@ const logout = async () => {
         }
 
         const response = await logoutTv(data);
-        if (response.isSuccess) {
+        if (response && response.isSuccess) {
             endAppSession();
         }
     }
