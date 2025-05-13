@@ -49,7 +49,7 @@ const SeekBar = ({ videoRef, resetInactivityTimeout, focusKey: focusKeyParam }) 
 
       const rounded = Math.floor(newTime / thumbnailInterval);
       const padded = String(rounded).padStart(9, '0');
-  // return `${padded}.jpg`;
+  // return ${padded}.jpg;
       setThumbnailSrc(`${thumbnailBaseURL}${padded}.jpg`);
     },
     onArrowRelease: () => {
@@ -103,8 +103,8 @@ const SeekBar = ({ videoRef, resetInactivityTimeout, focusKey: focusKeyParam }) 
     <div ref={ref} className="seekbar-wrapper">
       <span className="time">{currentTime}</span>
       <div className="seekbar-container" onClick={handleSeek}>
-        <div className="buffered" style={{ width: `${buffered}%` }}></div>
-        <div className="progress" style={{ width: `${progress}%` }}></div>
+        <div className="buffered" style={{ width: `${buffered}%`}}></div>
+        <div className="progress" style={{ width: `${progress}%`}}></div>
         {focused && (
           <div
             className={`progress-circle ${focused ? "focused" : ""}`}
@@ -112,7 +112,7 @@ const SeekBar = ({ videoRef, resetInactivityTimeout, focusKey: focusKeyParam }) 
           >
           </div>
         )}
-        {focused && isSeeking && thumbnailSrc && (
+        {/* {isSeeking && thumbnailSrc && ( */}
         <div className="thumbnail-preview"
         style={{ left: `calc(${progress}% - 80px)` }}
         >
@@ -120,7 +120,7 @@ const SeekBar = ({ videoRef, resetInactivityTimeout, focusKey: focusKeyParam }) 
           <span>{currentTime}</span>
         </div>
         
-      )}
+      {/* )} */}
       </div>
       <span className="time">
         {videoRef.current?.duration ? formatTime(videoRef.current.duration) : "00:00:00"}
