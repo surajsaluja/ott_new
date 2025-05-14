@@ -1,60 +1,169 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import "./SeekBar.css";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useFocusable,
+  initNavigation,
+  FocusContext,
+  focusElementByKey
+} from '@noriginmedia/norigin-spatial-navigation';
+import './SeekBarV2.css';
+import FocusableButton from '../Common/FocusableButton';
+import AssetCard from '../Common/AssetCard';
 
-const SeekBar = ({ videoRef, focusKey: focusKeyParam }) => {
-    const [progress, setProgress] = useState(0);
-    const [buffered, setBuffered] = useState(0);
-    const [currentTime, setCurrentTime] = useState("00:00");
+const THUMBS_VISIBLE = 7;
 
-    const { ref, focused } = useFocusable({
-        focusKey: focusKeyParam,
-    });
+const SeekBar = ({
+  videoRef,
+  visible,
+  onClose,
+  thumbnailBaseUrl,
+  thumbnailInterval = 10
+}) => {
+  const [seekTime, setSeekTime] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const seekDirection = useRef(null);
+  const seekInterval = useRef(null);
 
-    const formatTime = (time) => {
-        const minutes = Math.floor(time / 60);
-        const seconds = Math.floor(time % 60);
-        return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-    };
+  const duration = videoRef?.current?.duration || 0;
+  const currentTime = videoRef?.current?.currentTime || 0;
+  const activeIndex = Math.floor(seekTime / thumbnailInterval) || 0;
+  const totalThumbnails = Math.floor(duration / thumbnailInterval);
 
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
+  const centerIndex = activeIndex;
+  const startIndex = Math.max(0, centerIndex - Math.floor(THUMBS_VISIBLE / 2));
+  const endIndex = Math.min(totalThumbnails, startIndex + THUMBS_VISIBLE - 1);
 
-        const updateProgress = () => {
-            setProgress((video.currentTime / video.duration) * 100);
-            setCurrentTime(formatTime(video.currentTime));
-        };
+  const thumbnails = useMemo(() => {
+    const list = [];
+    if (startIndex != 0) {
+      for (let i = startIndex; i <= endIndex; i++) {
+        list.push({
+          time: i * thumbnailInterval,
+          src: `${thumbnailBaseUrl}${String(i.toString().padStart(9, '0'))}.jpg`,
+          index: i,
+          key: `THUMB_${i}`
+        });
+      }
+    }
+    return list;
+  }, [startIndex, endIndex, thumbnailBaseUrl, thumbnailInterval]);
 
-        const updateBuffered = () => {
-            if (video.buffered.length > 0) {
-                const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-                setBuffered((bufferedEnd / video.duration) * 100);
-            }
-        };
+  const { ref, focusKey } = useFocusable({
+    focusKey: 'THUMBNAIL_ROW',
+    isFocusBoundary: true
+  });
 
-        video.addEventListener("timeupdate", updateProgress);
-        video.addEventListener("progress", updateBuffered);
+  // Focus center thumbnail when visible
+  // useEffect(() => {
+  //   if (visible) {
+  //     setSeekTime(videoRef?.current?.currentTime || 0);
+  //     const middleThumb = thumbnails.find(t => t.index === activeIndex);
+  //     if (middleThumb) {
+  //       setTimeout(() => {
+  //         // focusElementByKey(`THUMB_${middleThumb.index}`);
+  //       }, 0);
+  //     }
+  //   } else {
+  //     stopSeekHold();
+  //   }
+  // }, [visible, thumbnails]);
 
-        return () => {
-            video.removeEventListener("timeupdate", updateProgress);
-            video.removeEventListener("progress", updateBuffered);
-        };
-    }, [videoRef]);
+  const seekTo = (time) => {
+    if (videoRef?.current) {
+      videoRef.current.currentTime = time;
+    }
+  };
 
-    return (
-        <div ref={ref} className="seekbar-wrapper">
-            <span className="time">{currentTime}</span>
-            <div className="seekbar-container">
-                <div className="buffered" style={{ width: `${buffered}%` }}></div>
-                <div className="progress" style={{ width: `${progress}%` }}></div>
-                {focused && (
-                    <div className="progress-circle" style={{ left: `${progress}%` }}></div>
-                )}
-            </div>
-            <span className="time">{videoRef.current ? formatTime(videoRef.current.duration) : ""}</span>
+  const onThumbnailPress = (time) => {
+    seekTo(time);
+    onClose?.();
+  };
+
+  // const startSeekHold = (dir) => {
+  //   seekDirection.current = dir;
+  //   seekInterval.current = setInterval(() => {
+  //     setSeekTime((prev) => {
+  //       const next =
+  //         dir === 'right'
+  //           ? Math.min(prev + thumbnailInterval, duration)
+  //           : Math.max(prev - thumbnailInterval, 0);
+  //       return next;
+  //     });
+  //   }, 200);
+  // };
+
+  // const stopSeekHold = () => {
+  //   clearInterval(seekInterval.current);
+  //   seekInterval.current = null;
+  //   seekDirection.current = null;
+  // };
+
+  const handleEnter = () => {
+    seekTo(seekTime);
+    onClose?.();
+  };
+
+  // useEffect(() => {
+  //   const handleKeyDown = (e) => {
+  //     if (!visible) return;
+
+  //     if (e.repeat) return;
+
+  //     if (e.key === 'ArrowRight') {
+  //       setIsSeeking(true);
+  //       startSeekHold('right');
+  //     } else if (e.key === 'ArrowLeft') {
+  //       setIsSeeking(true);
+  //       startSeekHold('left');
+  //     } else if (e.key === 'Enter' && isSeeking) {
+  //       handleEnter();
+  //       setIsSeeking(false);
+  //     } else if (e.key === 'Backspace') {
+  //       onClose?.();
+  //     }
+  //   };
+
+  //   const handleKeyUp = (e) => {
+  //     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+  //       stopSeekHold();
+  //     }
+  //   };
+
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   window.addEventListener('keyup', handleKeyUp);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //     window.removeEventListener('keyup', handleKeyUp);
+  //   };
+  // }, [visible, isSeeking, seekTime]);
+
+  if (!visible) return null;
+
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <div className="seekbar-container1 slide-in1">
+        <div className="thumbnail-strip1">
+          <div className='thumbnials-wrapper1' ref={ref}>
+          {Array.from({ length: 50 }, (_, i) => i).map(({ src, time, key },index) => (
+            <AssetCard
+              key={index}
+              onEnterPress={()=>{}}
+              assetData={{title:`index ${index}`}}
+            />
+          ))}
+          </div>
         </div>
-    );
+
+        <div className="seek-time-indicator1">{(seekTime)}</div>
+
+        <div className="progress-bar1">
+          <div
+            className="progress-indicator1"
+            style={{ width: `${(seekTime / duration) * 100}%` }}
+          />
+        </div>
+      </div>
+    </FocusContext.Provider>
+  );
 };
 
 export default SeekBar;

@@ -1,0 +1,92 @@
+.seekbar-container1 {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px 0;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    position: absolute;
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    bottom: 10%;
+}
+
+.seekbar-container1.slide-in1 {
+    transform: translateY(0);
+}
+
+.thumbnials-wrapper1{
+    display: flex;
+    overflow: hidden;
+
+}
+
+.thumbnail-strip1 {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: absolute;
+    bottom: 80px;
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+.thumb1 {
+    width: 90px;
+    height: 50px;
+    margin: 0 2px;
+    opacity: 0.5;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.thumb1.active {
+    transform: scale(1.3);
+    opacity: 1;
+    border: 2px solid white;
+}
+
+.thumb1.focused {
+    outline: 3px solid #00bfff;
+    opacity: 1;
+}
+
+.seek-time-indicator1 {
+    color: white;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.progress-bar1 {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    width: 80%;
+    margin: auto;
+    border-radius: 2px;
+}
+
+.progress-indicator1 {
+    height: 100%;
+    background: white;
+    width: 0%;
+    border-radius: 2px;
+}
+
+.div-thumb{
+background-color: red;
+width: 80px;
+height: 80px;
+border-radius: 4px;
+border-color: transparent;
+border-width: 4px;
+border-style: solid;
+margin-right: 10px;
+}
+
+.div-thumb-focused{
+    border-color: white;
+}
