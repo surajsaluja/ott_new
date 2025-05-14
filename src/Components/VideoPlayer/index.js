@@ -38,6 +38,8 @@ const VideoPlayer = () => {
   const [selectedAudio, setSelectedAudio] = useState(null);
   const [selectedQuality, setSelectedQuality] = useState(-1);
 
+  const userActivityRef = useRef(null);
+
   const seekSpeed = 10;
   const inactivityDelay = 3000;
 
@@ -105,6 +107,10 @@ const VideoPlayer = () => {
       }
       return;
     }
+    
+    if(userActivityRef.current){
+      return;
+    }
 
     switch (e.keyCode) {
       case KEY_ENTER:
@@ -130,8 +136,8 @@ const VideoPlayer = () => {
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
     inactivityTimeout.current = setTimeout(() => {
-      setIsUserActive(false);
-      setFocus('Dummy_Btn');
+      // setIsUserActive(false);
+      // setFocus('Dummy_Btn');
     }, inactivityDelay);
   }, []);
 
@@ -185,9 +191,13 @@ const VideoPlayer = () => {
     };
   }, [initializePlayer, handleKeyDown, resetInactivityTimeout]);
 
+  useEffect(() => {
+          userActivityRef.current = isUserActive;
+      }, [isUserActive]);
+
   return (
     <div className="video-container">
-      <video ref={videoRef} className="video-player" controls={false} />
+      <video ref={videoRef} className="video-player" controls={false} muted/>
 
       <Popup
         onVideoSettingsPressed={() => setSidebarOpen(true)}
