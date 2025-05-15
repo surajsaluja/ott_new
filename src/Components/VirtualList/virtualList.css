@@ -3,11 +3,16 @@
     background-color: #000;
     padding: 16px 10px;
   }
+
+  .thumbnail-strip-container div{
+    overflow: hidden !important;
+  }
   
   .thumbnail {
     border-radius: 6px;
     overflow: hidden;
     position: relative;
+    height: 200px;
   }
   
   .thumbnail img {
