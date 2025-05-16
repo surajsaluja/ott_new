@@ -50,6 +50,7 @@ const VideoPlayer = () => {
     { id: 3, label: 'Full HD', resolution: '1920x1080', minBandwidth: 3000001, maxBandwidth: 5000000 },
   ];
 
+  const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {

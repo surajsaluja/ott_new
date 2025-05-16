@@ -1,9 +1,9 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
 import { MdSettings, MdArrowBack, MdOutlineSubtitles } from 'react-icons/md'
 import './Popup.css';
-import SeekBar from './SeekBar'
+import VirtualizedThumbnailStrip from "../VirtualList";
 
 const Popup = ({ focusKey,
   onVideoSettingsPressed,
@@ -13,7 +13,8 @@ const Popup = ({ focusKey,
   title,
   style = {},
   isVisible,
-  resetInactivityTimeout }) => {
+  resetInactivityTimeout,
+thumbnailBaseUrl }) => {
   const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey });
 
   useEffect(() => {
@@ -65,11 +66,13 @@ const Popup = ({ focusKey,
           />
         </div>
 
-        <SeekBar
+        <VirtualizedThumbnailStrip
+          thumbnailBaseUrl={thumbnailBaseUrl}
           videoRef={videoRef}
-          resetInactivityTimeout={resetInactivityTimeout}
-          focusKey={'SeekBar_Container'}
-        />
+          onClose = {onBackPress}
+      />
+
+
       </div>
     </div>
   </FocusContext.Provider>
