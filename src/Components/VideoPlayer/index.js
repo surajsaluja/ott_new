@@ -208,6 +208,7 @@ const VideoPlayer = () => {
         focusKey={'video-overlay'}
         isVisible={isUserActive}
         resetInactivityTimeout={resetInactivityTimeout}
+        thumbnailBaseUrl={THUMBNAIL_BASE_URL}
       />
 
       {showSeekIcon && (

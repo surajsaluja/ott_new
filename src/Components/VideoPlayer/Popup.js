@@ -3,7 +3,7 @@ import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-naviga
 import FocusableButton from "../Common/FocusableButton";
 import { MdSettings, MdArrowBack, MdOutlineSubtitles } from 'react-icons/md'
 import './Popup.css';
-import VirtualizedThumbnailStrip from "../VirtualList";
+import VirtualThumbnailStripWithSeekBar from "../VirtualList";
 
 const Popup = ({ focusKey,
   onVideoSettingsPressed,
@@ -34,8 +34,8 @@ thumbnailBaseUrl }) => {
       opacity: isVisible ? 1 : 0,
       pointerEvents: isVisible ? 'auto' : 'none',
       transition: 'opacity 0.3s ease-in-out',
-    }}>
-      <div ref={ref}>
+    }} ref={ref}>
+      <div>
         <FocusableButton
           focuskey={'backBtn'}
           onEnterPress={onBackPress}
@@ -66,11 +66,12 @@ thumbnailBaseUrl }) => {
           />
         </div>
 
-        <VirtualizedThumbnailStrip
-          thumbnailBaseUrl={thumbnailBaseUrl}
+        <VirtualThumbnailStripWithSeekBar
           videoRef={videoRef}
-          onClose = {onBackPress}
-      />
+          thumbnailBaseUrl={thumbnailBaseUrl}
+          onClose={()=>{}}
+          focusKey={'SEEK_PREVIEW'}
+        />
 
 
       </div>
