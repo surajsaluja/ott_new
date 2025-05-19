@@ -142,7 +142,7 @@ const VirtualizedThumbnailStrip = ({
   const [totalThumbnails, setTotalThumbnails] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const listRef = useRef();
-  const lastFocusedIndexRef = useRef(null);
+  const initialIndexRef = useRef(null);
   const {
     ref,
     focusKey: currentFocusKey,
@@ -154,10 +154,9 @@ const VirtualizedThumbnailStrip = ({
     // isFocusBoundary: true,
     onFocus: () => {
       const currentIndex = getCurrentThumbnailIndex();
-      const previewTime = Math.floor(videoRef.current?.currentTime || 0);
-  virtualSeekTimeRef.current = previewTime;
+      initialIndexRef.current = currentIndex;
       setTimeout(() => {
-        listRef.current?.scrollToItem(currentIndex, "center");
+        scrollToCenter(currentIndex);
         setFocus(`THUMB_${currentIndex}`);
       }, 0);
     },
@@ -234,11 +233,17 @@ const VirtualizedThumbnailStrip = ({
         videoRef.current.pause();
       }
      
-        const previewTime = index * THUMBNAIL_INTERVAL;
-        virtualSeekTimeRef.current = previewTime;
-      
+      if(
+        initialIndexRef.current != null &&  
+        initialIndexRef.current != index
+      ){
+        initialIndexRef.current = index;
+        virtualSeekTimeRef.current = index * THUMBNAIL_INTERVAL;
+      }else{
+        initialIndexRef.current = -1; // user has not changed the thumbnail yet
+      }
     },
-    [videoRef, lastFocusedIndexRef]
+    [videoRef]
   );
 
   const onThumbnailEnterHandler = async (index) => {
@@ -246,11 +251,15 @@ const VirtualizedThumbnailStrip = ({
     if (video) {
       try {
         await video.pause();
+        if(initialIndexRef.current !== -1)
+        {
         video.currentTime = index * THUMBNAIL_INTERVAL;
+        }
         await video.play();
       } catch (err) {
         console.warn("Playback failed:", err);
       } finally {
+        initialIndexRef.current = null;
         virtualSeekTimeRef.current = null;
         onClose();
       }
