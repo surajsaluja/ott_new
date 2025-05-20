@@ -73,8 +73,7 @@
     opacity: 0.9;
     margin-bottom: 15px;
     line-height: 1.5;
-    max-height: 9rem;
-    min-height: 7rem;
+    height: 14vw;
     text-overflow: ellipsis;
     --webkit-line-clamp: 4;
     overflow: hidden;
