@@ -10,7 +10,6 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.4",
     "crypto-js": "^4.2.0",
-    "framer-motion": "^12.11.1",
     "hls.js": "^1.6.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

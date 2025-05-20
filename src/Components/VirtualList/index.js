@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
+import { useEffect, useRef, useState } from "react";
+import { useFocusable, FocusContext, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import VirtualizedThumbnailStrip from "./VirtualizedThumbnailStrip";
 import VideoProgressBar from "./VideoProgressBar";
 import './virtualList.css';
@@ -7,22 +7,47 @@ import './virtualList.css';
 const THUMBNAIL_STRIP_FOCUSKEY = 'STRIP_THUMBNAIL';
 const VIDEO_PROGRESS_FOCUSKEY = 'PROGRESS_VIDEO';
 
-const VirtualThumbnailStripWithSeekBar = ({ videoRef, thumbnailBaseUrl, onClose, focusKey }) => {
+const VirtualThumbnailStripWithSeekBar = ({ videoRef, thumbnailBaseUrl, onClose, focusKey, resetInactivityTimeout }) => {
+    const virtualSeekTimeRef = useRef(null);
+    const [isComponentFocused, setIsComponentFocused] = useState(false);
+    const [isProgressBarFocusable, setIsProgressBarFocusable] = useState(true);
     const { ref, focusKey: currentFocusKey } = useFocusable({
         focusKey,
-        trackChildren: false,
-    saveLastFocusedChild: false,
-        onFocus: () => {  
+        trackChildren: true,
+        saveLastFocusedChild: false,
+        onFocus: () => {
+            setIsComponentFocused(true);
+            virtualSeekTimeRef.current = null;
+        },
+        onBlur: () => {
+            setIsComponentFocused(false);
+            virtualSeekTimeRef.current = null;
+            resetInactivityTimeout();
         }
     });
-    const virtualSeekTimeRef = useRef(null);
-    const [isProgressBarFocusable, setIsProgressBarFocusable] = useState(true);
+
+    useEffect(() => {
+        setIsProgressBarFocusable(thumbnailBaseUrl == null);
+    }, [thumbnailBaseUrl]);
+
+    useEffect(() => {
+
+        if(isComponentFocused){
+
+        if (thumbnailBaseUrl == null) {
+            setFocus(VIDEO_PROGRESS_FOCUSKEY);
+        } else {
+            setFocus(THUMBNAIL_STRIP_FOCUSKEY);
+        }
+    }
+    }, [isComponentFocused])
+
     return (
         <FocusContext.Provider value={currentFocusKey}>
-        <div ref={ref} className="thumbnails_strip" >
-            <VirtualizedThumbnailStrip videoRef={videoRef} thumbnailBaseUrl={thumbnailBaseUrl} onClose={onClose} virtualSeekTimeRef={virtualSeekTimeRef} focusKey={THUMBNAIL_STRIP_FOCUSKEY} />
-            <VideoProgressBar videoRef={videoRef} virtualSeekTimeRef={virtualSeekTimeRef} isFocusable={isProgressBarFocusable} focusKey={VIDEO_PROGRESS_FOCUSKEY} />
-        </div>
+            <div ref={ref} className="thumbnails_strip" >
+                {!isProgressBarFocusable && <VirtualizedThumbnailStrip videoRef={videoRef} thumbnailBaseUrl={thumbnailBaseUrl} onClose={onClose} virtualSeekTimeRef={virtualSeekTimeRef} focusKey={THUMBNAIL_STRIP_FOCUSKEY} isVisible={isComponentFocused && !isProgressBarFocusable} resetInactivityTimeout={resetInactivityTimeout} />}
+                <VideoProgressBar videoRef={videoRef} virtualSeekTimeRef={virtualSeekTimeRef} isFocusable={isProgressBarFocusable} focusKey={VIDEO_PROGRESS_FOCUSKEY} resetInactivityTimeout={resetInactivityTimeout} />
+            </div>
         </FocusContext.Provider>
     );
 }

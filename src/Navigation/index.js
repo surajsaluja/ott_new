@@ -15,10 +15,11 @@ const AppNavigation = () => {
       <Switch>
         <Route path="/login" component={LoginScreen} />
         <Route path="/test" component={TestComp} />
-        <Route path="/play" component={VideoPlayer} />
 
         {/* Dynamic route for details page */}
         <PrivateRoute path="/detail/:categoryId/:mediaId" component={Movie_Detail} />
+
+        <Route path="/play" component={VideoPlayer} />
 
         {/* Default landing route */}
         <Route exact path="/">

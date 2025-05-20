@@ -1,22 +1,26 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import './VideoPlayer.css';
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { FocusContext, getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import Popup from './Popup';
 import SideBar_Tab from './SideBar_Tab';
 import { useLocation } from 'react-router-dom';
 import { MdFastForward, MdFastRewind, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import VirtualThumbnailStripWithSeekBar from '../VirtualList';
 
 const KEY_ENTER = 13;
 const KEY_BACK = 10009;
 const KEY_ESC = 8;
 const KEY_LEFT = 37;
+const KEY_UP = 38;
 const KEY_RIGHT = 39;
+const KEY_DOWN = 40;
+const SEEKBAR_PREVIEW_FOCUS_KEY = 'SEEK_PREVIEW_CONTAINER'
 
 const VideoPlayer = () => {
   const location = useLocation();
-  const { src, title: movieTitle } = location.state;
-
+  const { src, title: movieTitle, thumbnailBaseUrl: THUMBNAIL_BASE_URL } = location.state || {};
   const videoRef = useRef(null);
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
@@ -43,6 +47,11 @@ const VideoPlayer = () => {
   const seekSpeed = 10;
   const inactivityDelay = 3000;
 
+  const { ref, focusKey: currentFocusKey, hasFocusedChild, focused } = useFocusable({
+    focusKey: "VIDEO_PLAYER",
+    trackChildren: true,
+  });
+
   const customResolutions = [
     { id: -1, label: 'Auto', resolution: 'Auto', minBandwidth: 'auto', maxBandwidth: 'auto' },
     { id: 1, label: 'Data Saver', resolution: '960x540', minBandwidth: 0, maxBandwidth: 1000000 },
@@ -50,7 +59,7 @@ const VideoPlayer = () => {
     { id: 3, label: 'Full HD', resolution: '1920x1080', minBandwidth: 3000001, maxBandwidth: 5000000 },
   ];
 
-  const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
+  // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
@@ -66,12 +75,13 @@ const VideoPlayer = () => {
   }, []);
 
   const seekVideo = useCallback((baseSeconds, direction, isHold = false) => {
+    console.log('inSeek');
     const video = videoRef.current;
     if (!video) return;
 
-    if(seekMultiplierRef.current > 3){
-        setIsUserActive(true);
-        return;
+    if (seekMultiplierRef.current > 3) {
+      setIsUserActive(true);
+      return;
     }
 
     const seekBy = baseSeconds * seekMultiplierRef.current;
@@ -101,44 +111,13 @@ const VideoPlayer = () => {
     }
   }, []);
 
-  const handleKeyDown = useCallback((e) => {
-    if (sidebarOpen) {
-      if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
-        setSidebarOpen(false);
-      }
-      return;
-    }
-    
-    if(userActivityRef.current){
-      return;
-    }
-
-    switch (e.keyCode) {
-      case KEY_ENTER:
-        togglePlayPause();
-        break;
-      case KEY_LEFT:
-        seekVideo(seekSpeed, 'backward', true);
-        break;
-      case KEY_RIGHT:
-        seekVideo(seekSpeed, 'forward', true);
-        break;
-      case KEY_BACK:
-      case KEY_ESC:
-        handleBackPressed();
-        break;
-      default:
-        resetInactivityTimeout();
-        break;
-    }
-  }, [sidebarOpen, togglePlayPause, seekVideo, handleBackPressed]);
-
   const resetInactivityTimeout = useCallback(() => {
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
     inactivityTimeout.current = setTimeout(() => {
-      // setIsUserActive(false);
-      // setFocus('Dummy_Btn');
+      console.log('user Inactivity TimeOut');
+      setIsUserActive(false);
+      setFocus('Dummy_Btn');
     }, inactivityDelay);
   }, []);
 
@@ -171,9 +150,64 @@ const VideoPlayer = () => {
       video.play();
     }
   }, [src]);
+useEffect(() => {
+
+  const handleKeyDown = (e) => {
+    console.log(`has focused child : ${hasFocusedChild}`);
+    if (hasFocusedChild) return;
+    if (sidebarOpen) {
+      if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
+        setSidebarOpen(false);
+      }
+      return;
+    }
+
+    if (userActivityRef.current) {
+      console.log('User Active');
+      return;
+    }
+
+    switch (e.keyCode) {
+      case KEY_ENTER:
+        togglePlayPause();
+        break;
+      case KEY_LEFT:
+        seekVideo(seekSpeed, 'backward', true);
+        break;
+      case KEY_RIGHT:
+        seekVideo(seekSpeed, 'forward', true);
+        break;
+      case KEY_DOWN:
+        setFocus(SEEKBAR_PREVIEW_FOCUS_KEY);
+        break;
+      case KEY_BACK:
+      case KEY_ESC:
+        handleBackPressed();
+        break;
+      default:
+        resetInactivityTimeout();
+        break;
+    }
+  };
+
+  const handleKeyUp = (e) => {
+    if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
+      seekMultiplierRef.current = 1; // reset seek speed after long press
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keyup', handleKeyUp);
+
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('keyup', handleKeyUp);
+  };
+}, [hasFocusedChild, sidebarOpen, togglePlayPause, seekVideo, handleBackPressed, resetInactivityTimeout]);
+
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
+
     const video = videoRef.current;
     video?.addEventListener('ended', () => setIsPlaying(false));
 
@@ -181,8 +215,6 @@ const VideoPlayer = () => {
     resetInactivityTimeout();
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      video?.removeEventListener('ended', () => setIsPlaying(false));
       video?.hls?.destroy();
 
       clearTimeout(playIconTimeout.current);
@@ -190,63 +222,75 @@ const VideoPlayer = () => {
       clearTimeout(inactivityTimeout.current);
       clearTimeout(seekHoldTimeout.current);
     };
-  }, [initializePlayer, handleKeyDown, resetInactivityTimeout]);
+  }, [initializePlayer, resetInactivityTimeout]);
 
   useEffect(() => {
-          userActivityRef.current = isUserActive;
-      }, [isUserActive]);
+    userActivityRef.current = isUserActive;
+  }, [isUserActive]);
+
+  if (!src) return <div>Missing video source</div>;
 
   return (
-    <div className="video-container">
-      <video ref={videoRef} className="video-player" controls={false} muted/>
+    <FocusContext.Provider value={currentFocusKey}>
+      <div ref={ref} className="video-container">
+        <video ref={videoRef} className="video-player" controls={false} muted />
 
-      <Popup
-        onVideoSettingsPressed={() => setSidebarOpen(true)}
-        onBackPress={handleBackPressed}
-        videoRef={videoRef}
-        title={movieTitle}
-        focusKey={'video-overlay'}
-        isVisible={isUserActive}
-        resetInactivityTimeout={resetInactivityTimeout}
-        thumbnailBaseUrl={THUMBNAIL_BASE_URL}
-      />
-
-      {showSeekIcon && (
-        <div className="seek-icon">
-          {seekDirection === 'forward' ? (
-            <div className="forward">
-              <p>{seekAmount}s</p> <MdFastForward />
-            </div>
-          ) : (
-            <div className="rewind">
-              <MdFastRewind /> <p>{seekAmount}s</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {showPlayIcon && (
-        <div className="play-icon">
-          {isPlaying ? <MdPlayArrow /> : <MdOutlinePause />}
-        </div>
-      )}
-
-      {sidebarOpen && (
-        <SideBar_Tab
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          captions={captions}
-          selectedCaption={selectedCaption}
-          onCaptionSelect={setSelectedCaption}
-          qualityLevels={customResolutions}
-          selectedQuality={selectedQuality}
-          onQualitySelect={setSelectedQuality}
-          audioTracks={audioTracks}
-          selectedAudio={selectedAudio}
-          onAudioSelect={setSelectedAudio}
+        <Popup
+          onVideoSettingsPressed={() => setSidebarOpen(true)}
+          onBackPress={handleBackPressed}
+          videoRef={videoRef}
+          title={movieTitle}
+          focusKey={'video-overlay'}
+          isVisible={isUserActive}
+          resetInactivityTimeout={resetInactivityTimeout}
+          thumbnailBaseUrl={THUMBNAIL_BASE_URL}
         />
-      )}
-    </div>
+
+        <VirtualThumbnailStripWithSeekBar
+                  videoRef={videoRef}
+                  thumbnailBaseUrl={THUMBNAIL_BASE_URL}
+                  onClose={()=>{}}
+                  focusKey={SEEKBAR_PREVIEW_FOCUS_KEY}
+                  resetInactivityTimeout = {resetInactivityTimeout}
+                />
+
+        {showSeekIcon && (
+          <div className="seek-icon">
+            {seekDirection === 'forward' ? (
+              <div className="forward">
+                <p>{seekAmount}s</p> <MdFastForward />
+              </div>
+            ) : (
+              <div className="rewind">
+                <MdFastRewind /> <p>{seekAmount}s</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {showPlayIcon && (
+          <div className="play-icon">
+            {isPlaying ? <MdPlayArrow /> : <MdOutlinePause />}
+          </div>
+        )}
+
+        {sidebarOpen && (
+          <SideBar_Tab
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            captions={captions}
+            selectedCaption={selectedCaption}
+            onCaptionSelect={setSelectedCaption}
+            qualityLevels={customResolutions}
+            selectedQuality={selectedQuality}
+            onQualitySelect={setSelectedQuality}
+            audioTracks={audioTracks}
+            selectedAudio={selectedAudio}
+            onAudioSelect={setSelectedAudio}
+          />
+        )}
+      </div>
+    </FocusContext.Provider>
   );
 };
 

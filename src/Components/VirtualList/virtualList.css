@@ -1,15 +1,18 @@
-.thumbnails_strip{
+.thumbnails_strip {
   position: absolute;
   bottom: 10px;
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
+
 .seekbar-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  width: 90%;
   -webkit-user-select: none;
   user-select: none;
   position: relative;
@@ -63,67 +66,78 @@
   bottom: 0;
   overflow: hidden;
   padding: 16px 10px;
-  min-height: 220px; /* force visibility */
-  background-color: rgba(255,255,255,0.01); /* ensures visibility to DOM APIs */
+  min-height: 220px;
+  /* force visibility */
+  background-color: rgba(255, 255, 255, 0.01);
+  /* ensures visibility to DOM APIs */
 }
 
-  .thumbnail-strip-container div{
-    overflow: hidden !important;
-  }
-  
-  .thumbnail {
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-    height: 200px;
-  }
-  
-  .thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  
-  .thumbnail-placeholder {
-    width: 100%;
-    height: 100%;
-    background-color: #222;
-    animation: pulse 1s infinite ease-in-out;
-    border-radius: 6px;
-  }
-  
-  .thumbnail.focused {
-    outline: 3px solid #0af;
-    z-index: 2;
-  }
-  
-  .seek-indicator {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 5px;
-    width: 100%;
-    background-color: red;
-    border-radius: 2px;
-  }
-  
-  @keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 0.8; }
-    100% { opacity: 0.4; }
+.thumbnail-strip-container div {
+  overflow: hidden !important;
+}
+
+.thumbnail {
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  height: 200px;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #222;
+  animation: pulse 1s infinite ease-in-out;
+  border-radius: 6px;
+}
+
+.thumbnail.focused {
+  outline: 3px solid #0af;
+  z-index: 2;
+}
+
+.seek-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  background-color: red;
+  border-radius: 2px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
   }
 
-  .video-progress-bar-container {
-    width: 100%;
-    height: 5px;
-    background-color: #ccc;
-    margin-bottom: 10px;
+  50% {
+    opacity: 0.8;
   }
-  
-  .video-progress-bar {
-    height: 100%;
-    background-color: #007bff; /* Example progress color */
-    width: 0%; /* Initial width */
+
+  100% {
+    opacity: 0.4;
   }
-  
+}
+
+.video-progress-bar-container {
+  width: 100%;
+  height: 5px;
+  background-color: #ccc;
+  margin-bottom: 10px;
+}
+
+.video-progress-bar {
+  height: 100%;
+  background-color: #007bff;
+  /* Example progress color */
+  width: 0%;
+  /* Initial width */
+}

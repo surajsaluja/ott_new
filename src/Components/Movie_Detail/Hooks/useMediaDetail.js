@@ -191,7 +191,7 @@ const useMediaDetail = (mediaId, categoryId,focusKey) => {
     const watchMovie  = async () =>{
         const tokenisedResponse = await getTokenisedMedia(mediaId, false);
         if(tokenisedResponse.isSuccess){
-            history.replace('/play',{src: tokenisedResponse.data.mediaUrl});
+            history.replace('/play',{src: tokenisedResponse.data.mediaUrl, thumbnailBaseUrl: mediaDetail.trickyPlayBasePath});
         }
     }
 
