@@ -1,21 +1,101 @@
-.seekbar {
-    height: 6px;
-    background: #333;
-    margin: 10px;
-    position: relative;
-  }
-  .progress {
-    height: 100%;
-    background: red;
-  }
-  .thumbnail-preview img {
-    position: absolute;
-    bottom: 50px;
-    width: 120px;
-  }
-  .drawer-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
+/* src/VideoPlayer.css */
+.video-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: black;
+}
+
+.video-player{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
   
+  .icon-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    gap: 1em; 
+    color: white;
+    z-index: 20;
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out;
+    /* pointer-events: none; Prevent mouse events on icons */
+  }
+
+.icon-overlay::before,
+.icon-overlay::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+}
+
+.icon-overlay::before {
+    top: 0;
+    background: linear-gradient(to bottom, rgb(0, 0, 0), transparent);
+}
+
+.icon-overlay::after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0), transparent);
+}
+
+  .icon-overlay.hide{
+    display: none;
+  }
+
+.icon-overlay.show{
+    display: flex;
+  }
+
+  .seek-icon {
+    position: absolute;
+    top: 42%;
+    font-size: 3.5em;
+    width: 100%;
+    color: azure;
+}
+
+.seek-icon .forward{
+    position: relative;
+    left:56%;
+    display: flex;
+    align-items: center;
+}
+
+.seek-icon .rewind{
+    position: relative;
+    left: 36%;
+    display: flex;
+    align-items: center;
+}
+
+.seek-icon  p{
+    font-size: 0.5em;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 4em;
+  transform: translate(-50%, -50%);
+  color: azure;
+}
+
+video::cue{
+  line-height: 1.5;
+}

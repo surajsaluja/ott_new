@@ -7,7 +7,7 @@ import SideBar_Tab from './SideBar_Tab';
 import { useLocation } from 'react-router-dom';
 import { MdFastForward, MdFastRewind, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import VirtualThumbnailStripWithSeekBar from '../VirtualList';
+import VirtualThumbnailStripWithSeekBar from '../VirtualList'
 
 const KEY_ENTER = 13;
 const KEY_BACK = 10009;
@@ -16,7 +16,7 @@ const KEY_LEFT = 37;
 const KEY_UP = 38;
 const KEY_RIGHT = 39;
 const KEY_DOWN = 40;
-const SEEKBAR_PREVIEW_FOCUS_KEY = 'SEEK_PREVIEW_CONTAINER'
+const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = 'PREVIEW_THUMBNAIL_STRIP'
 
 const VideoPlayer = () => {
   const location = useLocation();
@@ -81,6 +81,7 @@ const VideoPlayer = () => {
 
     if (seekMultiplierRef.current > 3) {
       setIsUserActive(true);
+      setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
       return;
     }
 
@@ -110,6 +111,45 @@ const VideoPlayer = () => {
       window.history.back();
     }
   }, []);
+
+  const handleKeyDown = useCallback((e) => {
+    console.log(`has focused child : ${hasFocusedChild}`);
+    if (hasFocusedChild) return;
+    if (sidebarOpen) {
+      if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
+        setSidebarOpen(false);
+      }
+      return;
+    }
+
+    if (userActivityRef.current) {
+      console.log('User Active');
+      return;
+    }
+
+    switch (e.keyCode) {
+      case KEY_ENTER:
+        togglePlayPause();
+        break;
+      case KEY_LEFT:
+        console.log('Left PRess');
+        seekVideo(seekSpeed, 'backward', true);
+        break;
+      case KEY_RIGHT:
+        seekVideo(seekSpeed, 'forward', true);
+        break;
+      case KEY_DOWN:
+        setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
+        break;
+      case KEY_BACK:
+      case KEY_ESC:
+        handleBackPressed();
+        break;
+      default:
+        resetInactivityTimeout();
+        break;
+    }
+  }, [sidebarOpen, togglePlayPause, seekVideo]);
 
   const resetInactivityTimeout = useCallback(() => {
     setIsUserActive(true);
@@ -150,61 +190,11 @@ const VideoPlayer = () => {
       video.play();
     }
   }, [src]);
-useEffect(() => {
 
-  const handleKeyDown = (e) => {
-    console.log(`has focused child : ${hasFocusedChild}`);
-    if (hasFocusedChild) return;
-    if (sidebarOpen) {
-      if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
-        setSidebarOpen(false);
-      }
-      return;
-    }
-
-    if (userActivityRef.current) {
-      console.log('User Active');
-      return;
-    }
-
-    switch (e.keyCode) {
-      case KEY_ENTER:
-        togglePlayPause();
-        break;
-      case KEY_LEFT:
-        seekVideo(seekSpeed, 'backward', true);
-        break;
-      case KEY_RIGHT:
-        seekVideo(seekSpeed, 'forward', true);
-        break;
-      case KEY_DOWN:
-        setFocus(SEEKBAR_PREVIEW_FOCUS_KEY);
-        break;
-      case KEY_BACK:
-      case KEY_ESC:
-        handleBackPressed();
-        break;
-      default:
-        resetInactivityTimeout();
-        break;
-    }
-  };
-
-  const handleKeyUp = (e) => {
-    if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-      seekMultiplierRef.current = 1; // reset seek speed after long press
-    }
-  };
-
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
-
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown);
-    window.removeEventListener('keyup', handleKeyUp);
-  };
-}, [hasFocusedChild, sidebarOpen, togglePlayPause, seekVideo, handleBackPressed, resetInactivityTimeout]);
-
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [hasFocusedChild]);
 
   useEffect(() => {
 
@@ -222,7 +212,7 @@ useEffect(() => {
       clearTimeout(inactivityTimeout.current);
       clearTimeout(seekHoldTimeout.current);
     };
-  }, [initializePlayer, resetInactivityTimeout]);
+  }, [initializePlayer, handleKeyDown, resetInactivityTimeout]);
 
   useEffect(() => {
     userActivityRef.current = isUserActive;
@@ -246,14 +236,15 @@ useEffect(() => {
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
         />
 
-        <VirtualThumbnailStripWithSeekBar
-                  videoRef={videoRef}
-                  thumbnailBaseUrl={THUMBNAIL_BASE_URL}
-                  onClose={()=>{}}
-                  focusKey={SEEKBAR_PREVIEW_FOCUS_KEY}
-                  resetInactivityTimeout = {resetInactivityTimeout}
-                />
-
+        <VirtualThumbnailStripWithSeekBar 
+        videoRef={videoRef}
+        resetInactivityTimeout={resetInactivityTimeout}
+        focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
+        onClose={()=>{}}
+        thumbnailBaseUrl={THUMBNAIL_BASE_URL}
+        key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
+        />
+        
         {showSeekIcon && (
           <div className="seek-icon">
             {seekDirection === 'forward' ? (
