@@ -138,7 +138,7 @@ const VirtualizedThumbnailStrip = ({
   virtualSeekTimeRef,
   isVisible,
   focusKey,
-  resetInactivityTimeout
+  setIsSeeking
 }) => {
   const [totalThumbnails, setTotalThumbnails] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(1000);
@@ -154,6 +154,7 @@ const VirtualizedThumbnailStrip = ({
     onFocus: () => {
       initialIndexRef.current = null;
       const currentIndex = getCurrentThumbnailIndex();
+      setIsSeeking(true);
       setTimeout(() => {
         initialIndexRef.current = currentIndex;
         scrollToCenter(currentIndex);
@@ -246,6 +247,7 @@ const VirtualizedThumbnailStrip = ({
       if (initialIndexRef.current != -1) {
         virtualSeekTimeRef.current = index * THUMBNAIL_INTERVAL;
       }
+      setIsSeeking(true);
     },
     [videoRef]
   );
@@ -268,7 +270,7 @@ const VirtualizedThumbnailStrip = ({
       } finally {
         initialIndexRef.current = null;
         virtualSeekTimeRef.current = null;
-        resetInactivityTimeout();
+        setIsSeeking(false);
       }
     }
   };

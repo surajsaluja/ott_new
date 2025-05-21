@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import './virtualList.css';
 
-const VideoProgressBar = ({ videoRef, virtualSeekTimeRef, isFocusable = true, focusKey, resetInactivityTimeout }) => {
+const VideoProgressBar = ({ videoRef, virtualSeekTimeRef, isFocusable = true, focusKey, setIsSeeking }) => {
     const [progress, setProgress] = useState(0);
     const [displayTime, setDisplayTime] = useState(0);
     const [buffered, setBuffered] = useState(0);
@@ -20,12 +20,17 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
     const { ref, focused } = useFocusable({
         focusKey,
         focusable: isFocusable,
+        onFocus: ()=>{
+        },
+        onBlur: ()=>{
+        }
     });
 
      const seek = (dir) => {
+      console.log('seeker log');
     const video = videoRef.current;
-    console.log('Seeking');
     if (!video || !focused) return;
+     console.log('Seeking');
     const delta = dir === "left" ? -SEEK_INTERVAL : SEEK_INTERVAL;
     const newTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
     video.currentTime = newTime;
@@ -33,7 +38,8 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
   };
 
   const startSeek = (dir) => {
-    console.log('seeking');
+    if(!focused) return;
+    setIsSeeking(true);
     longPressRef.current = false;
     directionRef.current = dir;
 
@@ -46,6 +52,7 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
   };
 
   const stopSeek = () => {
+    setIsSeeking(false);
     clearTimeout(timerRef.current);
     clearInterval(intervalRef.current);
 
@@ -107,7 +114,7 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [focused]);
 
     const formatTime = (seconds) => {
         if (!seconds || isNaN(seconds)) return "00:00:00";

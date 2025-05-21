@@ -7,7 +7,7 @@ import './virtualList.css';
 const THUMBNAIL_STRIP_FOCUSKEY = 'STRIP_THUMBNAIL';
 const VIDEO_PROGRESS_FOCUSKEY = 'PROGRESS_VIDEO';
 
-const VirtualThumbnailStripWithSeekBar = ({ videoRef, thumbnailBaseUrl, onClose, focusKey, resetInactivityTimeout }) => {
+const VirtualThumbnailStripWithSeekBar = ({ videoRef, thumbnailBaseUrl, onClose, focusKey, setIsSeeking }) => {
     const virtualSeekTimeRef = useRef(null);
     const [isComponentFocused, setIsComponentFocused] = useState(false);
     const [isProgressBarFocusable, setIsProgressBarFocusable] = useState(true);
@@ -22,7 +22,7 @@ const VirtualThumbnailStripWithSeekBar = ({ videoRef, thumbnailBaseUrl, onClose,
         onBlur: () => {
             setIsComponentFocused(false);
             virtualSeekTimeRef.current = null;
-            resetInactivityTimeout();
+            
         }
     });
 
@@ -45,8 +45,8 @@ const VirtualThumbnailStripWithSeekBar = ({ videoRef, thumbnailBaseUrl, onClose,
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className="thumbnails_strip" >
-                {!isProgressBarFocusable && <VirtualizedThumbnailStrip videoRef={videoRef} thumbnailBaseUrl={thumbnailBaseUrl} onClose={onClose} virtualSeekTimeRef={virtualSeekTimeRef} focusKey={THUMBNAIL_STRIP_FOCUSKEY} isVisible={isComponentFocused && !isProgressBarFocusable} resetInactivityTimeout={resetInactivityTimeout} />}
-                <VideoProgressBar videoRef={videoRef} virtualSeekTimeRef={virtualSeekTimeRef} isFocusable={isProgressBarFocusable} focusKey={VIDEO_PROGRESS_FOCUSKEY} resetInactivityTimeout={resetInactivityTimeout} />
+                {!isProgressBarFocusable && <VirtualizedThumbnailStrip videoRef={videoRef} thumbnailBaseUrl={thumbnailBaseUrl} onClose={onClose} virtualSeekTimeRef={virtualSeekTimeRef} focusKey={THUMBNAIL_STRIP_FOCUSKEY} isVisible={isComponentFocused && !isProgressBarFocusable} setIsSeeking = {setIsSeeking} />}
+                <VideoProgressBar videoRef={videoRef} virtualSeekTimeRef={virtualSeekTimeRef} isFocusable={isProgressBarFocusable} focusKey={VIDEO_PROGRESS_FOCUSKEY} setIsSeeking = {setIsSeeking} />
             </div>
         </FocusContext.Provider>
     );

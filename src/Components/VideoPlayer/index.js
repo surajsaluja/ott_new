@@ -5,9 +5,10 @@ import { FocusContext, getCurrentFocusKey, setFocus } from '@noriginmedia/norigi
 import Popup from './Popup';
 import SideBar_Tab from './SideBar_Tab';
 import { useLocation } from 'react-router-dom';
-import { MdFastForward, MdFastRewind, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
+import { MdFastForward, MdFastRewind, MdMultilineChart, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import VirtualThumbnailStripWithSeekBar from '../VirtualList'
+import useSeekHandler from './useSeekHandler';
 
 const KEY_ENTER = 13;
 const KEY_BACK = 10009;
@@ -25,16 +26,15 @@ const VideoPlayer = () => {
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
   const seekIconTimeout = useRef(null);
-  const seekHoldTimeout = useRef(null);
-  const seekMultiplierRef = useRef(1);
+  const seekBarActiveRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isUserActive, setIsUserActive] = useState(true);
   const [showSeekIcon, setShowSeekIcon] = useState(false);
-  const [seekDirection, setSeekDirection] = useState(null);
   const [seekAmount, setSeekAmount] = useState(10);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -43,11 +43,11 @@ const VideoPlayer = () => {
   const [selectedQuality, setSelectedQuality] = useState(-1);
 
   const userActivityRef = useRef(null);
-
-  const seekSpeed = 10;
+  const isSeekingRef = useRef(null);
   const inactivityDelay = 3000;
+  const seekInterval = 10;
 
-  const { ref, focusKey: currentFocusKey, hasFocusedChild, focused } = useFocusable({
+  const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey: "VIDEO_PLAYER",
     trackChildren: true,
   });
@@ -74,92 +74,70 @@ const VideoPlayer = () => {
     playIconTimeout.current = setTimeout(() => setShowPlayIcon(false), 700);
   }, []);
 
-  const seekVideo = useCallback((baseSeconds, direction, isHold = false) => {
-    console.log('inSeek');
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (seekMultiplierRef.current > 3) {
-      setIsUserActive(true);
-      setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
-      return;
-    }
-
-    const seekBy = baseSeconds * seekMultiplierRef.current;
-    video.currentTime += direction === 'forward' ? seekBy : -seekBy;
-
-    setSeekDirection(direction);
-    setSeekAmount(seekBy);
-    setShowSeekIcon(true);
-
-    clearTimeout(seekIconTimeout.current);
-    seekIconTimeout.current = setTimeout(() => setShowSeekIcon(false), 800);
-
-    if (isHold) {
-      seekMultiplierRef.current += 1;
-      clearTimeout(seekHoldTimeout.current);
-      seekHoldTimeout.current = setTimeout(() => {
-        seekMultiplierRef.current = 1;
-      }, 1000);
-    } else {
-      seekMultiplierRef.current = 1;
-    }
-  }, []);
-
   const handleBackPressed = useCallback(() => {
     if (window.history.length > 1) {
       window.history.back();
     }
   }, []);
 
-  const handleKeyDown = useCallback((e) => {
-    console.log(`has focused child : ${hasFocusedChild}`);
-    if (hasFocusedChild) return;
-    if (sidebarOpen) {
-      if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
-        setSidebarOpen(false);
-      }
-      return;
-    }
-
-    if (userActivityRef.current) {
-      console.log('User Active');
-      return;
-    }
-
-    switch (e.keyCode) {
-      case KEY_ENTER:
-        togglePlayPause();
-        break;
-      case KEY_LEFT:
-        console.log('Left PRess');
-        seekVideo(seekSpeed, 'backward', true);
-        break;
-      case KEY_RIGHT:
-        seekVideo(seekSpeed, 'forward', true);
-        break;
-      case KEY_DOWN:
-        setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
-        break;
-      case KEY_BACK:
-      case KEY_ESC:
-        handleBackPressed();
-        break;
-      default:
-        resetInactivityTimeout();
-        break;
-    }
-  }, [sidebarOpen, togglePlayPause, seekVideo]);
+  const handleFocusSeekBar = () => {
+    setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
+    resetInactivityTimeout();
+  }
 
   const resetInactivityTimeout = useCallback(() => {
+    console.log('reset ' + isSeekingRef.current);
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
     inactivityTimeout.current = setTimeout(() => {
-      console.log('user Inactivity TimeOut');
-      setIsUserActive(false);
-      setFocus('Dummy_Btn');
+      if (!isSeekingRef.current) {
+        setIsUserActive(false);
+        setFocus('Dummy_Btn');
+      }
     }, inactivityDelay);
   }, []);
+
+  const { seekMultiplier, seekDirection } = useSeekHandler(
+    videoRef,
+    seekInterval,
+    setIsSeeking,
+    togglePlayPause,
+    handleBackPressed,
+    handleFocusSeekBar,
+    sidebarOpen,
+    userActivityRef,
+    seekBarActiveRef,
+    resetInactivityTimeout
+  );
+
+  useEffect(() => {
+
+    console.log('isSeeking' + isSeeking);
+    const showSeekIcons = (direction) => {
+      if (direction && direction != null) {
+        setSeekAmount(seekMultiplier * seekInterval);
+        setShowSeekIcon(true);
+
+        clearTimeout(seekIconTimeout.current);
+        seekIconTimeout.current = setTimeout(() => setShowSeekIcon(false), 800);
+      }
+    }
+
+
+    if (isSeeking && seekMultiplier && seekMultiplier > 3) {
+      handleFocusSeekBar();
+    } else {
+      showSeekIcons(seekDirection);
+    }
+
+    if (isSeekingRef.current && !isSeeking) {
+    resetInactivityTimeout();
+  }
+
+    isSeekingRef.current = isSeeking;
+
+  }, [isSeeking, seekMultiplier])
+
 
   const initializePlayer = useCallback(() => {
     const video = videoRef.current;
@@ -192,11 +170,6 @@ const VideoPlayer = () => {
   }, [src]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [hasFocusedChild]);
-
-  useEffect(() => {
 
     const video = videoRef.current;
     video?.addEventListener('ended', () => setIsPlaying(false));
@@ -208,17 +181,17 @@ const VideoPlayer = () => {
       video?.hls?.destroy();
 
       clearTimeout(playIconTimeout.current);
-      clearTimeout(seekIconTimeout.current);
       clearTimeout(inactivityTimeout.current);
-      clearTimeout(seekHoldTimeout.current);
     };
-  }, [initializePlayer, handleKeyDown, resetInactivityTimeout]);
+  }, [initializePlayer, resetInactivityTimeout]);
 
   useEffect(() => {
     userActivityRef.current = isUserActive;
   }, [isUserActive]);
 
+
   if (!src) return <div>Missing video source</div>;
+
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
@@ -236,15 +209,15 @@ const VideoPlayer = () => {
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
         />
 
-        <VirtualThumbnailStripWithSeekBar 
-        videoRef={videoRef}
-        resetInactivityTimeout={resetInactivityTimeout}
-        focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
-        onClose={()=>{}}
-        thumbnailBaseUrl={THUMBNAIL_BASE_URL}
-        key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
+        <VirtualThumbnailStripWithSeekBar
+          videoRef={videoRef}
+          setIsSeeking={setIsSeeking}
+          focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
+          onClose={() => { }}
+          thumbnailBaseUrl={THUMBNAIL_BASE_URL}
+          key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
         />
-        
+
         {showSeekIcon && (
           <div className="seek-icon">
             {seekDirection === 'forward' ? (
