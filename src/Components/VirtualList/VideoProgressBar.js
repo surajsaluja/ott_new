@@ -20,17 +20,11 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
     const { ref, focused } = useFocusable({
         focusKey,
         focusable: isFocusable,
-        onFocus: ()=>{
-        },
-        onBlur: ()=>{
-        }
     });
 
      const seek = (dir) => {
-      console.log('seeker log');
     const video = videoRef.current;
     if (!video || !focused) return;
-     console.log('Seeking');
     const delta = dir === "left" ? -SEEK_INTERVAL : SEEK_INTERVAL;
     const newTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
     video.currentTime = newTime;
@@ -52,6 +46,7 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
   };
 
   const stopSeek = () => {
+    if(!focused) return;
     setIsSeeking(false);
     clearTimeout(timerRef.current);
     clearInterval(intervalRef.current);
@@ -70,11 +65,13 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
 
         const updateProgress = () => {
             const virtualTime = virtualSeekTimeRef.current;
-            const currentTime = virtualTime != null ? virtualTime : video.currentTime;
+            //const currentTime = virtualTime != null ? virtualTime : video.currentTime;
             const duration = video.duration || 1;
+            const progressTime = virtualTime != null ? virtualTime : video.currentTime;
+            setProgress((progressTime / duration) * 100);
 
-            setDisplayTime(currentTime);
-            setProgress((currentTime / duration) * 100);
+            setDisplayTime(video.currentTime);
+            //setProgress((currentTime / duration) * 100);
         };
 
         const updateBuffered = () => {

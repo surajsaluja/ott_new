@@ -9,7 +9,7 @@ import throttle from "lodash/throttle";
 import "./virtualList.css";
 
 const THUMBNAIL_WIDTH = 400;
-const THUMBNAIL_HEIGHT = 220;
+const THUMBNAIL_HEIGHT = 200;
 const THUMBNAIL_GAP = 50;
 const ITEM_SIZE = THUMBNAIL_WIDTH + THUMBNAIL_GAP;
 const OVERSCAN_COUNT = 12;
@@ -65,8 +65,14 @@ const ThumbnailItem = memo(
     baseUrl,
     onFocus,
     onEnterPress,
+    lastNavTimeRef
   }) => {
     const url = getThumbnailUrl(baseUrl, index);
+    const formatTime = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
     const [imageSource, setImageSource] = useState(
       imageBlobCache.get(url) || null
     );
@@ -80,6 +86,18 @@ const ThumbnailItem = memo(
         scrollToCenter(index);
         onFocus(index); // Pass the time to the parent
       },
+      onArrowPress:(direction)=>{
+    if (direction === "left" || direction === "right") {
+      const now = Date.now();
+      if (now - lastNavTimeRef.current < 150) {
+        return false; // prevent focus move
+      }
+
+      lastNavTimeRef.current = now;
+    }
+
+    return true; // allow move
+  },
     });
 
     useEffect(() => {
@@ -107,7 +125,7 @@ const ThumbnailItem = memo(
         ref={ref}
         style={{
           width: THUMBNAIL_WIDTH,
-          height: THUMBNAIL_HEIGHT,
+          // height: THUMBNAIL_HEIGHT + 30,
           marginRight: THUMBNAIL_GAP,
           padding: "5px",
         }}
@@ -125,6 +143,9 @@ const ThumbnailItem = memo(
           ) : (
             <div className="thumbnail-placeholder" />
           )}
+          <div className="thumbnail-time-label">
+            {formatTime(index * THUMBNAIL_INTERVAL)}
+          </div>
         </div>
       </div>
     );
@@ -134,7 +155,6 @@ const ThumbnailItem = memo(
 const VirtualizedThumbnailStrip = ({
   thumbnailBaseUrl,
   videoRef,
-  onClose,
   virtualSeekTimeRef,
   isVisible,
   focusKey,
@@ -143,7 +163,8 @@ const VirtualizedThumbnailStrip = ({
   const [totalThumbnails, setTotalThumbnails] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(1000);
   const listRef = useRef();
-  const initialIndexRef = useRef(null);
+  const lastNavTimeRef = useRef(0); // for referencing the time between button press when hold
+  const SCROLL_TROTTLE_TIME = 200;
   const {
     ref,
     focusKey: currentFocusKey,
@@ -152,15 +173,18 @@ const VirtualizedThumbnailStrip = ({
     trackChildren: false,
     saveLastFocusedChild: false,
     onFocus: () => {
-      initialIndexRef.current = null;
-      const currentIndex = getCurrentThumbnailIndex();
       setIsSeeking(true);
+      console.log('focused : Virtual Strip');
+      const currentIndex = getCurrentThumbnailIndex();
       setTimeout(() => {
-        initialIndexRef.current = currentIndex;
         scrollToCenter(currentIndex);
         setFocus(`THUMB_${currentIndex}`);
       }, 0);
     },
+    onBlur:()=>{
+      console.log('Blur : isVirtualStrip');
+      setIsSeeking(false);
+    }
   });
 
   useEffect(() => {
@@ -181,7 +205,10 @@ const VirtualizedThumbnailStrip = ({
 
     const handleTimeUpdate = () => {
       const currentIndex = Math.floor(video.currentTime / THUMBNAIL_INTERVAL);
+      if(videoRef?.current && !videoRef?.current?.paused)
+      {
       scrollToCenter(currentIndex);
+      }
     };
 
     if (video.readyState >= 1) {
@@ -201,8 +228,10 @@ const VirtualizedThumbnailStrip = ({
 
 
   const getCurrentThumbnailIndex = () => {
+    if(videoRef?.current){
     const currentTime = videoRef.current?.currentTime || 0;
     return Math.floor(currentTime / THUMBNAIL_INTERVAL);
+    }
   };
 
   useEffect(() => {
@@ -235,19 +264,7 @@ const VirtualizedThumbnailStrip = ({
         videoRef.current.pause();
       }
 
-      if (
-        initialIndexRef.current != null &&
-        initialIndexRef.current != index
-      ) {
-        initialIndexRef.current = index;
-      } else {
-        initialIndexRef.current = -1; // user has not changed the thumbnail yet
-      }
-
-      if (initialIndexRef.current != -1) {
-        virtualSeekTimeRef.current = index * THUMBNAIL_INTERVAL;
-      }
-      setIsSeeking(true);
+      virtualSeekTimeRef.current = index * THUMBNAIL_INTERVAL;
     },
     [videoRef]
   );
@@ -259,16 +276,13 @@ const VirtualizedThumbnailStrip = ({
         if (!video.paused) {
           await video.pause();
         }
-        if (initialIndexRef.current !== -1) {
           video.currentTime = index * THUMBNAIL_INTERVAL;
-        }
         if (video.paused) {
           await video.play();
         }
       } catch (err) {
         console.warn("Playback failed:", err);
       } finally {
-        initialIndexRef.current = null;
         virtualSeekTimeRef.current = null;
         setIsSeeking(false);
       }
@@ -284,6 +298,7 @@ const VirtualizedThumbnailStrip = ({
         baseUrl={thumbnailBaseUrl}
         onFocus={onThumbnailFocus}
         onEnterPress={onThumbnailEnterHandler}
+        lastNavTimeRef = {lastNavTimeRef}
       />
     </div>
   ), [currentFocusKey, scrollToCenter, thumbnailBaseUrl, onThumbnailFocus, onThumbnailEnterHandler]);
@@ -299,7 +314,7 @@ const VirtualizedThumbnailStrip = ({
         {totalThumbnails > 0 && (
           <List
             ref={listRef}
-            height={THUMBNAIL_HEIGHT + 20}
+            height={THUMBNAIL_HEIGHT + 40}
             width={window.innerWidth}
             itemCount={totalThumbnails}
             itemSize={ITEM_SIZE}

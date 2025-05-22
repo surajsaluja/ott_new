@@ -66,9 +66,9 @@
   bottom: 0;
   overflow: hidden;
   padding: 16px 10px;
-  min-height: 220px;
+  min-height: 240px;
   /* force visibility */
-  background-color: rgba(255, 255, 255, 0.01);
+  background-color: rgb(0, 0, 0);
   /* ensures visibility to DOM APIs */
 }
 
@@ -80,7 +80,10 @@
   border-radius: 6px;
   overflow: hidden;
   position: relative;
-  height: 200px;
+  /* height: 220px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .thumbnail img {
@@ -96,6 +99,20 @@
   background-color: #222;
   animation: pulse 1s infinite ease-in-out;
   border-radius: 6px;
+}
+
+.thumbnail-time-label {
+  position: absolute;
+  bottom: 5px;
+  /* right: 5px; */
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  pointer-events: none;
+  user-select: none;
+  font-family: monospace;
 }
 
 .thumbnail.focused {

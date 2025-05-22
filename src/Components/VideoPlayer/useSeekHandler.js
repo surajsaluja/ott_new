@@ -9,7 +9,17 @@ const KEY_ENTER = 13;
 const KEY_BACK = 10009;
 const KEY_ESC = 8;
 
-export default function useSeekHandler(videoRef, seekInterval = 10, setIsSeeking,handlePlayPause, handleBackPress, handleFocusSeekBar,sideBarOpen, userActivityRef, SeekBarActiveRef,resetInactivityTimeout) {
+export default function useSeekHandler(
+    videoRef, 
+    seekInterval = 10, 
+    setIsSeeking,
+    handlePlayPause, 
+    handleBackPress, 
+    handleFocusSeekBar,
+    sideBarOpen, 
+    userActivityRef,
+    resetInactivityTimeout, 
+    isSeekbarVisibleRef) {
     // const [isSeeking, setIsSeeking] = useState(false);
     const [seekDirection, setSeekDirection] = useState(null);
     const [seekMultiplier, setSeekMultiplier] = useState(1);
@@ -33,7 +43,6 @@ export default function useSeekHandler(videoRef, seekInterval = 10, setIsSeeking
         seekHoldTimeout.current = null;
         longPressTriggered.current = false;
         directionRef.current = null;
-        setIsSeeking(false);
         setSeekDirection(null);
         setSeekMultiplier(1);
     };
@@ -41,7 +50,9 @@ export default function useSeekHandler(videoRef, seekInterval = 10, setIsSeeking
 
     const performSeek = (direction, isHold) => {
         const video = videoRef.current;
-        if (!video) return;
+        if (!video || isSeekbarVisibleRef.current) return;
+
+        console.log('seeking from useRef');
 
         const seekBy = seekInterval * seekMultiplierRef.current;
         const delta = direction === 'forward' ? seekBy : -seekBy;
@@ -65,12 +76,11 @@ export default function useSeekHandler(videoRef, seekInterval = 10, setIsSeeking
     };
 
     const handleKeyDown = (e) => {
-        if (sideBarOpen || userActivityRef.current || SeekBarActiveRef.current) return;
+        if (sideBarOpen || userActivityRef.current || isSeekbarVisibleRef.current) return;
 
         if (e.repeat) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-            console.log('in handler seeking');
             const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
             setSeekDirection(direction);
             directionRef.current = direction;
@@ -92,7 +102,6 @@ export default function useSeekHandler(videoRef, seekInterval = 10, setIsSeeking
         }
 
         if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
-            console.log('back pressed');
             handleBackPress();
         }
 
@@ -109,8 +118,8 @@ export default function useSeekHandler(videoRef, seekInterval = 10, setIsSeeking
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             const direction = directionRef.current;
 
-            if (!longPressTriggered.current && direction) {
-                performSeek(direction, false); // Short press
+            if (!longPressTriggered.current || !isSeekbarVisibleRef.current) {
+                setIsSeeking(false);
             }
 
             clearTimers();

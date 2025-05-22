@@ -18,7 +18,6 @@ export function BackHandlerProvider({ children }) {
             backHandlerRef.current(); // call custom back
         } else {
             // default behavior, like goBack()
-            console.log('Default go back');
             window.history.back(); // Or your router's goBack()
         }
     };
