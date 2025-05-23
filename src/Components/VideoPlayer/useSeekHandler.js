@@ -19,10 +19,13 @@ export default function useSeekHandler(
     sideBarOpen, 
     userActivityRef,
     resetInactivityTimeout, 
-    isSeekbarVisibleRef) {
+    isSeekbarVisible,
+    isThumbnailStripVisibleRef,
+    setIsUserActive
+) {
     // const [isSeeking, setIsSeeking] = useState(false);
     const [seekDirection, setSeekDirection] = useState(null);
-    const [seekMultiplier, setSeekMultiplier] = useState(1);
+    const [seekMultiplier, setSeekMultiplier] = useState(0);
 
     const seekTimer = useRef(null);
     const longPressInterval = useRef(null);
@@ -44,13 +47,14 @@ export default function useSeekHandler(
         longPressTriggered.current = false;
         directionRef.current = null;
         setSeekDirection(null);
-        setSeekMultiplier(1);
+        setSeekMultiplier(0);
+        setIsSeeking(false);
     };
 
 
     const performSeek = (direction, isHold) => {
         const video = videoRef.current;
-        if (!video || isSeekbarVisibleRef.current) return;
+        if (!video) return;
 
         console.log('seeking from useRef');
 
@@ -76,7 +80,16 @@ export default function useSeekHandler(
     };
 
     const handleKeyDown = (e) => {
-        if (sideBarOpen || userActivityRef.current || isSeekbarVisibleRef.current) return;
+        console.log( isThumbnailStripVisibleRef.current)
+        if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible) return;
+
+        if(userActivityRef.current){
+            if(e.keyCode == KEY_BACK){
+                console.log('in back')
+                setIsSeeking(false);
+                setIsUserActive(false);
+            }
+        }
 
         if (e.repeat) return;
 
@@ -101,10 +114,6 @@ export default function useSeekHandler(
             handlePlayPause();
         }
 
-        if (e.keyCode === KEY_BACK || e.keyCode === KEY_ESC) {
-            handleBackPress();
-        }
-
         if(e.keyCode === KEY_DOWN){
             handleFocusSeekBar();
         }
@@ -115,11 +124,13 @@ export default function useSeekHandler(
     };
 
     const handleKeyUp = (e) => {
+        if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible) return;
+        
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             const direction = directionRef.current;
 
-            if (!longPressTriggered.current || !isSeekbarVisibleRef.current) {
-                setIsSeeking(false);
+            if (!longPressTriggered.current && direction) {
+                performSeek(direction, false); // Short press
             }
 
             clearTimers();

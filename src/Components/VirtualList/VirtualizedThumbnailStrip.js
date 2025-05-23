@@ -69,10 +69,10 @@ const ThumbnailItem = memo(
   }) => {
     const url = getThumbnailUrl(baseUrl, index);
     const formatTime = (seconds) => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
     const [imageSource, setImageSource] = useState(
       imageBlobCache.get(url) || null
     );
@@ -86,18 +86,18 @@ const ThumbnailItem = memo(
         scrollToCenter(index);
         onFocus(index); // Pass the time to the parent
       },
-      onArrowPress:(direction)=>{
-    if (direction === "left" || direction === "right") {
-      const now = Date.now();
-      if (now - lastNavTimeRef.current < 150) {
-        return false; // prevent focus move
-      }
+      onArrowPress: (direction) => {
+        if (direction === "left" || direction === "right") {
+          const now = Date.now();
+          if (now - lastNavTimeRef.current < 150) {
+            return false; // prevent focus move
+          }
 
-      lastNavTimeRef.current = now;
-    }
+          lastNavTimeRef.current = now;
+        }
 
-    return true; // allow move
-  },
+        return true; // allow move
+      },
     });
 
     useEffect(() => {
@@ -158,7 +158,9 @@ const VirtualizedThumbnailStrip = ({
   virtualSeekTimeRef,
   isVisible,
   focusKey,
-  setIsSeeking
+  setIsSeeking,
+  setIsThumbnailStripVisible,
+  onClose
 }) => {
   const [totalThumbnails, setTotalThumbnails] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(1000);
@@ -174,15 +176,15 @@ const VirtualizedThumbnailStrip = ({
     saveLastFocusedChild: false,
     onFocus: () => {
       setIsSeeking(true);
-      console.log('focused : Virtual Strip');
+      setIsThumbnailStripVisible(true);
       const currentIndex = getCurrentThumbnailIndex();
       setTimeout(() => {
         scrollToCenter(currentIndex);
         setFocus(`THUMB_${currentIndex}`);
       }, 0);
     },
-    onBlur:()=>{
-      console.log('Blur : isVirtualStrip');
+    onBlur: () => {
+      setIsThumbnailStripVisible(false);
       setIsSeeking(false);
     }
   });
@@ -205,9 +207,9 @@ const VirtualizedThumbnailStrip = ({
 
     const handleTimeUpdate = () => {
       const currentIndex = Math.floor(video.currentTime / THUMBNAIL_INTERVAL);
-      if(videoRef?.current && !videoRef?.current?.paused)
-      {
-      scrollToCenter(currentIndex);
+      if (videoRef?.current && !videoRef?.current?.paused) {
+        console.log('scrollin to center');
+        scrollToCenter(currentIndex);
       }
     };
 
@@ -228,9 +230,9 @@ const VirtualizedThumbnailStrip = ({
 
 
   const getCurrentThumbnailIndex = () => {
-    if(videoRef?.current){
-    const currentTime = videoRef.current?.currentTime || 0;
-    return Math.floor(currentTime / THUMBNAIL_INTERVAL);
+    if (videoRef?.current) {
+      const currentTime = videoRef.current?.currentTime || 0;
+      return Math.floor(currentTime / THUMBNAIL_INTERVAL);
     }
   };
 
@@ -263,29 +265,15 @@ const VirtualizedThumbnailStrip = ({
       if (videoRef.current && !videoRef.current.paused) {
         videoRef.current.pause();
       }
-
       virtualSeekTimeRef.current = index * THUMBNAIL_INTERVAL;
     },
     [videoRef]
   );
 
   const onThumbnailEnterHandler = async (index) => {
-    const video = videoRef.current;
+    const video = videoRef?.current;
     if (video) {
-      try {
-        if (!video.paused) {
-          await video.pause();
-        }
-          video.currentTime = index * THUMBNAIL_INTERVAL;
-        if (video.paused) {
-          await video.play();
-        }
-      } catch (err) {
-        console.warn("Playback failed:", err);
-      } finally {
-        virtualSeekTimeRef.current = null;
-        setIsSeeking(false);
-      }
+      video.currentTime = index * THUMBNAIL_INTERVAL;
     }
   };
 
@@ -298,7 +286,7 @@ const VirtualizedThumbnailStrip = ({
         baseUrl={thumbnailBaseUrl}
         onFocus={onThumbnailFocus}
         onEnterPress={onThumbnailEnterHandler}
-        lastNavTimeRef = {lastNavTimeRef}
+        lastNavTimeRef={lastNavTimeRef}
       />
     </div>
   ), [currentFocusKey, scrollToCenter, thumbnailBaseUrl, onThumbnailFocus, onThumbnailEnterHandler]);

@@ -58,7 +58,6 @@ const ThumbnailItem = memo(({ index, parentFocusKey, scrollToCenter, baseUrl, on
     focusKey: `THUMB_${index}`,
     parentFocusKey,
     onEnterPress: () => {
-      console.log('Seek to second:', index * 10);
       onEnterPress();
     },
     onFocus: () => {scrollToCenter(index); onFocus()},

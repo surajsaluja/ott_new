@@ -20,7 +20,6 @@ const VideoPlayer = () => {
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
   const seekIconTimeout = useRef(null);
-  const seekBarActiveRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
@@ -29,6 +28,7 @@ const VideoPlayer = () => {
   const [showSeekIcon, setShowSeekIcon] = useState(false);
   const [seekAmount, setSeekAmount] = useState(10);
   const [isSeekbarVisible,setIsSeekbarVisible] = useState(false);
+  const [isThumbnailStripVisible,setIsThumbnailStripVisible] = useState(false);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -37,8 +37,9 @@ const VideoPlayer = () => {
   const [selectedQuality, setSelectedQuality] = useState(-1);
 
   const userActivityRef = useRef(null);
-  const seekbarVisibleRef = useRef(null);
   const isSeekingRef = useRef(null);
+  const isThumbnailStripVisibleRef = useRef(null);
+  const resumePlayTimeoutRef = useRef(null);
   let inactivityDelay = 5000;
   const seekInterval = 10;
 
@@ -77,31 +78,56 @@ const VideoPlayer = () => {
 
   const handleFocusSeekBar = () => {
     setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
-    resetInactivityTimeout();
+    setIsSeekbarVisible(true);
   }
 
   const resetInactivityTimeout = useCallback(() => {
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
     inactivityTimeout.current = setTimeout(() => {
-      console.log(isSeekingRef.current + "is SeekingRef");
       if (!isSeekingRef.current) {
-        console.log(' user inactive');
         setIsUserActive(false);
         setFocus('Dummy_Btn');
       }
     }, inactivityDelay);
   }, []);
 
-    const handleSetIsSeeking = (val) => {
-  isSeekingRef.current = val;
-  if(!isSeekingRef.current){
-    resetInactivityTimeout();
-    if(videoRef?.current && videoRef?.current?.paused){
-      videoRef?.current?.play();
+const safePlay = async () => {
+  try {
+    await videoRef.current?.play();
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.error('Play error:', error);
     }
   }
 };
+
+  const handleSetIsSeeking = (val) => {
+    
+  isSeekingRef.current = val;
+  if (val) {
+    // Clear any pending resumePlay
+    clearTimeout(resumePlayTimeoutRef.current);
+
+    // Pause immediately on start of seek
+    if (videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+    }
+    setIsSeekbarVisible(true);
+  } else {
+    // Debounce resume play — wait 300ms after seeking ends
+    resumePlayTimeoutRef.current = setTimeout(() => {
+      safePlay();
+    }, 300);
+    setIsSeekbarVisible(false);
+    resetInactivityTimeout();
+  }
+};
+
+const handleThumbnialStripVisibility = (val) =>{
+  isThumbnailStripVisibleRef.current = val;
+  setIsThumbnailStripVisible(val);
+}
 
   const { seekMultiplier, seekDirection } = useSeekHandler(
     videoRef,
@@ -113,12 +139,11 @@ const VideoPlayer = () => {
     sidebarOpen,
     userActivityRef,
     resetInactivityTimeout,
-    seekbarVisibleRef
+    isSeekbarVisible,
+    isThumbnailStripVisibleRef,
+    setIsUserActive
   );
 
-  useEffect (()=>{
-    seekbarVisibleRef.current = isSeekbarVisible;
-  },[isSeekbarVisible])
 
   useEffect(() => {
     const showSeekIcons = (direction) => {
@@ -127,22 +152,26 @@ const VideoPlayer = () => {
         setShowSeekIcon(true);
 
         clearTimeout(seekIconTimeout.current);
-        seekIconTimeout.current = setTimeout(() => setShowSeekIcon(false), 800);
+        seekIconTimeout.current = setTimeout(() => setShowSeekIcon(false), 1000);
       }else{
         setShowSeekIcon(false);
       }
     }
 
-
-    if (isSeekingRef.current && seekMultiplier && seekMultiplier > 3) {
-      handleFocusSeekBar();
-    } else {
+    if(seekMultiplier && seekMultiplier > 0 && isSeekingRef.current){
       showSeekIcons(seekDirection);
     }
 
-    if (isSeekingRef.current && !isSeekingRef.current) {
-    resetInactivityTimeout();
-  }
+
+    // if (isSeekingRef.current && seekMultiplier && seekMultiplier > 3) {
+    //   handleFocusSeekBar();
+    // } else {
+    //   showSeekIcons(seekDirection);
+    // }
+
+  //   if (isSeekingRef.current && !isSeekingRef.current) {
+  //   resetInactivityTimeout();
+  // }
 
   }, [seekMultiplier])
 
@@ -179,21 +208,27 @@ const VideoPlayer = () => {
   useEffect(() => {
 
     const video = videoRef.current;
-    video?.addEventListener('ended', () => setIsPlaying(false));
+    // video?.addEventListener('ended', () => {console.log('ended')});
+    // video?.addEventListener('waiting', () => {console.log('waiting')});
+    //     video?.addEventListener('playing', () => {console.log('playing')});
+    //     video?.addEventListener('canplay', () => {console.log('can play')});
 
     initializePlayer();
     resetInactivityTimeout();
 
     return () => {
       video?.hls?.destroy();
-
       clearTimeout(playIconTimeout.current);
       clearTimeout(inactivityTimeout.current);
+      clearTimeout(resumePlayTimeoutRef.current);
     };
   }, [initializePlayer, resetInactivityTimeout]);
 
   useEffect(() => {
     userActivityRef.current = isUserActive;
+    if(userActivityRef.current){
+    }else{
+    }
   }, [isUserActive]);
 
 
@@ -220,11 +255,13 @@ const VideoPlayer = () => {
           videoRef={videoRef}
           setIsSeeking={handleSetIsSeeking}
           focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
-          onClose={() => { }}
+          onClose={()=>{setIsUserActive(false)}}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
           key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
-          setIsSeekbarVisible={setIsSeekbarVisible}
-          isVisible = {isUserActive}
+          setIsSeekbarVisible={setIsSeekbarVisible} // used to get input from component is visible from focus
+          isThumbnailStripVisible = {isThumbnailStripVisible} // to control thumnail strip 
+          setIsThumbnailStripVisible = {handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
+          isVisible = {isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
         />
 
         {showSeekIcon && (

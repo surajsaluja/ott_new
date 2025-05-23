@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 
 const BackHandlerContext = createContext();
 
 export function BackHandlerProvider({ children }) {
     const backHandlerRef = useRef(null);
+    const history = useHistory();
 
     const setBackHandler = (handler) => {
         backHandlerRef.current = handler;
@@ -18,7 +20,7 @@ export function BackHandlerProvider({ children }) {
             backHandlerRef.current(); // call custom back
         } else {
             // default behavior, like goBack()
-            window.history.back(); // Or your router's goBack()
+            history.goBack(); // Or your router's goBack()
         }
     };
 

@@ -47,7 +47,7 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (e) => {
-      if (e.key === 'Backspace' || e.key === 'Escape') {
+      if (e.key === 'Backspace' || e.key === 'Escape' || e.keyCode == 10009) {
         e.preventDefault();
         handleBackPress();
       }
