@@ -20,9 +20,10 @@
     border-radius: 4px;
     padding: 6px;
     border-color: transparent;
-    /* background-color: #2e3640; */
+    background-color: #2e3640;
     text-wrap-mode:nowrap;
     display: flex;
+    color: azure;
 }
 
 .popup_settingButton .focusableButton_icon {

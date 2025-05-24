@@ -21,7 +21,9 @@ export default function useSeekHandler(
     resetInactivityTimeout, 
     isSeekbarVisible,
     isThumbnailStripVisibleRef,
-    setIsUserActive
+    setIsUserActive,
+    isSeekingRef,
+    handleFocusVideoOverlay
 ) {
     // const [isSeeking, setIsSeeking] = useState(false);
     const [seekDirection, setSeekDirection] = useState(null);
@@ -48,15 +50,12 @@ export default function useSeekHandler(
         directionRef.current = null;
         setSeekDirection(null);
         setSeekMultiplier(0);
-        setIsSeeking(false);
     };
 
 
     const performSeek = (direction, isHold) => {
         const video = videoRef.current;
         if (!video) return;
-
-        console.log('seeking from useRef');
 
         const seekBy = seekInterval * seekMultiplierRef.current;
         const delta = direction === 'forward' ? seekBy : -seekBy;
@@ -80,18 +79,20 @@ export default function useSeekHandler(
     };
 
     const handleKeyDown = (e) => {
-        console.log( isThumbnailStripVisibleRef.current)
-        if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible) return;
-
+        if(e.repeat)
+            return;
+        e.preventDefault();
+        e.stopPropagation();
         if(userActivityRef.current){
-            if(e.keyCode == KEY_BACK){
-                console.log('in back')
-                setIsSeeking(false);
-                setIsUserActive(false);
+            if(e.keyCode == KEY_BACK || e.keyCode == KEY_ESC){
+                // resetInactivityTimeout();
+                console.log('set user inactive');
+                return;
+            }else{
+                resetInactivityTimeout();
+                return;
             }
-        }
-
-        if (e.repeat) return;
+        } else if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
@@ -119,7 +120,8 @@ export default function useSeekHandler(
         }
 
         if(e.keyCode === KEY_UP){
-            resetInactivityTimeout();
+            console.log(' key up pressed');
+            handleFocusVideoOverlay();
         }
     };
 
@@ -131,6 +133,11 @@ export default function useSeekHandler(
 
             if (!longPressTriggered.current && direction) {
                 performSeek(direction, false); // Short press
+            }
+
+            if(isSeekingRef.current){
+
+        setIsSeeking(false);
             }
 
             clearTimers();

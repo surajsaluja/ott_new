@@ -94,12 +94,14 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
 
     useEffect(() => {
     const handleKeyDown = (e) => {
+      e.stopPropagation();
       if (e.repeat) return;
       if (e.key === "ArrowLeft") startSeek("left");
       if (e.key === "ArrowRight") startSeek("right");
     };
 
     const handleKeyUp = (e) => {
+      e.stopPropagation();
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         stopSeek();
       }

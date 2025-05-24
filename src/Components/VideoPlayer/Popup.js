@@ -1,66 +1,95 @@
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { FocusContext, setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
-import { MdSettings, MdArrowBack, MdOutlineSubtitles } from 'react-icons/md'
-import './Popup.css';
+import { MdSettings, MdArrowBack, MdOutlineSubtitles } from "react-icons/md";
+import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
+import "./Popup.css";
+import { useEffect } from "react";
 
-const Popup = ({ focusKey,
+const Popup = ({
+  focusKey,
   onVideoSettingsPressed,
   onAudioSubtitlesSettingsPressed,
   onBackPress,
   videoRef,
   title,
   isVisible,
-   }) => {
-  const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ 
-    focusKey, 
-    trackChildren: true 
+}) => {
+  const {
+    ref,
+    focusKey: currentFocusKey,
+    focusSelf,
+  } = useFocusable({
+    focusKey,
+    trackChildren: true,
+  });
+
+  useEffect(()=>{
+    if(isVisible){
+      console.log('made visible');
+      setTimeout(()=>{
+        setFocus('settingsBtn');
+      },0);
+  }
+  },[focusSelf, isVisible])
+
+  // Close the drawer instead of navigating back
+  useOverrideBackHandler(() => {
+    if(isVisible){
+    console.log("from back handler in popup");
+    onBackPress();
+    }
   });
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'row',
-      gap: '20px',
-      width: '100%',
-      height: '100%',
-      zIndex: 10,
-      opacity: isVisible ? 1 : 0,
-      pointerEvents: 'none',
-      transition: 'opacity 0.3s ease-in-out',
-    }} ref={ref}>
+    <FocusContext.Provider value={currentFocusKey}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: "20px",
+        width: "100%",
+        height: "200px",
+        zIndex: 10,
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: "none",
+        transition: "opacity 0.3s ease-in-out",
+      }}
+      ref={ref}
+    >
       <div>
         <FocusableButton
-          focuskey={'backBtn'}
+          focuskey={"backBtn"}
           onEnterPress={onBackPress}
           key={1}
           className={`popup_backButton`}
           focusClass={`popup_backButton_focus`}
           icon={<MdArrowBack />}
         />
-        <p className={'popup_title'}>{title}</p>
-        <div className={'settings_icons'}>
+        <p className={"popup_title"}>{title}</p>
+        <div className={"settings_icons"}>
           <FocusableButton
             key={2}
-            focuskey={'settingsBtn'}
+            focuskey={"settingsBtn"}
             onEnterPress={onVideoSettingsPressed}
             icon={<MdSettings />}
             className={`popup_settingButton`}
             focusClass={`popup_settingButton_focus`}
-            text={'Quality'}
+            text={"Quality"}
           />
           <FocusableButton
             key={3}
-            focuskey={'subtitlesBtn'}
+            focuskey={"subtitlesBtn"}
             onEnterPress={onAudioSubtitlesSettingsPressed}
             icon={<MdOutlineSubtitles />}
             className={`popup_settingButton`}
             focusClass={`popup_settingButton_focus`}
-            text={'Audio & Subtitles'}
+            text={"Audio & Subtitles"}
           />
         </div>
       </div>
     </div>
-  )
-}
+    </FocusContext.Provider>
+  );
+};
 
 export default Popup;

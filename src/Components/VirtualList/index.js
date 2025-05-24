@@ -40,14 +40,9 @@ const VirtualThumbnailStripWithSeekBar = ({
 
     const onClose = () => {
         virtualSeekTimeRef.current = null;
-        setIsThumbnailStripVisible(false);
         setIsSeeking(false);
+        // setIsThumbnailStripVisible(false);
     }
-
-    // Close the drawer instead of navigating back
-      useOverrideBackHandler(() => {
-        onClose(); 
-      });
 
     useEffect(() => {
         setIsProgressBarFocusable(thumbnailBaseUrl == null);

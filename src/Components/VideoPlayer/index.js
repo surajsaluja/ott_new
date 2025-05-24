@@ -12,6 +12,7 @@ import useSeekHandler from './useSeekHandler';
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = 'PREVIEW_THUMBNAIL_STRIP'
 const VIDEO_PLAYER_FOCUS_KEY  = 'VIDEO_PLAYER';
+const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY';
 
 const VideoPlayer = () => {
   const location = useLocation();
@@ -24,7 +25,7 @@ const VideoPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isUserActive, setIsUserActive] = useState(true);
+  const [isUserActive, setIsUserActive] = useState(false);
   const [showSeekIcon, setShowSeekIcon] = useState(false);
   const [seekAmount, setSeekAmount] = useState(10);
   const [isSeekbarVisible,setIsSeekbarVisible] = useState(false);
@@ -38,6 +39,7 @@ const VideoPlayer = () => {
 
   const userActivityRef = useRef(null);
   const isSeekingRef = useRef(null);
+  const isSeekbarVisibleRef = useRef(null);
   const isThumbnailStripVisibleRef = useRef(null);
   const resumePlayTimeoutRef = useRef(null);
   let inactivityDelay = 5000;
@@ -81,6 +83,11 @@ const VideoPlayer = () => {
     setIsSeekbarVisible(true);
   }
 
+  const handleFocusVideoOverlay= () =>{
+    resetInactivityTimeout();
+    // setFocus('settingsBtn');
+  }
+
   const resetInactivityTimeout = useCallback(() => {
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
@@ -93,12 +100,15 @@ const VideoPlayer = () => {
   }, []);
 
 const safePlay = async () => {
+  handleThumbnialStripVisibility(false);
   try {
     await videoRef.current?.play();
   } catch (error) {
     if (error.name !== 'AbortError') {
       console.error('Play error:', error);
     }
+  }finally{
+    setFocus('Dummy_Button');
   }
 };
 
@@ -113,16 +123,22 @@ const safePlay = async () => {
     if (videoRef.current && !videoRef.current.paused) {
       videoRef.current.pause();
     }
-    setIsSeekbarVisible(true);
+    handleIsSeekbarVisible(true);
   } else {
     // Debounce resume play — wait 300ms after seeking ends
     resumePlayTimeoutRef.current = setTimeout(() => {
       safePlay();
-    }, 300);
-    setIsSeekbarVisible(false);
-    resetInactivityTimeout();
+    }, 0);
+    setTimeout(()=>{
+    handleIsSeekbarVisible(false);
+    },3000);
   }
 };
+
+const handleIsSeekbarVisible =(val)=>{
+  isSeekbarVisibleRef.current = val;
+  setIsSeekbarVisible(val);
+}
 
 const handleThumbnialStripVisibility = (val) =>{
   isThumbnailStripVisibleRef.current = val;
@@ -141,7 +157,9 @@ const handleThumbnialStripVisibility = (val) =>{
     resetInactivityTimeout,
     isSeekbarVisible,
     isThumbnailStripVisibleRef,
-    setIsUserActive
+    setIsUserActive,
+    isSeekingRef,
+    handleFocusVideoOverlay
   );
 
 
@@ -161,17 +179,6 @@ const handleThumbnialStripVisibility = (val) =>{
     if(seekMultiplier && seekMultiplier > 0 && isSeekingRef.current){
       showSeekIcons(seekDirection);
     }
-
-
-    // if (isSeekingRef.current && seekMultiplier && seekMultiplier > 3) {
-    //   handleFocusSeekBar();
-    // } else {
-    //   showSeekIcons(seekDirection);
-    // }
-
-  //   if (isSeekingRef.current && !isSeekingRef.current) {
-  //   resetInactivityTimeout();
-  // }
 
   }, [seekMultiplier])
 
@@ -245,7 +252,7 @@ const handleThumbnialStripVisibility = (val) =>{
           onBackPress={handleBackPressed}
           videoRef={videoRef}
           title={movieTitle}
-          focusKey={'video-overlay'}
+          focusKey={VIDEO_OVERLAY_FOCUS_KEY}
           isVisible={isUserActive}
           resetInactivityTimeout={resetInactivityTimeout}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
@@ -255,10 +262,9 @@ const handleThumbnialStripVisibility = (val) =>{
           videoRef={videoRef}
           setIsSeeking={handleSetIsSeeking}
           focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
-          onClose={()=>{setIsUserActive(false)}}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
           key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
-          setIsSeekbarVisible={setIsSeekbarVisible} // used to get input from component is visible from focus
+          setIsSeekbarVisible={handleIsSeekbarVisible} // used to get input from component is visible from focus
           isThumbnailStripVisible = {isThumbnailStripVisible} // to control thumnail strip 
           setIsThumbnailStripVisible = {handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
           isVisible = {isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
