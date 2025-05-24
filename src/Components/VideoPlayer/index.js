@@ -1,22 +1,35 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import Hls from 'hls.js';
-import './VideoPlayer.css';
-import { FocusContext, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import Popup from './Popup';
-import SideBar_Tab from './SideBar_Tab';
-import { useLocation } from 'react-router-dom';
-import { MdFastForward, MdFastRewind, MdMultilineChart, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import VirtualThumbnailStripWithSeekBar from '../VirtualList'
-import useSeekHandler from './useSeekHandler';
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import Hls from "hls.js";
+import "./index.css";
+import {
+  FocusContext,
+  setFocus,
+} from "@noriginmedia/norigin-spatial-navigation";
+import Popup from "./Popup";
+import SideBar_Tab from "./SideBar_Tab";
+import { useLocation } from "react-router-dom";
+import {
+  MdFastForward,
+  MdFastRewind,
+  MdMultilineChart,
+  MdOutlinePause,
+  MdPlayArrow,
+} from "react-icons/md";
+import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import VirtualThumbnailStripWithSeekBar from "../VirtualList";
+import useSeekHandler from "./useSeekHandler";
 
-const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = 'PREVIEW_THUMBNAIL_STRIP'
-const VIDEO_PLAYER_FOCUS_KEY  = 'VIDEO_PLAYER';
-const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY';
+const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
+const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
+const VIDEO_OVERLAY_FOCUS_KEY = "VIDEO_OVERLAY";
 
 const VideoPlayer = () => {
   const location = useLocation();
-  const { src, title: movieTitle, thumbnailBaseUrl: THUMBNAIL_BASE_URL } = location.state || {};
+  const {
+    src,
+    title: movieTitle,
+    thumbnailBaseUrl: THUMBNAIL_BASE_URL,
+  } = location.state || {};
   const videoRef = useRef(null);
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
@@ -28,8 +41,9 @@ const VideoPlayer = () => {
   const [isUserActive, setIsUserActive] = useState(false);
   const [showSeekIcon, setShowSeekIcon] = useState(false);
   const [seekAmount, setSeekAmount] = useState(10);
-  const [isSeekbarVisible,setIsSeekbarVisible] = useState(false);
-  const [isThumbnailStripVisible,setIsThumbnailStripVisible] = useState(false);
+  const [isSeekbarVisible, setIsSeekbarVisible] = useState(false);
+  const [isThumbnailStripVisible, setIsThumbnailStripVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -51,10 +65,34 @@ const VideoPlayer = () => {
   });
 
   const customResolutions = [
-    { id: -1, label: 'Auto', resolution: 'Auto', minBandwidth: 'auto', maxBandwidth: 'auto' },
-    { id: 1, label: 'Data Saver', resolution: '960x540', minBandwidth: 0, maxBandwidth: 1000000 },
-    { id: 2, label: 'HD', resolution: '1280x720', minBandwidth: 1000001, maxBandwidth: 3000000 },
-    { id: 3, label: 'Full HD', resolution: '1920x1080', minBandwidth: 3000001, maxBandwidth: 5000000 },
+    {
+      id: -1,
+      label: "Auto",
+      resolution: "Auto",
+      minBandwidth: "auto",
+      maxBandwidth: "auto",
+    },
+    {
+      id: 1,
+      label: "Data Saver",
+      resolution: "960x540",
+      minBandwidth: 0,
+      maxBandwidth: 1000000,
+    },
+    {
+      id: 2,
+      label: "HD",
+      resolution: "1280x720",
+      minBandwidth: 1000001,
+      maxBandwidth: 3000000,
+    },
+    {
+      id: 3,
+      label: "Full HD",
+      resolution: "1920x1080",
+      minBandwidth: 3000001,
+      maxBandwidth: 5000000,
+    },
   ];
 
   // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
@@ -81,12 +119,12 @@ const VideoPlayer = () => {
   const handleFocusSeekBar = () => {
     setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
     setIsSeekbarVisible(true);
-  }
+  };
 
-  const handleFocusVideoOverlay= () =>{
+  const handleFocusVideoOverlay = () => {
     resetInactivityTimeout();
     // setFocus('settingsBtn');
-  }
+  };
 
   const resetInactivityTimeout = useCallback(() => {
     setIsUserActive(true);
@@ -94,56 +132,55 @@ const VideoPlayer = () => {
     inactivityTimeout.current = setTimeout(() => {
       if (!isSeekingRef.current) {
         setIsUserActive(false);
-        setFocus('Dummy_Btn');
+        setFocus("Dummy_Btn");
       }
     }, inactivityDelay);
   }, []);
 
-const safePlay = async () => {
-  handleThumbnialStripVisibility(false);
-  try {
-    await videoRef.current?.play();
-  } catch (error) {
-    if (error.name !== 'AbortError') {
-      console.error('Play error:', error);
+  const safePlay = async () => {
+    handleThumbnialStripVisibility(false);
+    try {
+      await videoRef.current?.play();
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Play error:", error);
+      }
+    } finally {
+      setFocus("Dummy_Button");
     }
-  }finally{
-    setFocus('Dummy_Button');
-  }
-};
+  };
 
   const handleSetIsSeeking = (val) => {
-    
-  isSeekingRef.current = val;
-  if (val) {
-    // Clear any pending resumePlay
-    clearTimeout(resumePlayTimeoutRef.current);
+    isSeekingRef.current = val;
+    if (val) {
+      // Clear any pending resumePlay
+      clearTimeout(resumePlayTimeoutRef.current);
 
-    // Pause immediately on start of seek
-    if (videoRef.current && !videoRef.current.paused) {
-      videoRef.current.pause();
+      // Pause immediately on start of seek
+      if (videoRef.current && !videoRef.current.paused) {
+        videoRef.current.pause();
+      }
+      handleIsSeekbarVisible(true);
+    } else {
+      // Debounce resume play — wait 300ms after seeking ends
+      resumePlayTimeoutRef.current = setTimeout(() => {
+        safePlay();
+      }, 0);
+      setTimeout(() => {
+        handleIsSeekbarVisible(false);
+      }, 3000);
     }
-    handleIsSeekbarVisible(true);
-  } else {
-    // Debounce resume play — wait 300ms after seeking ends
-    resumePlayTimeoutRef.current = setTimeout(() => {
-      safePlay();
-    }, 0);
-    setTimeout(()=>{
-    handleIsSeekbarVisible(false);
-    },3000);
-  }
-};
+  };
 
-const handleIsSeekbarVisible =(val)=>{
-  isSeekbarVisibleRef.current = val;
-  setIsSeekbarVisible(val);
-}
+  const handleIsSeekbarVisible = (val) => {
+    isSeekbarVisibleRef.current = val;
+    setIsSeekbarVisible(val);
+  };
 
-const handleThumbnialStripVisibility = (val) =>{
-  isThumbnailStripVisibleRef.current = val;
-  setIsThumbnailStripVisible(val);
-}
+  const handleThumbnialStripVisibility = (val) => {
+    isThumbnailStripVisibleRef.current = val;
+    setIsThumbnailStripVisible(val);
+  };
 
   const { seekMultiplier, seekDirection } = useSeekHandler(
     videoRef,
@@ -162,7 +199,6 @@ const handleThumbnialStripVisibility = (val) =>{
     handleFocusVideoOverlay
   );
 
-
   useEffect(() => {
     const showSeekIcons = (direction) => {
       if (direction && direction != null) {
@@ -170,21 +206,25 @@ const handleThumbnialStripVisibility = (val) =>{
         setShowSeekIcon(true);
 
         clearTimeout(seekIconTimeout.current);
-        seekIconTimeout.current = setTimeout(() => setShowSeekIcon(false), 1000);
-      }else{
+        seekIconTimeout.current = setTimeout(
+          () => setShowSeekIcon(false),
+          1000
+        );
+      } else {
         setShowSeekIcon(false);
       }
-    }
+    };
 
-    if(seekMultiplier && seekMultiplier > 0 && isSeekingRef.current){
+    if (seekMultiplier && seekMultiplier > 0 && isSeekingRef.current) {
       showSeekIcons(seekDirection);
     }
-
-  }, [seekMultiplier])
+  }, [seekMultiplier]);
 
   const initializePlayer = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    setIsLoading(true); // Start loader while player initializes
 
     if (Hls.isSupported()) {
       const hls = new Hls();
@@ -192,55 +232,62 @@ const handleThumbnialStripVisibility = (val) =>{
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-        setCaptions([{ id: -1, label: 'Off' }, ...data.subtitleTracks.map(track => ({
-          id: track.id,
-          label: track.name || `Subtitle ${track.id}`,
-        }))]);
+        setCaptions([
+          { id: -1, label: "Off" },
+          ...data.subtitleTracks.map((track) => ({
+            id: track.id,
+            label: track.name || `Subtitle ${track.id}`,
+          })),
+        ]);
 
-        setAudioTracks(data.audioTracks.map(track => ({
-          id: track.id,
-          label: track.name || `Audio ${track.id}`,
-        })));
+        setAudioTracks(
+          data.audioTracks.map((track) => ({
+            id: track.id,
+            label: track.name || `Audio ${track.id}`,
+          }))
+        );
 
         video.play();
       });
 
       video.hls = hls;
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       video.play();
     }
   }, [src]);
 
   useEffect(() => {
-
     const video = videoRef.current;
     // video?.addEventListener('ended', () => {console.log('ended')});
-    // video?.addEventListener('waiting', () => {console.log('waiting')});
-    //     video?.addEventListener('playing', () => {console.log('playing')});
-    //     video?.addEventListener('canplay', () => {console.log('can play')});
+    video.addEventListener("waiting", () => setIsLoading(true));
+    video.addEventListener("canplay", () => setIsLoading(false));
+    video.addEventListener("playing", () => setIsLoading(false));
+    video.addEventListener("stalled", () => setIsLoading(true)); // Fallback
 
     initializePlayer();
-    resetInactivityTimeout();
+    // resetInactivityTimeout();
 
     return () => {
       video?.hls?.destroy();
       clearTimeout(playIconTimeout.current);
       clearTimeout(inactivityTimeout.current);
       clearTimeout(resumePlayTimeoutRef.current);
+      video?.removeEventListener("waiting", () => setIsLoading(true));
+      video?.removeEventListener("canplay", () => setIsLoading(false));
+      video?.removeEventListener("playing", () => setIsLoading(false));
+      video?.removeEventListener("stalled", () => setIsLoading(true));
     };
-  }, [initializePlayer, resetInactivityTimeout]);
+  }, [initializePlayer]);
 
   useEffect(() => {
     userActivityRef.current = isUserActive;
-    if(userActivityRef.current){
-    }else{
+    if (userActivityRef.current) {
+    } else {
     }
   }, [isUserActive]);
 
-
   if (!src) return <div>Missing video source</div>;
-
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
@@ -258,26 +305,26 @@ const handleThumbnialStripVisibility = (val) =>{
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
         />
 
-         <VirtualThumbnailStripWithSeekBar
+        <VirtualThumbnailStripWithSeekBar
           videoRef={videoRef}
           setIsSeeking={handleSetIsSeeking}
           focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
           key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
           setIsSeekbarVisible={handleIsSeekbarVisible} // used to get input from component is visible from focus
-          isThumbnailStripVisible = {isThumbnailStripVisible} // to control thumnail strip 
-          setIsThumbnailStripVisible = {handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
-          isVisible = {isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
+          isThumbnailStripVisible={isThumbnailStripVisible} // to control thumnail strip
+          setIsThumbnailStripVisible={handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
+          isVisible={isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
         />
 
         {showSeekIcon && (
           <div className="seek-icon">
-            {seekDirection === 'forward' && (
+            {seekDirection === "forward" && (
               <div className="forward">
                 <p>{seekAmount}s</p> <MdFastForward />
               </div>
-            )} 
-            {seekDirection === 'reverse' && (
+            )}
+            {seekDirection === "reverse" && (
               <div className="rewind">
                 <MdFastRewind /> <p>{seekAmount}s</p>
               </div>
@@ -305,6 +352,13 @@ const handleThumbnialStripVisibility = (val) =>{
             selectedAudio={selectedAudio}
             onAudioSelect={setSelectedAudio}
           />
+        )}
+
+        {isLoading && (
+          <div className="video-loader">
+            <div className="spinner" />
+            <p>Loading...</p>
+          </div>
         )}
       </div>
     </FocusContext.Provider>
