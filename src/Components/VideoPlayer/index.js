@@ -11,13 +11,14 @@ import { useLocation } from "react-router-dom";
 import {
   MdFastForward,
   MdFastRewind,
-  MdMultilineChart,
   MdOutlinePause,
   MdPlayArrow,
 } from "react-icons/md";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import VirtualThumbnailStripWithSeekBar from "../VirtualList";
 import useSeekHandler from "./useSeekHandler";
+import { getDeviceInfo } from "../../Utils";
+import { useUserContext } from "../../Context/userContext";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
@@ -29,11 +30,18 @@ const VideoPlayer = () => {
     src,
     title: movieTitle,
     thumbnailBaseUrl: THUMBNAIL_BASE_URL,
+    mediaId,
+    isTrailer,
+    onScreenInfo,
+    skipInfo
   } = location.state || {};
+  const deviceInfo = getDeviceInfo();
+  const {uid} = useUserContext();
   const videoRef = useRef(null);
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
   const seekIconTimeout = useRef(null);
+  const isPlayingRef = useRef();
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
@@ -44,6 +52,7 @@ const VideoPlayer = () => {
   const [isSeekbarVisible, setIsSeekbarVisible] = useState(false);
   const [isThumbnailStripVisible, setIsThumbnailStripVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [analyticsHistoryId,setAnalyticsHitoryId] = useState(null);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -58,6 +67,11 @@ const VideoPlayer = () => {
   const resumePlayTimeoutRef = useRef(null);
   let inactivityDelay = 5000;
   const seekInterval = 10;
+
+  // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
+  const watchTimeRef = useRef(0); // Total watch time in seconds
+const watchTimeIntervalRef = useRef(null);
+
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey: VIDEO_PLAYER_FOCUS_KEY,
@@ -95,15 +109,49 @@ const VideoPlayer = () => {
     },
   ];
 
+  const startWatchTimer = () => {
+    if (watchTimeIntervalRef.current) return;
+    watchTimeIntervalRef.current = setInterval(() => {
+      if (!isSeekingRef.current && videoRef?.current && !videoRef?.current.paused) {
+        watchTimeRef.current += 1;
+      }
+    }, 1000);
+  };
+  
+  const stopWatchTimer = () => {
+    clearInterval(watchTimeIntervalRef.current);
+    watchTimeIntervalRef.current = null;
+  };
+
+  const handleSetIsPlaying = (val) => {
+    let video = videoRef.current;
+    if(!video) return;
+    try{
+      if(val && video.paused)
+      {
+        startWatchTimer();
+        video.play();
+        setIsPlaying(true);
+        return;
+      }else if(!val && !video.paused){
+        stopWatchTimer();
+        video.pause();
+        setIsPlaying(false);
+      }
+    }catch(error){
+    }finally{}
+  }
+  
+
   // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
+      // videoRef.current.play();
+      handleSetIsPlaying(true);
     } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
+      // videoRef.current.pause();
+      handleSetIsPlaying(false);
     }
     setShowPlayIcon(true);
     clearTimeout(playIconTimeout.current);
@@ -115,6 +163,44 @@ const VideoPlayer = () => {
       window.history.back();
     }
   }, []);
+
+  const sendAnalyticsForMedia = ()=>{
+    var analyticsData = {};
+    const playDuration = watchTimeRef.current;
+    const currentPosition = videoRef?.current ? videoRef?.current.currentTime : 0;
+
+    	
+    	if(analyticsHistoryId){
+    		analyticsData  = {
+    			  "mediaId": mediaId,
+  				  "userId": uid,
+  				  "deviceId": deviceInfo.deviceId,
+  				  "userAgent": "Tizen",
+  				  "playDuration": playDuration,
+  				  "CurrentPosition": currentPosition,
+  				  "status": "Pause",
+  				  "action": "AppNew",
+  				  "historyid": analyticsHistoryId,
+  				  "DeviceType": 5,
+  				  "DeviceName": deviceInfo.deviceName,
+  				  "IsTrailer": isTrailer
+    		};
+    	}else{
+    		analyticsData  = {
+    			  "mediaId": mediaId,
+				  "userId": uid,
+				  "deviceId": deviceInfo.deviceId,
+				  "userAgent": "Tizen",
+				  "playDuration": playDuration,
+				  "CurrentPosition": currentPosition,
+				  "status": "BrowserEvent",
+				  "action": "AppNew",
+				  "DeviceType": 5,
+				  "DeviceName": deviceInfo.deviceName,
+				  "IsTrailer": isTrailer
+    		};
+    	}
+  }
 
   const handleFocusSeekBar = () => {
     setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
@@ -140,7 +226,9 @@ const VideoPlayer = () => {
   const safePlay = async () => {
     handleThumbnialStripVisibility(false);
     try {
-      await videoRef.current?.play();
+      // await videoRef.current?.play();
+      handleSetIsPlaying(true);
+      startWatchTimer();
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Play error:", error);
@@ -158,7 +246,8 @@ const VideoPlayer = () => {
 
       // Pause immediately on start of seek
       if (videoRef.current && !videoRef.current.paused) {
-        videoRef.current.pause();
+        // videoRef.current.pause();
+        handleSetIsPlaying(false);
       }
       handleIsSeekbarVisible(true);
     } else {
@@ -247,13 +336,15 @@ const VideoPlayer = () => {
           }))
         );
 
-        video.play();
+        //video.play();
+        handleSetIsPlaying(true);
       });
 
       video.hls = hls;
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
-      video.play();
+      // video.play();
+      handleSetIsPlaying(true);
     }
   }, [src]);
 
@@ -262,7 +353,10 @@ const VideoPlayer = () => {
     // video?.addEventListener('ended', () => {console.log('ended')});
     video.addEventListener("waiting", () => setIsLoading(true));
     video.addEventListener("canplay", () => setIsLoading(false));
-    video.addEventListener("playing", () => setIsLoading(false));
+    video.addEventListener("playing", () => {
+      setIsLoading(false);
+      console.log('Watch time (s):', watchTimeRef.current);
+    });
     video.addEventListener("stalled", () => setIsLoading(true)); // Fallback
 
     initializePlayer();
@@ -273,6 +367,7 @@ const VideoPlayer = () => {
       clearTimeout(playIconTimeout.current);
       clearTimeout(inactivityTimeout.current);
       clearTimeout(resumePlayTimeoutRef.current);
+      clearInterval(watchTimeIntervalRef.current);
       video?.removeEventListener("waiting", () => setIsLoading(true));
       video?.removeEventListener("canplay", () => setIsLoading(false));
       video?.removeEventListener("playing", () => setIsLoading(false));
@@ -315,6 +410,7 @@ const VideoPlayer = () => {
           isThumbnailStripVisible={isThumbnailStripVisible} // to control thumnail strip
           setIsThumbnailStripVisible={handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
           isVisible={isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
+          watchTimeRef={watchTimeRef}
         />
 
         {showSeekIcon && (
@@ -333,7 +429,7 @@ const VideoPlayer = () => {
         )}
 
         {showPlayIcon && (
-          <div className="play-icon">
+          <div className={`playPauseRipple ${showPlayIcon ? 'show' : ''}`}>
             {isPlaying ? <MdPlayArrow /> : <MdOutlinePause />}
           </div>
         )}

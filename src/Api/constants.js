@@ -46,6 +46,7 @@ export const API = {
         GET_WEBSERIES_DETAILS_WITH_EPISODES:(webSeriesId,userObjectId) =>
             `/Media/WebSeriesDetailsV4/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
         POST_FAVOURITE_MEDIA_ITEM:`User/AddToMylist`,
+        POST_PLAY_HISTORY:'Subscription/PlayHistoryNew'
     },
     MENU: {
         GET_APP_FEATURES: '/AdminApi/GetAppFeatures',
