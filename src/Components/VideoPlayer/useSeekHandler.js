@@ -84,18 +84,15 @@ export default function useSeekHandler(
             return;
         e.preventDefault();
         e.stopPropagation();
-        if(userActivityRef.current){
-            if(e.keyCode == KEY_BACK || e.keyCode == KEY_ESC){
-                // resetInactivityTimeout();
-                console.log('set user inactive');
-                return;
-            }else{
-                resetInactivityTimeout();
-                return;
-            }
+        if(e.keyCode == KEY_BACK || e.keyCode == KEY_ESC){
+            handleBackPress();
         } else if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
+            if(userActivityRef.current){
+                resetInactivityTimeout();
+                return;
+            }
             const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
             setSeekDirection(direction);
             directionRef.current = direction;
@@ -112,15 +109,15 @@ export default function useSeekHandler(
             setIsSeeking(true);
         }
 
-        if (e.keyCode == KEY_ENTER) {
+        if (e.keyCode == KEY_ENTER && !userActivityRef.current) {
             handlePlayPause();
         }
 
-        if(e.keyCode === KEY_DOWN){
+        if(e.keyCode === KEY_DOWN && !userActivityRef){
             handleFocusSeekBar();
         }
 
-        if(e.keyCode === KEY_UP){
+        if(e.keyCode === KEY_UP && !userActivityRef.current){
             console.log(' key up pressed');
             handleFocusVideoOverlay();
         }

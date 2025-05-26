@@ -90,6 +90,7 @@ const SideBar_Tab = ({
     activeTabs = ['audio','video','captions']
 }) => {
 
+    debugger;
     useEffect(() => {
         if(!activeTabs || !isOpen)
              return;

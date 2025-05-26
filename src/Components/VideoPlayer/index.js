@@ -7,7 +7,7 @@ import {
 } from "@noriginmedia/norigin-spatial-navigation";
 import Popup from "./Popup";
 import SideBar_Tab from "./SideBar_Tab";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import {
   MdFastForward,
   MdFastRewind,
@@ -21,6 +21,8 @@ import { getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
 import { sendVideoAnalytics } from "../../Service/MediaService";
 import FocusableButton from "../Common/FocusableButton";
+import { useSignalR } from "../../Hooks/useSignalR";
+import StreamLimitModal from "./StreamLimitModal";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
@@ -32,6 +34,7 @@ const SKIP_NEXT_EPISODE_TEXT = 'Next Episode';
 
 const VideoPlayer = () => {
   const location = useLocation();
+  const history = useHistory();
   const {
     src,
     title: movieTitle,
@@ -48,7 +51,7 @@ const VideoPlayer = () => {
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
   const seekIconTimeout = useRef(null);
-  const isPlayingRef = useRef();
+  const isSideBarOpenRef = useRef();
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
@@ -59,6 +62,7 @@ const VideoPlayer = () => {
   const [isSeekbarVisible, setIsSeekbarVisible] = useState(false);
   const [isThumbnailStripVisible, setIsThumbnailStripVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [streamLimitError,setStreamLimitError] = useState(false);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -84,6 +88,10 @@ const VideoPlayer = () => {
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
   const watchTimeIntervalRef = useRef(null);
+
+  // SignalR
+  const { isConnected, playCapability, connectManuallyV2, disconnectManually } = useSignalR();
+
 
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
@@ -172,10 +180,19 @@ const VideoPlayer = () => {
   }, []);
 
   const handleBackPressed = useCallback(() => {
-    if (window.history.length > 1) {
-      window.history.back();
+    debugger;
+    if(userActivityRef.current){
+      setIsUserActive(false);
+      setFocus('Dummy_Btn');
+      return;
+    }else if(isSideBarOpenRef.current){
+      handleSidebarOpen(false);
+      return;
+    }else{
+    history.goBack();
+    return;
     }
-  }, []);
+  }, [isSideBarOpenRef, userActivityRef]);
 
   const handleSetAnalyticsHistoryId = (historyId) => {
     analyticsHistoryIdRef.current = historyId;
@@ -240,6 +257,11 @@ const VideoPlayer = () => {
     setIsSeekbarVisible(true);
   };
 
+  const handleSidebarOpen  = (val) =>{
+    isSideBarOpenRef.current = val;
+    setSidebarOpen(val);
+  }
+
   const handleFocusVideoOverlay = () => {
     resetInactivityTimeout();
     // setFocus('settingsBtn');
@@ -249,7 +271,8 @@ const VideoPlayer = () => {
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
     inactivityTimeout.current = setTimeout(() => {
-      if (!isSeekingRef.current) {
+      debugger;
+      if ((isSeekingRef.current != null && !isSeekingRef.current) || !isSideBarOpenRef.current) {
         setIsUserActive(false);
         setFocus("Dummy_Btn");
       }
@@ -339,7 +362,7 @@ const skipButtonEnterPress = () => {
     togglePlayPause,
     handleBackPressed,
     handleFocusSeekBar,
-    sidebarOpen,
+    isSideBarOpenRef.current,
     userActivityRef,
     resetInactivityTimeout,
     isSeekbarVisible,
@@ -414,19 +437,32 @@ const skipButtonEnterPress = () => {
     }
   }, [src]);
 
-  useEffect(() => {
+useEffect(() => {
+  if (videoRef && videoRef.current) {
     const video = videoRef.current;
-    // video?.addEventListener('ended', () => {console.log('ended')});
-    video.addEventListener("waiting", () => setIsLoading(true));
-    video.addEventListener("canplay", () => setIsLoading(false));
-    video.addEventListener("playing", () => {
+
+    const handleWaiting = () => setIsLoading(true);
+    const handleCanPlay = () => setIsLoading(false);
+    const handlePlaying = () => {
       setIsLoading(false);
       console.log('Watch time (s):', watchTimeRef.current);
-    });
-    video.addEventListener("stalled", () => setIsLoading(true)); // Fallback
+    };
+    const handleStalled = () => setIsLoading(true);
 
-    initializePlayer();
-    // resetInactivityTimeout();
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("playing", handlePlaying);
+    video.addEventListener("stalled", handleStalled);
+
+
+    if (playCapability == true) {
+      setStreamLimitError(false);
+      initializePlayer();
+    }else if(playCapability == false){
+      setStreamLimitError(true)
+    }
+
+    // resetInactivityTimeout(); // Uncomment if needed
 
     return () => {
       video?.hls?.destroy();
@@ -435,12 +471,38 @@ const skipButtonEnterPress = () => {
       clearTimeout(resumePlayTimeoutRef.current);
       clearInterval(watchTimeIntervalRef.current);
       analyticsHistoryIdRef.current = null;
-      video?.removeEventListener("waiting", () => setIsLoading(true));
-      video?.removeEventListener("canplay", () => setIsLoading(false));
-      video?.removeEventListener("playing", () => setIsLoading(false));
-      video?.removeEventListener("stalled", () => setIsLoading(true));
+
+      video.removeEventListener("waiting", handleWaiting);
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("playing", handlePlaying);
+      video.removeEventListener("stalled", handleStalled);
     };
-  }, [initializePlayer, videoRef]);
+  }
+}, [initializePlayer, videoRef, playCapability]);
+
+useEffect(() => {
+  const setup = async () => {
+    try {
+      const response = await connectManuallyV2();
+      console.log("Manual connection response:", response);
+      if (response?.streamCapability) {
+        // setIsReadyToPlay(true);
+      }
+    } catch (err) {
+      console.error("Failed to connect manually:", err);
+    }
+  };
+
+  if (isConnected) {
+    setup();
+  }
+
+  return () => {
+    disconnectManually();
+  };
+}, [isConnected]);
+
+
 
   useEffect(() => {
     let frameId;
@@ -500,11 +562,15 @@ const skipButtonEnterPress = () => {
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
-      <div ref={ref} className="video-container">
+      {streamLimitError && (
+      <StreamLimitModal isOpen={true} onClose={handleBackPressed} />
+    )}
+
+       <div ref={ref} className="video-container">
         <video ref={videoRef} className="video-player" controls={false} muted />
 
         <Popup
-          onVideoSettingsPressed={() => setSidebarOpen(true)}
+          onVideoSettingsPressed={() => handleSidebarOpen(true)}
           onBackPress={handleBackPressed}
           videoRef={videoRef}
           title={movieTitle}
@@ -552,8 +618,8 @@ const skipButtonEnterPress = () => {
 
         {sidebarOpen && (
           <SideBar_Tab
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
+            isOpen={isSideBarOpenRef.current}
+            onClose={() => handleSidebarOpen(false)}
             captions={captions}
             selectedCaption={selectedCaption}
             onCaptionSelect={setSelectedCaption}
