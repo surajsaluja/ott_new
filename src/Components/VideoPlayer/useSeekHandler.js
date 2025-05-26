@@ -23,7 +23,8 @@ export default function useSeekHandler(
     isThumbnailStripVisibleRef,
     setIsUserActive,
     isSeekingRef,
-    handleFocusVideoOverlay
+    handleFocusVideoOverlay,
+    showSkipButtonsRef
 ) {
     // const [isSeeking, setIsSeeking] = useState(false);
     const [seekDirection, setSeekDirection] = useState(null);
@@ -92,7 +93,7 @@ export default function useSeekHandler(
                 resetInactivityTimeout();
                 return;
             }
-        } else if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible) return;
+        } else if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
@@ -126,7 +127,7 @@ export default function useSeekHandler(
     };
 
     const handleKeyUp = (e) => {
-        if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible) return;
+        if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
         
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             const direction = directionRef.current;

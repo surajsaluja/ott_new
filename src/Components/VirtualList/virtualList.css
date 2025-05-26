@@ -1,6 +1,6 @@
 .thumbnails_strip {
   position: absolute;
-  bottom: 10px;
+  bottom: 50px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -21,9 +21,10 @@
 }
 
 .time {
-  font-size: 14px;
-  color: white;
-  min-width: 40px;
+  font-size: 18px;
+    color: white;
+    min-width: 40px;
+    font-weight: 700;
 }
 
 .seekbar-container {

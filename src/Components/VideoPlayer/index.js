@@ -20,10 +20,15 @@ import useSeekHandler from "./useSeekHandler";
 import { getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
 import { sendVideoAnalytics } from "../../Service/MediaService";
+import FocusableButton from "../Common/FocusableButton";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
 const VIDEO_OVERLAY_FOCUS_KEY = "VIDEO_OVERLAY";
+const SKIP_BTN_FOCUS_KEY = "SKIP_BUTTON";
+const SKIP_INTRO_TEXT = 'Skip Intro';
+const SKIP_RECAP_TEXT = 'Skip Recap';
+const SKIP_NEXT_EPISODE_TEXT = 'Next Episode';
 
 const VideoPlayer = () => {
   const location = useLocation();
@@ -61,6 +66,12 @@ const VideoPlayer = () => {
   const [selectedAudio, setSelectedAudio] = useState(null);
   const [selectedQuality, setSelectedQuality] = useState(-1);
 
+  const [showSkipButtons, setShowSkipButtons] = useState(false);
+  const [skipButtonText, setSkipButtonText] = useState('');
+  const showSkipButtonsRef = useRef(false);
+  const skipButtonTextRef = useRef('');
+
+
   const userActivityRef = useRef(null);
   const isSeekingRef = useRef(null);
   const isSeekbarVisibleRef = useRef(null);
@@ -68,7 +79,7 @@ const VideoPlayer = () => {
   const resumePlayTimeoutRef = useRef(null);
   let inactivityDelay = 5000;
   const seekInterval = 10;
-  const analyticsHistoryIdRef  = useRef();
+  const analyticsHistoryIdRef = useRef();
 
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
@@ -166,62 +177,62 @@ const VideoPlayer = () => {
     }
   }, []);
 
-  const handleSetAnalyticsHistoryId = (historyId) =>{
+  const handleSetAnalyticsHistoryId = (historyId) => {
     analyticsHistoryIdRef.current = historyId;
   }
 
   const sendAnalyticsForMedia = async () => {
-    try{
-    var analyticsData = {};
-    const playDuration = watchTimeRef.current;
-    const currentPosition = videoRef?.current ? videoRef?.current.currentTime : 0;
+    try {
+      var analyticsData = {};
+      const playDuration = watchTimeRef.current;
+      const currentPosition = videoRef?.current ? videoRef?.current.currentTime : 0;
 
-    if (analyticsHistoryIdRef.current) {
-      analyticsData = {
-        "mediaId": mediaId,
-        "userId": userObjectId,
-        "deviceId": deviceInfo.deviceId,
-        "userAgent": "Tizen",
-        "playDuration": playDuration.toString(),
-        "CurrentPosition": parseInt(currentPosition).toString(),
-        "status": "Pause",
-        "action": "AppNew",
-        "historyid": analyticsHistoryIdRef.current,
-        "DeviceType": 5,
-        "DeviceName": deviceInfo.deviceName,
-        "IsTrailer": isTrailer
-      };
-    } else {
-      analyticsData = {
-        "mediaId": mediaId,
-        "userId": userObjectId,
-        "deviceId": deviceInfo.deviceId,
-        "userAgent": "Tizen",
-        "playDuration": playDuration.toString(),
-        "CurrentPosition": currentPosition.toString(),
-        "status": "BrowserEvent",
-        "action": "AppNew",
-        "DeviceType": 5,
-        "DeviceName": deviceInfo.deviceName,
-        "IsTrailer": isTrailer  
-      };
-    }
-
-    const VideoAnalyticsRes = await sendVideoAnalytics(analyticsData);
-    if(VideoAnalyticsRes && VideoAnalyticsRes.isSuccess){
-      if(!analyticsHistoryIdRef.current){
-        handleSetAnalyticsHistoryId(VideoAnalyticsRes.data)
-      }else{
-        // History Id already set and just need to update data on historyId
+      if (analyticsHistoryIdRef.current) {
+        analyticsData = {
+          "mediaId": mediaId,
+          "userId": userObjectId,
+          "deviceId": deviceInfo.deviceId,
+          "userAgent": "Tizen",
+          "playDuration": playDuration.toString(),
+          "CurrentPosition": parseInt(currentPosition).toString(),
+          "status": "Pause",
+          "action": "AppNew",
+          "historyid": analyticsHistoryIdRef.current,
+          "DeviceType": 5,
+          "DeviceName": deviceInfo.deviceName,
+          "IsTrailer": isTrailer
+        };
+      } else {
+        analyticsData = {
+          "mediaId": mediaId,
+          "userId": userObjectId,
+          "deviceId": deviceInfo.deviceId,
+          "userAgent": "Tizen",
+          "playDuration": playDuration.toString(),
+          "CurrentPosition": currentPosition.toString(),
+          "status": "BrowserEvent",
+          "action": "AppNew",
+          "DeviceType": 5,
+          "DeviceName": deviceInfo.deviceName,
+          "IsTrailer": isTrailer
+        };
       }
-    }else{
-      //Error fetching response
-      console.log('Error fetching Response of Video Analytics : result not found');
+
+      const VideoAnalyticsRes = await sendVideoAnalytics(analyticsData);
+      if (VideoAnalyticsRes && VideoAnalyticsRes.isSuccess) {
+        if (!analyticsHistoryIdRef.current) {
+          handleSetAnalyticsHistoryId(VideoAnalyticsRes.data)
+        } else {
+          // History Id already set and just need to update data on historyId
+        }
+      } else {
+        //Error fetching response
+        console.log('Error fetching Response of Video Analytics : result not found');
+      }
+    } catch (error) {
+      // Error fetching Response
+      console.log('Error fetching Response of Video Analytics : Exception in block');
     }
-  }catch(error){
-    // Error fetching Response
-    console.log('Error fetching Response of Video Analytics : Exception in block');
-  }
   }
 
   const handleFocusSeekBar = () => {
@@ -293,6 +304,34 @@ const VideoPlayer = () => {
     setIsThumbnailStripVisible(val);
   };
 
+const skipButtonEnterPress = () => {
+  const currentSkipLabel = skipButtonTextRef.current;
+  let endTime = null;
+
+  if (!currentSkipLabel || !skipInfo || !showSkipButtonsRef.current) return;
+
+  switch (currentSkipLabel) {
+    case SKIP_INTRO_TEXT:
+      endTime = skipInfo.skipIntroET;
+      break;
+    case SKIP_RECAP_TEXT:
+      endTime = skipInfo.skipRecapET;
+      break;
+    case SKIP_NEXT_EPISODE_TEXT:
+      // Placeholder for next episode logic (optional navigation handler)
+      console.log('Next episode action triggered');
+      // endTime = null;  // No seeking for "Next Episode"
+      return; // Exit early; no seek needed
+    default:
+      return; // No matching label, exit early
+  }
+
+  if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {
+    videoRef.current.currentTime = Number(endTime);
+  }
+};
+
+
   const { seekMultiplier, seekDirection } = useSeekHandler(
     videoRef,
     seekInterval,
@@ -307,7 +346,8 @@ const VideoPlayer = () => {
     isThumbnailStripVisibleRef,
     setIsUserActive,
     isSeekingRef,
-    handleFocusVideoOverlay
+    handleFocusVideoOverlay,
+    showSkipButtonsRef
   );
 
   useEffect(() => {
@@ -359,7 +399,7 @@ const VideoPlayer = () => {
         );
 
         //video.play();
-        if(playDuration && parseInt(playDuration) != 0){
+        if (playDuration && parseInt(playDuration) != 0) {
           video.currentTime = playDuration;
         }
         sendAnalyticsForMedia();
@@ -400,7 +440,54 @@ const VideoPlayer = () => {
       video?.removeEventListener("playing", () => setIsLoading(false));
       video?.removeEventListener("stalled", () => setIsLoading(true));
     };
-  }, [initializePlayer]);
+  }, [initializePlayer, videoRef]);
+
+  useEffect(() => {
+    let frameId;
+    let lastCheck = 0;
+    const THROTTLE_MS = 500; // adjust as needed
+
+    const checkSkipPoints = (timestamp) => {
+      if (timestamp - lastCheck >= THROTTLE_MS) {
+        const currentTime = videoRef.current?.currentTime || 0;
+        let newShowSkipButtons = false;
+        let newSkipButtonText = '';
+
+        if (skipInfo?.skipIntroST && currentTime >= skipInfo?.skipIntroST && currentTime <= skipInfo?.skipIntroET) {
+          newShowSkipButtons = true;
+          newSkipButtonText = 'Skip Intro';
+        } else if (skipInfo?.skipRecapST && currentTime >= skipInfo?.skipRecapST && currentTime <= skipInfo?.skipRecapET) {
+          newShowSkipButtons = true;
+          newSkipButtonText = 'Skip Recap';
+        } else if (skipInfo?.nextEpisodeST && currentTime >= skipInfo?.nextEpisodeST) {
+          newShowSkipButtons = true;
+          newSkipButtonText = 'Next Episode';
+        }
+
+        if (newShowSkipButtons !== showSkipButtonsRef.current) {
+          setShowSkipButtons(newShowSkipButtons);
+          setTimeout(()=>{
+          setFocus(SKIP_BTN_FOCUS_KEY);
+          },100);
+          showSkipButtonsRef.current = newShowSkipButtons;
+        }
+
+        if (newSkipButtonText !== skipButtonTextRef.current) {
+          setSkipButtonText(newSkipButtonText);
+          skipButtonTextRef.current = newSkipButtonText;
+        }
+
+        lastCheck = timestamp;
+      }
+
+      frameId = requestAnimationFrame(checkSkipPoints);
+    };
+
+    frameId = requestAnimationFrame(checkSkipPoints);
+
+    return () => cancelAnimationFrame(frameId);
+  }, [skipInfo, videoRef]);
+
 
   useEffect(() => {
     userActivityRef.current = isUserActive;
@@ -438,6 +525,8 @@ const VideoPlayer = () => {
           setIsThumbnailStripVisible={handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
           isVisible={isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
           watchTimeRef={watchTimeRef}
+          setShowSkipButtons={setShowSkipButtons}
+          setSkipButtonText={setSkipButtonText}
         />
 
         {showSeekIcon && (
@@ -476,6 +565,14 @@ const VideoPlayer = () => {
             onAudioSelect={setSelectedAudio}
           />
         )}
+
+        {showSkipButtons && <FocusableButton
+          text={skipButtonText}
+          className="skip-button"
+          focusClass="skip-button-focused"
+          focuskey={SKIP_BTN_FOCUS_KEY}
+          onEnterPress={skipButtonEnterPress}
+        />}
 
         {isLoading && (
           <div className="video-loader">
