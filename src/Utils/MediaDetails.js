@@ -136,6 +136,9 @@ export const getMediaDetails = async (
         ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
       };
 
+      mediaDetail.onScreenInfo = onScreenInfo;
+      mediaDetail.skipInfo = skipInfo;
+
       currentEpisode = isWebSeries
         ? findCurrentEpisode(response?.seasons, mediaId)
         : null;

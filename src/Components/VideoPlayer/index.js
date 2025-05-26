@@ -19,6 +19,7 @@ import VirtualThumbnailStripWithSeekBar from "../VirtualList";
 import useSeekHandler from "./useSeekHandler";
 import { getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
+import { sendVideoAnalytics } from "../../Service/MediaService";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
@@ -33,10 +34,11 @@ const VideoPlayer = () => {
     mediaId,
     isTrailer,
     onScreenInfo,
-    skipInfo
+    skipInfo,
+    playDuration
   } = location.state || {};
   const deviceInfo = getDeviceInfo();
-  const {uid} = useUserContext();
+  const { userObjectId } = useUserContext();
   const videoRef = useRef(null);
   const playIconTimeout = useRef(null);
   const inactivityTimeout = useRef(null);
@@ -52,7 +54,6 @@ const VideoPlayer = () => {
   const [isSeekbarVisible, setIsSeekbarVisible] = useState(false);
   const [isThumbnailStripVisible, setIsThumbnailStripVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [analyticsHistoryId,setAnalyticsHitoryId] = useState(null);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -67,10 +68,11 @@ const VideoPlayer = () => {
   const resumePlayTimeoutRef = useRef(null);
   let inactivityDelay = 5000;
   const seekInterval = 10;
+  const analyticsHistoryIdRef  = useRef();
 
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
-const watchTimeIntervalRef = useRef(null);
+  const watchTimeIntervalRef = useRef(null);
 
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
@@ -117,7 +119,7 @@ const watchTimeIntervalRef = useRef(null);
       }
     }, 1000);
   };
-  
+
   const stopWatchTimer = () => {
     clearInterval(watchTimeIntervalRef.current);
     watchTimeIntervalRef.current = null;
@@ -125,23 +127,23 @@ const watchTimeIntervalRef = useRef(null);
 
   const handleSetIsPlaying = (val) => {
     let video = videoRef.current;
-    if(!video) return;
-    try{
-      if(val && video.paused)
-      {
+    if (!video) return;
+    try {
+      if (val && video.paused) {
         startWatchTimer();
         video.play();
         setIsPlaying(true);
         return;
-      }else if(!val && !video.paused){
+      } else if (!val && !video.paused) {
         stopWatchTimer();
         video.pause();
+        sendAnalyticsForMedia();
         setIsPlaying(false);
       }
-    }catch(error){
-    }finally{}
+    } catch (error) {
+    } finally { }
   }
-  
+
 
   // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
@@ -164,42 +166,62 @@ const watchTimeIntervalRef = useRef(null);
     }
   }, []);
 
-  const sendAnalyticsForMedia = ()=>{
+  const handleSetAnalyticsHistoryId = (historyId) =>{
+    analyticsHistoryIdRef.current = historyId;
+  }
+
+  const sendAnalyticsForMedia = async () => {
+    try{
     var analyticsData = {};
     const playDuration = watchTimeRef.current;
     const currentPosition = videoRef?.current ? videoRef?.current.currentTime : 0;
 
-    	
-    	if(analyticsHistoryId){
-    		analyticsData  = {
-    			  "mediaId": mediaId,
-  				  "userId": uid,
-  				  "deviceId": deviceInfo.deviceId,
-  				  "userAgent": "Tizen",
-  				  "playDuration": playDuration,
-  				  "CurrentPosition": currentPosition,
-  				  "status": "Pause",
-  				  "action": "AppNew",
-  				  "historyid": analyticsHistoryId,
-  				  "DeviceType": 5,
-  				  "DeviceName": deviceInfo.deviceName,
-  				  "IsTrailer": isTrailer
-    		};
-    	}else{
-    		analyticsData  = {
-    			  "mediaId": mediaId,
-				  "userId": uid,
-				  "deviceId": deviceInfo.deviceId,
-				  "userAgent": "Tizen",
-				  "playDuration": playDuration,
-				  "CurrentPosition": currentPosition,
-				  "status": "BrowserEvent",
-				  "action": "AppNew",
-				  "DeviceType": 5,
-				  "DeviceName": deviceInfo.deviceName,
-				  "IsTrailer": isTrailer
-    		};
-    	}
+    if (analyticsHistoryIdRef.current) {
+      analyticsData = {
+        "mediaId": mediaId,
+        "userId": userObjectId,
+        "deviceId": deviceInfo.deviceId,
+        "userAgent": "Tizen",
+        "playDuration": playDuration.toString(),
+        "CurrentPosition": parseInt(currentPosition).toString(),
+        "status": "Pause",
+        "action": "AppNew",
+        "historyid": analyticsHistoryIdRef.current,
+        "DeviceType": 5,
+        "DeviceName": deviceInfo.deviceName,
+        "IsTrailer": isTrailer
+      };
+    } else {
+      analyticsData = {
+        "mediaId": mediaId,
+        "userId": userObjectId,
+        "deviceId": deviceInfo.deviceId,
+        "userAgent": "Tizen",
+        "playDuration": playDuration.toString(),
+        "CurrentPosition": currentPosition.toString(),
+        "status": "BrowserEvent",
+        "action": "AppNew",
+        "DeviceType": 5,
+        "DeviceName": deviceInfo.deviceName,
+        "IsTrailer": isTrailer  
+      };
+    }
+
+    const VideoAnalyticsRes = await sendVideoAnalytics(analyticsData);
+    if(VideoAnalyticsRes && VideoAnalyticsRes.isSuccess){
+      if(!analyticsHistoryIdRef.current){
+        handleSetAnalyticsHistoryId(VideoAnalyticsRes.data)
+      }else{
+        // History Id already set and just need to update data on historyId
+      }
+    }else{
+      //Error fetching response
+      console.log('Error fetching Response of Video Analytics : result not found');
+    }
+  }catch(error){
+    // Error fetching Response
+    console.log('Error fetching Response of Video Analytics : Exception in block');
+  }
   }
 
   const handleFocusSeekBar = () => {
@@ -337,6 +359,10 @@ const watchTimeIntervalRef = useRef(null);
         );
 
         //video.play();
+        if(playDuration && parseInt(playDuration) != 0){
+          video.currentTime = playDuration;
+        }
+        sendAnalyticsForMedia();
         handleSetIsPlaying(true);
       });
 
@@ -368,6 +394,7 @@ const watchTimeIntervalRef = useRef(null);
       clearTimeout(inactivityTimeout.current);
       clearTimeout(resumePlayTimeoutRef.current);
       clearInterval(watchTimeIntervalRef.current);
+      analyticsHistoryIdRef.current = null;
       video?.removeEventListener("waiting", () => setIsLoading(true));
       video?.removeEventListener("canplay", () => setIsLoading(false));
       video?.removeEventListener("playing", () => setIsLoading(false));

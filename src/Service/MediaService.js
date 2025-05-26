@@ -149,3 +149,12 @@ export const updateMediaItemToWishlist = async (data,options={}) =>{
           return ThrowError("fetchUserSubscriptionStatus", error);
         }
 }
+
+export const sendVideoAnalytics = async(data,options) =>{
+    try{
+        const response = await postData(API.MEDIA.POST_PLAY_HISTORY,data,options);
+        return response;
+    }catch(error){
+        return ThrowError("sendVideoAnalytics",error);
+    }
+}

@@ -78,15 +78,17 @@ function Movie_Detail(focusKey) {
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={showResumeBtn ? `Resume Movie` : `Watch Movie`}
-                                        onEnterPress={watchMovie}
+                                        onEnterPress={()=>{watchMovie(false,showResumeBtn)}}
                                     />
                                     {showResumeBtn && <FocusableButtonIconTooltip
                                         icon={<MdOutlineRestartAlt />}
                                         text={'Start Over'}
+                                        onEnterPress={()=>{watchMovie(false,false)}}
                                     />}
                                     <FocusableButtonIconTooltip
                                         icon={<MdMovie />}
                                         text={'Watch Trailer'}
+                                        onEnterPress={()=>{watchMovie(true,false)}}
                                     />
                                     <FocusableButtonIconTooltip
                                         icon={isMediaFavourite ? <IoHeartSharp /> : <MdAdd />}
