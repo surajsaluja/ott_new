@@ -22,7 +22,7 @@ import { useUserContext } from "../../Context/userContext";
 import { sendVideoAnalytics } from "../../Service/MediaService";
 import FocusableButton from "../Common/FocusableButton";
 import { useSignalR } from "../../Hooks/useSignalR";
-import StreamLimitModal from "./StreamLimitModal";
+import StreamLimitModal from "./StreamLimitError";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
@@ -89,6 +89,8 @@ const VideoPlayer = () => {
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
   const watchTimeIntervalRef = useRef(null);
+  // const seekDirection = null;
+  // const seekMultiplier = 0;
 
   // SignalR
   const { isConnected, playCapability, connectManuallyV2, disconnectManually } = useSignalR();
@@ -98,6 +100,11 @@ const VideoPlayer = () => {
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey: VIDEO_PLAYER_FOCUS_KEY,
     trackChildren: true,
+    onArrowPress:(direction)=>{
+      if(direction === 'left' || direction === 'right'){
+        console.log('arrow press from videoRef: '+direction);
+      }
+    }
   });
 
   const customResolutions = [
@@ -276,11 +283,9 @@ const VideoPlayer = () => {
         }
       } else {
         //Error fetching response
-        console.log('Error fetching Response of Video Analytics : result not found');
       }
     } catch (error) {
       // Error fetching Response
-      console.log('Error fetching Response of Video Analytics : Exception in block');
     }
   }
 
@@ -311,16 +316,19 @@ const VideoPlayer = () => {
     // setFocus('settingsBtn');
   };
 
-  const resetInactivityTimeout = useCallback(() => {
-    setIsUserActive(true);
-    clearTimeout(inactivityTimeout.current);
-    inactivityTimeout.current = setTimeout(() => {
-      if ((isSeekingRef.current != null && !isSeekingRef.current) || !isSideBarOpenRef.current) {
-        setIsUserActive(false);
-        setFocus("Dummy_Btn");
-      }
-    }, inactivityDelay);
-  }, []);
+const resetInactivityTimeout = useCallback(() => {
+  setIsUserActive(true);
+  clearTimeout(inactivityTimeout.current);
+  inactivityTimeout.current = setTimeout(() => {
+    const isSeeking = isSeekingRef.current === true; // Treat null/undefined as false
+    const isSidebarOpen = isSideBarOpenRef.current === true;
+
+    if (!isSeeking && !isSidebarOpen) {
+      setIsUserActive(false);
+      setFocus("Dummy_Btn");
+    }
+  }, inactivityDelay);
+}, []);
 
   const safePlay = async () => {
     handleThumbnialStripVisibility(false);
@@ -385,7 +393,6 @@ const skipButtonEnterPress = () => {
       break;
     case SKIP_NEXT_EPISODE_TEXT:
       // Placeholder for next episode logic (optional navigation handler)
-      console.log('Next episode action triggered');
       // endTime = null;  // No seeking for "Next Episode"
       return; // Exit early; no seek needed
     default:
@@ -417,25 +424,26 @@ const skipButtonEnterPress = () => {
   );
 
   useEffect(() => {
-    const showSeekIcons = (direction) => {
-      if (direction && direction != null) {
-        setSeekAmount(seekMultiplier * seekInterval);
-        setShowSeekIcon(true);
+  if (!isSeekingRef.current || !seekDirection || !seekMultiplier) return;
 
-        clearTimeout(seekIconTimeout.current);
-        seekIconTimeout.current = setTimeout(
-          () => setShowSeekIcon(false),
-          1000
-        );
-      } else {
-        setShowSeekIcon(false);
-      }
-    };
+  if(seekMultiplier > 3){
+    handleFocusSeekBar();
+    return;
+  }
 
-    if (seekMultiplier && seekMultiplier > 0 && isSeekingRef.current) {
-      showSeekIcons(seekDirection);
+  setSeekAmount(seekMultiplier * seekInterval);
+  setShowSeekIcon(true);
+
+  clearTimeout(seekIconTimeout.current);
+  seekIconTimeout.current = setTimeout(() => {
+    if(!isSeekingRef.current){
+    setShowSeekIcon(false);
     }
-  }, [seekMultiplier]);
+  }, 1000);
+
+  // Cleanup timeout on unmount
+  return () => clearTimeout(seekIconTimeout.current);
+}, [seekMultiplier, seekDirection, isSeekingRef.current]);
 
   const initializePlayer = useCallback(() => {
     const video = videoRef.current;
@@ -496,7 +504,6 @@ useEffect(() => {
     const handleCanPlay = () => setIsLoading(false);
     const handlePlaying = () => {
       setIsLoading(false);
-      console.log('Watch time (s):', watchTimeRef.current);
     };
     const handleStalled = () => setIsLoading(true);
 
@@ -536,7 +543,6 @@ useEffect(() => {
   const setup = async () => {
     try {
       const response = await connectManuallyV2();
-      console.log("Manual connection response:", response);
       if (response?.streamCapability) {
         // setIsReadyToPlay(true);
       }
@@ -655,7 +661,7 @@ useEffect(() => {
                 <p>{seekAmount}s</p> <MdFastForward />
               </div>
             )}
-            {seekDirection === "reverse" && (
+            {seekDirection === "backward" && (
               <div className="rewind">
                 <MdFastRewind /> <p>{seekAmount}s</p>
               </div>

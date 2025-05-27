@@ -80,7 +80,6 @@ const useAuth = () => {
             logout();
         }
     }catch(error){
-        console.log(error);
     }
     }
 

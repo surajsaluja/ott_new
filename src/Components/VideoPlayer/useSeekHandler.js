@@ -1,5 +1,5 @@
 // hooks/useSeekHandler.js
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 
 const KEY_LEFT = 37;
 const KEY_UP = 38;
@@ -26,98 +26,85 @@ export default function useSeekHandler(
     handleFocusVideoOverlay,
     showSkipButtonsRef
 ) {
-    // const [isSeeking, setIsSeeking] = useState(false);
+    const seekMultiplierRef = useRef(1);
+    const seekIntervalRef = useRef(null);
+    const directionRef = useRef(null);
+    const seekHoldTimeout = useRef(null);
     const [seekDirection, setSeekDirection] = useState(null);
     const [seekMultiplier, setSeekMultiplier] = useState(0);
 
-    const seekTimer = useRef(null);
-    const longPressInterval = useRef(null);
-    const longPressTriggered = useRef(false);
-    const directionRef = useRef(null);
-    const seekMultiplierRef = useRef(1);
-    const seekHoldTimeout = useRef(null);
+    const clearSeek = () => {
+        clearInterval(seekIntervalRef.current);
+        seekIntervalRef.current = null;
 
-    const LONG_PRESS_DELAY = 300; // ms before long press starts
-    const LONG_PRESS_REPEAT = 500; // ms between repeat seeks
-
-    const clearTimers = () => {
-        clearTimeout(seekTimer.current);
-        clearInterval(longPressInterval.current);
+        // Reset multiplier after short delay
         clearTimeout(seekHoldTimeout.current);
-        seekTimer.current = null;
-        longPressInterval.current = null;
-        seekHoldTimeout.current = null;
-        longPressTriggered.current = false;
-        directionRef.current = null;
-        setSeekDirection(null);
-        setSeekMultiplier(0);
+        seekHoldTimeout.current = setTimeout(() => {
+            setIsSeeking(false);
+            seekMultiplierRef.current = 1;
+            setSeekDirection(null);
+            setSeekMultiplier(1);
+        }, 1000);
     };
 
-
-    const performSeek = (direction, isHold) => {
+    const seek = useCallback((dir) => {
         const video = videoRef.current;
         if (!video) return;
 
-        const seekBy = seekInterval * seekMultiplierRef.current;
-        const delta = direction === 'forward' ? seekBy : -seekBy;
-        const newTime = Math.max(0, Math.min(isNaN(video.duration) ? 0 : video.duration, video.currentTime + delta));
-
-        if (isHold) {
-            setSeekMultiplier(prev => {
-                const next = prev + 1;
-                clearTimeout(seekHoldTimeout.current);
-                seekHoldTimeout.current = setTimeout(() => {
-                    setSeekMultiplier(1);
-                }, 1000);
-                return next;
-            });
-        } else {
-            setSeekMultiplier(1);
-        }
-
+        const delta = dir === "forward" ? seekInterval * seekMultiplierRef.current : -seekInterval * seekMultiplierRef.current;
+        const newTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
         video.currentTime = newTime;
+
         setIsSeeking(true);
-    };
+    }, [seekInterval, videoRef]);
+
 
     const handleKeyDown = (e) => {
-        if(e.repeat)
-            return;
         e.preventDefault();
         e.stopPropagation();
         if(e.keyCode == KEY_BACK || e.keyCode == KEY_ESC){
+            if(e.repeat) return;
             handleBackPress();
-        } else if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
+        } else if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekingRef.current || showSkipButtonsRef.current) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             if(userActivityRef.current){
                 resetInactivityTimeout();
                 return;
             }
-            const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
-            setSeekDirection(direction);
+             const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
             directionRef.current = direction;
+            setSeekDirection(directionRef.current);
 
-            // Start long-press detection
-            seekTimer.current = setTimeout(() => {
-                longPressTriggered.current = true;
-                performSeek(direction, false);
-
-                longPressInterval.current = setInterval(() => {
-                    performSeek(direction, true);
-                }, LONG_PRESS_REPEAT);
-            }, LONG_PRESS_DELAY);
-            setIsSeeking(true);
+            if (!seekIntervalRef.current) {
+                // Initial seek
+                seek(direction);
+                // Start interval
+                seekIntervalRef.current = setInterval(() => {
+                    seekMultiplierRef.current += 1;
+                    setSeekMultiplier(seekMultiplierRef.current);
+                    if(seekMultiplierRef.current > 3){
+                        clearSeek();
+                        return;
+                    }
+                    seek(directionRef.current);
+                }, 500); // Adjust interval for desired speed
+            }
+        
         }
 
         if (e.keyCode == KEY_ENTER && !userActivityRef.current) {
+            if(e.repeat) return;
             handlePlayPause();
         }
 
-        if(e.keyCode === KEY_DOWN && !userActivityRef){
+        if(e.keyCode === KEY_DOWN && !userActivityRef.current){
+            if(e.repeat) return;
             handleFocusSeekBar();
         }
 
         if(e.keyCode === KEY_UP && !userActivityRef.current){
+            if(e.repeat) return;
             console.log(' key up pressed');
             handleFocusVideoOverlay();
         }
@@ -125,21 +112,11 @@ export default function useSeekHandler(
 
     const handleKeyUp = (e) => {
         if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
-        
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-            const direction = directionRef.current;
-
-            if (!longPressTriggered.current && direction) {
-                performSeek(direction, false); // Short press
-            }
-
-            if(isSeekingRef.current){
-
-        setIsSeeking(false);
-            }
-
-            clearTimers();
+            clearSeek();
+            setSeekDirection(null);
         }
+
     };
 
     useEffect(() => {
@@ -149,7 +126,7 @@ export default function useSeekHandler(
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            clearTimers();
+            clearSeek();
         };
     }, []);
 

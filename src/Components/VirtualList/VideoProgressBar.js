@@ -20,6 +20,11 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
     const { ref, focused } = useFocusable({
         focusKey,
         focusable: isFocusable,
+        onArrowPress:(direction)=>{
+      if(direction === 'left' || direction === 'right'){
+        seek(direction);
+      }
+    }
     });
 
      const seek = (dir) => {
@@ -31,33 +36,6 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
     setPosition(newTime);
   };
 
-  const startSeek = (dir) => {
-    if(!focused) return;
-    setIsSeeking(true);
-    longPressRef.current = false;
-    directionRef.current = dir;
-
-    timerRef.current = setTimeout(() => {
-      longPressRef.current = true;
-      intervalRef.current = setInterval(() => {
-        seek(dir);
-      }, CONTINUOUS_SEEK_INTERVAL);
-    }, LONG_PRESS_THRESHOLD);
-  };
-
-  const stopSeek = () => {
-    if(!focused) return;
-    setIsSeeking(false);
-    clearTimeout(timerRef.current);
-    clearInterval(intervalRef.current);
-
-    if (!longPressRef.current && directionRef.current) {
-      seek(directionRef.current);
-    }
-
-    directionRef.current = null;
-    longPressRef.current = false;
-  };
 
     useEffect(() => {
         const video = videoRef.current;
@@ -91,29 +69,6 @@ const CONTINUOUS_SEEK_INTERVAL = 200;
             video.removeEventListener("progress", updateBuffered);
         };
     }, [videoRef, virtualSeekTimeRef]);
-
-    useEffect(() => {
-    const handleKeyDown = (e) => {
-      e.stopPropagation();
-      if (e.repeat) return;
-      if (e.key === "ArrowLeft") startSeek("left");
-      if (e.key === "ArrowRight") startSeek("right");
-    };
-
-    const handleKeyUp = (e) => {
-      e.stopPropagation();
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        stopSeek();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [focused]);
 
     const formatTime = (seconds) => {
         if (!seconds || isNaN(seconds)) return "00:00:00";

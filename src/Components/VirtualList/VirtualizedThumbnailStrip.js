@@ -152,9 +152,6 @@ const ThumbnailItem = memo(
       >
         <div
           className={`thumbnail ${focused ? "focused" : ""}`}
-          onKeyDown={(e) => {
-            console.log('KeyDown in div:', e.key, e);
-          }}
           //transition={{ type: "spring", stiffness: 300 }}
         >
           {imageSource ? (
@@ -257,7 +254,6 @@ const VirtualizedThumbnailStrip = ({
   // Close the drawer instead of navigating back
   useOverrideBackHandler(() => {
     if(isVisible){
-    console.log("from back handler "+isVisible);
     onClose();
     }
   });

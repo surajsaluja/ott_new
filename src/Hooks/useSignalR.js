@@ -32,17 +32,14 @@ export function useSignalR() {
           .build();
 
         connection.onclose(() => {
-          console.log('SignalR connection closed.');
           setIsConnected(false);
         });
 
         connection.on("notifyStreamingCapability", (data) => {
-          console.log("Received streaming capability:", data);
           setPlayCapability(data.streamCapability); // or adapt based on payload structure
         });
 
         await connection.start();
-        console.log('Connected to SignalR hub.');
         setIsConnected(true);
         connectionRef.current = connection;
       } catch (err) {
@@ -76,7 +73,7 @@ export function useSignalR() {
     if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
       try {
         await connectionRef.current.invoke("DisconnectMannually", userId.toString(), deviceId);
-        console.log('Disconnected manually.');
+       
       } catch (err) {
         console.error("Error invoking DisconnectMannually:", err);
       }

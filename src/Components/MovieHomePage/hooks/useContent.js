@@ -131,7 +131,7 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
   }, [ref, smoothScroll]);
 
   const redirectToLogin = () => {
-    history.replace('/login', { from: '/' });
+    history.push('/login', { from: '/' });
   };
 
   const onAssetPress = (item) => {

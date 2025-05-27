@@ -25,7 +25,6 @@ const Popup = ({
 
   useEffect(()=>{
     if(isVisible){
-      console.log('made visible');
       setTimeout(()=>{
         setFocus('settingsBtn');
       },0);
@@ -35,7 +34,6 @@ const Popup = ({
   // Close the drawer instead of navigating back
   useOverrideBackHandler(() => {
     if(isVisible){
-    console.log("from back handler in popup");
     onBackPress();
     }
   });
