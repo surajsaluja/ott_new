@@ -89,8 +89,6 @@ const SideBar_Tab = ({
     onAudioSelect = () => { },
     activeTabs = ['audio','video','captions']
 }) => {
-
-    debugger;
     useEffect(() => {
         if(!activeTabs || !isOpen)
              return;

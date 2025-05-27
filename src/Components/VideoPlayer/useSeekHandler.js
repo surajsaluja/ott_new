@@ -16,7 +16,7 @@ export default function useSeekHandler(
     handlePlayPause, 
     handleBackPress, 
     handleFocusSeekBar,
-    sideBarOpen, 
+    sideBarOpenRef, 
     userActivityRef,
     resetInactivityTimeout, 
     isSeekbarVisible,
@@ -86,7 +86,7 @@ export default function useSeekHandler(
         e.stopPropagation();
         if(e.keyCode == KEY_BACK || e.keyCode == KEY_ESC){
             handleBackPress();
-        } else if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
+        } else if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             if(userActivityRef.current){
@@ -124,7 +124,7 @@ export default function useSeekHandler(
     };
 
     const handleKeyUp = (e) => {
-        if (sideBarOpen || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
+        if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
         
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             const direction = directionRef.current;

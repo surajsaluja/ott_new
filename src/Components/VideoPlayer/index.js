@@ -84,6 +84,7 @@ const VideoPlayer = () => {
   let inactivityDelay = 5000;
   const seekInterval = 10;
   const analyticsHistoryIdRef = useRef();
+  const activeTabsRef = useRef(null);
 
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
@@ -180,13 +181,14 @@ const VideoPlayer = () => {
   }, []);
 
   const handleBackPressed = useCallback(() => {
-    debugger;
     if(userActivityRef.current){
       setIsUserActive(false);
       setFocus('Dummy_Btn');
       return;
     }else if(isSideBarOpenRef.current){
       handleSidebarOpen(false);
+      setIsUserActive(false);
+      setFocus('Dummy_Btn');
       return;
     }else{
     history.goBack();
@@ -197,6 +199,36 @@ const VideoPlayer = () => {
   const handleSetAnalyticsHistoryId = (historyId) => {
     analyticsHistoryIdRef.current = historyId;
   }
+
+  const switchCaption = (caption) => {
+        if (videoRef.current.hls) {
+            videoRef.current.hls.subtitleTrack = caption.id === -1 ? -1 : caption.id;
+            setSelectedCaption(caption.id);
+        }
+    };
+
+    const handleQualityChange = (quality) => {
+        if (videoRef.current.hls) {
+            if (quality.minBandwidth === 'auto') {
+                videoRef.current.hls.currentLevel = -1; // Auto quality
+            } else {
+                const level = videoRef.current.hls.levels.findIndex(
+                    (lvl) => lvl.bitrate >= quality.minBandwidth && lvl.bitrate <= quality.maxBandwidth
+                );
+                if (level !== -1) {
+                    videoRef.current.hls.currentLevel = level;
+                }
+            }
+        }
+        setSelectedQuality(quality.id);
+    };
+
+    const handleAudioChange = (audio) => {
+        if (videoRef.current.hls) {
+            videoRef.current.hls.audioTrack = audio.id;
+            setSelectedAudio(audio.id);
+        }
+    };
 
   const sendAnalyticsForMedia = async () => {
     try {
@@ -252,6 +284,18 @@ const VideoPlayer = () => {
     }
   }
 
+  const onAudioSubtitlesSettingsPressed = () =>{
+        activeTabsRef.current = ['audio','captions'];
+        setIsUserActive(false);
+        handleSidebarOpen(true);
+    }
+
+    const onVideoSettingsPressed = () =>{
+        activeTabsRef.current = ['video'];
+        setIsUserActive(false);
+        handleSidebarOpen(true);
+    }
+
   const handleFocusSeekBar = () => {
     setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
     setIsSeekbarVisible(true);
@@ -271,7 +315,6 @@ const VideoPlayer = () => {
     setIsUserActive(true);
     clearTimeout(inactivityTimeout.current);
     inactivityTimeout.current = setTimeout(() => {
-      debugger;
       if ((isSeekingRef.current != null && !isSeekingRef.current) || !isSideBarOpenRef.current) {
         setIsUserActive(false);
         setFocus("Dummy_Btn");
@@ -362,7 +405,7 @@ const skipButtonEnterPress = () => {
     togglePlayPause,
     handleBackPressed,
     handleFocusSeekBar,
-    isSideBarOpenRef.current,
+    isSideBarOpenRef,
     userActivityRef,
     resetInactivityTimeout,
     isSeekbarVisible,
@@ -429,6 +472,14 @@ const skipButtonEnterPress = () => {
         handleSetIsPlaying(true);
       });
 
+      hls.on(Hls.Events.SUBTITLE_TRACK_SWITCH, (event, data) => {
+                setSelectedCaption(data.id);
+            });
+
+            hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
+                setSelectedAudio(data.id);
+            });
+
       video.hls = hls;
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
@@ -457,6 +508,7 @@ useEffect(() => {
 
     if (playCapability == true) {
       setStreamLimitError(false);
+      watchTimeRef.current = 0;
       initializePlayer();
     }else if(playCapability == false){
       setStreamLimitError(true)
@@ -570,7 +622,8 @@ useEffect(() => {
         <video ref={videoRef} className="video-player" controls={false} muted />
 
         <Popup
-          onVideoSettingsPressed={() => handleSidebarOpen(true)}
+          onVideoSettingsPressed={onVideoSettingsPressed}
+          onAudioSubtitlesSettingsPressed={onAudioSubtitlesSettingsPressed}
           onBackPress={handleBackPressed}
           videoRef={videoRef}
           title={movieTitle}
@@ -622,13 +675,14 @@ useEffect(() => {
             onClose={() => handleSidebarOpen(false)}
             captions={captions}
             selectedCaption={selectedCaption}
-            onCaptionSelect={setSelectedCaption}
+            onCaptionSelect={switchCaption}
             qualityLevels={customResolutions}
             selectedQuality={selectedQuality}
-            onQualitySelect={setSelectedQuality}
+            onQualitySelect={handleQualityChange}
             audioTracks={audioTracks}
             selectedAudio={selectedAudio}
-            onAudioSelect={setSelectedAudio}
+            onAudioSelect={handleAudioChange}
+            activeTabs={activeTabsRef.current}
           />
         )}
 
