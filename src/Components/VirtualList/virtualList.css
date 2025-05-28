@@ -92,6 +92,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  min-height: 225px;
 }
 
 .thumbnail-placeholder {
@@ -100,6 +101,7 @@
   background-color: #222;
   animation: pulse 1s infinite ease-in-out;
   border-radius: 6px;
+  min-height: 225px;
 }
 
 .thumbnail-time-label {

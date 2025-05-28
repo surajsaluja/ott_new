@@ -3,7 +3,6 @@ import { useFocusable, FocusContext, setFocus } from "@noriginmedia/norigin-spat
 import VirtualizedThumbnailStrip from "./VirtualizedThumbnailStrip";
 import VideoProgressBar from "./VideoProgressBar";
 import './virtualList.css';
-import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 
 const THUMBNAIL_STRIP_FOCUSKEY = 'STRIP_THUMBNAIL';
 const VIDEO_PROGRESS_FOCUSKEY = 'PROGRESS_VIDEO';
@@ -16,74 +15,68 @@ const VirtualThumbnailStripWithSeekBar = ({
     setIsSeekbarVisible,
     isVisible,
     isThumbnailStripVisible,
-    setIsThumbnailStripVisible }) => {
+    setIsThumbnailStripVisible
+}) => {
     const virtualSeekTimeRef = useRef(null);
-    const [isComponentFocused, setIsComponentFocused] = useState(false);
-    const [isProgressBarFocusable, setIsProgressBarFocusable] = useState(true);
     const { ref, focusKey: currentFocusKey } = useFocusable({
         focusKey,
         trackChildren: true,
         saveLastFocusedChild: false,
         onFocus: () => {
-            setIsComponentFocused(true);
             setIsSeekbarVisible(true);
-            setIsThumbnailStripVisible(true);
             virtualSeekTimeRef.current = null;
+            console.log(' component focused');
         },
         onBlur: () => {
-            setIsComponentFocused(false);
             setIsSeekbarVisible(false);
             setIsThumbnailStripVisible(false);
             virtualSeekTimeRef.current = null;
+            console.log('component blurred');
         }
     });
 
     const onClose = () => {
         virtualSeekTimeRef.current = null;
         setIsSeeking(false);
-        // setIsThumbnailStripVisible(false);
-    }
+        setIsThumbnailStripVisible(false);
+    };
 
+    // Auto-focus progress bar when component is focused
     useEffect(() => {
-        setIsProgressBarFocusable(thumbnailBaseUrl == null);
-    }, [thumbnailBaseUrl]);
-
-    useEffect(() => {
-
-        if (isComponentFocused) {
-
-            if (thumbnailBaseUrl == null) {
-                setFocus(VIDEO_PROGRESS_FOCUSKEY);
-            } else {
-                setFocus(THUMBNAIL_STRIP_FOCUSKEY);
-            }
+        if (isVisible) {
+            setFocus(VIDEO_PROGRESS_FOCUSKEY);
         }
-    }, [isComponentFocused])
+    }, [isVisible]);
 
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className="thumbnails_strip" style={{ opacity: isVisible ? 1 : 0 }}>
-                {!isProgressBarFocusable &&
+                {/* Render the thumbnail strip only if the video has thumbnails */}
+                {thumbnailBaseUrl && isThumbnailStripVisible && (
                     <VirtualizedThumbnailStrip
                         videoRef={videoRef}
                         thumbnailBaseUrl={thumbnailBaseUrl}
                         onClose={onClose}
                         virtualSeekTimeRef={virtualSeekTimeRef}
                         focusKey={THUMBNAIL_STRIP_FOCUSKEY}
-                        isVisible={isComponentFocused && !isProgressBarFocusable && isThumbnailStripVisible}
+                        isVisible={isThumbnailStripVisible}
                         setIsSeeking={setIsSeeking}
                         setIsThumbnailStripVisible={setIsThumbnailStripVisible}
-                    />}
+                    />
+                )}
 
                 <VideoProgressBar
                     videoRef={videoRef}
                     virtualSeekTimeRef={virtualSeekTimeRef}
-                    isFocusable={isProgressBarFocusable}
+                    isFocusable={!isThumbnailStripVisible}
                     focusKey={VIDEO_PROGRESS_FOCUSKEY}
-                    setIsSeeking={setIsSeeking} />
+                    setIsSeeking={setIsSeeking}
+                    setIsThumbnailStripVisible={setIsThumbnailStripVisible}
+                    hasThumbnails={!!thumbnailBaseUrl}
+                />
             </div>
         </FocusContext.Provider>
     );
-}
+};
 
-export default VirtualThumbnailStripWithSeekBar
+export default VirtualThumbnailStripWithSeekBar;

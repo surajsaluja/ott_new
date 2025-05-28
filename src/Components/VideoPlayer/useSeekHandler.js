@@ -40,7 +40,7 @@ export default function useSeekHandler(
         // Reset multiplier after short delay
         clearTimeout(seekHoldTimeout.current);
         seekHoldTimeout.current = setTimeout(() => {
-            setIsSeeking(false);
+            // setIsSeeking(false);
             seekMultiplierRef.current = 1;
             setSeekDirection(null);
             setSeekMultiplier(1);
@@ -69,6 +69,7 @@ export default function useSeekHandler(
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             if(userActivityRef.current){
+                debugger;
                 resetInactivityTimeout();
                 return;
             }
@@ -84,7 +85,7 @@ export default function useSeekHandler(
                     seekMultiplierRef.current += 1;
                     setSeekMultiplier(seekMultiplierRef.current);
                     if(seekMultiplierRef.current > 3){
-                        clearSeek();
+                        // clearSeek();
                         return;
                     }
                     seek(directionRef.current);
@@ -95,6 +96,7 @@ export default function useSeekHandler(
 
         if (e.keyCode == KEY_ENTER && !userActivityRef.current) {
             if(e.repeat) return;
+            console.log(' in Enter Press');
             handlePlayPause();
         }
 
@@ -110,14 +112,28 @@ export default function useSeekHandler(
         }
     };
 
-    const handleKeyUp = (e) => {
-        if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekbarVisible || showSkipButtonsRef.current) return;
-        if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-            clearSeek();
-            setSeekDirection(null);
-        }
+   const handleKeyUp = (e) => {
+    const isSidebarOpen = sideBarOpenRef.current === true;
+    const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
+    const isShowSkipButtons = showSkipButtonsRef.current === true;
 
-    };
+    console.log({
+        sideBarOpenRef: sideBarOpenRef.current,
+        isThumbnailStripVisibleRef: isThumbnailStripVisibleRef.current,
+        isSeekbarVisible,
+        showSkipButtonsRef: showSkipButtonsRef.current
+    });
+
+    if (isSidebarOpen || isThumbnailStripVisible || isSeekbarVisible || isShowSkipButtons) return;
+
+    if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
+        clearSeek();
+        setIsSeeking(false);
+        setSeekDirection(null);
+        return;
+    }
+};
+
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -133,5 +149,6 @@ export default function useSeekHandler(
     return {
         seekDirection,
         seekMultiplier,
+        clearSeek
     }
 }
