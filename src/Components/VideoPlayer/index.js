@@ -153,22 +153,14 @@ const VideoPlayer = () => {
 
   if (val === !!isPlayingRef.current) return;
 
-  console.log('Into handleSetIsPlaying', {
-    isPlaying: isPlayingRef.current,
-    val: val,
-    videoPaused: video.paused,
-  });
-
   try {
     if (val && video.paused) {
       startWatchTimer();
-      console.log('video played');
       video.play();
       isPlayingRef.current = true;
       setIsPlaying(true);
     } else if (!val && !video.paused) {
       stopWatchTimer();
-      console.log('video paused');
       video.pause();
       isPlayingRef.current = false;
       setIsPlaying(false);
@@ -199,7 +191,6 @@ const VideoPlayer = () => {
   const handleBackPressed = useCallback(() => {
 
     if(userActivityRef.current){
-      // console.log('user made inactive 1');
       setIsUserActive(false);
       setFocus('Dummy_Btn');
       return;
@@ -333,7 +324,6 @@ const resetInactivityTimeout = useCallback(() => {
   setIsUserActive(true);
   clearTimeout(inactivityTimeout.current);
   inactivityTimeout.current = setTimeout(() => {
-    debugger;
     const isSeeking = isSeekingRef.current === true; // Treat null/undefined as false
     const isSidebarOpen = isSideBarOpenRef.current === true;
 
@@ -344,32 +334,19 @@ const resetInactivityTimeout = useCallback(() => {
   }, inactivityDelay);
 }, []);
 
-  const safePlay = async () => {
-    handleThumbnialStripVisibility(false);
-    try {
-      // await videoRef.current?.play();
-      handleSetIsPlaying(true);
-      startWatchTimer();
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Play error:", error);
-      }
-    } finally {
-      setFocus("Dummy_Button");
-    }
-  };
 
   const handleSetIsSeeking = (val) => {
-    // console.log('Just is Seeking 1', {isSeeking : isSeekingRef.current, val});
     if(val === isSeekingRef.current) return;
     isSeekingRef.current = val;
-    setIsSeeking(val);
     if (val === true) {
-      console.log('Started Seeking');
+      console.log('Seeking Started');
       handleSetIsPlaying(false);
+      setIsSeeking(true);
     } else if(val === false){
-      console.log('Stopped Seeking');
+      resetInactivityTimeout();
       clearSeek();
+      console.log('Stopped Seeking');
+      setIsSeeking(false);
       handleSetIsPlaying(true);
       handleThumbnialStripVisibility(false);
     }
@@ -406,6 +383,7 @@ const skipButtonEnterPress = () => {
 
   if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {
     videoRef.current.currentTime = Number(endTime);
+    resetInactivityTimeout();
   }
 };
 
@@ -431,10 +409,17 @@ const skipButtonEnterPress = () => {
   useEffect(() => {
   if (!isSeekingRef.current || !seekDirection || !seekMultiplier || isSeekbarVisible) return;
 
-  if(seekMultiplier > 3){
+  if(seekMultiplier == 4 && isThumbnailStripVisibleRef.current != true){
+    console.log('transferring focus to seekbar',{
+      seekMultiplier,
+      seekDirection
+    })
     clearSeek();
     setShowSeekIcon(false);
-    handleFocusSeekBar();
+    setTimeout(()=>{
+      console.log(' now focused after siteTimout');
+      handleFocusSeekBar();
+    },0)
     return;
   }
 

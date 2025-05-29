@@ -44,6 +44,7 @@ export default function useSeekHandler(
             seekMultiplierRef.current = 1;
             setSeekDirection(null);
             setSeekMultiplier(1);
+            console.log('Seeking Cleared');
         }, 1000);
     };
 
@@ -60,19 +61,31 @@ export default function useSeekHandler(
 
 
     const handleKeyDown = (e) => {
+
+        const isSidebarOpen = sideBarOpenRef.current === true;
+    const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
+    const isShowSkipButtons = showSkipButtonsRef.current === true;
+    const isSeeking = isSeekingRef.current === true;
+
         e.preventDefault();
         e.stopPropagation();
         if(e.keyCode == KEY_BACK || e.keyCode == KEY_ESC){
             if(e.repeat) return;
             handleBackPress();
-        } else if (sideBarOpenRef.current || isThumbnailStripVisibleRef.current || isSeekingRef.current || showSkipButtonsRef.current) return;
+        } else if (isSidebarOpen || isThumbnailStripVisible || isSeeking || isShowSkipButtons) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
             if(userActivityRef.current){
-                debugger;
                 resetInactivityTimeout();
                 return;
             }
+                console.log('on KeyDown',{
+        sideBarOpenRef: isSidebarOpen,
+        isThumbnailStripVisibleRef: isThumbnailStripVisible,
+        isSeekbarVisible,
+        isSeeking,
+        showSkipButtonsRef: isShowSkipButtons
+    });
              const direction = e.keyCode === KEY_RIGHT ? 'forward' : 'backward';
             directionRef.current = direction;
             setSeekDirection(directionRef.current);
@@ -82,7 +95,7 @@ export default function useSeekHandler(
                 seek(direction);
                 // Start interval
                 seekIntervalRef.current = setInterval(() => {
-                    seekMultiplierRef.current += 1;
+                    seekMultiplierRef.current = Math.min(seekMultiplierRef.current + 1 , 4);
                     setSeekMultiplier(seekMultiplierRef.current);
                     if(seekMultiplierRef.current > 3){
                         // clearSeek();
@@ -96,7 +109,6 @@ export default function useSeekHandler(
 
         if (e.keyCode == KEY_ENTER && !userActivityRef.current) {
             if(e.repeat) return;
-            console.log(' in Enter Press');
             handlePlayPause();
         }
 
@@ -107,7 +119,6 @@ export default function useSeekHandler(
 
         if(e.keyCode === KEY_UP && !userActivityRef.current){
             if(e.repeat) return;
-            console.log(' key up pressed');
             handleFocusVideoOverlay();
         }
     };
@@ -118,10 +129,10 @@ export default function useSeekHandler(
     const isShowSkipButtons = showSkipButtonsRef.current === true;
 
     console.log({
-        sideBarOpenRef: sideBarOpenRef.current,
-        isThumbnailStripVisibleRef: isThumbnailStripVisibleRef.current,
+        sideBarOpenRef: isSidebarOpen,
+        isThumbnailStripVisibleRef: isThumbnailStripVisible,
         isSeekbarVisible,
-        showSkipButtonsRef: showSkipButtonsRef.current
+        showSkipButtonsRef: isShowSkipButtons
     });
 
     if (isSidebarOpen || isThumbnailStripVisible || isSeekbarVisible || isShowSkipButtons) return;

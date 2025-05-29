@@ -8,6 +8,7 @@ import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
 import { toast } from "react-toastify";
 import Season_EpisodeList from "../../Season_EpisodeList";
 import StarCastContainer from "../../StarCastContainer";
+import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 
 const useMediaDetail = (mediaId, categoryId, focusKey) => {
     // References for Focusable
@@ -55,6 +56,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         setIsSeasonsLoading(true);
         setGroupedStarCasts(null);
     }, [mediaId]);
+
+    useOverrideBackHandler(() => {
+        history.goBack();
+      });
 
     // set Focus to Page when media Loads
     useEffect(() => {

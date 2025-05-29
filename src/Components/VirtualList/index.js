@@ -15,68 +15,77 @@ const VirtualThumbnailStripWithSeekBar = ({
     setIsSeekbarVisible,
     isVisible,
     isThumbnailStripVisible,
-    setIsThumbnailStripVisible
-}) => {
+    setIsThumbnailStripVisible }) => {
     const virtualSeekTimeRef = useRef(null);
+    const [isComponentFocused, setIsComponentFocused] = useState(false);
+    const [isProgressBarFocusable, setIsProgressBarFocusable] = useState(true);
     const { ref, focusKey: currentFocusKey } = useFocusable({
         focusKey,
         trackChildren: true,
         saveLastFocusedChild: false,
         onFocus: () => {
+            setIsComponentFocused(true);
             setIsSeekbarVisible(true);
+            
+            if(thumbnailBaseUrl != null){
+            setIsThumbnailStripVisible(true);
+            }
             virtualSeekTimeRef.current = null;
-            console.log(' component focused');
         },
         onBlur: () => {
+            setIsComponentFocused(false);
             setIsSeekbarVisible(false);
             setIsThumbnailStripVisible(false);
             virtualSeekTimeRef.current = null;
-            console.log('component blurred');
         }
     });
 
     const onClose = () => {
         virtualSeekTimeRef.current = null;
         setIsSeeking(false);
-        setIsThumbnailStripVisible(false);
-    };
+        // setIsThumbnailStripVisible(false);
+    }
 
-    // Auto-focus progress bar when component is focused
     useEffect(() => {
-        if (isVisible) {
-            setFocus(VIDEO_PROGRESS_FOCUSKEY);
+        setIsProgressBarFocusable(thumbnailBaseUrl == null);
+    }, [thumbnailBaseUrl]);
+
+    useEffect(() => {
+
+        if (isComponentFocused) {
+
+            if (thumbnailBaseUrl == null) {
+                setFocus(VIDEO_PROGRESS_FOCUSKEY);
+            } else {
+                setFocus(THUMBNAIL_STRIP_FOCUSKEY);
+            }
         }
-    }, [isVisible]);
+    }, [isComponentFocused])
 
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className="thumbnails_strip" style={{ opacity: isVisible ? 1 : 0 }}>
-                {/* Render the thumbnail strip only if the video has thumbnails */}
-                {thumbnailBaseUrl && isThumbnailStripVisible && (
+                {!isProgressBarFocusable &&
                     <VirtualizedThumbnailStrip
                         videoRef={videoRef}
                         thumbnailBaseUrl={thumbnailBaseUrl}
                         onClose={onClose}
                         virtualSeekTimeRef={virtualSeekTimeRef}
                         focusKey={THUMBNAIL_STRIP_FOCUSKEY}
-                        isVisible={isThumbnailStripVisible}
+                        isVisible={isComponentFocused && !isProgressBarFocusable && isThumbnailStripVisible}
                         setIsSeeking={setIsSeeking}
                         setIsThumbnailStripVisible={setIsThumbnailStripVisible}
-                    />
-                )}
+                    />}
 
                 <VideoProgressBar
                     videoRef={videoRef}
                     virtualSeekTimeRef={virtualSeekTimeRef}
-                    isFocusable={!isThumbnailStripVisible}
+                    isFocusable={isProgressBarFocusable}
                     focusKey={VIDEO_PROGRESS_FOCUSKEY}
-                    setIsSeeking={setIsSeeking}
-                    setIsThumbnailStripVisible={setIsThumbnailStripVisible}
-                    hasThumbnails={!!thumbnailBaseUrl}
-                />
+                    setIsSeeking={setIsSeeking} />
             </div>
         </FocusContext.Provider>
     );
-};
+}
 
-export default VirtualThumbnailStripWithSeekBar;
+export default VirtualThumbnailStripWithSeekBar

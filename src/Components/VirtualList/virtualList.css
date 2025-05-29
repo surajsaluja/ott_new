@@ -11,17 +11,16 @@
 .seekbar-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
   width: 90%;
   -webkit-user-select: none;
   user-select: none;
   position: relative;
-  top: 92%;
+  top: 93%;
   left: 0.5em;
 }
 
 .time {
-  font-size: 18px;
+  font-size: 1.2vw;
     color: white;
     min-width: 40px;
     font-weight: 700;
@@ -34,6 +33,7 @@
   position: relative;
   cursor: pointer;
   border-radius: 4px;
+  margin: 0 1vw;
 }
 
 .buffered {

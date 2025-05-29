@@ -1,44 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import './virtualList.css';
 
-const SEEK_INTERVAL = 10;
-
-const VideoProgressBar = ({
-    videoRef,
-    virtualSeekTimeRef,
-    isFocusable = true,
-    focusKey,
-    setIsSeeking,
-    setIsThumbnailStripVisible,
-    hasThumbnails
-}) => {
+const VideoProgressBar = ({ videoRef, virtualSeekTimeRef, isFocusable = true, focusKey, setIsSeeking }) => {
     const [progress, setProgress] = useState(0);
     const [displayTime, setDisplayTime] = useState(0);
     const [buffered, setBuffered] = useState(0);
 
+    const LONG_PRESS_THRESHOLD = 500;
+const SEEK_INTERVAL = 10;
+const CONTINUOUS_SEEK_INTERVAL = 200;
+
+  const [position, setPosition] = useState(0);
+  const timerRef = useRef(null);
+  const longPressRef = useRef(false);
+  const directionRef = useRef(null);
+  const intervalRef = useRef(null);
+
     const { ref, focused } = useFocusable({
         focusKey,
         focusable: isFocusable,
-        onArrowPress: (direction) => {
-            if (direction === 'left' || direction === 'right') {
-                if (hasThumbnails) {
-                    setIsThumbnailStripVisible(true);
-                } else {
-                    seek(direction);
-                }
-            }
-        }
+        onArrowPress:(direction)=>{
+      if(direction === 'left' || direction === 'right'){
+        seek(direction);
+      }
+    }
     });
 
-    const seek = (dir) => {
-        const video = videoRef.current;
-        if (!video || !focused) return;
+     const seek = (dir) => {
+    const video = videoRef.current;
+    if (!video || !focused) return;
+    const delta = dir === "left" ? -SEEK_INTERVAL : SEEK_INTERVAL;
+    const newTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
+    video.currentTime = newTime;
+    setPosition(newTime);
+  };
 
-        const delta = dir === "left" ? -SEEK_INTERVAL : SEEK_INTERVAL;
-        const newTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
-        video.currentTime = newTime;
-    };
 
     useEffect(() => {
         const video = videoRef.current;
@@ -46,10 +43,13 @@ const VideoProgressBar = ({
 
         const updateProgress = () => {
             const virtualTime = virtualSeekTimeRef.current;
-            const currentTime = virtualTime != null ? virtualTime : video.currentTime;
+            //const currentTime = virtualTime != null ? virtualTime : video.currentTime;
             const duration = video.duration || 1;
-            setProgress((currentTime / duration) * 100);
-            setDisplayTime(currentTime);
+            const progressTime = virtualTime != null ? virtualTime : video.currentTime;
+            setProgress((progressTime / duration) * 100);
+
+            setDisplayTime(video.currentTime);
+            //setProgress((currentTime / duration) * 100);
         };
 
         const updateBuffered = () => {
@@ -60,7 +60,8 @@ const VideoProgressBar = ({
             }
         };
 
-        const interval = setInterval(updateProgress, 100);
+        const interval = setInterval(updateProgress, 100); // update even if paused and using virtual ref
+
         video.addEventListener("progress", updateBuffered);
 
         return () => {
@@ -74,7 +75,9 @@ const VideoProgressBar = ({
         const hrs = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
         const secs = Math.floor(seconds % 60);
-        return [hrs, mins, secs].map(unit => String(unit).padStart(2, '0')).join(':');
+        return [hrs, mins, secs]
+            .map(unit => String(unit).padStart(2, '0'))
+            .join(':');
     };
 
     return (
@@ -84,7 +87,10 @@ const VideoProgressBar = ({
                 <div className="buffered" style={{ width: `${buffered}%` }} />
                 <div className="progress" style={{ width: `${progress}%` }} />
                 {focused && (
-                    <div className="progress-circle focused" style={{ left: `${progress}%` }} />
+                    <div
+                        className={`progress-circle ${focused ? "focused" : ""}`}
+                        style={{ left: `${progress}%` }}
+                    />
                 )}
             </div>
             <span className="time">
@@ -95,5 +101,4 @@ const VideoProgressBar = ({
         </div>
     );
 };
-
-export default VideoProgressBar;
+export default VideoProgressBar

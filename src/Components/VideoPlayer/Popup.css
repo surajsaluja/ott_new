@@ -1,16 +1,13 @@
 .settings_icons{
     position: absolute;
-    top: 5%;
-    left:86%;
-    font-size: 1em;
-    transform: translate(-50%, -50%);
+    font-size: 1.4vw;
     display: flex;
-    justify-content: space-evenly;
+    right: 2vw;
     align-items: center;
     /* padding: 0.15em 0.2em 0px 0.2em; */
     width: auto;
-    gap: 2em;
     font-weight: 500;
+    margin-block-start: 1em;
 }
 
 
@@ -20,10 +17,11 @@
     border-radius: 4px;
     padding: 6px;
     border-color: transparent;
-    background-color: #2e3640;
+    background-color: transparent;
     text-wrap-mode:nowrap;
     display: flex;
     color: azure;
+    margin-left: 1.2vw;
 }
 
 .popup_settingButton .focusableButton_icon {
@@ -40,10 +38,10 @@
 
 .popup_backButton{
     position: absolute;
-    top: 5%;
-    left: 5%;
-    font-size: 1.8em;
-    transform: translate(-50%, -50%);
+    /* top: 5%; */
+    left: 20px;
+    font-size: 2vw;
+    /* transform: translate(-50%, -50%); */
     background-color: rgba(115, 133, 159, 0.5);
     border-radius: 50%;
     box-sizing: content-box;
@@ -51,6 +49,7 @@
     justify-content: center;
     align-items: center;
     padding: 0.15em 0.2em 0px 0.2em;
+    margin-block-start: 1em;
 }
 
 
@@ -66,7 +65,7 @@
     left: 50%;
     text-transform: uppercase;
     transform: translate(-50%, 0%);
-    font-size: 1.2em;
+    font-size: 1.5vw;
     font-weight: bold;
     color: white;
 }

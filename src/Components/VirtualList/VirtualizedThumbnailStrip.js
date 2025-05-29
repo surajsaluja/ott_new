@@ -67,7 +67,6 @@ const ThumbnailItem = memo(
     onFocus,
     onEnterPress,
     lastNavTimeRef,
-    setIsSeeking
   }) => {
     const url = getThumbnailUrl(baseUrl, index);
     const formatTime = (seconds) => {
@@ -83,18 +82,14 @@ const ThumbnailItem = memo(
       //   parentFocusKey,
       onEnterPress: () => {
         onEnterPress(index);
-        setIsSeeking(false);
       },
       onFocus: () => {
-        // console.log('focused thumbnial '+ index + Date.now());
-        console.log('thumbnail focused');
         scrollToCenter(index);
         onFocus(index); // Pass the time to the parent
       },
       onArrowPress: (direction,keyPressDetails) => {
         if (direction === "left" || direction === "right") {
           const now = Date.now();
-          console.log(direction + "pressed in thumbnail");
           if (now - lastNavTimeRef.current < 150) {
             return false; // prevent focus move
           }
@@ -103,7 +98,6 @@ const ThumbnailItem = memo(
           return true; // allow move
         }
         if(direction == 'up'){
-          setIsSeeking(false);
           return;
         }
       },
@@ -182,7 +176,6 @@ const VirtualizedThumbnailStrip = ({
     trackChildren: false,
     saveLastFocusedChild: false,
     onFocus: () => {
-      console.log('focused strip');
       setIsSeeking(true);
       setIsThumbnailStripVisible(true);
       const currentIndex = getCurrentThumbnailIndex();
@@ -192,20 +185,14 @@ const VirtualizedThumbnailStrip = ({
       }, 0);
     },
     onBlur: () => {
-      // setIsThumbnailStripVisible(false);
-      // setIsSeeking(false);
-      console.log('blurred strip');
+      setIsThumbnailStripVisible(false);
+      setIsSeeking(false);
     },
   });
 
   useEffect(() => {
     clearCacheOnBaseUrlChange(thumbnailBaseUrl);
   }, [thumbnailBaseUrl]);
-
-  useEffect(()=>{
-    console.log(" is Visible : "+ isVisible);
-    setFocus(focusKey);
-  },[isVisible]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -249,7 +236,6 @@ const VirtualizedThumbnailStrip = ({
 
   // Close the drawer instead of navigating back
   useOverrideBackHandler(() => {
-    console.log('back pressed');
     if(isVisible){
     onClose();
     }
@@ -312,7 +298,6 @@ const VirtualizedThumbnailStrip = ({
           onFocus={onThumbnailFocus}
           onEnterPress={onThumbnailEnterHandler}
           lastNavTimeRef={lastNavTimeRef}
-          setIsSeeking = {setIsSeeking}
         />
       </div>
     ),
