@@ -75,10 +75,6 @@ export default function useSeekHandler(
         } else if (isSidebarOpen || isThumbnailStripVisible || isSeeking || isShowSkipButtons) return;
 
         if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-            if(userActivityRef.current){
-                resetInactivityTimeout();
-                return;
-            }
                 console.log('on KeyDown',{
         sideBarOpenRef: isSidebarOpen,
         isThumbnailStripVisibleRef: isThumbnailStripVisible,
@@ -108,6 +104,7 @@ export default function useSeekHandler(
         }
 
         if (e.keyCode == KEY_ENTER && !userActivityRef.current) {
+            console.log('enter pressed');
             if(e.repeat) return;
             handlePlayPause();
         }

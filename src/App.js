@@ -45,16 +45,18 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === 'Backspace' || e.key === 'Escape' || e.keyCode == 10009) {
-        e.preventDefault();
-        handleBackPress();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleBackPress]);
+useEffect(() => {
+  const onKeyDown = (e) => {
+    if (e.key === 'Backspace' || e.key === 'Escape' || e.keyCode == 10009) {
+      e.preventDefault();
+      e.stopPropagation(); // stop bubbling
+      e.stopImmediatePropagation?.(); // stops other listeners on the same node (if available)
+      handleBackPress();
+    }
+  };
+  window.addEventListener('keydown', onKeyDown, true); // Use capture phase to catch it early
+  return () => window.removeEventListener('keydown', onKeyDown, true);
+}, [handleBackPress]);
 
   if (isLoadingSession || !hasInitializedSession.current) {
     return (

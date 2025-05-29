@@ -15,7 +15,7 @@ import {
   MdPlayArrow,
 } from "react-icons/md";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import VirtualThumbnailStripWithSeekBar from "../VirtualList";
+import VirtualThumbnailStripWithSeekBar from "../VirtualList/VirtualThumbnailStripWithSeekBar";
 import useSeekHandler from "./useSeekHandler";
 import { getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
@@ -188,16 +188,25 @@ const VideoPlayer = () => {
     playIconTimeout.current = setTimeout(() => setShowPlayIcon(false), 700);
   }, []);
 
+  const handleSetIsUserActive  = (val) =>{
+    userActivityRef.current = val;
+    setIsUserActive(val);
+    if(val === false){
+      setIsSeekbarVisible(false);
+    }
+  }
+
   const handleBackPressed = useCallback(() => {
+    debugger;
 
     if(userActivityRef.current){
-      setIsUserActive(false);
-      setFocus('Dummy_Btn');
+      handleSetIsUserActive(false);
+      // setFocus('Dummy_Btn');
       return;
     }else if(isSideBarOpenRef.current){
       handleSidebarOpen(false);
-      setIsUserActive(false);
-      setFocus('Dummy_Btn');
+      handleSetIsUserActive(false);
+      // setFocus('Dummy_Btn');
       return;
     }else if(isSeekbarVisibleRef.current){
       return;
@@ -295,20 +304,15 @@ const VideoPlayer = () => {
 
   const onAudioSubtitlesSettingsPressed = () =>{
         activeTabsRef.current = ['audio','captions'];
-        setIsUserActive(false);
+        handleSetIsUserActive(false);
         handleSidebarOpen(true);
     }
 
     const onVideoSettingsPressed = () =>{
         activeTabsRef.current = ['video'];
-        setIsUserActive(false);
+        handleSetIsUserActive(false);
         handleSidebarOpen(true);
     }
-
-  const handleFocusSeekBar = () => {
-    setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
-    setIsSeekbarVisible(true);
-  };
 
   const handleSidebarOpen  = (val) =>{
     isSideBarOpenRef.current = val;
@@ -321,14 +325,14 @@ const VideoPlayer = () => {
   };
 
 const resetInactivityTimeout = useCallback(() => {
-  setIsUserActive(true);
+  handleSetIsUserActive(true);
   clearTimeout(inactivityTimeout.current);
   inactivityTimeout.current = setTimeout(() => {
     const isSeeking = isSeekingRef.current === true; // Treat null/undefined as false
     const isSidebarOpen = isSideBarOpenRef.current === true;
 
     if (!isSeeking && !isSidebarOpen) {
-      setIsUserActive(false);
+      handleSetIsUserActive(false);
       setFocus("Dummy_Btn");
     }
   }, inactivityDelay);
@@ -343,12 +347,10 @@ const resetInactivityTimeout = useCallback(() => {
       handleSetIsPlaying(false);
       setIsSeeking(true);
     } else if(val === false){
-      resetInactivityTimeout();
       clearSeek();
       console.log('Stopped Seeking');
       setIsSeeking(false);
       handleSetIsPlaying(true);
-      handleThumbnialStripVisibility(false);
     }
   };
 
@@ -387,6 +389,10 @@ const skipButtonEnterPress = () => {
   }
 };
 
+const handleFocusSeekBar = () => {
+    setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
+    setIsSeekbarVisible(true);
+  };
 
   const { seekMultiplier, seekDirection, clearSeek } = useSeekHandler(
     videoRef,
@@ -400,7 +406,7 @@ const skipButtonEnterPress = () => {
     resetInactivityTimeout,
     isSeekbarVisible,
     isThumbnailStripVisibleRef,
-    setIsUserActive,
+    handleSetIsUserActive,
     isSeekingRef,
     handleFocusVideoOverlay,
     showSkipButtonsRef
@@ -582,6 +588,7 @@ useEffect(() => {
           setShowSkipButtons(newShowSkipButtons);
           setTimeout(()=>{
           setFocus(SKIP_BTN_FOCUS_KEY);
+          handleSetIsUserActive(false);
           },100);
           showSkipButtonsRef.current = newShowSkipButtons;
         }
@@ -603,12 +610,12 @@ useEffect(() => {
   }, [skipInfo, videoRef, isSeeking]);
 
 
-  useEffect(() => {
-    userActivityRef.current = isUserActive;
-    if (userActivityRef.current) {
-    } else {
-    }
-  }, [isUserActive]);
+  // useEffect(() => {
+  //   userActivityRef.current = isUserActive;
+  //   if (userActivityRef.current) {
+  //   } else {
+  //   }
+  // }, [isUserActive]);
 
   if (!src) return <div>Missing video source</div>;
 

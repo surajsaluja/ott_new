@@ -23,13 +23,13 @@ const Popup = ({
     trackChildren: true,
   });
 
-  useEffect(()=>{
-    if(isVisible){
-      setTimeout(()=>{
-        setFocus('settingsBtn');
-      },0);
-  }
-  },[focusSelf, isVisible])
+  // useEffect(()=>{
+  //   if(isVisible){
+  //     setTimeout(()=>{
+  //       setFocus('settingsBtn');
+  //     },0);
+  // }
+  // },[focusSelf, isVisible])
 
   // Close the drawer instead of navigating back
   useOverrideBackHandler(() => {
