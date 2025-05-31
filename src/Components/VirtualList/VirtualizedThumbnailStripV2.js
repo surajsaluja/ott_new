@@ -67,7 +67,8 @@ const ThumbnailItem = memo(
     onFocus,
     onEnterPress,
     lastNavTimeRef,
-    onClose
+    onClose, 
+    isFocusable,
   }) => {
     const url = getThumbnailUrl(baseUrl, index);
     const formatTime = (seconds) => {
@@ -80,15 +81,20 @@ const ThumbnailItem = memo(
     );
     const { ref, focused } = useFocusable({
       focusKey: `THUMB_${index}`,
+      saveLastFocusedChild: false,
+      trackChildren: false,
+      focusable: isFocusable,
       //   parentFocusKey,
       onEnterPress: () => {
         onEnterPress(index);
       },
       onFocus: () => {
         scrollToCenter(index);
+        // debugger;
         onFocus(index); // Pass the time to the parent
       },
       onArrowPress: (direction,keyPressDetails) => {
+        if(!focused) return false;
         if (direction === "left" || direction === "right") {
           const now = Date.now();
           if (now - lastNavTimeRef.current < 150) {
@@ -102,6 +108,7 @@ const ThumbnailItem = memo(
           onClose();
           return;
         }
+        return false;
       },
     });
 
@@ -177,33 +184,54 @@ const VirtualizedThumbnailStrip = ({
   thumbnailBaseUrl,
   videoRef,
   virtualSeekTimeRef,
-  isVisible,
+  isThumbnailStripVisible,
+  handleThumbnialStripVisibility,
   focusKey,
   setIsSeeking,
-  setIsThumbnailStripVisible,
   onClose,
-  isThumbnailStripVisible,
 }) => {
   const [totalThumbnails, setTotalThumbnails] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(1000);
+  const [isStripVisible,setIsStripVisible] = useState(false);
   const listRef = useRef();
   const lastIndexRef = useRef(null);
   const lastNavTimeRef = useRef(0); // for referencing the time between button press when hold
   const SCROLL_TROTTLE_TIME = 200;
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey,
-    trackChildren: false,
-    // focusable: isVisible,
+    trackChildren: true,
+    focusable: isThumbnailStripVisible,
     saveLastFocusedChild: false,
-    onFocus: () => {
+    onFocus: () => {  
       setIsSeeking(true);
-      const currentIndex = getCurrentThumbnailIndex();
-      setTimeout(() => {
-        scrollToCenter(currentIndex);
-        setFocus(`THUMB_${currentIndex}`);
-      }, 0);
     },
   });
+
+useEffect(() => {
+  if (isThumbnailStripVisible === true)
+  {
+  // Wait for the next animation frame to ensure the list is rendered
+  requestAnimationFrame(() => {
+    const currentIndex = getCurrentThumbnailIndex();
+    if (currentIndex !== undefined && currentIndex !== null) {
+      console.log('setFocus to '+ currentIndex);
+      scrollToCenter(currentIndex);
+      // Small delay to ensure the item is rendered before focusing
+      setTimeout(() => {
+        setFocus(`THUMB_${currentIndex}`);
+        setIsStripVisible(true);
+      }, 50);
+    }
+  });
+}else if(isThumbnailStripVisible === false){
+  setIsStripVisible(false);
+}
+}, [isThumbnailStripVisible]);
+
+useEffect(()=>{
+  handleThumbnialStripVisibility(isStripVisible);
+},[isStripVisible]);
+
 
   useEffect(() => {
     clearCacheOnBaseUrlChange(thumbnailBaseUrl);
@@ -251,7 +279,7 @@ const VirtualizedThumbnailStrip = ({
 
   // Close the drawer instead of navigating back
   useOverrideBackHandler(() => {
-    if(isVisible){
+    if(isThumbnailStripVisible){
     onClose();
     }
   });
@@ -279,6 +307,7 @@ const VirtualizedThumbnailStrip = ({
 
   const scrollToCenter = useCallback(
     (index) => {
+      console.log('focus scrolled to center '+ index)
       listRef.current?.scrollToItem(index, "center");
       const preloadStart = Math.max(0, index - 30);
       const preloadEnd = Math.min(totalThumbnails - 1, index + 30);
@@ -302,6 +331,16 @@ const VirtualizedThumbnailStrip = ({
     }
   };
 
+  const onItemRendered = ({
+  overscanStartIndex,
+  overscanStopIndex,
+  visibleStartIndex,
+  visibleStopIndex,
+}) => {
+ // gives visible indexes into viewport
+  
+};
+
   const renderItem = useCallback(
     ({ index, style }) => (
       <div style={style} key={index}>
@@ -314,6 +353,7 @@ const VirtualizedThumbnailStrip = ({
           onEnterPress={onThumbnailEnterHandler}
           lastNavTimeRef={lastNavTimeRef}
           onClose = {onClose}
+          isFocusable = {isThumbnailStripVisible}
         />
       </div>
     ),
@@ -332,7 +372,7 @@ const VirtualizedThumbnailStrip = ({
         ref={ref}
         className="thumbnail-strip-container"
         style={{
-          opacity: isVisible ? 1 : 0,
+          opacity: isStripVisible ? 1 : 0,
         }}
       >
         {totalThumbnails > 0 && (
@@ -344,6 +384,7 @@ const VirtualizedThumbnailStrip = ({
             itemSize={ITEM_SIZE}
             layout="horizontal"
             overscanCount={OVERSCAN_COUNT}
+            onItemsRendered={onItemRendered}
           >
             {renderItem}
           </List>

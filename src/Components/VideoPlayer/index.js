@@ -25,6 +25,7 @@ import { useSignalR } from "../../Hooks/useSignalR";
 import StreamLimitModal from "./StreamLimitError";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
+const THUMBNAIL_STRIP_FOCUSKEY = 'STRIP_THUMBNAIL';
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
 const VIDEO_OVERLAY_FOCUS_KEY = "VIDEO_OVERLAY";
 const SKIP_BTN_FOCUS_KEY = "SKIP_BUTTON";
@@ -147,7 +148,7 @@ const VideoPlayer = () => {
     watchTimeIntervalRef.current = null;
   };
 
- const handleSetIsPlaying = (val) => {
+ const handleSetIsPlaying = async (val) => {
   let video = videoRef.current;
   if (!video) return;
 
@@ -156,12 +157,12 @@ const VideoPlayer = () => {
   try {
     if (val && video.paused) {
       startWatchTimer();
-      video.play();
+      await video.play();
       isPlayingRef.current = true;
       setIsPlaying(true);
     } else if (!val && !video.paused) {
       stopWatchTimer();
-      video.pause();
+      await video.pause();
       isPlayingRef.current = false;
       setIsPlaying(false);
       sendAnalyticsForMedia();
@@ -170,8 +171,6 @@ const VideoPlayer = () => {
     console.error('Error in handleSetIsPlaying:', error);
   }
 };
-
-
 
   // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
@@ -192,16 +191,13 @@ const VideoPlayer = () => {
     userActivityRef.current = val;
     setIsUserActive(val);
     if(val === false){
-      setIsSeekbarVisible(false);
+      handleIsSeekbarVisible(false);
     }
   }
 
   const handleBackPressed = useCallback(() => {
-    debugger;
-
     if(userActivityRef.current){
       handleSetIsUserActive(false);
-      // setFocus('Dummy_Btn');
       return;
     }else if(isSideBarOpenRef.current){
       handleSidebarOpen(false);
@@ -360,8 +356,12 @@ const resetInactivityTimeout = useCallback(() => {
   };
 
   const handleThumbnialStripVisibility = (val) => {
+    if(val === isThumbnailStripVisibleRef.current) return;
     setIsThumbnailStripVisible(val);
     isThumbnailStripVisibleRef.current = val;
+    if(val === true){
+      setIsUserActive(true);
+    }
   };
 
 const skipButtonEnterPress = () => {
@@ -390,8 +390,8 @@ const skipButtonEnterPress = () => {
 };
 
 const handleFocusSeekBar = () => {
-    setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
-    setIsSeekbarVisible(true);
+    setFocus(THUMBNAIL_STRIP_FOCUSKEY);
+    handleThumbnialStripVisibility(true);
   };
 
   const { seekMultiplier, seekDirection, clearSeek } = useSeekHandler(
@@ -648,9 +648,10 @@ useEffect(() => {
           key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
           setIsSeekbarVisible={handleIsSeekbarVisible} // used to get input from component is visible from focus
           isThumbnailStripVisible={isThumbnailStripVisible} // to control thumnail strip
-          setIsThumbnailStripVisible={handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
+          handleThumbnialStripVisibility={handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
           isVisible={isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
           watchTimeRef={watchTimeRef}
+          isSeeking={isSeekingRef.current}
           setShowSkipButtons={setShowSkipButtons}
           setSkipButtonText={setSkipButtonText}
           handleSetIsPlaying = {handleSetIsPlaying}

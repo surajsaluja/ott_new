@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useFocusable, FocusContext, setFocus } from "@noriginmedia/norigin-spatial-navigation";
-import VirtualizedThumbnailStrip from "./VirtualizedThumbnailStrip";
+import VirtualizedThumbnailStrip from "./VirtualizedThumbnailStripV2";
 import VideoProgressBar from "./VideoProgressBarV2";
 import './virtualList.css';
 
@@ -50,7 +50,6 @@ const VirtualThumbnailStripWithSeekBar = ({
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className="thumbnails_strip" style={{ opacity: isVisible ? 1 : 0 }}>
                 {/* Render the thumbnail strip only if the video has thumbnails */}
-                {thumbnailBaseUrl && isThumbnailStripVisible && (
                     <VirtualizedThumbnailStrip
                         videoRef={videoRef}
                         thumbnailBaseUrl={thumbnailBaseUrl}
@@ -61,7 +60,6 @@ const VirtualThumbnailStripWithSeekBar = ({
                         setIsSeeking={setIsSeeking}
                         setIsThumbnailStripVisible={setIsThumbnailStripVisible}
                     />
-                )}
 
                 <VideoProgressBar
                     videoRef={videoRef}

@@ -124,6 +124,7 @@ export default function useSeekHandler(
     const isSidebarOpen = sideBarOpenRef.current === true;
     const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
     const isShowSkipButtons = showSkipButtonsRef.current === true;
+    const isUserActive = userActivityRef.current === true;
 
     console.log({
         sideBarOpenRef: isSidebarOpen,
@@ -132,7 +133,7 @@ export default function useSeekHandler(
         showSkipButtonsRef: isShowSkipButtons
     });
 
-    if (isSidebarOpen || isThumbnailStripVisible || isSeekbarVisible || isShowSkipButtons) return;
+    if (isSidebarOpen || isThumbnailStripVisible || isSeekbarVisible || isShowSkipButtons || isUserActive) return;
 
     if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
         clearSeek();

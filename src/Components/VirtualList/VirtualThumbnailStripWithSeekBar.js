@@ -15,14 +15,15 @@ const VirtualThumbnailStripWithSeekBar = ({
     setIsSeekbarVisible,
     isVisible,
     isThumbnailStripVisible,
-    setIsThumbnailStripVisible }) => {
+    handleThumbnialStripVisibility, 
+    isSeeking }) => {
     const virtualSeekTimeRef = useRef(null);
     const [isComponentFocused, setIsComponentFocused] = useState(false);
     const [isProgressBarFocusable, setIsProgressBarFocusable] = useState(true);
     // const [isStripVisible, setIsStripVisible] = useState(false);
     const { ref, focusKey: currentFocusKey } = useFocusable({
         focusKey,
-        trackChildren: true,
+        trackChildren: false,
         saveLastFocusedChild: false,
         onFocus: () => {
             setIsComponentFocused(true);
@@ -37,7 +38,7 @@ const VirtualThumbnailStripWithSeekBar = ({
 
     const onClose = () => {
         virtualSeekTimeRef.current = null;
-        setIsThumbnailStripVisible(false);
+        handleThumbnialStripVisibility(false);
         setIsSeeking(false);
     }
 
@@ -47,32 +48,30 @@ const VirtualThumbnailStripWithSeekBar = ({
 
     useEffect(() => {
 
-        if (isComponentFocused) {
+        if (isComponentFocused && !isSeeking) {
             setFocus(VIDEO_PROGRESS_FOCUSKEY);
         }
-    }, [isComponentFocused]);
+    }, [isComponentFocused, isSeeking]);
 
-    useEffect(()=>{
-        if(isThumbnailStripVisible){
-            setFocus(THUMBNAIL_STRIP_FOCUSKEY);
-        }
-    },[isThumbnailStripVisible, setIsThumbnailStripVisible])
+    // useEffect(()=>{
+    //     if(isThumbnailStripVisible){
+    //         setFocus(THUMBNAIL_STRIP_FOCUSKEY);
+    //     }
+    // },[isThumbnailStripVisible, setIsThumbnailStripVisible])
 
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div ref={ref} className="thumbnails_strip" style={{ opacity: isVisible ? 1 : 0 }}>
-                    {isThumbnailStripVisible &&
                     <VirtualizedThumbnailStrip
                         videoRef={videoRef}
                         thumbnailBaseUrl={thumbnailBaseUrl}
                         onClose={onClose}
                         virtualSeekTimeRef={virtualSeekTimeRef}
                         focusKey={THUMBNAIL_STRIP_FOCUSKEY}
-                        isVisible={isThumbnailStripVisible}
                         setIsSeeking={setIsSeeking}
-                        setIsThumbnailStripVisible={setIsThumbnailStripVisible}
+                        handleThumbnialStripVisibility={handleThumbnialStripVisibility}
                         isThumbnailStripVisible = {isThumbnailStripVisible}
-                    />}
+                    />
 
                 <VideoProgressBar
                     videoRef={videoRef}
@@ -80,7 +79,8 @@ const VirtualThumbnailStripWithSeekBar = ({
                     isFocusable={true}
                     focusKey={VIDEO_PROGRESS_FOCUSKEY}
                     setIsSeeking={setIsSeeking}
-                    setIsStripFocusable={setIsThumbnailStripVisible}
+                    handleThumbnialStripVisibility={handleThumbnialStripVisibility}
+                    thumbnailStripFocusKey = {THUMBNAIL_STRIP_FOCUSKEY}
                     // isThumbnailStripVisible = {setIsThumbnailStripVisible}
                      />
             </div>
