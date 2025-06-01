@@ -200,7 +200,7 @@ const VirtualizedThumbnailStrip = ({
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey,
     trackChildren: true,
-    focusable: isThumbnailStripVisible,
+    focusable: thumbnailBaseUrl && isThumbnailStripVisible,
     saveLastFocusedChild: false,
     onFocus: () => {  
       setIsSeeking(true);

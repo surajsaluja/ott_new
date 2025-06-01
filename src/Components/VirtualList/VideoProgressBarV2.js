@@ -9,11 +9,12 @@ const VideoProgressBar = ({
   videoRef,
   virtualSeekTimeRef,
   isFocusable = true,
+  isStripFocusable,
   focusKey,
-  setIsSeeking,
-  setIsStripFocusable,
   handleThumbnialStripVisibility,
   thumbnailStripFocusKey,
+  togglePlayPause,
+  setIsSeeking
 }) => {
   const [progress, setProgress] = useState(0);
   const [displayTime, setDisplayTime] = useState(0);
@@ -34,14 +35,19 @@ const VideoProgressBar = ({
     focusable: isFocusable,
     onArrowPress: (direction) => {
       if (direction === "left" || direction === "right") {
-        // console.log('is Strip Visible ' + isThumbnailStripVisible);
-        console.log(" is Strip Focusable " + true);
-        handleThumbnialStripVisibility(true);
-        setFocus(thumbnailStripFocusKey);
-        // seek(direction);
+        if (isStripFocusable) {
+          setFocus(thumbnailStripFocusKey);
+          handleThumbnialStripVisibility(true);
+        } else {
+          seek(direction);
+        }
       }
     },
+    onEnterPress:()=>{
+        togglePlayPause();
+    },
     onFocus: () => {
+    setIsSeeking(false);
       handleThumbnialStripVisibility(false);
     },
     onBlur: () => {

@@ -23,15 +23,17 @@ import { sendVideoAnalytics } from "../../Service/MediaService";
 import FocusableButton from "../Common/FocusableButton";
 import { useSignalR } from "../../Hooks/useSignalR";
 import StreamLimitModal from "./StreamLimitError";
+import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
-const THUMBNAIL_STRIP_FOCUSKEY = 'STRIP_THUMBNAIL';
+const THUMBNAIL_STRIP_FOCUSKEY = "STRIP_THUMBNAIL";
 const VIDEO_PLAYER_FOCUS_KEY = "VIDEO_PLAYER";
 const VIDEO_OVERLAY_FOCUS_KEY = "VIDEO_OVERLAY";
 const SKIP_BTN_FOCUS_KEY = "SKIP_BUTTON";
-const SKIP_INTRO_TEXT = 'Skip Intro';
-const SKIP_RECAP_TEXT = 'Skip Recap';
-const SKIP_NEXT_EPISODE_TEXT = 'Next Episode';
+const SKIP_INTRO_TEXT = "Skip Intro";
+const SKIP_RECAP_TEXT = "Skip Recap";
+const SKIP_NEXT_EPISODE_TEXT = "Next Episode";
+const DUMMY_BTN_FOCUS_KEY = "DUMMY_BUTTON";
 
 const VideoPlayer = () => {
   const location = useLocation();
@@ -44,14 +46,14 @@ const VideoPlayer = () => {
     isTrailer,
     onScreenInfo,
     skipInfo,
-    playDuration
+    playDuration,
   } = location.state || {};
   const deviceInfo = getDeviceInfo();
   const { userObjectId } = useUserContext();
   const videoRef = useRef(null);
-  const playIconTimeout = useRef(null);
-  const inactivityTimeout = useRef(null);
-  const seekIconTimeout = useRef(null);
+  const playIconTimeoutRef = useRef(null);
+  const inactivityTimeoutRef = useRef(null);
+  const seekIconTimeoutRef = useRef(null);
   const isSideBarOpenRef = useRef();
 
   const [isPlaying, setIsPlaying] = useState(true);
@@ -60,11 +62,11 @@ const VideoPlayer = () => {
   const [isUserActive, setIsUserActive] = useState(false);
   const [showSeekIcon, setShowSeekIcon] = useState(false);
   const [seekAmount, setSeekAmount] = useState(10);
-  const [isSeeking,setIsSeeking] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
   const [isSeekbarVisible, setIsSeekbarVisible] = useState(false);
   const [isThumbnailStripVisible, setIsThumbnailStripVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [streamLimitError,setStreamLimitError] = useState(false);
+  const [streamLimitError, setStreamLimitError] = useState(false);
 
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(-1);
@@ -73,10 +75,9 @@ const VideoPlayer = () => {
   const [selectedQuality, setSelectedQuality] = useState(-1);
 
   const [showSkipButtons, setShowSkipButtons] = useState(false);
-  const [skipButtonText, setSkipButtonText] = useState('');
+  const [skipButtonText, setSkipButtonText] = useState("");
   const showSkipButtonsRef = useRef(false);
-  const skipButtonTextRef = useRef('');
-
+  const skipButtonTextRef = useRef("");
 
   const userActivityRef = useRef(null);
   const isSeekingRef = useRef(null);
@@ -94,9 +95,8 @@ const VideoPlayer = () => {
   const watchTimeIntervalRef = useRef(null);
 
   // SignalR
-  const { isConnected, playCapability, connectManuallyV2, disconnectManually } = useSignalR();
-
-
+  const { isConnected, playCapability, connectManuallyV2, disconnectManually } =
+    useSignalR();
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey: VIDEO_PLAYER_FOCUS_KEY,
@@ -137,7 +137,11 @@ const VideoPlayer = () => {
   const startWatchTimer = () => {
     if (watchTimeIntervalRef.current) return;
     watchTimeIntervalRef.current = setInterval(() => {
-      if (!isSeekingRef.current && videoRef?.current && !videoRef?.current.paused) {
+      if (
+        !isSeekingRef.current &&
+        videoRef?.current &&
+        !videoRef?.current.paused
+      ) {
         watchTimeRef.current += 1;
       }
     }, 1000);
@@ -148,29 +152,29 @@ const VideoPlayer = () => {
     watchTimeIntervalRef.current = null;
   };
 
- const handleSetIsPlaying = async (val) => {
-  let video = videoRef.current;
-  if (!video) return;
+  const handleSetIsPlaying = async (val) => {
+    let video = videoRef.current;
+    if (!video) return;
 
-  if (val === !!isPlayingRef.current) return;
+    if (val === !!isPlayingRef.current) return;
 
-  try {
-    if (val && video.paused) {
-      startWatchTimer();
-      await video.play();
-      isPlayingRef.current = true;
-      setIsPlaying(true);
-    } else if (!val && !video.paused) {
-      stopWatchTimer();
-      await video.pause();
-      isPlayingRef.current = false;
-      setIsPlaying(false);
-      sendAnalyticsForMedia();
+    try {
+      if (val && video.paused) {
+        startWatchTimer();
+        await video.play();
+        isPlayingRef.current = true;
+        setIsPlaying(true);
+      } else if (!val && !video.paused) {
+        stopWatchTimer();
+        await video.pause();
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+        sendAnalyticsForMedia();
+      }
+    } catch (error) {
+      console.error("Error in handleSetIsPlaying:", error);
     }
-  } catch (error) {
-    console.error('Error in handleSetIsPlaying:', error);
-  }
-};
+  };
 
   // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
@@ -183,110 +187,147 @@ const VideoPlayer = () => {
       handleSetIsPlaying(false);
     }
     setShowPlayIcon(true);
-    clearTimeout(playIconTimeout.current);
-    playIconTimeout.current = setTimeout(() => setShowPlayIcon(false), 700);
+    clearTimeout(playIconTimeoutRef.current);
+    playIconTimeoutRef.current = setTimeout(() => setShowPlayIcon(false), 700);
   }, []);
 
-  const handleSetIsUserActive  = (val) =>{
+  const handleSetIsUserActive = (val) => {
+  // Only update if value has changed
+  if (userActivityRef.current !== val) {
     userActivityRef.current = val;
     setIsUserActive(val);
-    if(val === false){
-      handleIsSeekbarVisible(false);
-    }
   }
 
+  if (val === true) {
+    // Focus the thumbnail strip only if user was previously inactive
+    if (userActivityRef.current !== true) {
+      setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
+    }
+
+    // Clear previous timeout if any
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+
+    // Start inactivity timer
+    inactivityTimeoutRef.current = setTimeout(() => {
+      if (isThumbnailStripVisibleRef.current || isSideBarOpenRef.current) {
+        return;
+      }
+      handleSetIsUserActive(false);
+    }, inactivityDelay);
+  }
+
+  if (val === false) {
+    setFocus(DUMMY_BTN_FOCUS_KEY);
+    handleThumbnialStripVisibility(false);
+  }
+};
+
+useOverrideBackHandler(() => {
+    handleBackPressed();
+  });
+
+
   const handleBackPressed = useCallback(() => {
-    if(userActivityRef.current){
+  if(isThumbnailStripVisibleRef.current){
+    handleThumbnialStripVisibility(false);
+    return;
+  }else if (userActivityRef.current) {
       handleSetIsUserActive(false);
       return;
-    }else if(isSideBarOpenRef.current){
+    } else if (isSideBarOpenRef.current) {
       handleSidebarOpen(false);
       handleSetIsUserActive(false);
       // setFocus('Dummy_Btn');
       return;
-    }else if(isSeekbarVisibleRef.current){
+    } else if (isSeekbarVisibleRef.current) {
       return;
-    }else{
-    history.goBack();
-    return;
+    } else {
+      history.goBack();
+      return;
     }
   }, [isSideBarOpenRef, userActivityRef]);
 
   const handleSetAnalyticsHistoryId = (historyId) => {
     analyticsHistoryIdRef.current = historyId;
-  }
+  };
 
   const switchCaption = (caption) => {
-        if (videoRef.current.hls) {
-            videoRef.current.hls.subtitleTrack = caption.id === -1 ? -1 : caption.id;
-            setSelectedCaption(caption.id);
-        }
-    };
+    if (videoRef.current.hls) {
+      videoRef.current.hls.subtitleTrack = caption.id === -1 ? -1 : caption.id;
+      setSelectedCaption(caption.id);
+    }
+  };
 
-    const handleQualityChange = (quality) => {
-        if (videoRef.current.hls) {
-            if (quality.minBandwidth === 'auto') {
-                videoRef.current.hls.currentLevel = -1; // Auto quality
-            } else {
-                const level = videoRef.current.hls.levels.findIndex(
-                    (lvl) => lvl.bitrate >= quality.minBandwidth && lvl.bitrate <= quality.maxBandwidth
-                );
-                if (level !== -1) {
-                    videoRef.current.hls.currentLevel = level;
-                }
-            }
+  const handleQualityChange = (quality) => {
+    if (videoRef.current.hls) {
+      if (quality.minBandwidth === "auto") {
+        videoRef.current.hls.currentLevel = -1; // Auto quality
+      } else {
+        const level = videoRef.current.hls.levels.findIndex(
+          (lvl) =>
+            lvl.bitrate >= quality.minBandwidth &&
+            lvl.bitrate <= quality.maxBandwidth
+        );
+        if (level !== -1) {
+          videoRef.current.hls.currentLevel = level;
         }
-        setSelectedQuality(quality.id);
-    };
+      }
+    }
+    setSelectedQuality(quality.id);
+  };
 
-    const handleAudioChange = (audio) => {
-        if (videoRef.current.hls) {
-            videoRef.current.hls.audioTrack = audio.id;
-            setSelectedAudio(audio.id);
-        }
-    };
+  const handleAudioChange = (audio) => {
+    if (videoRef.current.hls) {
+      videoRef.current.hls.audioTrack = audio.id;
+      setSelectedAudio(audio.id);
+    }
+  };
 
   const sendAnalyticsForMedia = async () => {
     try {
       var analyticsData = {};
       const playDuration = watchTimeRef.current;
-      const currentPosition = videoRef?.current ? videoRef?.current.currentTime : 0;
+      const currentPosition = videoRef?.current
+        ? videoRef?.current.currentTime
+        : 0;
 
       if (analyticsHistoryIdRef.current) {
         analyticsData = {
-          "mediaId": mediaId,
-          "userId": userObjectId,
-          "deviceId": deviceInfo.deviceId,
-          "userAgent": "Tizen",
-          "playDuration": playDuration.toString(),
-          "CurrentPosition": parseInt(currentPosition).toString(),
-          "status": "Pause",
-          "action": "AppNew",
-          "historyid": analyticsHistoryIdRef.current,
-          "DeviceType": 5,
-          "DeviceName": deviceInfo.deviceName,
-          "IsTrailer": isTrailer
+          mediaId: mediaId,
+          userId: userObjectId,
+          deviceId: deviceInfo.deviceId,
+          userAgent: "Tizen",
+          playDuration: playDuration.toString(),
+          CurrentPosition: parseInt(currentPosition).toString(),
+          status: "Pause",
+          action: "AppNew",
+          historyid: analyticsHistoryIdRef.current,
+          DeviceType: 5,
+          DeviceName: deviceInfo.deviceName,
+          IsTrailer: isTrailer,
         };
       } else {
         analyticsData = {
-          "mediaId": mediaId,
-          "userId": userObjectId,
-          "deviceId": deviceInfo.deviceId,
-          "userAgent": "Tizen",
-          "playDuration": playDuration.toString(),
-          "CurrentPosition": currentPosition.toString(),
-          "status": "BrowserEvent",
-          "action": "AppNew",
-          "DeviceType": 5,
-          "DeviceName": deviceInfo.deviceName,
-          "IsTrailer": isTrailer
+          mediaId: mediaId,
+          userId: userObjectId,
+          deviceId: deviceInfo.deviceId,
+          userAgent: "Tizen",
+          playDuration: playDuration.toString(),
+          CurrentPosition: currentPosition.toString(),
+          status: "BrowserEvent",
+          action: "AppNew",
+          DeviceType: 5,
+          DeviceName: deviceInfo.deviceName,
+          IsTrailer: isTrailer,
         };
       }
 
       const VideoAnalyticsRes = await sendVideoAnalytics(analyticsData);
       if (VideoAnalyticsRes && VideoAnalyticsRes.isSuccess) {
         if (!analyticsHistoryIdRef.current) {
-          handleSetAnalyticsHistoryId(VideoAnalyticsRes.data)
+          handleSetAnalyticsHistoryId(VideoAnalyticsRes.data);
         } else {
           // History Id already set and just need to update data on historyId
         }
@@ -296,102 +337,86 @@ const VideoPlayer = () => {
     } catch (error) {
       // Error fetching Response
     }
-  }
-
-  const onAudioSubtitlesSettingsPressed = () =>{
-        activeTabsRef.current = ['audio','captions'];
-        handleSetIsUserActive(false);
-        handleSidebarOpen(true);
-    }
-
-    const onVideoSettingsPressed = () =>{
-        activeTabsRef.current = ['video'];
-        handleSetIsUserActive(false);
-        handleSidebarOpen(true);
-    }
-
-  const handleSidebarOpen  = (val) =>{
-    isSideBarOpenRef.current = val;
-    setSidebarOpen(val);
-  }
-
-  const handleFocusVideoOverlay = () => {
-    resetInactivityTimeout();
-    // setFocus('settingsBtn');
   };
 
-const resetInactivityTimeout = useCallback(() => {
-  handleSetIsUserActive(true);
-  clearTimeout(inactivityTimeout.current);
-  inactivityTimeout.current = setTimeout(() => {
-    const isSeeking = isSeekingRef.current === true; // Treat null/undefined as false
-    const isSidebarOpen = isSideBarOpenRef.current === true;
+  const onAudioSubtitlesSettingsPressed = () => {
+    activeTabsRef.current = ["audio", "captions"];
+    handleSetIsUserActive(false);
+    handleSidebarOpen(true);
+  };
 
-    if (!isSeeking && !isSidebarOpen) {
-      handleSetIsUserActive(false);
-      setFocus("Dummy_Btn");
-    }
-  }, inactivityDelay);
-}, []);
+  const onVideoSettingsPressed = () => {
+    activeTabsRef.current = ["video"];
+    handleSetIsUserActive(false);
+    handleSidebarOpen(true);
+  };
 
+  const handleSidebarOpen = (val) => {
+    isSideBarOpenRef.current = val;
+    setSidebarOpen(val);
+  };
+
+  const handleFocusVideoOverlay = () => {
+    handleSetIsUserActive(true);
+  };
 
   const handleSetIsSeeking = (val) => {
-    if(val === isSeekingRef.current) return;
+    if (val === isSeekingRef.current) return;
     isSeekingRef.current = val;
     if (val === true) {
-      console.log('Seeking Started');
+      console.log("Seeking Started");
       handleSetIsPlaying(false);
       setIsSeeking(true);
-    } else if(val === false){
+    } else if (val === false) {
       clearSeek();
-      console.log('Stopped Seeking');
+      console.log("Stopped Seeking");
       setIsSeeking(false);
       handleSetIsPlaying(true);
     }
   };
 
-  const handleIsSeekbarVisible = (val) => {
-    isSeekbarVisibleRef.current = val;
-    setIsSeekbarVisible(val);
-  };
-
   const handleThumbnialStripVisibility = (val) => {
-    if(val === isThumbnailStripVisibleRef.current) return;
+    if (val === isThumbnailStripVisibleRef.current) return;
     setIsThumbnailStripVisible(val);
     isThumbnailStripVisibleRef.current = val;
-    if(val === true){
-      setIsUserActive(true);
+    if (val === true) {
+      handleSetIsUserActive(true);
     }
   };
 
-const skipButtonEnterPress = () => {
-  const currentSkipLabel = skipButtonTextRef.current;
-  let endTime = null;
+  const skipButtonEnterPress = () => {
+    const currentSkipLabel = skipButtonTextRef.current;
+    let endTime = null;
 
-  if (!currentSkipLabel || !skipInfo || !showSkipButtonsRef.current) return;
+    if (!currentSkipLabel || !skipInfo || !showSkipButtonsRef.current) return;
 
-  switch (currentSkipLabel) {
-    case SKIP_INTRO_TEXT:
-      endTime = skipInfo.skipIntroET;
-      break;
-    case SKIP_RECAP_TEXT:
-      endTime = skipInfo.skipRecapET;
-      break;
-    case SKIP_NEXT_EPISODE_TEXT:
-      return; 
-    default:
-      return; 
-  }
+    switch (currentSkipLabel) {
+      case SKIP_INTRO_TEXT:
+        endTime = skipInfo.skipIntroET;
+        break;
+      case SKIP_RECAP_TEXT:
+        endTime = skipInfo.skipRecapET;
+        break;
+      case SKIP_NEXT_EPISODE_TEXT:
+        return;
+      default:
+        return;
+    }
 
-  if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {
-    videoRef.current.currentTime = Number(endTime);
-    resetInactivityTimeout();
-  }
-};
+    if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {
+      videoRef.current.currentTime = Number(endTime);
+      setIsUserActive(false);
+    }
+  };
 
-const handleFocusSeekBar = () => {
-    setFocus(THUMBNAIL_STRIP_FOCUSKEY);
-    handleThumbnialStripVisibility(true);
+  const handleFocusSeekBar = () => {
+    if (isSeekingRef.current && THUMBNAIL_BASE_URL != null) {
+      setFocus(THUMBNAIL_STRIP_FOCUSKEY);
+      handleThumbnialStripVisibility(true);
+    } else {
+      setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
+    }
+    handleSetIsUserActive(true);
   };
 
   const { seekMultiplier, seekDirection, clearSeek } = useSeekHandler(
@@ -403,7 +428,6 @@ const handleFocusSeekBar = () => {
     handleFocusSeekBar,
     isSideBarOpenRef,
     userActivityRef,
-    resetInactivityTimeout,
     isSeekbarVisible,
     isThumbnailStripVisibleRef,
     handleSetIsUserActive,
@@ -413,35 +437,41 @@ const handleFocusSeekBar = () => {
   );
 
   useEffect(() => {
-  if (!isSeekingRef.current || !seekDirection || !seekMultiplier || isSeekbarVisible) return;
+    if (
+      !isSeekingRef.current ||
+      !seekDirection ||
+      !seekMultiplier ||
+      isSeekbarVisible
+    )
+      return;
 
-  if(seekMultiplier == 4 && isThumbnailStripVisibleRef.current != true){
-    console.log('transferring focus to seekbar',{
-      seekMultiplier,
-      seekDirection
-    })
-    clearSeek();
-    setShowSeekIcon(false);
-    setTimeout(()=>{
-      console.log(' now focused after siteTimout');
-      handleFocusSeekBar();
-    },0)
-    return;
-  }
-
-  setSeekAmount(seekMultiplier * seekInterval);
-  setShowSeekIcon(true);
-
-  clearTimeout(seekIconTimeout.current);
-  seekIconTimeout.current = setTimeout(() => {
-    if(!isSeekingRef.current){
-    setShowSeekIcon(false);
+    if (seekMultiplier == 4 && isThumbnailStripVisibleRef.current != true) {
+      console.log("transferring focus to seekbar", {
+        seekMultiplier,
+        seekDirection,
+      });
+      clearSeek();
+      setShowSeekIcon(false);
+      setTimeout(() => {
+        console.log(" now focused after siteTimout");
+        handleFocusSeekBar();
+      }, 0);
+      return;
     }
-  }, 1000);
 
-  // Cleanup timeout on unmount
-  return () => clearTimeout(seekIconTimeout.current);
-}, [seekMultiplier, seekDirection, isSeekingRef.current]);
+    setSeekAmount(seekMultiplier * seekInterval);
+    setShowSeekIcon(true);
+
+    clearTimeout(seekIconTimeoutRef.current);
+    seekIconTimeoutRef.current = setTimeout(() => {
+      if (!isSeekingRef.current) {
+        setShowSeekIcon(false);
+      }
+    }, 1000);
+
+    // Cleanup timeout on unmount
+    return () => clearTimeout(seekIconTimeoutRef.current);
+  }, [seekMultiplier, seekDirection, isSeekingRef.current]);
 
   const initializePlayer = useCallback(() => {
     const video = videoRef.current;
@@ -479,12 +509,12 @@ const handleFocusSeekBar = () => {
       });
 
       hls.on(Hls.Events.SUBTITLE_TRACK_SWITCH, (event, data) => {
-                setSelectedCaption(data.id);
-            });
+        setSelectedCaption(data.id);
+      });
 
-            hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
-                setSelectedAudio(data.id);
-            });
+      hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (event, data) => {
+        setSelectedAudio(data.id);
+      });
 
       video.hls = hls;
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
@@ -494,68 +524,71 @@ const handleFocusSeekBar = () => {
     }
   }, [src]);
 
-useEffect(() => {
-  if (videoRef && videoRef.current) {
-    const video = videoRef.current;
+  useEffect(() => {
+    if (videoRef && videoRef.current) {
+      const video = videoRef.current;
 
-    const handleWaiting = () => {setIsLoading(true)};
-    const handleCanPlay = () => {setIsLoading(false)};
-    const handlePlaying = () => {setIsLoading(false)};
-    const handleStalled = () => {setIsLoading(true)};
+      const handleWaiting = () => {
+        setIsLoading(true);
+      };
+      const handleCanPlay = () => {
+        setIsLoading(false);
+      };
+      const handlePlaying = () => {
+        setIsLoading(false);
+      };
+      const handleStalled = () => {
+        setIsLoading(true);
+      };
 
-    video.addEventListener("waiting", handleWaiting);
-    video.addEventListener("canplay", handleCanPlay);
-    video.addEventListener("playing", handlePlaying);
-    video.addEventListener("stalled", handleStalled);
+      video.addEventListener("waiting", handleWaiting);
+      video.addEventListener("canplay", handleCanPlay);
+      video.addEventListener("playing", handlePlaying);
+      video.addEventListener("stalled", handleStalled);
 
+      if (playCapability == true) {
+        setStreamLimitError(false);
+        watchTimeRef.current = 0;
+        initializePlayer();
+      } else if (playCapability == false) {
+        setStreamLimitError(true);
+      }
 
-    if (playCapability == true) {
-      setStreamLimitError(false);
-      watchTimeRef.current = 0;
-      initializePlayer();
-    }else if(playCapability == false){
-      setStreamLimitError(true)
+      return () => {
+        video?.hls?.destroy();
+        clearTimeout(playIconTimeoutRef.current);
+        clearTimeout(inactivityTimeoutRef.current);
+        clearInterval(watchTimeIntervalRef.current);
+        analyticsHistoryIdRef.current = null;
+
+        video.removeEventListener("waiting", handleWaiting);
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("playing", handlePlaying);
+        video.removeEventListener("stalled", handleStalled);
+      };
     }
+  }, [initializePlayer, videoRef, playCapability]);
 
-    // resetInactivityTimeout(); // Uncomment if needed
+  useEffect(() => {
+    const setup = async () => {
+      try {
+        const response = await connectManuallyV2();
+        if (response?.streamCapability) {
+          // setIsReadyToPlay(true);
+        }
+      } catch (err) {
+        console.error("Failed to connect manually:", err);
+      }
+    };
+
+    if (isConnected) {
+      setup();
+    }
 
     return () => {
-      video?.hls?.destroy();
-      clearTimeout(playIconTimeout.current);
-      clearTimeout(inactivityTimeout.current);
-      clearInterval(watchTimeIntervalRef.current);
-      analyticsHistoryIdRef.current = null;
-
-      video.removeEventListener("waiting", handleWaiting);
-      video.removeEventListener("canplay", handleCanPlay);
-      video.removeEventListener("playing", handlePlaying);
-      video.removeEventListener("stalled", handleStalled);
+      disconnectManually();
     };
-  }
-}, [initializePlayer, videoRef, playCapability]);
-
-useEffect(() => {
-  const setup = async () => {
-    try {
-      const response = await connectManuallyV2();
-      if (response?.streamCapability) {
-        // setIsReadyToPlay(true);
-      }
-    } catch (err) {
-      console.error("Failed to connect manually:", err);
-    }
-  };
-
-  if (isConnected) {
-    setup();
-  }
-
-  return () => {
-    disconnectManually();
-  };
-}, [isConnected]);
-
-
+  }, [isConnected]);
 
   useEffect(() => {
     let frameId;
@@ -566,30 +599,39 @@ useEffect(() => {
       if (timestamp - lastCheck >= THROTTLE_MS) {
         const currentTime = videoRef.current?.currentTime || 0;
         let newShowSkipButtons = false;
-        let newSkipButtonText = '';
+        let newSkipButtonText = "";
 
-        if(isSeeking == null || isSeeking === false){
-        if (skipInfo?.skipIntroST && currentTime >= skipInfo?.skipIntroST && currentTime <= skipInfo?.skipIntroET) {
-          newShowSkipButtons = true;
-          newSkipButtonText = 'Skip Intro';
-        } else if (skipInfo?.skipRecapST && currentTime >= skipInfo?.skipRecapST && currentTime <= skipInfo?.skipRecapET) {
-          newShowSkipButtons = true;
-          newSkipButtonText = 'Skip Recap';
-        } else if (skipInfo?.nextEpisodeST && currentTime >= skipInfo?.nextEpisodeST) {
-          newShowSkipButtons = true;
-          newSkipButtonText = 'Next Episode';
+        if (isSeeking == null || isSeeking === false) {
+          if (
+            skipInfo?.skipIntroST &&
+            currentTime >= skipInfo?.skipIntroST &&
+            currentTime <= skipInfo?.skipIntroET
+          ) {
+            newShowSkipButtons = true;
+            newSkipButtonText = "Skip Intro";
+          } else if (
+            skipInfo?.skipRecapST &&
+            currentTime >= skipInfo?.skipRecapST &&
+            currentTime <= skipInfo?.skipRecapET
+          ) {
+            newShowSkipButtons = true;
+            newSkipButtonText = "Skip Recap";
+          } else if (
+            skipInfo?.nextEpisodeST &&
+            currentTime >= skipInfo?.nextEpisodeST
+          ) {
+            newShowSkipButtons = true;
+            newSkipButtonText = "Next Episode";
+          }
+        } else if (isSeeking === true) {
+          newShowSkipButtons = false;
         }
-      }
-      else if(isSeeking === true){
-        newShowSkipButtons = false;
-      }
 
         if (newShowSkipButtons !== showSkipButtonsRef.current) {
           setShowSkipButtons(newShowSkipButtons);
-          setTimeout(()=>{
-          setFocus(SKIP_BTN_FOCUS_KEY);
-          handleSetIsUserActive(false);
-          },100);
+          setTimeout(() => {
+            setFocus(SKIP_BTN_FOCUS_KEY);
+          }, 100);
           showSkipButtonsRef.current = newShowSkipButtons;
         }
 
@@ -609,7 +651,6 @@ useEffect(() => {
     return () => cancelAnimationFrame(frameId);
   }, [skipInfo, videoRef, isSeeking]);
 
-
   // useEffect(() => {
   //   userActivityRef.current = isUserActive;
   //   if (userActivityRef.current) {
@@ -622,10 +663,10 @@ useEffect(() => {
   return (
     <FocusContext.Provider value={currentFocusKey}>
       {streamLimitError && (
-      <StreamLimitModal isOpen={true} onClose={handleBackPressed} />
-    )}
+        <StreamLimitModal isOpen={true} onClose={handleBackPressed} />
+      )}
 
-       <div ref={ref} className="video-container">
+      <div ref={ref} className="video-container">
         <video ref={videoRef} className="video-player" controls={false} muted />
 
         <Popup
@@ -636,7 +677,6 @@ useEffect(() => {
           title={movieTitle}
           focusKey={VIDEO_OVERLAY_FOCUS_KEY}
           isVisible={isUserActive}
-          resetInactivityTimeout={resetInactivityTimeout}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
         />
 
@@ -646,15 +686,15 @@ useEffect(() => {
           focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
           key={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
-          setIsSeekbarVisible={handleIsSeekbarVisible} // used to get input from component is visible from focus
           isThumbnailStripVisible={isThumbnailStripVisible} // to control thumnail strip
           handleThumbnialStripVisibility={handleThumbnialStripVisibility} // used to get input if thumbnail strip is visible
-          isVisible={isUserActive || isSeekbarVisible} // used to make seekbar visible from prent
+          isVisible={isUserActive} // used to make seekbar visible from prent
           watchTimeRef={watchTimeRef}
           isSeeking={isSeekingRef.current}
           setShowSkipButtons={setShowSkipButtons}
           setSkipButtonText={setSkipButtonText}
-          handleSetIsPlaying = {handleSetIsPlaying}
+          handleSetIsPlaying={handleSetIsPlaying}
+          togglePlayPause={togglePlayPause}
         />
 
         {showSeekIcon && (
@@ -673,7 +713,7 @@ useEffect(() => {
         )}
 
         {showPlayIcon && (
-          <div className={`playPauseRipple ${showPlayIcon ? 'show' : ''}`}>
+          <div className={`playPauseRipple ${showPlayIcon ? "show" : ""}`}>
             {isPlaying ? <MdPlayArrow /> : <MdOutlinePause />}
           </div>
         )}
@@ -695,13 +735,15 @@ useEffect(() => {
           />
         )}
 
-        {showSkipButtons && <FocusableButton
-          text={skipButtonText}
-          className="skip-button"
-          focusClass="skip-button-focused"
-          focuskey={SKIP_BTN_FOCUS_KEY}
-          onEnterPress={skipButtonEnterPress}
-        />}
+        {showSkipButtons && (
+          <FocusableButton
+            text={skipButtonText}
+            className="skip-button"
+            focusClass="skip-button-focused"
+            focuskey={SKIP_BTN_FOCUS_KEY}
+            onEnterPress={skipButtonEnterPress}
+          />
+        )}
 
         {isLoading && !isSeeking && (
           <div className="video-loader">
