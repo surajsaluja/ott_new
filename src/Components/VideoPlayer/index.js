@@ -157,10 +157,6 @@ const VideoPlayer = () => {
     let video = videoRef.current;
     if (!video) return;
 
-    if(val === true){
-      debugger;
-    }
-
     if (val === !!isPlayingRef.current) return;
 
     try {

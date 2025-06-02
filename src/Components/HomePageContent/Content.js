@@ -8,7 +8,7 @@ import FocusableButton from "../Common/FocusableButton";
 import Banner from "../Banner";
 import AssetCard from "../Common/AssetCard";
 import "./Content.css";
-import LoadingSkeleton from "./LoadingSkeleton";
+import LoadingSkeleton from "../Common/MovieHomeSkeleton/LoadingSkeleton";
 
 const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus }) => {
   const {
@@ -86,47 +86,4 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
   );
 };
 
-const ContentWithBanner = ({category,focusKey}) =>{
-
- const onHeaderFocus = () =>{};
- 
-  const {
-    ref,
-    currentFocusKey,
-    hasFocusedChild,
-    handleAssetFocus,
-    focusedAssetData,
-    data,
-    setData,
-    isLoading,
-    setIsLoading,
-    banners,
-    loadMoreRows
-  } = useContentWithBanner(onHeaderFocus,category,focusKey);
-
-  if(isLoading)
-  {
-    return (
-      <LoadingSkeleton />
-    )
-  }
-
-  return (
-  <FocusContext.Provider value={currentFocusKey}>
-  <div ref = {ref} className="content-with-banner">
-
-    <Banner data={focusedAssetData} banners={banners} />
-    <Content 
-      onAssetFocus={handleAssetFocus} 
-      data={data} 
-      setData={setData} 
-      isLoading={isLoading} 
-      setIsLoading={setIsLoading}
-      loadMoreRows={loadMoreRows}
-      handleAssetFocus = {handleAssetFocus} 
-      />
-    </div>
-    </FocusContext.Provider>)
-}
-
-export default ContentWithBanner;
+export default Content;
