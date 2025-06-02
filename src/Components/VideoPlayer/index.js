@@ -157,6 +157,10 @@ const VideoPlayer = () => {
     let video = videoRef.current;
     if (!video) return;
 
+    if(val === true){
+      debugger;
+    }
+
     if (val === !!isPlayingRef.current) return;
 
     try {
@@ -197,7 +201,7 @@ const VideoPlayer = () => {
 
   if (val === true) {
     // Focus the thumbnail strip only if user was previously inactive
-    if (userActivityRef.current !== true) {
+    if (userActivityRef.current !== true && isSeekingRef.current != true) {
       setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
     }
 
