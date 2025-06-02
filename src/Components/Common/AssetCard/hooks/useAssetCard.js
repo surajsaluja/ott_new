@@ -7,11 +7,11 @@ const useAssetCard = (data) => {
   const { imgRef, shouldLoad, imageUrl } = useIntersectionImageLoader(data.webThumbnail || null);
 
   const handleLoad = () => setIsLoaded(true);
-  const handleError = () => {
-    setHasError(true);
-    setIsLoaded(true);
-  };
-
+  const handleError = (e) => {
+  console.log('Image load error:', e?.target?.src);
+  setHasError(true);
+  setIsLoaded(true);
+};
   return {
     imgRef,
     shouldLoad,

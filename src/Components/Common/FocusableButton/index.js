@@ -10,11 +10,13 @@ const FocusableButton = ({
     onFocus = () => {},
     className: styleClass = '',
     icon = '',
-    focusClass = ''
+    focusClass = '',
+    focusable = true,
 }) => {
 
     const { ref, focused } = useFocusable({
         focusKey: focusKeyParam,
+        focusable,
         onEnterPress,
         onFocus,
         trackChildren: true,

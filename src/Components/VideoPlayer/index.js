@@ -89,6 +89,7 @@ const VideoPlayer = () => {
   const analyticsHistoryIdRef = useRef();
   const activeTabsRef = useRef(null);
   const isPlayingRef = useRef(null);
+  const virtualSeekTimeRef = useRef(null);
 
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
@@ -193,10 +194,6 @@ const VideoPlayer = () => {
 
   const handleSetIsUserActive = (val) => {
   // Only update if value has changed
-  if (userActivityRef.current !== val) {
-    userActivityRef.current = val;
-    setIsUserActive(val);
-  }
 
   if (val === true) {
     // Focus the thumbnail strip only if user was previously inactive
@@ -221,6 +218,11 @@ const VideoPlayer = () => {
   if (val === false) {
     setFocus(DUMMY_BTN_FOCUS_KEY);
     handleThumbnialStripVisibility(false);
+  }
+
+  if (userActivityRef.current !== val) {
+    userActivityRef.current = val;
+    setIsUserActive(val);
   }
 };
 
@@ -382,6 +384,10 @@ useOverrideBackHandler(() => {
     if (val === true) {
       handleSetIsUserActive(true);
     }
+    if(val === false){
+      virtualSeekTimeRef.current = null;
+      handleSetIsSeeking(false);
+    }
   };
 
   const skipButtonEnterPress = () => {
@@ -405,7 +411,8 @@ useOverrideBackHandler(() => {
 
     if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {
       videoRef.current.currentTime = Number(endTime);
-      setIsUserActive(false);
+      setShowSkipButtons(false);
+      handleSetIsUserActive(true);
     }
   };
 
@@ -455,7 +462,7 @@ useOverrideBackHandler(() => {
       setTimeout(() => {
         console.log(" now focused after siteTimout");
         handleFocusSeekBar();
-      }, 0);
+      }, 100);
       return;
     }
 
@@ -629,9 +636,11 @@ useOverrideBackHandler(() => {
 
         if (newShowSkipButtons !== showSkipButtonsRef.current) {
           setShowSkipButtons(newShowSkipButtons);
-          setTimeout(() => {
-            setFocus(SKIP_BTN_FOCUS_KEY);
-          }, 100);
+          handleSetIsUserActive(true);
+          // setTimeout(() => {
+          //   handleSetIsUserActive(true);
+          //   setFocus(SKIP_BTN_FOCUS_KEY);
+          // }, 100);
           showSkipButtonsRef.current = newShowSkipButtons;
         }
 
@@ -695,6 +704,11 @@ useOverrideBackHandler(() => {
           setSkipButtonText={setSkipButtonText}
           handleSetIsPlaying={handleSetIsPlaying}
           togglePlayPause={togglePlayPause}
+          virtualSeekTimeRef={virtualSeekTimeRef}
+          showSkipButtons={showSkipButtons}
+          skipButtonText={skipButtonText}
+          skipButtonEnterPress={skipButtonEnterPress}
+          skipButtonFocusKey={SKIP_BTN_FOCUS_KEY}
         />
 
         {showSeekIcon && (
@@ -735,15 +749,6 @@ useOverrideBackHandler(() => {
           />
         )}
 
-        {showSkipButtons && (
-          <FocusableButton
-            text={skipButtonText}
-            className="skip-button"
-            focusClass="skip-button-focused"
-            focuskey={SKIP_BTN_FOCUS_KEY}
-            onEnterPress={skipButtonEnterPress}
-          />
-        )}
 
         {isLoading && !isSeeking && (
           <div className="video-loader">

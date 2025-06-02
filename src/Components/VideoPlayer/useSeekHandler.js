@@ -33,6 +33,7 @@ export default function useSeekHandler(
   const [seekMultiplier, setSeekMultiplier] = useState(0);
 
   const clearSeek = () => {
+    console.log('seeking  clear called');
     clearInterval(seekIntervalRef.current);
     seekIntervalRef.current = null;
 
@@ -44,7 +45,7 @@ export default function useSeekHandler(
       setSeekDirection(null);
       setSeekMultiplier(1);
       console.log("Seeking Cleared");
-    }, 1000);
+    }, 0);
   };
 
   const seek = useCallback(
@@ -85,8 +86,7 @@ export default function useSeekHandler(
         return false;
     }else if (
       isSidebarOpen ||
-      isSeeking ||
-      isShowSkipButtons
+      isSeeking
     )
       return;
 
