@@ -1,9 +1,8 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { useCallback, useState, useRef, useEffect } from "react";
-import { getProcessedPlaylists, useThrottle, getProcessedPlaylistsWithContinueWatch, showModal } from "../../../Utils";
+import { useCallback, useRef, useEffect } from "react";
+import { showModal } from "../../../Utils";
 import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
-import { fetchContinueWatchingData, fetchPlaylistPage, fetchBannersBySection } from "../../../Service/MediaService";
 import { useHistory } from "react-router-dom";
 
 /* ------------------ Content Row Hook ------------------ */

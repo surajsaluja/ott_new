@@ -1,0 +1,20 @@
+.Tv-Banner-Container{
+    display: flex;
+    height: 45vh;
+    /* width: 820px; */
+    flex-direction: row;
+    /* flex: 1 1 auto; */
+    /* padding: 2vw; */
+    /* background-color: red; */
+    justify-content: center;
+    margin-top: 1vw
+}
+
+.Tv-Banner-Container div{
+    overflow: hidden !important;
+}
+
+.FocusableBanner-Item-Container{
+    display: flex;
+    flex: 1 1 auto;
+}

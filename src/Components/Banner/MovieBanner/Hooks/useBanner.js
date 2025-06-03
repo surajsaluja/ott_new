@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useUserContext } from "../../../Context/userContext";
-import { showModal } from "../../../Utils";
+import { useUserContext } from "../../../../Context/userContext";
+import { showModal } from "../../../../Utils";
 import Hls from "hls.js";
 import { useHistory } from "react-router-dom";
 

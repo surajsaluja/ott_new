@@ -1,14 +1,9 @@
-import React,{useState} from "react";
 import {
   FocusContext,
-  useFocusable,
 } from "@noriginmedia/norigin-spatial-navigation";
-import { useAsset, useContentRow, useMovieHomePage, useContentWithBanner } from "./hooks/useContent";
-import FocusableButton from "../Common/FocusableButton";
-import Banner from "../Banner";
+import {useContentRow, useMovieHomePage} from "./hooks/useContent";
 import AssetCard from "../Common/AssetCard";
 import "./Content.css";
-import LoadingSkeleton from "../Common/MovieHomeSkeleton/LoadingSkeleton";
 
 const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus }) => {
   const {

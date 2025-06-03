@@ -1,7 +1,7 @@
 import LoadingSkeleton from "../Common/MovieHomeSkeleton/LoadingSkeleton";
 import { useContentWithBanner } from "./Hooks";
 import { FocusContext } from '@noriginmedia/norigin-spatial-navigation';
-import Banner from "../Banner";
+import Banner from "../Banner/MovieBanner";
 import Content from "../HomePageContent/Content";
 
 const ContentWithBanner = ({category,focusKey}) =>{
