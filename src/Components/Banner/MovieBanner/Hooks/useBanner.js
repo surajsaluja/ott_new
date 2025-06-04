@@ -4,7 +4,7 @@ import { showModal } from "../../../../Utils";
 import Hls from "hls.js";
 import { useHistory } from "react-router-dom";
 
-const TRAILER_PLAY_DELAY = 2000;
+const TRAILER_PLAY_DELAY = 500;
 
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);
@@ -16,6 +16,25 @@ const useBanner = (asset, banners) => {
   const history = useHistory();
   const videoPlayerRef = useRef(null);
   const hlsRef = useRef(null);
+
+  const handleVideoCanPlay = () => {
+    console.log('can play');
+    setIsVideoLoaded(true);
+    videoElement.play().catch(error => {
+      console.error("Autoplay prevented:", error);
+    });
+  }
+
+  const handleVideoPlay = () => {
+    console.log('playing');
+    setIsPlaying(true);
+  }
+
+  const handleVideoEnd = () => {
+    console.log('video ended');
+    setIsPlaying(false);
+    setIsVideoLoaded(false);
+  }
 
   const videoRef = useCallback((node) => {
     if (node !== null) {
@@ -35,32 +54,24 @@ const useBanner = (asset, banners) => {
     }
 
     if (!asset?.trailerUrl || !videoElement) {
+      console.log('trailer not avialable');
       return;
-    }
-
-    const onVideoEnd = ()=>{
-      
     }
 
     const playTrailer = () => {
       if (!videoElement) return;
 
-
       let hls;
-      const onLoadedData = () => {
-        setIsVideoLoaded(true);
-        videoElement.play().catch(error => {
-          console.error("Autoplay prevented:", error);
-        });
-        setIsPlaying(true);
-      };
 
       videoElement.pause();
       videoElement.src = "";
       setIsVideoLoaded(false);
 
-      videoElement.addEventListener("loadeddata", onLoadedData);
-      videoElement.addEventListener("ended",onVideoEnd)
+      videoElement.addEventListener("waiting", () => { console.log('waiting') });
+      videoElement.addEventListener("canplay", handleVideoCanPlay);
+      videoElement.addEventListener("playing", handleVideoPlay);
+      videoElement.addEventListener("ended", handleVideoEnd)
+      videoElement.addEventListener("stalled", () => { console.log('stalled') });
 
       if (Hls.isSupported()) {
         hls = new Hls();
@@ -72,7 +83,11 @@ const useBanner = (asset, banners) => {
       }
 
       return () => {
-        videoElement.removeEventListener("loadeddata", onLoadedData);
+        videoElement.removeEventListener("waiting", () => { console.log('') });
+        videoElement.removeEventListener("canplay", handleVideoCanPlay);
+        videoElement.removeEventListener("playing", handleVideoPlay);
+        videoElement.removeEventListener("ended", handleVideoEnd)
+        videoElement.removeEventListener("stalled", () => { console.log('stalled') });
         if (hls) hls.destroy();
         setIsPlaying(false);
       };

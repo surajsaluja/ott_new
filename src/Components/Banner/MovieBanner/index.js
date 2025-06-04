@@ -85,7 +85,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     }
 
     if (asset) {
-      title = `Is P : ${isPlaying} + is V : ${isVideoLoaded}`;
+      title = asset.title;
       mediaTitle = asset.mediaTitle;
       releasedYear = asset.releasedYear;
       ageRangeId = asset.ageRangeId;
