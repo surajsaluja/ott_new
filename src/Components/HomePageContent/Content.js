@@ -4,15 +4,17 @@ import {
 import {useContentRow, useMovieHomePage} from "./hooks/useContent";
 import AssetCard from "../Common/AssetCard";
 import "./Content.css";
+import { useRef } from "react";
 
-const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus }) => {
+const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus, lastRowChangeRef }) => {
+  const lastAssetChangeRef = useRef(Date.now());
   const {
     ref,
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-    onAssetFocus
-  } = useContentRow(focusKey, onFocus , handleAssetFocus);
+    onAssetFocus,
+  } = useContentRow(focusKey, onFocus, handleAssetFocus);
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
@@ -30,6 +32,8 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
                 assetData={item}
                 onEnterPress={onAssetPress}
                 onAssetFocus={onAssetFocus}
+                lastAssetChangeRef = {lastAssetChangeRef}
+                lastRowChangeRef={lastRowChangeRef}
               />
             ))}
           </div>
@@ -50,6 +54,8 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
     isLoading : loadingSpinner
   } = useMovieHomePage(focusKeyParam, data, setData, isLoading, setIsLoading,loadMoreRows,handleAssetFocus);
 
+  const lastRowChangeRef = useRef(Date.now());
+
   return (
     <FocusContext.Provider value={focusKey}>
       <div className="ContentWrapper">
@@ -66,6 +72,7 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
                   onAssetPress={onAssetPress}
                   onAssetFocus = {onAssetFocus}
                   handleAssetFocus = {handleAssetFocus}
+                  lastRowChangeRef = {lastRowChangeRef}
                 />
               </div>
             );

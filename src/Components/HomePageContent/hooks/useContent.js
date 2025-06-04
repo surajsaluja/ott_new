@@ -4,6 +4,8 @@ import { showModal } from "../../../Utils";
 import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
 import { useHistory } from "react-router-dom";
+import { debounce } from "lodash"
+const SCROLL_OFFSET = 80;
 
 /* ------------------ Content Row Hook ------------------ */
 const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
@@ -19,37 +21,9 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   });
 
   const scrollingRowRef = useRef(null);
-
-  // const onScrollToElement = 
-  //   debounce((element) => {
-  //     if (element && scrollingRowRef.current) {
-  //       const parentRect = scrollingRowRef.current.getBoundingClientRect();
-  //       const elementRect = element.getBoundingClientRect();
-
-  //       const scrollLeft =
-  //         scrollingRowRef.current.scrollLeft +
-  //         (elementRect.left - parentRect.left - parentRect.x);
-
-  //       smoothScroll(scrollingRowRef.current, scrollLeft);
-  //     }
-  //   }, 200);
-
-  // const onScrollToElement = useThrottle((element) => {
-  //   if (element && scrollingRowRef.current) {
-  //     const parentRect = scrollingRowRef.current.getBoundingClientRect();
-  //     const elementRect = element.getBoundingClientRect();
-
-  //     const scrollLeft =
-  //       scrollingRowRef.current.scrollLeft +
-  //       (elementRect.left - parentRect.left - 80);
-
-  //     smoothScroll(scrollingRowRef.current, scrollLeft);
-  //   }
-  // }, 300); // Adjust throttle interval to your liking
-
   const rafRef = useRef(null);
 
-  const onScrollToElement = (element) => {
+const scrollToElement = (element) => {
     if (!element || !scrollingRowRef.current) return;
 
     cancelAnimationFrame(rafRef.current);
@@ -67,26 +41,67 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   };
 
 
+//  const throttleScroll = useRef(throttle((element) => {
+//     if (!element || !scrollingRowRef.current) return;
+//     const parentRect = scrollingRowRef.current.getBoundingClientRect();
+//     const elementRect = element.getBoundingClientRect();
+//     const scrollLeft = scrollingRowRef.current.scrollLeft +
+//       (elementRect.left - parentRect.left - SCROLL_OFFSET);
+//     smoothScroll(scrollingRowRef.current, scrollLeft, 100);
+//   }, 200)).current;
 
-  const onAssetFocus = useCallback((element, data) => {
-    onScrollToElement(element);
-    handleAssetFocus(data);
-  }, [onScrollToElement, smoothScroll]);
+//   const debouncedSnap = useRef(debounce((element) => {
+//     if (!element || !scrollingRowRef.current) return;
+//     const parentRect = scrollingRowRef.current.getBoundingClientRect();
+//     const elementRect = element.getBoundingClientRect();
+//     const scrollLeft = scrollingRowRef.current.scrollLeft +
+//       (elementRect.left - parentRect.left - SCROLL_OFFSET);
+//     smoothScroll(scrollingRowRef.current, scrollLeft, 250);
+//   }, 50)).current;
 
+  // Debounced version of scrollToElement
+  const debouncedScroll = useRef(
+    debounce((element) => {
+      scrollToElement(element);
+    }, 100)
+  ).current;
+
+  const onAssetFocus = useCallback(
+    (element, data) => {
+      // Always update asset focus immediately
+      handleAssetFocus(data);
+      // Scroll only after focus is stable (debounced)
+      // throttleScroll(element);      // during key repeat
+    // debouncedSnap(element);
+      debouncedScroll(element);
+    },
+    [handleAssetFocus,debouncedScroll]
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedScroll.cancel();
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return {
     ref,
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-    onAssetFocus,
+    onAssetFocus
   };
 };
+
 
 /* ------------------ Movie Home Page Hook ------------------ */
 const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus) => {
   const history = useHistory();
   const { userObjectId, isLoggedIn } = useUserContext();
+  const scrollDebounceRef = useRef();
+  const loadMoreRef = useRef(null);
 
   const { ref, focusKey, hasFocusedChild } = useFocusable({
     focusKey: focusKeyParam,
@@ -100,7 +115,18 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     }
   },[hasFocusedChild]);
 
-  const loadMoreRef = useRef(null);
+  useEffect(() => {
+  // initialize debounce once
+  scrollDebounceRef.current = debounce((scrollTop) => {
+    if (ref.current) {
+      ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
+    }
+  }, 50); // 300ms debounce
+   return () => {
+    scrollDebounceRef.current?.cancel?.();
+  };
+}, []);
+
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -122,12 +148,12 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     return () => observer.disconnect();
   }, [data]);
 
-  const onRowFocus = useCallback((element) => {
-    if (element && ref.current) {
-      const scrollTop = element.top - ref.current.offsetTop;
-      ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
-    }
-  }, [ref, smoothScroll]);
+const onRowFocus = useCallback((element) => {
+  if (element && ref.current && scrollDebounceRef.current) {
+    const scrollTop = element.top - ref.current.offsetTop;
+    scrollDebounceRef.current(scrollTop);
+  }
+}, [ref]);
 
   const redirectToLogin = () => {
     history.push('/login', { from: '/' });
