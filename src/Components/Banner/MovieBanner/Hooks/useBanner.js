@@ -4,6 +4,8 @@ import { showModal } from "../../../../Utils";
 import Hls from "hls.js";
 import { useHistory } from "react-router-dom";
 
+const TRAILER_PLAY_DELAY = 2000;
+
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);
   const [showOverlay, setShowOverlay] = useState(true);
@@ -36,8 +38,13 @@ const useBanner = (asset, banners) => {
       return;
     }
 
+    const onVideoEnd = ()=>{
+      
+    }
+
     const playTrailer = () => {
       if (!videoElement) return;
+
 
       let hls;
       const onLoadedData = () => {
@@ -53,6 +60,7 @@ const useBanner = (asset, banners) => {
       setIsVideoLoaded(false);
 
       videoElement.addEventListener("loadeddata", onLoadedData);
+      videoElement.addEventListener("ended",onVideoEnd)
 
       if (Hls.isSupported()) {
         hls = new Hls();
@@ -70,7 +78,7 @@ const useBanner = (asset, banners) => {
       };
     };
 
-    const delayPlay = setTimeout(playTrailer, 300);
+    const delayPlay = setTimeout(playTrailer, TRAILER_PLAY_DELAY);
     return () => clearTimeout(delayPlay);
 
   }, [asset?.trailerUrl, videoElement]);

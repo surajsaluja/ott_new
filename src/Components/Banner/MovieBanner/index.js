@@ -33,15 +33,15 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   if (!asset && banners.length === 0) return null;
 
   const renderMedia = () => {
-    if (showBanner && banners.length > 0) {
+    if (showBanner && banners.length > 0 && banners[0].fullPageBanner) {
       return <img key="banner-image" src={banners[0].fullPageBanner} className={`banner-video ${transitionClass}`} />;
     }
 
-    if (asset?.trailerUrl) {
+    if (asset?.trailerUrl && asset.fullPageBanner) {
       return (
         <>
           {!isVideoLoaded && <img key="banner-poster" src={asset.fullPageBanner} className={`banner-video ${transitionClass}`}/>}
-          <video
+          { <video
             key="banner-video"
             ref={videoRef}
             className={`banner-video ${transitionClass}`}
@@ -50,7 +50,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
             playsInline
             muted
             style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
-          />
+          />}
         </>
       );
     }
@@ -85,7 +85,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     }
 
     if (asset) {
-      title = asset.title;
+      title = `Is P : ${isPlaying} + is V : ${isVideoLoaded}`;
       mediaTitle = asset.mediaTitle;
       releasedYear = asset.releasedYear;
       ageRangeId = asset.ageRangeId;
@@ -93,8 +93,8 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       duration = asset.duration;
       genre = asset.genre;
       rating = asset.rating;
-      isWatchTrailerButton = !!asset.trailerUrl; // Show trailer button if trailer URL exists
-      isPlayButton = !asset.trailerUrl; // Show play button if no trailer
+      isWatchTrailerButton = false; // Show trailer button if trailer URL exists
+      isPlayButton = false; // Show play button if no trailer
     }
 
     return (<div className={`asset-info ${transitionClass}`}>

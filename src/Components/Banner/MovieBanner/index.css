@@ -75,7 +75,7 @@
   
   .play-btn,
   .trailer-btn {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #979797c9;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -138,7 +138,7 @@
     font-weight: 400;
     margin: 1em 0;
     margin: 1em 0;
-    height: 19vh;
+    height: 17vh;
     text-overflow: ellipsis;
     text-wrap: wrap;
     overflow: hidden;
