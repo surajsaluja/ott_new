@@ -51,4 +51,8 @@ export const API = {
     MENU: {
         GET_APP_FEATURES: 'AdminApi/GetAppFeatures',
     },
+    LIVETV:{
+        GET_TV_HOME_PAGE_DATA : 'LiveTV/ChannelCategoriesV2?source=TV',
+        POST_CHANNEL_SCHEDULE: 'LiveTV/AllScheduled'
+    }
 };

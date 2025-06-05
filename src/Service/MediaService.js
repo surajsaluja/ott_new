@@ -152,6 +152,7 @@ export const updateMediaItemToWishlist = async (data,options={}) =>{
 
 export const sendVideoAnalytics = async(data,options) =>{
     try{
+        if(!data) throw new Error("Post Data Required");
         const response = await postData(API.MEDIA.POST_PLAY_HISTORY,data,options);
         return response;
     }catch(error){

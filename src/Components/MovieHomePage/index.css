@@ -5,3 +5,12 @@
     height: 100%;
     flex-direction: column;
 }
+
+.content-area {
+  flex: 1;
+  flex: 1 1 auto;
+  height: 100%;
+  overflow: hidden;
+  transition: margin-left 0.3s ease;
+  display: flex;
+}

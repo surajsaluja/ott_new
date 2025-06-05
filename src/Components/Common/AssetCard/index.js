@@ -35,19 +35,19 @@ const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChange
     extraProps: { assetData },
   });
 
-useEffect(() => {
-  if (!focused) return; 
-  const handleKeyUp = () => {
-    console.log('key up');
-    lastAssetChangeRef.current = 0;
-    lastRowChangeRef.current = 0;
-  };
+  useEffect(() => {
+    if (!focused) return;
+    const handleKeyUp = () => {
+      console.log('key up');
+      lastAssetChangeRef.current = 0;
+      lastRowChangeRef.current = 0;
+    };
 
-  window.addEventListener('keyup', handleKeyUp);
-  return () => {
-    window.removeEventListener('keyup', handleKeyUp);
-  };
-}, [focused]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [focused]);
 
 
   function delayFocus(ref, delay) {
@@ -84,6 +84,10 @@ useEffect(() => {
               onLoad={handleLoad}
               onError={handleError}
             />
+            {assetData.category === 'LiveTv' && assetData.countryLogo && assetData.name &&
+              <div className="handlerInfo">
+                <img src={assetData.countryLogo} />
+                <p>{assetData.name}</p></div>}
           </>
         ) : (
           <div className="shimmer-placeholder card-image" ref={imgRef}>No Image available</div>

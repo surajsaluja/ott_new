@@ -5,7 +5,7 @@ import useMenu from './Hooks/useMenu';
 import './index.css';
 import { kableOneLogo } from '../../assets';
 
-function Menu_Home({ activeTab, focusKey}) {   
+function Menu_Home({ activeTab, focusKey , setIsSideBarOpen}) {   
 
     const { 
         menuItems, 
@@ -25,24 +25,9 @@ function Menu_Home({ activeTab, focusKey}) {
         focusSelf();
     },[loading])
 
-    const openBrowser = () => {
-    if (window.tizen && window.tizen.application) {
-      const appControl = new window.tizen.ApplicationControl(
-        'http://tizen.org/appcontrol/operation/view',
-        'https://www.kableone.com/' // Replace with your URL
-      );
-
-      window.tizen.application.launchAppControl(
-        appControl,
-        null,
-        () => console.log('Browser launched successfully'),
-        (err) => console.error('Error launching browser:', err),
-        null
-      );
-    } else {
-      console.error('Tizen API not available');
-    }
-  };
+    useEffect(()=>{
+      setIsSideBarOpen(hasFocusedChild);
+    },[hasFocusedChild])
 
     return (
         <FocusContext.Provider value={currentFocusKey}>

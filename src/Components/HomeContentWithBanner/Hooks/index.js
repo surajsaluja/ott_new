@@ -26,7 +26,7 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   const [page, setPage] = useState(1);
   const { uid, isLoggedIn } = useUserContext();
 
-  const settleTimerRef = useRef(null);
+  const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
   const SETTLE_DELAY = 200;
 
   useEffect(() => {

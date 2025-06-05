@@ -3,7 +3,7 @@ import FocusableButton from '../../Common/FocusableButton';
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import useBanner from './Hooks/useBanner'
-import {formatTime} from '../../../Utils';
+import {formatTime, getEclipsedTrimmedText} from '../../../Utils';
 import './index.css';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
@@ -130,7 +130,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>}
           {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>}
         </div>
-        <p className="description">{shortDescription}</p>
+        <p className="description">{getEclipsedTrimmedText(shortDescription,190)}</p>
         <div className="genres">
           {genre && genre.split(',').map((genre, idx) => (
             <span key={idx} className="genre">{genre}</span>

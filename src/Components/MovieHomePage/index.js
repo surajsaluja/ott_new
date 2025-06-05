@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 
@@ -10,6 +10,8 @@ import './index.css';
 
 const MovieHomePage = () => {
   const { category } = useParams();
+
+  const [isSidebarOpen, setIsSideBarOpen] = useState(false);
 
   const categoryMap = {
     HOME: 5,
@@ -46,8 +48,13 @@ const MovieHomePage = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "row", width: "100%", height: "100%", color: 'white' }}>
-      <Menu_Home activeTab={catId} focusKey="Menu_Abc" />
-      {renderContent()}
+      <Menu_Home 
+      activeTab={catId} 
+      focusKey="Menu_Abc"
+      setIsSideBarOpen={setIsSideBarOpen} />
+      <div className={`content-area ${isSidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
+        {renderContent()}
+      </div>
     </div>
   );
 };

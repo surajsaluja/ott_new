@@ -28,6 +28,14 @@ const linear = (t) => t;
     );
   };
 
+export const getEclipsedTrimmedText = (text = '', maxLength = 0) => {
+  if (!text || typeof text !== 'string') return '';
+  if (maxLength <= 0) return '';
+  return text.length > maxLength
+    ? text.substring(0, maxLength).trimEnd() + '...'
+    : text;
+};
+
 export const getResizedOptimizedImage = (url, width, height) => {
   if (width && height)
     return url + "?im=Resize,width=" + width + ",height=" + height;
@@ -82,6 +90,33 @@ export const getProcessedPlaylists = (playlists, horizontalLazyLoadLimit = 10) =
     };
   });
 };
+
+export const processLiveTvCategoriesToPlaylist = (categories)=>{
+  // convert the categories object to playlist as required by content component
+  return categories.map((category)=>{
+
+    let categoryItems  = category.channels.map((item)=>{
+      return {
+        ...item,
+        title:item.name,
+        playListId: item.category,
+        mediaID: item.id,
+        category: 'LiveTv',
+        webThumbnail: sanitizeAndResizeImage(item.image,450)
+      }
+    })
+
+    let cat = {
+      playListId: category.id,
+      playlistName: category.category,
+      playListType: 'LiveTv',
+      playlistItems: categoryItems
+    };
+
+    return cat;
+
+  });
+}
 
 export const useThrottle = (callback, delay) => {
   const lastCall = useRef(0);

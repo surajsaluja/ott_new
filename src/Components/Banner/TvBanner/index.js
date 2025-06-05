@@ -55,7 +55,7 @@ function TvBanner({ focusKey, bannersData }) {
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div ref={ref} className='Tv-Banner-Container'>
-        {bannersData.length > 0 && (
+        {bannersData && bannersData.length > 0 && (
           <List
             ref={tvBannerListRef}
             width={listWidth}
