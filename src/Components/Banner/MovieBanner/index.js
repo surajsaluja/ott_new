@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import FocusableButton from '../../Common/FocusableButton';
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
@@ -19,45 +19,69 @@ const Banner = ({ data: asset = null, banners = [] }) => {
 
   const [transitionClass, setTransitionClass] = useState('');
   const [currentAsset, setCurrentAsset] = useState(asset);
+  const [currentBanners, setCurrentBanners] = useState(banners);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const prevAssetRef = useRef(asset);
+  const prevBannersRef = useRef(banners);
 
   useEffect(() => {
-    if (asset?.mediaID !== currentAsset?.mediaID) {
+    if (asset?.mediaID !== currentAsset?.mediaID || JSON.stringify(banners) !== JSON.stringify(currentBanners)) {
+      setIsTransitioning(true);
       setTransitionClass('fade-out');
-      setTimeout(() => {
+      
+      const timer = setTimeout(() => {
+        prevAssetRef.current = currentAsset;
+        prevBannersRef.current = currentBanners;
         setCurrentAsset(asset);
+        setCurrentBanners(banners);
         setTransitionClass('fade-in');
+        setIsTransitioning(false);
       }, 300);
-    }
-  }, [asset, currentAsset]);
 
-  if (!asset && banners.length === 0) return null;
+      return () => clearTimeout(timer);
+    }
+  }, [asset, banners, currentAsset, currentBanners]);
+
+  // Determine which data to display during transition
+  const displayAsset = isTransitioning ? prevAssetRef.current : currentAsset;
+  const displayBanners = isTransitioning ? prevBannersRef.current : currentBanners;
+  const displayShowBanner = isTransitioning ? 
+    (prevBannersRef.current.length > 0 && !currentAsset) : 
+    (currentBanners.length > 0 && !currentAsset);
+
+  if (!displayAsset && displayBanners.length === 0) return null;
 
   const renderMedia = () => {
-    if (showBanner && banners.length > 0 && banners[0].fullPageBanner) {
-      return <img key="banner-image" src={banners[0].fullPageBanner} className={`banner-video ${transitionClass}`} />;
+    if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].fullPageBanner) {
+      return <img key="banner-image" src={displayBanners[0].fullPageBanner} className={`banner-video ${transitionClass}`} />;
     }
 
-    if (asset?.trailerUrl && asset.fullPageBanner) {
+    if (displayAsset?.trailerUrl && displayAsset.fullPageBanner) {
       return (
         <>
-          {!isVideoLoaded && <img key="banner-poster" src={asset.fullPageBanner} className={`banner-video ${transitionClass}`}/>}
-          { <video
+          {!isVideoLoaded && displayAsset.fullPageBanner && 
+            <img 
+              key="banner-poster" 
+              src={displayAsset.fullPageBanner} 
+              className={`banner-video ${transitionClass}`}
+            />
+          }
+          <video
             key="banner-video"
             ref={videoRef}
             className={`banner-video ${transitionClass}`}
-            autoPlay={false} // Let the effect in useBanner handle autoplay after loadeddata
-            poster={asset.fullPageBanner}
+            autoPlay={false}
+            poster={displayAsset.fullPageBanner}
             playsInline
             muted
             style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
-          />}
+          />
         </>
       );
     }
 
-    return <img key="asset-image" src={asset?.fullPageBanner} className={`banner-video ${transitionClass}`} />;
+    return <img key="asset-image" src={displayAsset?.fullPageBanner} className={`banner-video ${transitionClass}`} />;
   };
-
 
   const renderMediaDetails = () => {
     let mediaTitle = '';
@@ -71,51 +95,53 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     let isWatchTrailerButton = false;
     let isPlayButton = false;
 
-    if (showBanner && banners.length > 0) {
-      title = banners[0].mediaTitle;
-      mediaTitle = banners[0].mediaTitle;
-      releasedYear = banners[0].releasedYear;
-      ageRangeId = banners[0].ageRangeId;
-      shortDescription = banners[0].shortDescription;
-      duration = banners[0].duration;
-      genre = banners[0].genre;
-      rating = banners[0].rating;
-      isWatchTrailerButton = banners[0].isWatchTrailerButton;
-      isPlayButton = banners[0].isPlayButton;
+    if (displayShowBanner && displayBanners.length > 0) {
+      title = displayBanners[0].mediaTitle;
+      mediaTitle = displayBanners[0].mediaTitle;
+      releasedYear = displayBanners[0].releasedYear;
+      ageRangeId = displayBanners[0].ageRangeId;
+      shortDescription = displayBanners[0].shortDescription;
+      duration = displayBanners[0].duration;
+      genre = displayBanners[0].genre;
+      rating = displayBanners[0].rating;
+      isWatchTrailerButton = displayBanners[0].isWatchTrailerButton;
+      isPlayButton = displayBanners[0].isPlayButton;
     }
 
-    if (asset) {
-      title = asset.title;
-      mediaTitle = asset.mediaTitle;
-      releasedYear = asset.releasedYear;
-      ageRangeId = asset.ageRangeId;
-      shortDescription = asset.shortDescription;
-      duration = asset.duration;
-      genre = asset.genre;
-      rating = asset.rating;
-      isWatchTrailerButton = false; // Show trailer button if trailer URL exists
-      isPlayButton = false; // Show play button if no trailer
+    if (displayAsset) {
+      title = displayAsset.title;
+      mediaTitle = displayAsset.mediaTitle;
+      releasedYear = displayAsset.releasedYear;
+      ageRangeId = displayAsset.ageRangeId;
+      shortDescription = displayAsset.shortDescription;
+      duration = displayAsset.duration;
+      genre = displayAsset.genre;
+      rating = displayAsset.rating;
+      isWatchTrailerButton = false;
+      isPlayButton = false;
     }
 
-    return (<div className={`asset-info ${transitionClass}`}>
-      <h1 className="title">{title}</h1>
-      <div className="tags">
-        {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>}
-        {rating && <span><i><MdStarRate /></i>{rating}</span>}
-        {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>}
-        {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>}
+    return (
+      <div className={`asset-info ${transitionClass}`}>
+        <h1 className="title">{title}</h1>
+        <div className="tags">
+          {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>}
+          {rating && <span><i><MdStarRate /></i>{rating}</span>}
+          {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>}
+          {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>}
+        </div>
+        <p className="description">{shortDescription}</p>
+        <div className="genres">
+          {genre && genre.split(',').map((genre, idx) => (
+            <span key={idx} className="genre">{genre}</span>
+          ))}
+        </div>
+        <div className='asset-buttons'>
+          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={()=>watchMediaVOD(true)} />}
+          {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={()=>watchMediaVOD(false)} />}
+        </div>
       </div>
-      <p className="description">{shortDescription}</p>
-      <div className="genres">
-        {genre && genre.split(',').map((genre, idx) => (
-          <span key={idx} className="genre">{genre}</span>
-        ))}
-      </div>
-      <div className='asset-buttons'>
-        {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={()=>watchMediaVOD(true)} />}
-        {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={()=>watchMediaVOD(false)} />} {/* Assuming watchMediaVOD also handles playing the full content */}
-      </div>
-    </div>);
+    );
   };
 
   return (
@@ -124,7 +150,6 @@ const Banner = ({ data: asset = null, banners = [] }) => {
         {renderMedia()}
         {showOverlay && (
           <div className="banner-overlay">
-            {/* <div className="banner-gradient" /> */}
             <div className='overlay overlay-ltr'></div>
             {renderMediaDetails()}
           </div>

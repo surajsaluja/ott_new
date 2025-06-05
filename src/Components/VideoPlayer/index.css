@@ -110,7 +110,7 @@
   color: azure;
 }
 
-video::cue{
+.video-player::cue{
   line-height: 1.5;
 }
 

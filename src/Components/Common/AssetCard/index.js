@@ -2,6 +2,7 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import useAssetCard from "./hooks/useAssetCard";
 import FocusableButton from "../FocusableButton";
 import './index.css'
+import { useEffect } from "react";
 
 const LEFT_RIGHT_DELAY = 300;
 const UP_DOWN_DELAY = 500;
@@ -33,6 +34,21 @@ const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChange
     },
     extraProps: { assetData },
   });
+
+useEffect(() => {
+  if (!focused) return; 
+  const handleKeyUp = () => {
+    console.log('key up');
+    lastAssetChangeRef.current = 0;
+    lastRowChangeRef.current = 0;
+  };
+
+  window.addEventListener('keyup', handleKeyUp);
+  return () => {
+    window.removeEventListener('keyup', handleKeyUp);
+  };
+}, [focused]);
+
 
   function delayFocus(ref, delay) {
     if (ref && typeof ref.current !== 'undefined') {

@@ -4,7 +4,7 @@ import { showModal } from "../../../../Utils";
 import Hls from "hls.js";
 import { useHistory } from "react-router-dom";
 
-const TRAILER_PLAY_DELAY = 500;
+const TRAILER_PLAY_DELAY = 2000;
 
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);
@@ -78,8 +78,24 @@ const useBanner = (asset, banners) => {
         hlsRef.current = hls;
         hls.loadSource(asset.trailerUrl);
         hls.attachMedia(videoElement);
+
+        hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {
+          if (videoElement.textTracks) {
+            for (let i = 0; i < videoElement.textTracks.length; i++) {
+              videoElement.textTracks[i].mode = "disabled";
+            }
+          }
+        });
       } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
         videoElement.src = asset.trailerUrl;
+      }
+
+      // Disable subtitles/text tracks
+      // Disable all subtitles / text tracks
+      if (videoElement.textTracks) {
+        for (let i = 0; i < videoElement.textTracks.length; i++) {
+          videoElement.textTracks[i].mode = "disabled";
+        }
       }
 
       return () => {
