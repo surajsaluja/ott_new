@@ -206,3 +206,45 @@ export const showModal = (title = 'Title', description = 'Short description', bu
     console.warn('Modal opener not set yet.');
   }
 };
+
+export function timeformat(date) {
+  var h = date.getHours();
+  var m = date.getMinutes();
+  var x = h >= 12 ? 'pm' : 'am';
+  h = h % 12;
+  h = h ? h : 12;
+  m = m < 10 ? '0'+m: m;
+  var mytime= h + ':' + m + ' ' + x;
+  return mytime;
+}
+
+export function getTodayMidnightDate(){
+	var date = new Date();
+	date.setHours(24,0,0,0);
+	return date;
+}
+
+export function convertUTCDateToLocalDate(newdate) {
+	var date = new Date(newdate);
+	var newDate = new Date(date.getTime() - date.getTimezoneOffset()*60*1000);
+	return newDate;
+}
+
+export function formattedDateForBanner(serverdate){
+	let d = convertUTCDateToLocalDate(serverdate);
+	var h = d.getHours();
+  	var m = d.getMinutes();
+  	var x = h >= 12 ? 'pm' : 'am';
+	h = h % 12;
+  	h = h ? h : 12;
+  	m = m < 10 ? '0'+m: m;
+	let mytime= h + ':' + m + ' ' + x;
+	return ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+    d.getFullYear() + " " + mytime;
+}
+
+export function  getUtcDate(){
+	var now = new Date();
+	var d = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+	return d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" +  d.getDate()).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
+}
