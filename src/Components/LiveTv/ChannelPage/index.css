@@ -1,0 +1,106 @@
+.liveTvChannelContainer{
+    --playBandInfoHeight: 50%;
+    display: flex;
+    flex: 1 1 auto;
+    /* background-color: beige; */
+    border: 2px solid red;
+    flex-direction: row;
+}
+
+.channelTopWrapper{
+    background-color: transparent;
+    display: flex;
+    flex: 1 1 auto;
+    height: 17vh;
+    margin: 15vh 0 5vh 0;
+    position: relative;
+}
+
+.channelImageWrapper{
+    background-color: transparent;
+    width: 30%;
+    height: 150%;
+    margin: 0 50px;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    z-index:1;
+}
+
+.channelImageWrapper img{
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    background-repeat: no-repeat;
+    border-radius: 15px;
+    max-height: 100%;
+    max-width: 100%;
+    position: absolute;
+    top: -50px;
+}
+
+.channelInformationContainer{
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    background-color: aqua;
+}
+
+.playButtonContainer{
+    display: flex;
+    /* height: var(--playBandInfoHeight); */
+    background-color: red;
+    justify-content: flex-start;
+    align-items: center;
+    flex: 1 1 auto;
+}
+ 
+
+.playBtnLiveTvChannel{
+    background-color: #c5bfbf;
+  border: none;
+  color: white;
+  display: flex;
+  padding: 10px 20px;
+  text-align: center;
+  border-radius: 40px;
+  height: 3vh;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  /* width: 100px */
+  font-size: 2vw;
+}
+
+.channelInformationWrapper{
+    display: flex;
+    flex: 1 1 auto;
+    background-color: transparent;
+    flex-direction: column;
+    margin-top: 1em;
+}
+
+.channelInfoTitle{
+    color: white;
+    font-size: 1.6vw;
+    font-weight: 700;
+}
+
+.channelInfoDescription{
+    color: white;
+    font-size: 1.2vw;
+    font-weight: 300;
+    margin-top: 0.5em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.playInfoBand{
+    display: flex;
+    position: absolute;
+    flex: 1 1 auto;
+    width: 100%;
+    background-color: #ddd;
+    z-index: 0;
+}
