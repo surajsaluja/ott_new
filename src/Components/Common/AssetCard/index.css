@@ -1,14 +1,13 @@
 .asset-wrapper {
     display: inline-block;
-    transition: transform 0.2s ease-in-out;
-    margin: 1em;
-    height: 10em;
-    border-width: 0.2em;
-    border-color: transparent;
-    border-style: solid;
-    border-radius: 0.5em;
-    padding: 0.2em;
-    box-sizing: border-box;
+  transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  border-width: 0.2em;
+  border-color: transparent;
+  border-style: solid;
+  border-radius: 0.5em;
+  padding: 0.2em;
+  box-sizing: border-box;
+  position: relative; /* For absolute positioning of child elements */
   }
   
   .asset-wrapper.focused {
@@ -16,7 +15,9 @@
   }
   
   .card {
-    width: 15em;
+    /* width:450px; */
+    /* height: 100%; */
+    width: 100%;
     height: 100%;
     border-radius: 0.3em;
     overflow: hidden;

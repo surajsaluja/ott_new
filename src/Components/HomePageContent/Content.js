@@ -5,8 +5,12 @@ import {useContentRow, useMovieHomePage} from "./hooks/useContent";
 import AssetCard from "../Common/AssetCard";
 import "./Content.css";
 import { useRef } from "react";
+import { calculateDimensions } from "../../Utils";
 
-const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus, lastRowChangeRef }) => {
+const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus, lastRowChangeRef, playListDimensions }) => {
+  const rowDimensions = data.length > 0 && playListDimensions 
+    ? calculateDimensions(playListDimensions.height, playListDimensions.width)
+    : calculateDimensions(null, null);
   const lastAssetChangeRef = useRef(Date.now());
   const {
     ref,
@@ -21,9 +25,14 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
       <div
         ref={ref}
         className={`contentRowWrapper ${hasFocusedChild ? "RowFocused" : ""}`}
+        style={{ height: `${rowDimensions.containerHeight}px` }}
+
       >
         <div className="ContentRowTitle">{title}</div>
-        <div className="ContentRowScrollingWrapper" ref={scrollingRowRef}>
+        <div className="ContentRowScrollingWrapper"
+         ref={scrollingRowRef}
+         style={{ height: `${rowDimensions.itemHeight}px` }}
+         >
           <div className="ContentRowScrollingContent">
             {data.map((item, index) => (
               <AssetCard
@@ -34,6 +43,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
                 onAssetFocus={onAssetFocus}
                 lastAssetChangeRef = {lastAssetChangeRef}
                 lastRowChangeRef={lastRowChangeRef}
+                dimensions = {rowDimensions}
               />
             ))}
           </div>
@@ -58,7 +68,7 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
 
   return (
     <FocusContext.Provider value={focusKey}>
-      <div className="ContentWrapper">
+      <div className="ContentWrapper" id='homeContentWrapper'>
         <div className="ContentRow" ref={ref}>
           {movieRowsData && movieRowsData.map((item, index) => {
             const isThirdLast = index === movieRowsData.length - 3;
@@ -73,6 +83,12 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
                   onAssetFocus = {onAssetFocus}
                   handleAssetFocus = {handleAssetFocus}
                   lastRowChangeRef = {lastRowChangeRef}
+                  playListDimensions={
+                    {
+                      height: item.height,
+                      width:item.width 
+                    }
+                  }
                 />
               </div>
             );

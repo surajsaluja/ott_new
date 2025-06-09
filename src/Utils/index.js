@@ -47,6 +47,42 @@ export const getResizedOptimizedImage = (url, width, height) => {
     return url;
 };
 
+// utils/calculateDimensions.js
+export const calculateDimensions = (height, width) => {
+  const gap = 40;
+  const homeContentWrapper = document.getElementById('getPlaylistDimentions');
+  const maxHeight = homeContentWrapper ? homeContentWrapper.height - 70 : 320;
+
+  const defaultDimensions = {
+    itemWidth: 360,
+    itemHeight: 200,
+    containerHeight: 200 + gap,
+    displayImgType: 'web'
+  };
+
+  if (height === null || width === null) {
+    return defaultDimensions;
+  }
+
+  const aspectRatio = height / width;
+  let itemWidth, itemHeight;
+
+  if (aspectRatio > 1.9 || aspectRatio === 1) {
+    itemHeight = Math.min(maxHeight,((250 * aspectRatio) + 16));
+    itemWidth = itemHeight / aspectRatio;
+  } else {
+    itemHeight = Math.min(maxHeight,200 * aspectRatio);
+    itemWidth = itemHeight/aspectRatio;
+  }
+
+  return {
+    itemWidth,
+    itemHeight,
+    containerHeight: itemHeight + gap,
+    displayImgType: 'mobile'
+  };
+};
+
 export const sanitizeAndResizeImage = (url, width) => {
   if (!url) return null;
   const lastPart = url.substring(url.lastIndexOf("/") + 1)

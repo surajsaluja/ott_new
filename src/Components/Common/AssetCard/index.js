@@ -7,7 +7,7 @@ import { useEffect } from "react";
 const LEFT_RIGHT_DELAY = 300;
 const UP_DOWN_DELAY = 500;
 
-const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChangeRef, lastRowChangeRef }) => {
+const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChangeRef, lastRowChangeRef, dimensions }) => {
   const {
     imgRef,
     shouldLoad,
@@ -16,7 +16,7 @@ const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChange
     hasError,
     handleLoad,
     handleError,
-  } = useAssetCard(assetData);
+  } = useAssetCard(assetData, dimensions);
 
   const { ref, focused } = useFocusable({
     onEnterPress,
@@ -63,36 +63,56 @@ const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChange
   }
 
   return (
-    <div ref={ref} className={`asset-wrapper ${focused ? "focused" : ""}`}>
+    <div ref={ref} 
+      className={`asset-wrapper ${focused ? "focused" : ""}`}
+       style={{
+        width: `${dimensions.itemWidth}px`,
+        height: `${dimensions.itemHeight}px`,
+        marginRight: '20px' // or whatever spacing you need
+      }}>
       <div className={`card ${focused ? "focused" : ""}`}>
-        {assetData.isSeeMore ? (
-          <FocusableButton
-            className={`seeMore`}
-            text={`See More`}
-            onEnterPress={onEnterPress}
-            onFocus={onAssetFocus}
+  {assetData.isSeeMore ? (
+    <FocusableButton
+      className={`seeMore`}
+      text={`See More`}
+      onEnterPress={onEnterPress}
+      onFocus={onAssetFocus}
+    />
+  ) : shouldLoad ? (
+    <>
+      {/* Show shimmer placeholder while loading or if error occurs */}
+      {(!isLoaded || hasError) && (
+        <div className="shimmer-placeholder card-image">
+          {hasError ? 'No Image available' : <p>{assetData.title}</p>}
+        </div>
+      )}
+      
+      {/* Show image only when loaded and no error */}
+      {!hasError && (
+        <>
+          <img
+            ref={imgRef}
+            className={`card-image ${focused ? "focused" : ""} show`}
+            src={imageUrl}
+            alt=""
+            onLoad={handleLoad}
+            onError={handleError}
           />
-        ) : shouldLoad && !hasError ? (
-          <>
-            {!isLoaded && <div className="shimmer-placeholder card-image"><p>{assetData.title}</p></div>}
-            <img
-              ref={imgRef}
-              className={`card-image ${focused ? "focused" : ""} ${isLoaded ? "show" : "hide"
-                }`}
-              src={imageUrl}
-              alt=""
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-            {assetData.category === 'LiveTv' && assetData.countryLogo && assetData.name &&
-              <div className="handlerInfo">
-                <img src={assetData.countryLogo} />
-                <p>{assetData.name}</p></div>}
-          </>
-        ) : (
-          <div className="shimmer-placeholder card-image" ref={imgRef}>No Image available</div>
-        )}
-      </div>
+          {assetData.category === 'LiveTv' && assetData.countryLogo && assetData.name && (
+            <div className="handlerInfo">
+              <img src={assetData.countryLogo} alt="Country flag" />
+              <p>{assetData.name}</p>
+            </div>
+          )}
+        </>
+      )}
+    </>
+  ) : (
+    <div className="shimmer-placeholder card-image" ref={imgRef}>
+      Loading...
+    </div>
+  )}
+</div>
     </div>
   );
 };

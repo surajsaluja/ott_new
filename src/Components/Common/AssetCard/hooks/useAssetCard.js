@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 
-const useAssetCard = (data) => {
+const useAssetCard = (data, dimensions) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const { imgRef, shouldLoad, imageUrl } = useIntersectionImageLoader(data.webThumbnail || null);
+    const imgUrl = dimensions.displayImgType === 'web' ? data.webThumbnail : data.mobileThumbnail;
+  const { imgRef, shouldLoad, imageUrl } = useIntersectionImageLoader(imgUrl || null);
 
   const handleLoad = () => setIsLoaded(true);
   const handleError = (e) => {
