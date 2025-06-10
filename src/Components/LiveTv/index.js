@@ -10,9 +10,13 @@ function LiveTvHome(focusKey) {
     const {focusKey: currentFocusKey, ref, focusSelf} = useFocusable({
         focusKey,
         preferredChildFocusKey: 'TV_BANNER_FOCUS_KEY'
-    })
+    });
 
     const {liveTvHomePageData, isTvDataLoading, liveTvBannersData} = useLiveTv();
+
+    useEffect(()=>{
+      focusSelf();
+    },[])
 
     if(isTvDataLoading)
   {

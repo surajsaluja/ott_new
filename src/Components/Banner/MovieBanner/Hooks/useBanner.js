@@ -4,7 +4,7 @@ import { showModal } from "../../../../Utils";
 import Hls from "hls.js";
 import { useHistory } from "react-router-dom";
 
-const TRAILER_PLAY_DELAY = 2000;
+const TRAILER_PLAY_DELAY = 1000;
 
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);

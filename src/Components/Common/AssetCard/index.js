@@ -97,11 +97,24 @@ const AssetCard = ({ onEnterPress, onAssetFocus, assetData = {}, lastAssetChange
             alt=""
             onLoad={handleLoad}
             onError={handleError}
+            style={{width: isLoaded ? '100%' : 0}}
           />
           {assetData.category === 'LiveTv' && assetData.countryLogo && assetData.name && (
             <div className="handlerInfo">
               <img src={assetData.countryLogo} alt="Country flag" />
               <p>{assetData.name}</p>
+            </div>
+          )}
+          {assetData.category === 'LiveTvSchedule' && assetData.timeSlot && (
+            <div className="LiveTvScheduleInfo">
+              <div className="left">
+                {assetData.isNowPlaying && <span className="nowPlaying">Now Playing</span>}
+              <p>{assetData.programmeName}</p>
+              </div>
+              <div className="right">
+                {!assetData.isNowPlaying && <p>{assetData.timeSlot}</p>}
+                {assetData.isNowPlaying && <p className="liveSchedule">LIVE</p>}
+              </div>
             </div>
           )}
         </>

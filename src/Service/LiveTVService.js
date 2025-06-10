@@ -17,13 +17,22 @@ export const fetchLiveTvHomePageData = async () => {
     }
 }
 
-export const fetchLiveTvSchedule = async (data, options) => {
+export const fetchAllLiveTvSchedule = async (data, options) => {
     try {
         if (!data) throw new Error("Post Data Required");
-        const response = await postData(API.LIVETV.POST_CHANNEL_SCHEDULE, data, options);
+        const response = await postData(API.LIVETV.GET_ALL_CHANNEL_SCHEDULE, data, options);
         return response;
     } catch (error) {
         return ThrowError("fetchLiveTvSchedule", error);
     }
+}
 
+export const fetchLiveTvScheduleWithDetail = async (channelHandle) =>{
+    try{
+        if(!channelHandle) throw new Error("Channel Handle Required");
+        const response = await fetchData(API.LIVETV.GET_CHANNEL_SCHEDULE(channelHandle));
+        return response;
+    }catch(error){
+        return ThrowError('fetchLiveTvScheduleWithDetail',error);
+    }
 }

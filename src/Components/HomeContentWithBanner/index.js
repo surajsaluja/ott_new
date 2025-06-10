@@ -1,50 +1,52 @@
-import LoadingSkeleton from "../Common/MovieHomeSkeleton/LoadingSkeleton";
-import { useContentWithBanner } from "./Hooks";
-import { FocusContext } from '@noriginmedia/norigin-spatial-navigation';
-import Banner from "../Banner/MovieBanner";
-import Content from "../HomePageContent/Content";
+    import LoadingSkeleton from "../Common/MovieHomeSkeleton/LoadingSkeleton";
+    import { useContentWithBanner } from "./Hooks";
+    import { FocusContext } from '@noriginmedia/norigin-spatial-navigation';
+    import Banner from "../Banner/MovieBanner";
+    import Content from "../HomePageContent/Content";
 
-const ContentWithBanner = ({category,focusKey}) =>{
+    const ContentWithBanner = ({category,focusKey}) =>{
 
- const onHeaderFocus = () =>{};
- 
-  const {
-    ref,
-    currentFocusKey,
-    hasFocusedChild,
-    handleAssetFocus,
-    focusedAssetData,
-    data,
-    setData,
-    isLoading,
-    setIsLoading,
-    banners,
-    loadMoreRows
-  } = useContentWithBanner(onHeaderFocus,category,focusKey);
+    const onHeaderFocus = () =>{};
+    
+      const {
+        ref,
+        currentFocusKey,
+        hasFocusedChild,
+        handleAssetFocus,
+        focusedAssetData,
+        data,
+        setData,
+        isLoading,
+        setIsLoading,
+        banners,
+        loadMoreRows
+      } = useContentWithBanner(onHeaderFocus,category,focusKey);
 
-  if(isLoading)
-  {
-    return (
-      <LoadingSkeleton />
-    )
-  }
+      if(isLoading)
+      {
+        return (
+          <LoadingSkeleton />
+        )
+      }
 
-  return (
-  <FocusContext.Provider value={currentFocusKey}>
-  <div ref = {ref} className="content-with-banner">
+      return (
+      <FocusContext.Provider value={currentFocusKey}>
+      <div ref = {ref} className="content-with-banner" style={{position:'relative', width: '100%', height: '100%'}}>
 
-    <Banner data={focusedAssetData} banners={banners} />
-    <Content 
-      onAssetFocus={handleAssetFocus} 
-      data={data} 
-      setData={setData} 
-      isLoading={isLoading} 
-      setIsLoading={setIsLoading}
-      loadMoreRows={loadMoreRows}
-      handleAssetFocus = {handleAssetFocus} 
-      />
-    </div>
-    </FocusContext.Provider>)
-}
+        <Banner data={focusedAssetData} banners={banners} />
+        <div className="assetContent" style={{position: 'absolute', height: '400px', bottom: 0, width: '100%'}}>
+        <Content 
+          onAssetFocus={handleAssetFocus} 
+          data={data} 
+          setData={setData} 
+          isLoading={isLoading} 
+          setIsLoading={setIsLoading}
+          loadMoreRows={loadMoreRows}
+          handleAssetFocus = {handleAssetFocus} 
+          />
+        </div>
+        </div>
+        </FocusContext.Provider>)
+    }
 
-export default ContentWithBanner
+    export default ContentWithBanner

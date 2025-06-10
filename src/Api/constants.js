@@ -53,6 +53,7 @@ export const API = {
     },
     LIVETV:{
         GET_TV_HOME_PAGE_DATA : 'LiveTV/ChannelCategoriesV2?source=TV',
-        POST_CHANNEL_SCHEDULE: 'LiveTV/AllScheduled'
+        GET_ALL_CHANNEL_SCHEDULE: 'LiveTV/AllScheduled',
+        GET_CHANNEL_SCHEDULE:(channelHandleName) => `LiveTV/WatchChannel/${channelHandleName}`
     }
 };

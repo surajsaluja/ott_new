@@ -125,13 +125,13 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       <div className={`asset-info ${transitionClass}`}>
         <h1 className="title">{title}</h1>
         <div className="tags">
-          {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>}
-          {rating && <span><i><MdStarRate /></i>{rating}</span>}
-          {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>}
-          {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>}
+          {/* {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>} */}
+          {/* {rating && <span><i><MdStarRate /></i>{rating}</span>} */}
+          {/* {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>} */}
+          {/* {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>} */}
         </div>
-        <p className="description">{getEclipsedTrimmedText(shortDescription,190)}</p>
-        <div className="genres">
+        <p className="description" >{getEclipsedTrimmedText(shortDescription,190)}</p>
+        <div className="genres" style={{bottom:`${displayAsset ? 0 : 18}%`}}>
           {genre && genre.split(',').map((genre, idx) => (
             <span key={idx} className="genre">{genre}</span>
           ))}

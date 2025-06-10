@@ -9,7 +9,8 @@
   font-size: 1.3em;
   font-weight: 700;
   font-family: "Segoe UI";
-  padding-left: 3em;
+  /* padding-left: 1em; */
+  margin: 15px;
 }
 
 .ContentRowScrollingWrapper {
@@ -17,7 +18,7 @@
   overflow-y: hidden;
   flex-shrink: 1;
   flex-grow: 1;
-  padding-left: 5em;
+  /* padding-left: 5em; */
   padding-right: 5em;
   will-change: transform;
   transform: translateZ(0); /* Hardware acceleration */
@@ -41,6 +42,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .ContentRow {
@@ -48,6 +50,7 @@
   overflow-y: hidden;
   flex-shrink: 1;
   flex-grow: 1;
+  margin-left: 5em;
 }
 
 /* Content With Banner */

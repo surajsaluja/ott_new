@@ -1,7 +1,7 @@
 .top-banner {
-    position: relative;
+    position: absolute;
     width: 100%;
-    height: 48vh;
+    height: 61vh;
     overflow: hidden;
   }
   
@@ -33,15 +33,17 @@
     height: 100%;
     display: flex;
     align-items: flex-start;
-    padding: 2rem;
+    padding: 0 2rem;
     box-sizing: border-box;
   }
   
   .asset-info {
     color: white;
-    max-width: 450px;
     z-index: 10;
-    position: absolute;
+    position: relative;
+    height: 65%;
+    width: 45%;
+    margin-left: 50px;
   }
   
   .asset-logo {
@@ -75,6 +77,9 @@
     margin-top: 1rem;
     max-width: 300px;
     display: flex;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
     }
   
   .play-btn,
@@ -95,7 +100,7 @@
   
   .play-btn-focus,
   .trailer-btn-focus {
-    background-color: rgba(255, 0, 0, 0.412);
+    background-color: rgba(255, 0, 0, 0.768);
     border-color: azure;
   }
   
@@ -142,7 +147,6 @@
     font-weight: 400;
     margin: 1em 0;
     margin: 1em 0;
-    height: 17vh;
     text-overflow: ellipsis;
     text-wrap: wrap;
     overflow: hidden;
@@ -151,15 +155,17 @@
   .genres {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    position: absolute;
+    width: 100%;
   }
   
   .genre {
-    background: #222;
+    background: #4a4747;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 700;
+    margin-right: 8px;
   }
 
   .overlay{
@@ -176,7 +182,7 @@
       linear-gradient(178.5deg,
         rgba(var(--debug-color), 0) 57.9%,
         rgba(var(--debug-color), 0) 64.8%,
-        rgba(var(--debug-color), 0.05) 67.56%,
+        rgba(var(--debug-color), 0.8) 77.56%,
         rgba(var(--debug-color), 1) 96.94%),
       linear-gradient(90deg,
         rgba(var(--debug-color), 1) 0%,

@@ -53,7 +53,7 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
   );
 };
 
-const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoading, setIsLoading,loadMoreRows, handleAssetFocus }) => {
+const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoading, setIsLoading,loadMoreRows, handleAssetFocus, className : userClass }) => {
   const {
     ref,
     focusKey,
@@ -68,13 +68,13 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
 
   return (
     <FocusContext.Provider value={focusKey}>
-      <div className="ContentWrapper" id='homeContentWrapper'>
+      <div className={`ContentWrapper ${userClass ?? ''}`} id='homeContentWrapper'>
         <div className="ContentRow" ref={ref}>
           {movieRowsData && movieRowsData.map((item, index) => {
             const isThirdLast = index === movieRowsData.length - 3;
             return (
               <div key={index} ref={isThirdLast ? loadMoreRef : null}>
-                <ContentRow
+                {item.playlistItems.length > 0 && <ContentRow
                 key={`${item.playListId}_${index}`}
                   title={item.playlistName}
                   onFocus={onRowFocus}
@@ -85,11 +85,11 @@ const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoadi
                   lastRowChangeRef = {lastRowChangeRef}
                   playListDimensions={
                     {
-                      height: item.height,
-                      width:item.width 
+                      height: item.height ?? null,
+                      width:item.width ?? null 
                     }
                   }
-                />
+                />}
               </div>
             );
           })}

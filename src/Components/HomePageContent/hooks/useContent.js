@@ -148,12 +148,15 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     return () => observer.disconnect();
   }, [data]);
 
-const onRowFocus = useCallback((element) => {
-  if (element && ref.current && scrollDebounceRef.current) {
-    const scrollTop = element.top - ref.current.offsetTop;
-    scrollDebounceRef.current(scrollTop);
-  }
-}, [ref]);
+  const onRowFocus = useCallback((element) => {
+    if (element && ref.current && scrollDebounceRef.current) {
+       const containerRect = ref.current.getBoundingClientRect();
+       const scrollTop  = element.top - containerRect.top - 15;
+      console.log('el',element);
+      console.log('ref',ref.current);
+      scrollDebounceRef.current(scrollTop);
+    }
+  }, [ref]);
 
   const redirectToLogin = () => {
     history.push('/login', { from: '/' });
