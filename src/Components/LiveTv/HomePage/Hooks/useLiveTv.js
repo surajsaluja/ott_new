@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { fetchLiveTvHomePageData } from "../../../Service/LiveTVService";
-import { processLiveTvCategoriesToPlaylist } from "../../../Utils";
+import { fetchLiveTvHomePageData } from "../../../../Service/LiveTVService";
+import { processLiveTvCategoriesToPlaylist } from "../../../../Utils";
 
 export const useLiveTv = () =>{
 

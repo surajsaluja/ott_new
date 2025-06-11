@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import './index.css'
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
-import TvBanner from '../Banner/TvBanner'
-import Content from '../HomePageContent/Content'
+import TvBanner from '../../Banner/TvBanner'
+import Content from '../../HomePageContent/Content'
 import { useLiveTv } from './Hooks/useLiveTv'
-import LoadingSkeleton from '../Common/MovieHomeSkeleton/LoadingSkeleton'
+import LoadingSkeleton from '../../Common/MovieHomeSkeleton/LoadingSkeleton'
 
 function LiveTvHome(focusKey) {
     const {focusKey: currentFocusKey, ref, focusSelf} = useFocusable({
@@ -29,9 +29,6 @@ function LiveTvHome(focusKey) {
      <Content 
       onAssetFocus={()=>{}} 
       data={liveTvHomePageData} 
-      setData={()=>{}}  
-      setIsLoading={()=>{}}
-      loadMoreRows={()=>{}}
       handleAssetFocus = {()=>{}} 
       />
     </div>
