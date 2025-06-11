@@ -35,7 +35,8 @@ const AssetCard = ({
       style={{
         width: `${dimensions.itemWidth}px`,
         height: `${dimensions.itemHeight}px`,
-        marginRight: '20px' // or whatever spacing you need
+        marginRight: '20px', // or whatever spacing you need
+        marginBottom: '20px',
       }}>
       <div className={`card ${focused ? "focused" : ""}`}>
         {assetData.isSeeMore ? (

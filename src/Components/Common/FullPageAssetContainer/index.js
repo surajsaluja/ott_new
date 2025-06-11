@@ -1,9 +1,13 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import React, { useRef, useCallback} from 'react';
+import React, { useRef, useCallback, useState, useEffect} from 'react';
 import './index.css';
 import AssetCard from '../AssetCard';
 
-function FullPageAssetContainer({ assets = [], onAssetPress = () => {}, focusKey }) {
+function FullPageAssetContainer({ 
+  assets = [], 
+  onAssetPress = () => {}, 
+  focusKey }) 
+  {
   const { ref, focusKey: currentFocusKey } = useFocusable({  
     focusable: true,
     trackChildren: true,
@@ -11,7 +15,46 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {}, focusKey
     saveLastFocusedChild: false 
   });
 
+
   const assetScrollingRef  = useRef(null);
+   const [dimensions, setDimensions] = useState({
+    itemWidth: 300, // Default fallback
+    itemHeight: 200,
+    aspectRatio: 3/2
+  });
+
+  // Calculate dimensions based on container width
+  useEffect(() => {
+    const calculateDimensions = () => {
+      if (assetScrollingRef.current) {
+        const containerWidth = assetScrollingRef.current.offsetWidth;
+        const itemsPerRow = 4;
+        const gap = 20;
+        const itemWidth = ((containerWidth - (itemsPerRow * gap))  / itemsPerRow);
+        
+        setDimensions({
+          itemWidth,
+          itemHeight: 'auto', // Maintain 3:2 aspect ratio
+          aspectRatio: 3/2,
+          containerHeight: 'auto',
+          displayImgType: 'web'
+        });
+      }
+    };
+
+    calculateDimensions();
+    
+    // Add resize observer to handle window resizing
+    const resizeObserver = new ResizeObserver(calculateDimensions);
+    if (assetScrollingRef.current) {
+      resizeObserver.observe(assetScrollingRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
 
   const onAssetFocus = useCallback((el) => {
 
@@ -34,6 +77,7 @@ function FullPageAssetContainer({ assets = [], onAssetPress = () => {}, focusKey
               index={idx}
               onEnterPress={() => onAssetPress(asset)}
               onAssetFocus={onAssetFocus}
+              dimensions={dimensions}
             />
           ))
         ) : (

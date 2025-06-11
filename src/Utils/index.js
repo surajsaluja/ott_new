@@ -57,7 +57,8 @@ export const calculateDimensions = (height, width) => {
     itemWidth: 360,
     itemHeight: 200,
     containerHeight: 200 + gap,
-    displayImgType: 'web'
+    displayImgType: 'web',
+    aspectRatio : 360/200,
   };
 
   if (height === null || width === null) {
@@ -79,7 +80,8 @@ export const calculateDimensions = (height, width) => {
     itemWidth,
     itemHeight,
     containerHeight: itemHeight + gap,
-    displayImgType: 'mobile'
+    displayImgType: 'mobile',
+    aspectRatio,
   };
 };
 
