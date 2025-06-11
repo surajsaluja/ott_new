@@ -1,9 +1,6 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useRef, useEffect } from "react";
-import { showModal } from "../../../Utils";
-import { useUserContext } from "../../../Context/userContext";
 import { smoothScroll } from "../../../Utils";
-import { useHistory } from "react-router-dom";
 import { debounce } from "lodash"
 const SCROLL_OFFSET = 80;
 
@@ -98,8 +95,6 @@ const scrollToElement = (element) => {
 
 /* ------------------ Movie Home Page Hook ------------------ */
 const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus) => {
-  const history = useHistory();
-  const { userObjectId, isLoggedIn } = useUserContext();
   const scrollDebounceRef = useRef();
   const loadMoreRef = useRef(null);
 
@@ -158,29 +153,11 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     }
   }, [ref]);
 
-  const redirectToLogin = () => {
-    history.push('/login', { from: '/' });
-  };
-
-  const onAssetPress = (item) => {
-    if (isLoggedIn && userObjectId) {
-      history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
-        }
-        else {
-          showModal('Login',
-            'You are not logged in !!',
-            [
-              { label: 'Login', action: redirectToLogin, className: 'primary' }
-            ]
-          );
-        }
-  };
 
   return {
     ref,
     focusKey,
     onRowFocus,
-    onAssetPress,
     data,
     loadMoreRef,
     isLoading,

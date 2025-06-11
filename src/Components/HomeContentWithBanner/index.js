@@ -19,7 +19,8 @@
         isLoading,
         setIsLoading,
         banners,
-        loadMoreRows
+        loadMoreRows,
+        onAssetPress
       } = useContentWithBanner(onHeaderFocus,category,focusKey);
 
       if(isLoading)
@@ -43,6 +44,7 @@
           setIsLoading={setIsLoading}
           loadMoreRows={loadMoreRows}
           handleAssetFocus = {handleAssetFocus} 
+          onAssetPress={onAssetPress}
           />
         </div>
         </div>

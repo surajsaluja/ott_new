@@ -4,6 +4,8 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { fetchBannersBySection, fetchPlaylistPage, fetchContinueWatchingData } from "../../../Service/MediaService";
 import { getProcessedPlaylists, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
 import { useThrottle } from "../../../Utils";
+import { useHistory } from "react-router-dom";
+import { showModal } from "../../../Utils";
 
 export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   const {
@@ -24,10 +26,13 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   const [banners, setBanners] = useState([]);
   const horizontalLimit = 10;
   const [page, setPage] = useState(1);
-  const { uid, isLoggedIn } = useUserContext();
+  const { uid, isLoggedIn, userObjectId } = useUserContext();
+
 
   const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
   const SETTLE_DELAY = 200;
+
+  const history = useHistory();
 
   useEffect(() => {
     loadInitialData();
@@ -89,6 +94,25 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
     }, SETTLE_DELAY);
   }, []);
 
+  
+  const redirectToLogin = () => {
+    history.push('/login', { from: '/' });
+  };
+
+  const onAssetPress = (item) => {
+    if (isLoggedIn && userObjectId) {
+      history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
+        }
+        else {
+          showModal('Login',
+            'You are not logged in !!',
+            [
+              { label: 'Login', action: redirectToLogin, className: 'primary' }
+            ]
+          );
+        }
+  };
+
   return {
     ref,
     currentFocusKey,
@@ -102,5 +126,6 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
     setIsLoading,
     banners,
     setFocusedAssetData,
+    onAssetPress
   };
 };
