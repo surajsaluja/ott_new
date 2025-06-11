@@ -5,10 +5,17 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 const LEFT_RIGHT_DELAY = 300;
 const UP_DOWN_DELAY = 500;
 
-const useAssetCard = (assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress) => {
+const useAssetCard = (
+  assetData,
+   dimensions,
+  onAssetFocus, 
+  lastAssetChangeRef, 
+  lastRowChangeRef,
+   onEnterPress
+  ) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const imgUrl = dimensions.displayImgType === 'web' ? assetData.webThumbnail : assetData.mobileThumbnail;
+  const imgUrl = dimensions && dimensions.displayImgType ? (dimensions.displayImgType === 'web' ? assetData.webThumbnail : assetData.mobileThumbnail) : assetData.webThumbnail;
   const { imgRef, shouldLoad, imageUrl } = useIntersectionImageLoader(imgUrl || null);
 
   const { ref, focused } = useFocusable({
