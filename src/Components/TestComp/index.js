@@ -4,7 +4,7 @@ import TabbedComponent from '../Common/TabbedComponent/index.js'
 import LiveTvChannelPage from '../LiveTv/ChannelPage/index.js'
 import ChannelBanner from '../LiveTv/ChannelPage/index.js'
 import LiveTvPlayer from '../LiveTv/Player/index.js'
-import LiveTvHome from '../LiveTv/index.js'
+import LiveTvHome from '../LiveTv/HomePage'
 // import SeekBarWithPreview from '../VirtualList/SeekWithPreview.js'
 // import VirtualizedSeekbarWithThumbnails from '../VirtualList/HorizontalList.js'
 function TestComp() {

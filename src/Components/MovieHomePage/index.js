@@ -4,7 +4,7 @@ import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 
 import Menu_Home from "../Menu_Home";
 import ContentWithBanner from "../HomeContentWithBanner";
-import LiveTvHome from "../LiveTv";
+import LiveTvHome from "../LiveTv/HomePage";
 
 import './index.css';
 
