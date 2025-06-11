@@ -14,9 +14,6 @@ function LiveTvHome(focusKey) {
 
     const {liveTvHomePageData, isTvDataLoading, liveTvBannersData} = useLiveTv();
 
-    useEffect(()=>{
-      focusSelf();
-    },[])
 
     if(isTvDataLoading)
   {
