@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import Season_EpisodeList from "../../Season_EpisodeList";
 import StarCastContainer from "../../StarCastContainer";
 import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
+import { useUserContext } from "../../../Context/userContext";
+import { showModal } from "../../../Utils";
 
 const useMediaDetail = (mediaId, categoryId, focusKey) => {
     // References for Focusable
@@ -35,6 +37,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [showResumeBtn, setShowResumeButton] = useState(false);
     const [isMediaFavourite, setIsMediaFavourite] = useState(false);
 
+     const {isLoggedIn, userObjectId } = useUserContext();
+
     // Support Functions
     const history = useHistory();
 
@@ -55,6 +59,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         setWebSeriesSeasons(null);
         setIsSeasonsLoading(true);
         setGroupedStarCasts(null);
+        handleBottomDrawerClose();
     }, [mediaId]);
 
     useOverrideBackHandler(() => {
@@ -135,6 +140,25 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     };
 
+      const redirectToLogin = () => {
+    history.push('/login', { from: '/' });
+  };
+
+
+    const onRelatedItemEnterPress  = (assetData) =>{
+        if (isLoggedIn && userObjectId) {
+             history.push(`/detail/${assetData?.categoryID}/${assetData?.mediaID}`);
+               }
+               else {
+                 showModal('Login',
+                   'You are not logged in !!',
+                   [
+                     { label: 'Login', action: redirectToLogin, className: 'primary' }
+                   ]
+                 );
+               }
+    }
+
     const updateMediaWishlistStatus = async () => {
         try {
             const data = {
@@ -214,7 +238,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         if (isRelatedItemsLoading) return <p>Loading related items...</p>;
         if (!relatedItems.length) return <p>No related items available.</p>;
 
-        return <FullPageAssetContainer assets={relatedItems} focusKey={'AST_CNT_DET_REL'} />;
+        return <FullPageAssetContainer 
+        assets={relatedItems} 
+        focusKey={'AST_CNT_DET_REL'}
+        onAssetPress={onRelatedItemEnterPress} />;
     }, [isRelatedItemsLoading, relatedItems]);
 
     const RenderSeasonEpisodes = useCallback(() => {
