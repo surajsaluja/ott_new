@@ -82,10 +82,6 @@ const [scheduledContentData,setScheduledContentData]  = useState([]);
     loadProgrammesFromServer();
   },[]);
 
-  useEffect(()=>{
-    focusSelf();
-  },[])
-
 
   return {
     scheduledContentData,

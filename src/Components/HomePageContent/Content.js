@@ -53,7 +53,17 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
   );
 };
 
-const Content = ({ focusKey: focusKeyParam, onAssetFocus, data, setData, isLoading, onAssetPress,setIsLoading,loadMoreRows, handleAssetFocus, className : userClass }) => {
+const Content = ({ 
+  focusKey: focusKeyParam, 
+  onAssetFocus = () => {}, 
+  data = [], 
+  setData = () =>{}, 
+  isLoading = true,
+  onAssetPress  = () =>{},
+  setIsLoading = () => {},
+  loadMoreRows = () => {}, 
+  handleAssetFocus = () =>{}, 
+  className : userClass = "" }) => {
   const {
     ref,
     focusKey,
