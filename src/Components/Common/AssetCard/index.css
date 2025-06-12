@@ -141,7 +141,7 @@
   .LiveTvScheduleInfo{
     position: absolute;
     background-color: #00000099;
-    width: 98%;
+    width: 100%;
     bottom: 0px;
     color: white;
     display: flex;

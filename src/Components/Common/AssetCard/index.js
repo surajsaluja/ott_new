@@ -70,6 +70,24 @@ const AssetCard = ({
                   <span className="placeholder-text">{hasError ? 'No Image available' : assetData.title}</span>
                 </div>
               )}
+              {assetData.category === 'LiveTv' && assetData.countryLogo && assetData.name && (
+                  <div className="handlerInfo">
+                    <img src={assetData.countryLogo} alt="Country flag" />
+                    <p>{assetData.name}</p>
+                  </div>
+                )}
+                {assetData.category === 'LiveTvSchedule' && assetData.timeSlot && (
+                  <div className="LiveTvScheduleInfo">
+                    <div className="left">
+                      {assetData.isNowPlaying && <span className="nowPlaying">Now Playing</span>}
+                      <p>{assetData.programmeName}</p>
+                    </div>
+                    <div className="right">
+                      {!assetData.isNowPlaying && <p>{assetData.timeSlot}</p>}
+                      {assetData.isNowPlaying && <p className="liveSchedule">LIVE</p>}
+                    </div>
+                  </div>
+                )}
             </div>
 
           </>
