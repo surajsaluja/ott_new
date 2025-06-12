@@ -13,6 +13,7 @@ const Popup = ({
   videoRef,
   title,
   isVisible,
+  handleBackButtonPressed
 }) => {
   const {
     ref,
@@ -57,7 +58,7 @@ const Popup = ({
       <div>
         <FocusableButton
           focuskey={"backBtn"}
-          onEnterPress={onBackPress}
+          onEnterPress={handleBackButtonPressed}
           key={1}
           className={`popup_backButton`}
           focusClass={`popup_backButton_focus`}

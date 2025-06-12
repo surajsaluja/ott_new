@@ -165,7 +165,7 @@ const VideoPlayer = () => {
         await video.play();
         isPlayingRef.current = true;
         setIsPlaying(true);
-      } else if (!val && !video.paused) {
+      } else if (!val && (!video.paused || video.ended)) {
         stopWatchTimer();
         await video.pause();
         isPlayingRef.current = false;
@@ -180,7 +180,7 @@ const VideoPlayer = () => {
   // const THUMBNAIL_BASE_URL = 'https://images.kableone.com/Images/MovieThumbnails/Snowman/thumbnail';
   const togglePlayPause = useCallback(() => {
     if (!videoRef.current) return;
-    if (videoRef.current.paused) {
+    if (videoRef.current.paused || videoRef.current.ended) {
       // videoRef.current.play();
       handleSetIsPlaying(true);
     } else {
@@ -250,6 +250,10 @@ useOverrideBackHandler(() => {
       return;
     }
   }, [isSideBarOpenRef, userActivityRef]);
+
+  const handleBackButtonPressed = () =>{
+    history.goBack();
+  }
 
   const handleSetAnalyticsHistoryId = (historyId) => {
     analyticsHistoryIdRef.current = historyId;
@@ -548,10 +552,16 @@ useOverrideBackHandler(() => {
         setIsLoading(true);
       };
 
+      const handleEnded = () =>{
+        handleSetIsPlaying(false);
+        video.currentTime = 0;
+      }
+
       video.addEventListener("waiting", handleWaiting);
       video.addEventListener("canplay", handleCanPlay);
       video.addEventListener("playing", handlePlaying);
       video.addEventListener("stalled", handleStalled);
+      video.addEventListener("ended",handleEnded);
 
       if (playCapability == true) {
         setStreamLimitError(false);
@@ -687,6 +697,7 @@ useOverrideBackHandler(() => {
           focusKey={VIDEO_OVERLAY_FOCUS_KEY}
           isVisible={isUserActive}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
+          handleBackButtonPressed= {handleBackButtonPressed}
         />
 
         <VirtualThumbnailStripWithSeekBar
