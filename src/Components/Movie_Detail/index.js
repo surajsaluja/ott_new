@@ -13,7 +13,7 @@ import { MdOutlineRestartAlt, MdMovie } from "react-icons/md";
 import { IoHeartSharp } from "react-icons/io5";
 import { FaPlay } from "react-icons/fa6";
 
-function Movie_Detail(focusKey) {
+function Movie_Detail() {
     const {categoryId, mediaId} = useParams();
     const {
         ref,
@@ -29,12 +29,12 @@ function Movie_Detail(focusKey) {
         showResumeBtn,
         updateMediaWishlistStatus,
         watchMovie
-    } = useMediaDetail(mediaId, categoryId, focusKey);
+    } = useMediaDetail(mediaId, categoryId, 'MOVIE_DETAIL_PAGE');
 
 
     return (<FocusContext.Provider value={btnControlsFocusKey}>
 
-        <div className="movie-detail-page" ref={ref}>
+        <div className="movie-detail-page">
             {isLoading || !mediaDetail ? (
                 <div className="details-shimmer shimmer-wrapper">
                     <div className="shimmer-content-container">

@@ -1,4 +1,4 @@
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 import { getMediaDetails, getMediaRelatedItemDetails, getTokenisedMedia, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
@@ -73,8 +73,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     // set Focus to Page when media Loads
     useEffect(() => {
-        if (!isLoading) {
-            focusSelf();
+        if (!isLoading && focusSelf) {
+            setTimeout(()=>{
+                focusSelf();
+            },50);
         }
     }, [isLoading, focusSelf]);
 
@@ -86,9 +88,11 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             return () => clearTimeout(timer);
         } else {
             setDrawerContentReady(false); // Reset when closing
-            focusSelf();
+            setTimeout(()=>{
+                focusSelf();
+            },50);
         }
-    }, [isDrawerOpen, focusSelf]);
+    }, [isDrawerOpen]);
 
     useEffect(() => {
         if (selectedSeasonId == null) {
@@ -235,6 +239,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 isTrailer: isTrailer,
                 playDuration: isResume ? mediaDetail.playDuration : 0
             });
+        }else{
+            showModal('Warning',
+                    tokenisedResponse.message,
+      );
         }
     }
 

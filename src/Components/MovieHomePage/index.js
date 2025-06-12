@@ -36,7 +36,7 @@ const MovieHomePage = () => {
     } else if (category?.toUpperCase() === "SEARCH") {
       return <div>SEARCH</div>;
     } else if (category?.toUpperCase() === "LIVETV") {
-      return <LiveTvHome />
+      return <LiveTvHome focusKey={'LIVE_TV_HOME'} />
     } else if (category?.toUpperCase() === "WISHLIST") {
       return <div>WISHLIST</div>;
     } else if (category?.toUpperCase() === "PROFILE") {
