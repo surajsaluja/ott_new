@@ -1,5 +1,5 @@
 .asset-wrapper {
-    display: inline-block;
+    display: inline-flex;
   transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out;
   border-width: 0.2em;
   border-color: transparent;
@@ -8,6 +8,7 @@
   padding: 0.2em;
   box-sizing: border-box;
   position: relative; /* For absolute positioning of child elements */
+  margin-right: 20px;
   }
   
   .asset-wrapper.focused {
@@ -15,8 +16,6 @@
   }
   
   .card {
-    /* width:450px; */
-    /* height: 100%; */
     width: 100%;
     height: 100%;
     border-radius: 0.3em;
@@ -35,9 +34,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    object-position: top;
   }
 
-  .card-image p {
+  .image-wrapper{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .placeholder-text {
     font-size: 20px;
     color: #664e4e;
     font-weight: 600;
@@ -46,6 +56,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 10px;
+    max-width: 100%;
   }
   
   .card-image.hidden {
@@ -62,6 +73,12 @@
     animation: shimmer 1.2s infinite;
     width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   @keyframes shimmer {

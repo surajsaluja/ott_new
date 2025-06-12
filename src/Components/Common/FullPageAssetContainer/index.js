@@ -18,7 +18,7 @@ function FullPageAssetContainer({
 
   const assetScrollingRef  = useRef(null);
    const [dimensions, setDimensions] = useState({
-    itemWidth: 300, // Default fallback
+    itemWidth: 337, // Default fallback
     itemHeight: 200,
     aspectRatio: 3/2
   });

@@ -62,28 +62,13 @@ const useAssetCard = (
     return true; // allow move
   }
 
-  // This effect handles the background image loading state
-  useEffect(() => {
-    if (!shouldLoad || !imageUrl) return;
 
-    const img = new Image();
-    img.src = imageUrl;
-
-    img.onload = () => {
-      setIsLoaded(true);
-      setHasError(false);
-    };
-
-    img.onerror = () => {
-      setHasError(true);
-      // handleError(); // If you still need this for other purposes
-    };
-
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [imageUrl, shouldLoad]);
+const handleLoad = () => setIsLoaded(true);
+  const handleError = (e) => {
+  console.log('Image load error:', e?.target?.src);
+  setHasError(true);
+  setIsLoaded(true);
+};
 
   return {
     imgRef,
@@ -91,6 +76,8 @@ const useAssetCard = (
     imageUrl,
     isLoaded,
     hasError,
+    handleLoad,
+    handleError,
    ref,
    focused
   };
