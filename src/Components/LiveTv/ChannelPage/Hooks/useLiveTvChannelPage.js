@@ -1,92 +1,128 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
-import { convertUTCDateToLocalDate, getTodayMidnightDate, timeformat } from '../../../../Utils'
+import { convertUTCDateToLocalDate, getTodayMidnightDate, showModal, timeformat } from '../../../../Utils'
 import { useEffect, useState } from 'react';
 import { fetchAllLiveTvSchedule } from '../../../../Service/LiveTVService';
+import { useHistory, useLocation } from 'react-router-dom';
+import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
+import { getTokenisedTvMedia } from '../../../../Utils/MediaDetails';
 
-const useLiveTvChannelPage = (focusKey, ) =>{
+const useLiveTvChannelPage = (focusKey,) => {
 
-     const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey});
+  const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey });
 
-const [scheduledContentData,setScheduledContentData]  = useState([]);
+  const [scheduledContentData, setScheduledContentData] = useState([]);
 
-  const getScheduledPrograms  = (scheduledPrograms) =>{
+  const history = useHistory();
+  const location = useLocation();
+  const channelData = location.state || {};
+
+  const channelInfo  = {
+    channelImage: channelData.image,
+    channelTitle: channelData.title,
+    channelDescription: channelData.description
+  };
+
+  const getScheduledPrograms = (scheduledPrograms) => {
 
     const midnightDate = getTodayMidnightDate();
-  const currentDate = new Date();
-  const nextDay = new Date(midnightDate);
-  nextDay.setDate(midnightDate.getDate() + 1);
+    const currentDate = new Date();
+    const nextDay = new Date(midnightDate);
+    nextDay.setDate(midnightDate.getDate() + 1);
 
-  const todayItems = [];
-  const nextDayItems = [];
+    const todayItems = [];
+    const nextDayItems = [];
 
-  scheduledPrograms.forEach(item => {
-    const fromDate = convertUTCDateToLocalDate(item.fromDate);
-    const toDate = convertUTCDateToLocalDate(item.toDate);
+    scheduledPrograms.forEach(item => {
+      const fromDate = convertUTCDateToLocalDate(item.fromDate);
+      const toDate = convertUTCDateToLocalDate(item.toDate);
 
-    const isNowPlaying = currentDate >= fromDate && currentDate < toDate;
-    const isUpcoming = fromDate > currentDate;
+      const isNowPlaying = currentDate >= fromDate && currentDate < toDate;
+      const isUpcoming = fromDate > currentDate;
 
-    if (isNowPlaying || isUpcoming) {
-      const updatedItem = {
-        ...item,
-        fromDate,
-        toDate,
-        timeSlot: timeformat(fromDate),
-        isNowPlaying,
-        webThumbnail: item.url,
-        category: "LiveTvSchedule",
-      };
+      if (isNowPlaying || isUpcoming) {
+        const updatedItem = {
+          ...item,
+          fromDate,
+          toDate,
+          timeSlot: timeformat(fromDate),
+          isNowPlaying,
+          webThumbnail: item.url,
+          category: "LiveTvSchedule",
+        };
 
-      if (fromDate < midnightDate) {
-        todayItems.push(updatedItem);
-      } else if (fromDate >= midnightDate && fromDate <= nextDay) {
-        nextDayItems.push(updatedItem);
+        if (fromDate < midnightDate) {
+          todayItems.push(updatedItem);
+        } else if (fromDate >= midnightDate && fromDate <= nextDay) {
+          nextDayItems.push(updatedItem);
+        }
       }
+    });
+
+    todayItems.sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate));
+    nextDayItems.sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate));
+
+    const result = [];
+
+    if (todayItems.length > 0) {
+      result.push({
+        playListId: 1,
+        playlistName: "Today",
+        playlistItems: todayItems
+      });
     }
-  });
 
-  todayItems.sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate));
-  nextDayItems.sort((a, b) => new Date(a.fromDate) - new Date(b.fromDate));
+    if (nextDayItems.length > 0) {
+      result.push({
+        playListId: 2,
+        playlistName: "Tomorrow",
+        playlistItems: nextDayItems
+      });
+    }
 
-  const result  =[];
-
-  if (todayItems.length > 0) {
-    result.push({
-      playListId: 1,
-      playlistName: "Today",
-      playlistItems: todayItems
-    });
+    return result;
   }
 
-  if (nextDayItems.length > 0) {
-    result.push({
-      playListId: 2,
-      playlistName: "Tomorrow",
-      playlistItems: nextDayItems
-    });
-  }
-
-  return result;
-}
-
-  useEffect(()=>{
-    const loadProgrammesFromServer = async() =>{
-        const data = {
-    "TvId":1,
-    "FromDate":new Date(),
-}
-        const response = await fetchAllLiveTvSchedule(data);
-         setScheduledContentData(getScheduledPrograms(response.data));
+  useEffect(() => {
+    const loadProgrammesFromServer = async () => {
+      const data = {
+        "TvId": channelData.id,
+        "FromDate": new Date(),
+      }
+      const response = await fetchAllLiveTvSchedule(data);
+      setScheduledContentData(getScheduledPrograms(response.data));
     };
 
     loadProgrammesFromServer();
-  },[]);
+  }, []);
+
+  useOverrideBackHandler(()=>{
+    history.goBack();
+  });
+
+  const onPlayLiveTvEnterPress = async () =>{
+    try{
+      const response = await getTokenisedTvMedia(channelData.channelHandle);
+      if(response && response.isSuccess){
+        history.push('/livetvplayer',{
+          src: response.data.tvUrl,
+          title: channelData.name
+        })
+      }else{
+        showModal('Warning',response.message);
+      }
+    }catch(error){
+      console.log('error playing Live Tv');
+    }
+    
+  }
 
 
   return {
     scheduledContentData,
     currentFocusKey,
-    ref
+    ref,
+    channelInfo,
+    onPlayLiveTvEnterPress
   }
 
 }

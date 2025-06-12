@@ -9,7 +9,12 @@ const PLAY_BTN_FOCUS_KEY  = 'PLAY_BTN_FOCUS_KEY';
 
 function LiveTvChannelPage({ focusKey }) {
 
-  const {scheduledContentData, currentFocusKey, ref} = useLiveTvChannelPage(focusKey);
+  const {
+    scheduledContentData, 
+    currentFocusKey, 
+    ref,
+    channelInfo,
+  onPlayLiveTvEnterPress} = useLiveTvChannelPage(focusKey);
 
   useEffect(()=>{
     setFocus(PLAY_BTN_FOCUS_KEY);
@@ -21,7 +26,7 @@ function LiveTvChannelPage({ focusKey }) {
       <div className='liveTvChannelContainer' ref={ref}>
         <div className='channelTopWrapper'>
           <div className='channelImageWrapper'>
-            <img src="https://images.kableone.com/Images/TVImages/TVChannel/02_TV_3284.jpg"></img>
+            <img src={channelInfo.channelImage}></img>
           </div>
           <div className='channelInformationContainer'>
             <div className='playButtonContainer'>
@@ -30,14 +35,15 @@ function LiveTvChannelPage({ focusKey }) {
                 className='playBtnLiveTvChannel'
                 focusClass='playBtnLiveTvChannel-focused'
                 focuskey={PLAY_BTN_FOCUS_KEY}
+                onEnterPress={onPlayLiveTvEnterPress}
               />
             </div>
             <div className='channelInformationWrapper'>
               <div className='channelInfoTitle'>
-                YRF MUSIC
+                {channelInfo.channelTitle}
               </div>
               <div className='channelInfoDescription'>
-                <p>Lorem Ipsum dhohdeo ljhdcoehd lkdheoihdoieh dclkejdpoicjei pjcpioejcioe kejdioejdopie kejdcoiejoie elkjdoejdoe kjdeopjdpej ;ejdpoejdpoje ;ldjepjdpoej deojdepoj</p>
+                <p>{channelInfo.channelDescription}</p>
               </div>
             </div>
           </div>
@@ -48,16 +54,12 @@ function LiveTvChannelPage({ focusKey }) {
         
 
         {/* <div className='channelScheduleContainer'> */}
+         {scheduledContentData && scheduledContentData.length > 0 &&
          <Content 
-      onAssetFocus={()=>{}} 
       data={scheduledContentData} 
-      setData={()=>{}} 
-      isLoading={false} 
-      setIsLoading={()=>{}}
-      loadMoreRows={()=>{}}
-      handleAssetFocus = {()=>{}}
-      className = "liveTvChannelScheduleContent" 
-      />
+      className = "liveTvChannelScheduleContent"
+      onAssetPress={onPlayLiveTvEnterPress} 
+      />}
         </div>
       {/* </div> */}
     </FocusContext.Provider>

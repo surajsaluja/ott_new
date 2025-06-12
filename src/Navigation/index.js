@@ -8,6 +8,8 @@ import TestComp from "../Components/TestComp";
 import Error404 from "../Components/Error404";
 import PrivateRoute from "./PrivateRoute";
 import VideoPlayer from "../Components/VideoPlayer";
+import LiveTvChannelPage from "../Components/LiveTv/ChannelPage";
+import LiveTvPlayer from "../Components/LiveTv/Player";
 
 const AppNavigation = () => {
   return (
@@ -18,8 +20,10 @@ const AppNavigation = () => {
 
         {/* Dynamic route for details page */}
         <PrivateRoute path="/detail/:categoryId/:mediaId" component={Movie_Detail} />
+        <PrivateRoute path = "/livetvschedule" component={LiveTvChannelPage} />
 
-        <Route path="/play" component={VideoPlayer} />
+        <PrivateRoute path="/play" component={VideoPlayer} />
+        <PrivateRoute path = "/livetvplayer" component={LiveTvPlayer}/>
 
         {/* Default landing route */}
         <Route exact path="/">

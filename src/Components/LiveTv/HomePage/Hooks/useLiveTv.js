@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react"
 import { fetchLiveTvHomePageData } from "../../../../Service/LiveTVService";
 import { processLiveTvCategoriesToPlaylist } from "../../../../Utils";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export const useLiveTv = () =>{
 
     const [liveTvHomePageData,setLiveTvHomePageData] =  useState([]);
     const [liveTvBannersData,setLiveTvBannersData] = useState([]);
-    const [isTvDataLoading, setIsTvDataLoading] = useState(false); 
+    const [isTvDataLoading, setIsTvDataLoading] = useState(false);
+    const history = useHistory(); 
 
     const loadInitialData = async () => {
         setIsTvDataLoading(true);
@@ -27,9 +29,14 @@ export const useLiveTv = () =>{
           loadInitialData();
         }, []);
 
+        const onChannelEnterPress = ({assetData}) =>{
+          history.push('/livetvschedule',assetData);
+        }
+
     return{
         liveTvHomePageData,
         liveTvBannersData,
-        isTvDataLoading
+        isTvDataLoading,
+        onChannelEnterPress
     }
 }

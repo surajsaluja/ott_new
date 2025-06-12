@@ -6,6 +6,7 @@ import {
   fetchWebSeriesEpisodeBySeasonId,
 } from "../Service/MediaService";
 import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
+import { getTokanizedLiveTVUrl } from "../Service/LiveTVService";
 
 const findCurrentEpisode = (seasons, currentMediaId) => {
   for (const season of seasons || []) {
@@ -376,3 +377,60 @@ export const getWebSeriesEpisodesBySeason = async (
     data: webSeriesEpisodesResponse.data,
   };
 };
+
+
+export const getTokenisedTvMedia = async (channelHandle) =>{
+   if (!channelHandle) {
+    return {
+      isSuccess: false,
+      message: "channelHandle is required field",
+    };
+  } 
+
+  let isUserSubscribed = false;
+  let isMediaPublished = false;
+  let isFree = false;
+  let tvUrl = null;
+  let success = false;
+  let message = null;
+
+  try {
+    let response = await getTokanizedLiveTVUrl(
+      channelHandle
+    );
+    if (response && response.isSuccess) {
+      response = response.data;
+      isUserSubscribed = response.isUserSubscribed;
+      isMediaPublished = response.isMediaPublished;
+      isFree = getIsContentFree(response.isPaid);
+
+      if (isUserSubscribed || isFree) {
+        tvUrl = response.tvUrl;
+        tvUrl = DecryptAESString(tvUrl);
+        success = true;
+        message = "Media Tokenised SuccessFully";
+      } else {
+        throw new Error("You are not a subscribed user to watch this Content!");
+      }
+    } else {
+      throw new Error("Invalid response for Tokenised Media");
+    }
+  } catch (error) {
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    };
+  }
+
+  return {
+    isSuccess: success,
+    data: {
+      tvUrl,
+      isUserSubscribed,
+      isFree,
+      isMediaPublished,
+    },
+  };
+
+}
