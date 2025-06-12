@@ -7,7 +7,8 @@ const DEFAULTS = {
     MEDIA_ID: 0,
     WEBSERIES_ID: 74,
     SEASON_ID: 51,
-    USER_OBJECT_ID: 0
+    USER_OBJECT_ID: 0,
+    DEFAULT_CHANNEL_HANDLE_NAME: ''
 }
 export const API_BASE_URL = 'https://testapi.kableone.com/api/';
 
@@ -54,6 +55,9 @@ export const API = {
     LIVETV:{
         GET_TV_HOME_PAGE_DATA : 'LiveTV/ChannelCategoriesV2?source=TV',
         GET_ALL_CHANNEL_SCHEDULE: 'LiveTV/AllScheduled',
-        GET_CHANNEL_SCHEDULE:(channelHandleName) => `LiveTV/WatchChannel/${channelHandleName}`
+        GET_CHANNEL_SCHEDULE:(channelHandleName) => 
+            `LiveTV/WatchChannel/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}`,
+        GET_TOKENIZED_MEDIA_TV_URL: (channelHandleName, userObjectId) => 
+            `LiveTV/GetTokanizedLiveTVUrlV2/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`
     }
 };
