@@ -63,7 +63,12 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     }, [mediaId]);
 
     useOverrideBackHandler(() => {
-        history.goBack();
+        if(isDrawerOpen){
+            handleBottomDrawerClose();
+            return;
+        }else{
+            history.goBack();
+        }
       });
 
     // set Focus to Page when media Loads
@@ -71,7 +76,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         if (!isLoading) {
             focusSelf();
         }
-    }, [isLoading]);
+    }, [isLoading, focusSelf]);
 
     useEffect(() => {
         if (isDrawerOpen) {
@@ -81,8 +86,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             return () => clearTimeout(timer);
         } else {
             setDrawerContentReady(false); // Reset when closing
+            focusSelf();
         }
-    }, [isDrawerOpen]);
+    }, [isDrawerOpen, focusSelf]);
 
     useEffect(() => {
         if (selectedSeasonId == null) {

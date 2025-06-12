@@ -58,7 +58,7 @@ const Content = ({
   onAssetFocus = () => {}, 
   data = [], 
   setData = () =>{}, 
-  isLoading = true,
+  isLoading = false,
   onAssetPress  = () =>{},
   setIsLoading = () => {},
   loadMoreRows = () => {}, 

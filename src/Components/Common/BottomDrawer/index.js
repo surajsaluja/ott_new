@@ -34,7 +34,9 @@ export default function BottomDrawer({ isOpen, onClose, children, focusKey }) {
   }, [isOpen, hasMounted]);
 
   useEffect(() => {
+    if(isOpen){
     focusSelf();
+    }
   }, [focusSelf, isOpen]);
 
   return (
