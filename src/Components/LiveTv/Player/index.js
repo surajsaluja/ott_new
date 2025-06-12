@@ -6,7 +6,8 @@ import { useFocusable, FocusContext, setFocus } from '@noriginmedia/norigin-spat
 import StreamLimitModal from '../../VideoPlayer/StreamLimitError';
 import Popup from '../../VideoPlayer/Popup';
 import SideBar_Tab from '../../VideoPlayer/SideBar_Tab';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 
 import {
   MdOutlinePause,
@@ -18,9 +19,6 @@ const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY_FOCUSKEY'
 const DUMMY_BTN_FOCUS_KEY = "DUMMY_BUTTON";
 
 function LiveTvPlayer() {
-
-    const src = "https://livetv.kableone.com/hls/live/2111218/SagaHits/master.m3u8?hdnea=exp=1749470725~acl=/*~id=0f218a8b-8d86-4e15-8212-fbaa3a370614~hmac=36cdfb46f45ed569a9c4585a6ccc2d584ad890e128f295acd3174bd27ed21c84";
-        const movieTitle = "LIVE TV";
 
     const videoRef = useRef(null);
     const activeTabsRef = useRef(null);
@@ -40,7 +38,10 @@ function LiveTvPlayer() {
 
     let inactivityDelay = 5000;
 
-    const history = useHistory();   
+    const history = useHistory();
+    const location = useLocation();
+    const {src, title : movieTitle} = location.state || {};
+
 
 
     // SignalR
@@ -129,13 +130,20 @@ function LiveTvPlayer() {
         } else if (isSideBarOpenRef.current) {
           handleSidebarOpen(false);
           handleSetIsUserActive(false);
-          // setFocus('Dummy_Btn');
           return;
         } else {
           history.goBack();
           return;
         }
       }, [isSideBarOpenRef, userActivityRef]);
+
+      const handleBackButtonPressed = () =>{
+        history.goBack();
+      }
+
+      useOverrideBackHandler(()=>{
+        handleBackButtonPressed();
+      })
 
     const handleQualityChange = (quality) => {
         if (videoRef.current.hls) {
@@ -165,9 +173,8 @@ function LiveTvPlayer() {
     const handleSidebarOpen = (val) => {
         isSideBarOpenRef.current = val;
         setSidebarOpen(val);
-        if(val === false){
-            handleSetIsUserActive(false);
-        }
+        handleSetIsUserActive(false);
+        
     };
 
     const handleFocusVideoOverlay = () => {
@@ -192,6 +199,7 @@ function LiveTvPlayer() {
         }
 
         if (val === false) {
+            if(isSideBarOpenRef.current) return;
             setFocus(DUMMY_BTN_FOCUS_KEY);
         }
 
@@ -334,6 +342,7 @@ function LiveTvPlayer() {
                     focusKey={VIDEO_OVERLAY_FOCUS_KEY}
                     isVisible={isUserActive}
                     thumbnailBaseUrl={null}
+                    handleBackButtonPressed={handleBackButtonPressed}
                 />
 
                 {showPlayIcon && (
