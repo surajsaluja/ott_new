@@ -2,11 +2,15 @@ import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-naviga
 import React, { useRef, useCallback, useState, useEffect} from 'react';
 import './index.css';
 import AssetCard from '../AssetCard';
+import Spinner from '../Spinner';
 
 function FullPageAssetContainer({ 
-  assets = [], 
-  onAssetPress = () => {}, 
-  focusKey }) 
+  assets = [],
+  itemsPerRow = 4, 
+  onAssetPress = () => {},
+  title='', 
+  focusKey, 
+  isLoading = false }) 
   {
   const { ref, focusKey: currentFocusKey } = useFocusable({  
     focusable: true,
@@ -27,8 +31,7 @@ function FullPageAssetContainer({
   useEffect(() => {
     const calculateDimensions = () => {
       if (assetScrollingRef.current) {
-        const containerWidth = assetScrollingRef.current.offsetWidth;
-        const itemsPerRow = 4;
+        const containerWidth = assetScrollingRef.current.offsetWidth - 10;
         const gap = 20;
         const itemWidth = ((containerWidth - (itemsPerRow * gap))  / itemsPerRow);
         
@@ -65,8 +68,10 @@ function FullPageAssetContainer({
     }, [assetScrollingRef]);
 
   return (
-    <FocusContext.Provider value={currentFocusKey}>
+    <>
+    {!isLoading && <FocusContext.Provider value={currentFocusKey}>
       <div ref={ref} className="asset-container">
+        {title && <p className='asset-container-title'>{title}</p>}
         <div className={'asset-scrolling-wrapper'} ref={assetScrollingRef}>
         {assets.length > 0 ? (
           assets.map((asset, idx) => (
@@ -78,6 +83,7 @@ function FullPageAssetContainer({
               onEnterPress={() => onAssetPress(asset)}
               onAssetFocus={onAssetFocus}
               dimensions={dimensions}
+              showTitle={true}
             />
           ))
         ) : (
@@ -85,7 +91,9 @@ function FullPageAssetContainer({
         )}
         </div>
         </div>
-    </FocusContext.Provider>
+    </FocusContext.Provider>}
+    {isLoading && <Spinner/>}
+    </>
   );
 }
 
