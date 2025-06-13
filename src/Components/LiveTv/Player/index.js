@@ -13,6 +13,7 @@ import {
   MdOutlinePause,
   MdPlayArrow,
 } from "react-icons/md";
+import Spinner from '../../Common/Spinner';
 
 const LIVE_TV_PLAYER_FOCUSKEY = 'LIVE_TV_FOCUSKEY'
 const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY_FOCUSKEY'
@@ -363,12 +364,7 @@ function LiveTvPlayer() {
                 )}
 
 
-                {isLoading && (
-                    <div className="video-loader">
-                        <div className="spinner" />
-                        <p>Loading...</p>
-                    </div>
-                )}
+                {isLoading && <Spinner/>}
             </div>
         </FocusContext.Provider>
     );

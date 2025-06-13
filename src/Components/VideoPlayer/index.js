@@ -763,8 +763,7 @@ useOverrideBackHandler(() => {
 
         {isLoading && !isSeeking && (
           <div className="video-loader">
-            <div className="spinner" />
-            <p>Loading...</p>
+            
           </div>
         )}
       </div>

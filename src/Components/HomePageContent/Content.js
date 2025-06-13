@@ -6,6 +6,7 @@ import AssetCard from "../Common/AssetCard";
 import "./Content.css";
 import { useRef } from "react";
 import { calculateDimensions } from "../../Utils";
+import Spinner from "../Common/Spinner";
 
 const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus, lastRowChangeRef, playListDimensions }) => {
   const rowDimensions = data.length > 0 && playListDimensions 
@@ -102,11 +103,7 @@ const Content = ({
               </div>
             );
           })}
-          {loadingSpinner && (
-            <div className="spinner-container">
-              <div className="spinner" />
-            </div>
-          )}
+          {loadingSpinner && <Spinner />}
         </div>
       </div>
     </FocusContext.Provider>
