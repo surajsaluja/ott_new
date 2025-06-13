@@ -1,3 +1,19 @@
+.asset{
+  display: inline-flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.assetTitle{
+  font-size: 1vw;
+    color: white;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+}
+
 .asset-wrapper {
     display: inline-flex;
   transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out;
@@ -8,7 +24,6 @@
   padding: 0.2em;
   box-sizing: border-box;
   position: relative; /* For absolute positioning of child elements */
-  margin-right: 20px;
   }
   
   .asset-wrapper.focused {

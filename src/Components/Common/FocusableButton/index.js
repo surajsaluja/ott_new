@@ -27,9 +27,9 @@ const FocusableButton = ({
         <div ref={ref}
             className={`${styleClass} ${focused ? (focusClass ? focusClass : 'defaultFocusClass') : ''}`}
         >
-            <span className={'focusableButton_icon'}>{icon}</span>
+            {icon && <span className={'focusableButton_icon'}>{icon}</span>}
 
-            <span className={'focusableButton_text'}>{text}</span>
+            {text && <span className={'focusableButton_text'}>{text}</span>}
         </div>
     )
 };

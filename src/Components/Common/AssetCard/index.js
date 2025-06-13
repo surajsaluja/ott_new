@@ -16,7 +16,8 @@ const AssetCard = ({
   assetData = {},
   lastAssetChangeRef = { current: 0 },
   lastRowChangeRef = { current: 0 },
-  dimensions = defaultDimensions
+  dimensions = defaultDimensions,
+  showTitle = false
 }) => {
   const {
     imgRef,
@@ -32,6 +33,12 @@ const AssetCard = ({
 
 
   return (
+    <div className={'asset'}
+    style={{
+      width: `${dimensions.itemWidth}px`,
+      maxWidth: `${dimensions.itemWidth}px`,
+      height: `${dimensions.itemHeight + (showTitle ? 50 : 0)}px`
+    }}>
     <div ref={ref}
       className={`asset-wrapper ${focused ? "focused" : ""}`}
       style={{
@@ -97,6 +104,8 @@ const AssetCard = ({
           </div>
         )}
       </div>
+    </div>
+    {showTitle && <p className="assetTitle">{assetData.title}</p>}
     </div>
   );
 };
