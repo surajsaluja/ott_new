@@ -59,5 +59,10 @@ export const API = {
             `LiveTV/WatchChannel/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}`,
         GET_TOKENIZED_MEDIA_TV_URL: (channelHandleName, userObjectId) => 
             `LiveTV/GetTokanizedLiveTVUrlV2/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`
+    },
+    SEARCH:{
+        TRENDING_SEARCH: (userId,languageCode) => 
+            `Media/TrendingContent/${userId ?? DEFAULTS.USER_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}`,
+        SEACH_CONTENT:`Media/SearchMedia`
     }
 };

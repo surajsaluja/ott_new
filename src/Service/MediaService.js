@@ -27,16 +27,16 @@ export const fetchHomePageData = async (userId = null) => {
     }
 };
 
-export const fetchBannersBySection = async(section, language = null, userId = null) => {
-    try{
-        const response = await fetchData(API.HOMEPAGE.GET_BANNER_DATA(section ?? DEFAULT_SECTION,language ?? DEFAULT_LANGUAGE,userId ?? uid));
+export const fetchBannersBySection = async (section, language = null, userId = null) => {
+    try {
+        const response = await fetchData(API.HOMEPAGE.GET_BANNER_DATA(section ?? DEFAULT_SECTION, language ?? DEFAULT_LANGUAGE, userId ?? uid));
         return response || null;
-    }catch(error){
-        return ThrowError('fetchBannersBySection',error);
+    } catch (error) {
+        return ThrowError('fetchBannersBySection', error);
     }
 }
 
-export const fetchPlaylistPage = async (section,page, userId = null) => {
+export const fetchPlaylistPage = async (section, page, userId = null) => {
     try {
         const response = await fetchData(
             API.HOMEPAGE.GET_PLAYLIST_DATA(section ?? DEFAULT_PLAYLIST_TYPE, userId ?? uid, page, DEFAULT_PAGE_SIZE)
@@ -84,12 +84,12 @@ export const fetchMediaDetailById = async (mediaId, isWebSeries, userObjectId, o
     }
 }
 
-export const fetchMediaRelatedItem = async (mediaId, userObjId,page,pageSize,language,options = {}) => {
-    try{
-        const response  = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId,language ?? DEFAULT_LANGUAGE,userObjId ?? userObjId,page ?? DEFAULT_PAGE,pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE),options);
+export const fetchMediaRelatedItem = async (mediaId, userObjId, page, pageSize, language, options = {}) => {
+    try {
+        const response = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId, language ?? DEFAULT_LANGUAGE, userObjId ?? userObjId, page ?? DEFAULT_PAGE, pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE), options);
         return response;
-    }catch(error){
-        return ThrowError('getRelatedMedia',error);
+    } catch (error) {
+        return ThrowError('getRelatedMedia', error);
 
     }
 }
@@ -114,48 +114,77 @@ export const fetchTokanizedMediaUrl = async (mediaId, userObjectId = null, optio
     }
 }
 
-export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId,seasonId,language,userObjectId,page,pageSize) =>{
-    try{
-        if(!webSeriesId || webSeriesId == null){
+export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId, seasonId, language, userObjectId, page, pageSize) => {
+    try {
+        if (!webSeriesId || webSeriesId == null) {
             throw Error('Webseries ID is an compulsary field');
         }
-        if(!seasonId || seasonId == null){
+        if (!seasonId || seasonId == null) {
             throw Error('Season Id is an compulsary field');
         }
-        const response = await fetchData(API.MEDIA.GET_WEBSERIES_EPISODES(webSeriesId,seasonId,language ?? DEFAULT_LANGUAGE,userObjectId ?? userObjectId,page??DEFAULT_PAGE,pageSize ?? DEFAULT_PAGE_SIZE));
+        const response = await fetchData(API.MEDIA.GET_WEBSERIES_EPISODES(webSeriesId, seasonId, language ?? DEFAULT_LANGUAGE, userObjectId ?? userObjectId, page ?? DEFAULT_PAGE, pageSize ?? DEFAULT_PAGE_SIZE));
         return response;
 
-    }catch(error){
-        return ThrowError('fetchWebSeriesEpisodeBySeasonId',error);
+    } catch (error) {
+        return ThrowError('fetchWebSeriesEpisodeBySeasonId', error);
     }
 }
 
-export const updateMediaItemToWishlist = async (data,options={}) =>{
+export const updateMediaItemToWishlist = async (data, options = {}) => {
     try {
-          const token = getSanitizedToken();
-          if(!data) throw new Error("Post Data Required");
-          if (!token) throw new Error("User Token Not Found");
-    
-          const headers = {
+        const token = getSanitizedToken();
+        if (!data) throw new Error("Post Data Required");
+        if (!token) throw new Error("User Token Not Found");
+
+        const headers = {
             Authorization: token,
-          };
-          
-          const response = await postData(API.MEDIA.POST_FAVOURITE_MEDIA_ITEM, data,{
+        };
+
+        const response = await postData(API.MEDIA.POST_FAVOURITE_MEDIA_ITEM, data, {
             ...options,
             headers,
-          });
-          return response;
-        } catch (error) {
-          return ThrowError("fetchUserSubscriptionStatus", error);
-        }
+        });
+        return response;
+    } catch (error) {
+        return ThrowError("fetchUserSubscriptionStatus", error);
+    }
 }
 
-export const sendVideoAnalytics = async(data,options) =>{
-    try{
-        if(!data) throw new Error("Post Data Required");
-        const response = await postData(API.MEDIA.POST_PLAY_HISTORY,data,options);
+export const sendVideoAnalytics = async (data, options) => {
+    try {
+        if (!data) throw new Error("Post Data Required");
+        const response = await postData(API.MEDIA.POST_PLAY_HISTORY, data, options);
         return response;
-    }catch(error){
-        return ThrowError("sendVideoAnalytics",error);
+    } catch (error) {
+        return ThrowError("sendVideoAnalytics", error);
+    }
+}
+
+export const fetchTrendingSearch = async (userId, languageCode) => {
+    try {
+        const response = await fetchData(API.SEARCH.TRENDING_SEARCH(userId ?? uid, languageCode ?? DEFAULT_LANGUAGE));
+        return response;
+
+    } catch (error) {
+        return ThrowError("fetchTrendingSearch", error);
+    }
+}
+
+export const fetchSearchContentResult = async (searchParam, options = {}) => {
+    try {
+        if (!searchParam) { throw new Error('Post Data Required') };
+
+        const data = {
+            key: searchParam,
+            userId: uid,
+            languageId: DEFAULT_LANGUAGE.toString(),
+            pageNo: 1,
+            pageSize: 100
+        };
+        const response = await postData(API.SEARCH.SEACH_CONTENT, data, options);
+        return response;
+
+    } catch (error) {
+        return ThrowError("fetchSearchContentResult", error);
     }
 }
