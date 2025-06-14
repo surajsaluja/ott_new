@@ -5,6 +5,7 @@ import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import Menu_Home from "../Menu_Home";
 import ContentWithBanner from "../HomeContentWithBanner";
 import LiveTvHome from "../LiveTv/HomePage";
+import SearchScreen from '../SearchScreen'
 
 import './index.css';
 
@@ -34,7 +35,7 @@ const MovieHomePage = () => {
     if (["HOME", "MOVIES", "WEBSERIES"].includes(category?.toUpperCase())) {
       return <ContentWithBanner category={catId} />;
     } else if (category?.toUpperCase() === "SEARCH") {
-      return <div>SEARCH</div>;
+      return <SearchScreen focusKey={'SEARCH_SCREEN'}/>
     } else if (category?.toUpperCase() === "LIVETV") {
       return <LiveTvHome focusKey={'LIVE_TV_HOME'} />
     } else if (category?.toUpperCase() === "WISHLIST") {

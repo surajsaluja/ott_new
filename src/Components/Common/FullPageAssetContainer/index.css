@@ -36,3 +36,11 @@
   border-radius: 5px;
   background-color: #ccc;
 }
+
+.error-wrapper{
+  display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}

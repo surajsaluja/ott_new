@@ -30,7 +30,9 @@
 
 .keyboard-container{
     display: flex;
-    width: 35vw;
+    min-width: 25vw;
+    max-width: 25vw;
+    width: 25vw;
     flex-direction: column;
     margin: 50px 50px;
 }

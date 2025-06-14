@@ -95,7 +95,7 @@ function SearchScreen({focusKey}) {
                  <FullPageAssetContainer 
                     focusKey={'SEARCH_PAGE_ASSETS'} 
                     assets={searchData} itemsPerRow={3} 
-                    title={'Trending Searches'}
+                    title={inputQuery.length > 0 ? 'Search Results' : 'Trending Searches'}
                     isLoading={isLoading} />
             </div>
         </FocusContext.Provider>
