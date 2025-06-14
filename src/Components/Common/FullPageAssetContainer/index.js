@@ -16,7 +16,7 @@ function FullPageAssetContainer({
   isLoading = false,
 }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({
-    focusable: assets.length > 0,
+    focusable: assets.length > 0 && !isLoading,
     trackChildren: true,
     focusKey,
     saveLastFocusedChild: true,
@@ -39,8 +39,8 @@ function FullPageAssetContainer({
 
         setDimensions({
           itemWidth,
-          itemHeight: 'auto', // Maintain 3:2 aspect ratio
-          aspectRatio: 3 / 2,
+          itemHeight: itemWidth / (16/9) , // Maintain 3:2 aspect ratio
+          aspectRatio: 16 / 9,
           containerHeight: "auto",
           displayImgType: "web",
         });
