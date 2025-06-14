@@ -188,3 +188,14 @@ export const fetchSearchContentResult = async (searchParam, options = {}) => {
         return ThrowError("fetchSearchContentResult", error);
     }
 }
+
+export const fetchRadioHomePageData = async()=>{
+    try {
+        const response = await fetchData(API.RADIO.GET_RADIO_HOME_PAGE);
+        return response;
+
+    } catch (error) {
+        return ThrowError("fetchTrendingSearch", error);
+    }
+
+}

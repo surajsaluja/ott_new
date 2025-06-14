@@ -64,5 +64,8 @@ export const API = {
         TRENDING_SEARCH: (userId,languageCode) => 
             `Media/TrendingContent/${userId ?? DEFAULTS.USER_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}`,
         SEACH_CONTENT:`Media/SearchMedia`
+    },
+    RADIO:{
+        GET_RADIO_HOME_PAGE:`Radio/Index?source=web`
     }
 };

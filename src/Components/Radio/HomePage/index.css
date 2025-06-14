@@ -1,0 +1,7 @@
+.radio-home{
+    display: flex;
+    flex: 1 1 auto;
+    overflow: hidden;
+    justify-content: center;
+    flex-direction: column;
+}
