@@ -14,10 +14,10 @@ export const useRadioHomePage = () =>{
         setIsRadioDataLoading(true);
         try {
           const radioResponse = await fetchRadioHomePageData();
-          let processed = processLiveTvCategoriesToPlaylist(radioResponse.data.radioData);
-          setRadioBannersData(radioResponse.radioBanner);
+          // let processed = processLiveTvCategoriesToPlaylist(radioResponse.data.radioData);
+          setRadioBannersData(radioResponse.data.radioBanner);
     
-          setRadioHomePageData(processed);
+          // setRadioHomePageData(processed);
         } catch (e) {
           console.error("Failed to load homepage", e);
         } finally {
