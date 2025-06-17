@@ -14,6 +14,9 @@ function FullPageAssetContainer({
   title = "",
   focusKey,
   isLoading = false,
+  loadMoreRows = () =>{},
+  hasMore = false,
+  isPagination = false,
 }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusable: assets.length > 0 && !isLoading,
@@ -23,11 +26,24 @@ function FullPageAssetContainer({
   });
 
   const assetScrollingRef = useRef(null);
+  const loadingMoreRef = useRef(false); // Tracks if a load is in progress
+  const loadMoreTriggerRef = useRef(null);
   const [dimensions, setDimensions] = useState({
     itemWidth: 337, // Default fallback
     itemHeight: 200,
     aspectRatio: 3 / 2,
   });
+
+  
+const debouncedLoadMore = useCallback(() => {
+  if (loadingMoreRef.current || !hasMore) return;
+
+  loadingMoreRef.current = true;
+  loadMoreRows().finally(() => {
+    loadingMoreRef.current = false;
+  });
+}, [loadMoreRows, hasMore]);
+
 
   // Calculate dimensions based on container width
   useEffect(() => {
@@ -64,6 +80,32 @@ function FullPageAssetContainer({
     };
   }, []);
 
+  useEffect(() => {
+    if (!isPagination || !hasMore || !loadMoreTriggerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          debouncedLoadMore();
+        }
+      },
+      {
+        root: assetScrollingRef.current,
+        rootMargin: '0px 0px 300px 0px', // trigger before bottom
+        threshold: 0.01
+      }
+    );
+
+    const trigger = loadMoreTriggerRef.current;
+    observer.observe(trigger);
+
+    return () => {
+      if (trigger) observer.unobserve(trigger);
+    };
+  }, [isPagination, hasMore, debouncedLoadMore, assets]);
+
+
+
   const onAssetFocus = useCallback(
     (el) => {
       assetScrollingRef.current.scrollTo({
@@ -99,6 +141,9 @@ function FullPageAssetContainer({
               ): (
                 <div className="error-wrapper">{isLoading ? <Spinner /> : 'No Content Found'}</div>)
             }
+             {isPagination && hasMore && (
+                <div ref={loadMoreTriggerRef} style={{ height: '1px' }} />
+              )}
               
             </div>
           </div>

@@ -37,9 +37,6 @@ const FocusableBanner = ({ index, data, scrollToCenter, onFocus, onEnterPress, l
           ) : (
             <div className="thumbnail-placeholder" />
           )}
-          <div className="thumbnail-time-label">
-           
-          </div>
         </div>
       </div>
   );

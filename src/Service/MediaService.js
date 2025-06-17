@@ -170,7 +170,7 @@ export const fetchTrendingSearch = async (userId, languageCode) => {
     }
 }
 
-export const fetchSearchContentResult = async (searchParam, options = {}) => {
+export const fetchSearchContentResult = async (searchParam = "",pageNum =1, pageSize = 10, options = {}) => {
     try {
         if (!searchParam) { throw new Error('Post Data Required') };
 
@@ -178,8 +178,8 @@ export const fetchSearchContentResult = async (searchParam, options = {}) => {
             key: searchParam,
             userId: uid,
             languageId: DEFAULT_LANGUAGE.toString(),
-            pageNo: 1,
-            pageSize: 100
+            pageNo: pageNum,
+            pageSize: pageSize
         };
         const response = await postData(API.SEARCH.SEACH_CONTENT, data, options);
         return response;

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { showModal } from "../../Utils";
+import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 
 import Menu_Home from "../Menu_Home";
 import ContentWithBanner from "../HomeContentWithBanner";
@@ -8,6 +10,7 @@ import LiveTvHome from "../LiveTv/HomePage";
 import SearchScreen from '../SearchScreen'
 
 import './index.css';
+import RadioHome from "../Radio/HomePage";
 
 const MovieHomePage = () => {
   const { category } = useParams();
@@ -24,6 +27,32 @@ const MovieHomePage = () => {
     WISHLIST: 7,
     PROFILE: 8,
   };
+
+    const exitApplication = () =>{
+    let tizen  = window.tizen;
+    try{
+     if (typeof tizen !== 'undefined' && tizen.application) {
+      tizen.application.getCurrentApplication().exit();
+    } else {
+      console.warn('Tizen API is not available.');
+    }
+    }catch(error){
+      console.log('error at exit application',error);
+    }
+  }
+
+  const onBackPressHandler = () =>{
+    showModal('Confirm Exit Application',
+      'Are You Sure You Want To Exit The Application',
+      [
+        {label: 'Yes', action: exitApplication, className: 'primary'}
+      ]
+    )
+  }
+
+  useOverrideBackHandler(()=>{
+    onBackPressHandler();
+  })
 
   const catId = category ? categoryMap[category.toUpperCase()] || 5 : 5;
 
@@ -42,7 +71,9 @@ const MovieHomePage = () => {
       return <div>WISHLIST</div>;
     } else if (category?.toUpperCase() === "PROFILE") {
       return <div>PROFILE</div>;
-    } else {
+    } else if (category?.toUpperCase() === "RADIO") {
+      return <RadioHome focusKey={'RADIO_HOME'}/>;
+    }else {
       return <div>Coming Soon...</div>; // Default fallback
     }
   };

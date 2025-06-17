@@ -1,17 +1,17 @@
 import {
   FocusContext,
 } from "@noriginmedia/norigin-spatial-navigation";
-import {useContentRow, useMovieHomePage} from "./hooks/useContent";
+import { useContentRow, useMovieHomePage } from "./hooks/useContent";
 import AssetCard from "../Common/AssetCard";
 import "./Content.css";
 import { useRef } from "react";
 import { calculateDimensions } from "../../Utils";
 import Spinner from "../Common/Spinner";
 
-const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus, lastRowChangeRef, playListDimensions }) => {
-  const rowDimensions = data.length > 0 && playListDimensions 
-    ? calculateDimensions(playListDimensions.height, playListDimensions.width)
-    : calculateDimensions(null, null);
+const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetFocus, lastRowChangeRef, playListDimensions, showTitle, isCircular }) => {
+  const rowDimensions = data.length > 0 && playListDimensions
+    ? calculateDimensions(playListDimensions.height, playListDimensions.width, showTitle)
+    : calculateDimensions(null, null, showTitle);
   const lastAssetChangeRef = useRef(Date.now());
   const {
     ref,
@@ -26,14 +26,14 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
       <div
         ref={ref}
         className={`contentRowWrapper ${hasFocusedChild ? "RowFocused" : ""}`}
-        style={{ height: `${rowDimensions.containerHeight}px` }}
+        style={{ height: `${rowDimensions.containerHeight + (showTitle ? 50 : 0)}px` }}
 
       >
         <div className="ContentRowTitle">{title}</div>
         <div className="ContentRowScrollingWrapper"
-         ref={scrollingRowRef}
-         style={{ height: `${rowDimensions.itemHeight}px` }}
-         >
+          ref={scrollingRowRef}
+          style={{ height: `${rowDimensions.itemHeight + (showTitle ? 50 : 0)}px` }}
+        >
           <div className="ContentRowScrollingContent">
             {data.map((item, index) => (
               <AssetCard
@@ -42,9 +42,11 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
                 assetData={item}
                 onEnterPress={onAssetPress}
                 onAssetFocus={onAssetFocus}
-                lastAssetChangeRef = {lastAssetChangeRef}
+                lastAssetChangeRef={lastAssetChangeRef}
                 lastRowChangeRef={lastRowChangeRef}
-                dimensions = {rowDimensions}
+                dimensions={rowDimensions}
+                showTitle = {showTitle}
+                isCircular = {isCircular}
               />
             ))}
           </div>
@@ -54,25 +56,27 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
   );
 };
 
-const Content = ({ 
-  focusKey: focusKeyParam, 
-  onAssetFocus = () => {}, 
-  data = [], 
-  setData = () =>{}, 
+const Content = ({
+  focusKey: focusKeyParam,
+  onAssetFocus = () => { },
+  data = [],
+  setData = () => { },
   isLoading = false,
-  onAssetPress  = () =>{},
-  setIsLoading = () => {},
-  loadMoreRows = () => {}, 
-  handleAssetFocus = () =>{}, 
-  className : userClass = "" }) => {
+  onAssetPress = () => { },
+  setIsLoading = () => { },
+  loadMoreRows = () => { },
+  handleAssetFocus = () => { },
+  className: userClass = "",
+  showTitle = false,
+  isCircular = false }) => {
   const {
     ref,
     focusKey,
     onRowFocus,
-    data : movieRowsData,
+    data: movieRowsData,
     loadMoreRef,
-    isLoading : loadingSpinner
-  } = useMovieHomePage(focusKeyParam, data, setData, isLoading, setIsLoading,loadMoreRows,handleAssetFocus);
+    isLoading: loadingSpinner,
+  } = useMovieHomePage(focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows, handleAssetFocus);
 
   const lastRowChangeRef = useRef(Date.now());
 
@@ -80,23 +84,25 @@ const Content = ({
     <FocusContext.Provider value={focusKey}>
       <div className={`ContentWrapper ${userClass ?? ''}`} id='homeContentWrapper'>
         <div className="ContentRow" ref={ref}>
-          {movieRowsData && movieRowsData.map((item, index) => {
+          {movieRowsData && movieRowsData.length > 0 && movieRowsData.map((item, index) => {
             const isThirdLast = index === movieRowsData.length - 3;
             return (
               <div key={index} ref={isThirdLast ? loadMoreRef : null}>
                 {item.playlistItems.length > 0 && <ContentRow
-                key={`${item.playListId}_${index}`}
+                  key={`${item.playListId}_${index}`}
                   title={item.playlistName}
                   onFocus={onRowFocus}
                   data={item.playlistItems}
                   onAssetPress={onAssetPress}
-                  onAssetFocus = {onAssetFocus}
-                  handleAssetFocus = {handleAssetFocus}
-                  lastRowChangeRef = {lastRowChangeRef}
+                  onAssetFocus={onAssetFocus}
+                  handleAssetFocus={handleAssetFocus}
+                  lastRowChangeRef={lastRowChangeRef}
+                  showTitle={showTitle}
+                  isCircular = {isCircular}
                   playListDimensions={
                     {
                       height: item.height ?? null,
-                      width:item.width ?? null 
+                      width: item.width ?? null
                     }
                   }
                 />}

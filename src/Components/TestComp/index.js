@@ -6,11 +6,12 @@ import ChannelBanner from '../LiveTv/ChannelPage/index.js'
 import LiveTvPlayer from '../LiveTv/Player/index.js'
 import LiveTvHome from '../LiveTv/HomePage'
 import RadioHome from '../Radio/HomePage/index.js'
+import RadioPlayer from '../Radio/Player/index.js'
 // import SeekBarWithPreview from '../VirtualList/SeekWithPreview.js'
 // import VirtualizedSeekbarWithThumbnails from '../VirtualList/HorizontalList.js'
 function TestComp() {
   return (
-   <RadioHome />
+   <RadioPlayer focusKey={'RADIO_PLAYER'} />
   )
 }
 

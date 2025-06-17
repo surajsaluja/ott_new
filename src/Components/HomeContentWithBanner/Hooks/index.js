@@ -6,6 +6,7 @@ import { getProcessedPlaylists, getProcessedPlaylistsWithContinueWatch } from ".
 import { useThrottle } from "../../../Utils";
 import { useHistory } from "react-router-dom";
 import { showModal } from "../../../Utils";
+import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 
 export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   const {

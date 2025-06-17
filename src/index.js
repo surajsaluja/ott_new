@@ -6,10 +6,12 @@ import reportWebVitals from "./reportWebVitals";
 import { UserProvider } from "./Context/userContext";
 import { ModalProvider } from "./Context/modalContext";
 import { BackHandlerProvider } from "./Context/BackHandlerContext";
+import { BrowserRouter as Router } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
+    <Router>
     <UserProvider>
       <BackHandlerProvider>
         <ModalProvider>
@@ -17,6 +19,7 @@ root.render(
         </ModalProvider>
       </BackHandlerProvider>
     </UserProvider>
+    </Router>
   </React.StrictMode>
 );
 

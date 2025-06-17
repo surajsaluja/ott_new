@@ -48,10 +48,11 @@ export const getResizedOptimizedImage = (url, width, height) => {
 };
 
 // utils/calculateDimensions.js
-export const calculateDimensions = (height, width) => {
+export const calculateDimensions = (height, width, showTitle = false) => {
   const gap = 40;
-  const homeContentWrapper = document.getElementById('getPlaylistDimentions');
-  const maxHeight = homeContentWrapper ? homeContentWrapper.height - 70 : 320;
+  const homeContentWrapper = document.getElementById('homeContentWrapper');
+  let maxHeight = homeContentWrapper ? homeContentWrapper.offsetHeight - 70 : 320;
+  maxHeight = maxHeight - (showTitle ? 50 : 0);
 
   const defaultDimensions = {
     itemWidth: 360,
@@ -69,7 +70,7 @@ export const calculateDimensions = (height, width) => {
   let itemWidth, itemHeight;
 
   if (aspectRatio > 1.9 || aspectRatio === 1) {
-    itemHeight = Math.min(maxHeight,((250 * aspectRatio) + 16));
+    itemHeight = Math.min(maxHeight,((200 * aspectRatio) + 16));
     itemWidth = itemHeight / aspectRatio;
   } else {
     itemHeight = Math.min(maxHeight,200 * aspectRatio);

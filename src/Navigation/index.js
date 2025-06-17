@@ -10,10 +10,10 @@ import PrivateRoute from "./PrivateRoute";
 import VideoPlayer from "../Components/VideoPlayer";
 import LiveTvChannelPage from "../Components/LiveTv/ChannelPage";
 import LiveTvPlayer from "../Components/LiveTv/Player";
+import RadioPlayer from "../Components/Radio/Player";
 
 const AppNavigation = () => {
   return (
-    <Router>
       <Switch>
         <Route path="/login" component={LoginScreen} />
         <Route path="/test" component={TestComp} />
@@ -24,6 +24,7 @@ const AppNavigation = () => {
 
         <PrivateRoute path="/play" component={VideoPlayer} />
         <PrivateRoute path = "/livetvplayer" component={LiveTvPlayer}/>
+        <PrivateRoute path = "/playRadio" component={RadioPlayer} />
 
         {/* Default landing route */}
         <Route exact path="/">
@@ -36,7 +37,6 @@ const AppNavigation = () => {
         {/* Catch-all route for 404 */}
         <Route component={Error404} />
       </Switch>
-    </Router>
   );
 };
 
