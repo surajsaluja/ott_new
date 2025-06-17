@@ -36,6 +36,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isSeasonsLoading, setIsSeasonsLoading] = useState(true);
     const [showResumeBtn, setShowResumeButton] = useState(false);
     const [isMediaFavourite, setIsMediaFavourite] = useState(false);
+    const [isError,setIsError] = useState(false);
+    const [errorMessage,setErrorMessage] = useState(false);
 
      const {isLoggedIn, userObjectId } = useUserContext();
 
@@ -59,26 +61,38 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         setWebSeriesSeasons(null);
         setIsSeasonsLoading(true);
         setGroupedStarCasts(null);
+        setIsError(false);
+        setErrorMessage(false);
         handleBottomDrawerClose();
     }, [mediaId]);
 
-    useOverrideBackHandler(() => {
+    const handleBackPressed = () =>{
         if(isDrawerOpen){
             handleBottomDrawerClose();
             return;
         }else{
             history.goBack();
         }
+    }
+
+    useOverrideBackHandler(() => {
+        handleBackPressed();
       });
 
     // set Focus to Page when media Loads
     useEffect(() => {
-        if (!isLoading && focusSelf) {
+        if (!isLoading && !isError && focusSelf) {
             setTimeout(()=>{
                 focusSelf();
             },50);
         }
-    }, [isLoading, focusSelf]);
+
+        if(isError){
+            setTimeout(()=>{
+                focusSelf();
+            },50)
+        }
+    }, [isLoading, focusSelf, isError]);
 
     useEffect(() => {
         if (isDrawerOpen) {
@@ -121,9 +135,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 getRelatedMediaItems(mediaId);
             }
             else {
-                toast.error(mediaDetailsResponse.message);
-                setMediaDetail(null);
-                returnUserToHomePage();
+                setMediaDetail([]);
+                setIsLoading(false);
+                setIsError(true);
+                setErrorMessage(mediaDetailsResponse.message);
             }
         } catch (err) {
             toast.error(err);
@@ -316,12 +331,15 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         isDrawerOpen,
         tabs,
         isDrawerContentReady,
+        isError,
+        errorMessage,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
         showResumeBtn,
         isMediaFavourite,
         updateMediaWishlistStatus,
-        watchMovie
+        watchMovie,
+        handleBackPressed
     }
 }
 

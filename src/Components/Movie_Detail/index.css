@@ -348,3 +348,47 @@
       background-position: 800px 0;
     }
   }
+
+  .error-container{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .error-container .error-icon{
+    display: flex;
+    color: #bc0606;
+    justify-content: center;
+    align-items: center;
+    font-size: 8vw;
+  }
+
+  .error-container .error-message{
+    display: flex;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    font-size: 3vw;
+    margin: 1vw 0;
+  }
+
+  .btn-error-return {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    font-size: 1.5vw;
+    border: 2px solid white;
+    padding: 13px;
+    border-radius: 14px;
+    background-color: #333
+}
+
+.btn-error-focused{
+  color: black;
+  background-color: white;
+  border-color: #333;
+}

@@ -1,7 +1,7 @@
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
 import { useParams } from 'react-router-dom';
-import { MdOutlineTimer, MdOutlineDateRange, MdStarRate, MdAdd } from 'react-icons/md';
+import { MdOutlineTimer, MdOutlineDateRange, MdStarRate, MdAdd, MdError } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import { formatTime } from "../../Utils";
 import useMediaDetail from "./Hooks/useMediaDetail";
@@ -23,18 +23,21 @@ function Movie_Detail() {
         isDrawerOpen,
         tabs,
         isDrawerContentReady,
+        isError,
+        errorMessage,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
         isMediaFavourite,
         showResumeBtn,
         updateMediaWishlistStatus,
-        watchMovie
+        watchMovie,
+        handleBackPressed
     } = useMediaDetail(mediaId, categoryId, 'MOVIE_DETAIL_PAGE');
 
 
     return (<FocusContext.Provider value={btnControlsFocusKey}>
 
-        <div className="movie-detail-page">
+        <div className="movie-detail-page" ref={ref}>
             {isLoading || !mediaDetail ? (
                 <div className="details-shimmer shimmer-wrapper">
                     <div className="shimmer-content-container">
@@ -48,7 +51,21 @@ function Movie_Detail() {
                     </div>
                 </div>
             ) : (
-                <>
+               (isError) ? (<div className="error-container">
+                <div className="error-icon">
+                    <MdError />
+                </div>
+                <div className="error-message">
+                    {errorMessage}
+                </div>
+                <FocusableButton 
+                    text="Return Back"
+                    focuskey={'DETAIL_ERROR_BUTTON'}
+                    className="btn-error-return"
+                    focusClass="btn-error-focused"
+                    onEnterPress={handleBackPressed}
+                />
+               </div>)  :( <>
                     <div
                         className={`movie-detail-page-poster ${mediaDetail.fullPageBanner ? 'bg-image-found' : 'bg-image-not-found'}`}
                         style={{
@@ -71,7 +88,7 @@ function Movie_Detail() {
                             </div>
                             <p className="description-detail">{mediaDetail.description}</p>
                             {mediaDetail &&
-                                <div className="buttons-detail" ref={ref}>
+                                <div className="buttons-detail">
                                     <FocusableButton
                                         key={'detail_watch'}
                                         icon={<FaPlay />}
@@ -114,7 +131,7 @@ function Movie_Detail() {
                         ))}
                     </div>
                 </>
-            )}
+            ))}
         </div>
         {isDrawerOpen && (
             <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose} focusKey={'BTM_DRWR'}>
