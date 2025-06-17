@@ -287,3 +287,19 @@ export function  getUtcDate(){
 	var d = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
 	return d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" +  d.getDate()).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
 }
+
+export function getCategoryIdByCategoryName(categoryName){
+  let catId  = null;
+  switch(categoryName.toUpperCase()){
+    case "MOVIES" : 
+      catId  = 1;
+      break;
+    case "WEB SERIES":
+      catId = 2;
+      break;
+    default:
+      catId = null;
+  }
+
+  return catId;
+}

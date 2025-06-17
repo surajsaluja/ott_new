@@ -148,7 +148,7 @@ export const getMediaDetails = async (
       success = true;
       message = "Data Retrived SuccessFully";
     } else {
-      throw new Error("Invalid response for media detail");
+      throw new Error(response?.message || "Invalid response for media detail");
     }
   } catch (error) {
     success = false;
@@ -222,7 +222,7 @@ export const getTokenisedMedia = async (
         throw new Error("You are not a subscribed user to watch this movie!");
       }
     } else {
-      throw new Error("Invalid response for Tokenised Media");
+      throw new Error(response?.message || "Invalid response for Tokenised Media");
     }
   } catch (error) {
     success = false;
@@ -269,12 +269,12 @@ export const getMediaDetailWithTokenisedMedia = async (
         success = true;
       } else {
         throw new Error(
-          `Could Not Get Tokenised Detail : ${tokenisedMediaResponse.error}`
+          tokenisedMediaResponse.error || 'Could Not Get Tokenised Detail'
         );
       }
     } else {
       throw new Error(
-        `Could Not Get Media Detail : ${mediaDetailReponse.error}`
+        mediaDetailReponse.error || 'Could Not Get Media Detail'
       );
     }
   } catch (error) {
@@ -314,10 +314,10 @@ export const getMediaRelatedItemDetails = async (
         pageSize,
         language
       );
-      if (relatedItemsReponse.isSuccess) {
+      if (relatedItemsReponse && relatedItemsReponse?.isSuccess) {
         success = true;
       } else {
-        throw new Error(`Could Not Get Related Media Items`);
+        throw new Error(relatedItemsReponse?.message || `Could Not Get Related Media Items`);
       }
     }
   } catch (error) {
@@ -358,10 +358,10 @@ export const getWebSeriesEpisodesBySeason = async (
         page,
         pageSize
       );
-      if (webSeriesEpisodesResponse.isSuccess) {
+      if (webSeriesEpisodesResponse && webSeriesEpisodesResponse?.isSuccess) {
         success = true;
       } else {
-        throw new Error(`Could Not Get Episode Related To Items`);
+        throw new Error(webSeriesEpisodesResponse?.message || `Could Not Get Episode Related To Items`);
       }
     }
   } catch (error) {
@@ -413,7 +413,7 @@ export const getTokenisedTvMedia = async (channelHandle) =>{
         throw new Error("You are not a subscribed user to watch this Content!");
       }
     } else {
-      throw new Error("Invalid response for Tokenised Media");
+      throw new Error(response?.message || "Invalid response for Tokenised Media");
     }
   } catch (error) {
     success = false;
