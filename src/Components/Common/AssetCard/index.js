@@ -17,7 +17,8 @@ const AssetCard = ({
   lastAssetChangeRef = { current: 0 },
   lastRowChangeRef = { current: 0 },
   dimensions = defaultDimensions,
-  showTitle = false
+  showTitle = false,
+  isCircular = false,
 }) => {
   const {
     imgRef,
@@ -44,8 +45,11 @@ const AssetCard = ({
       style={{
         width: `${dimensions.itemWidth}px`,
         height: `${dimensions.itemHeight}px`,
+        borderRadius: `${isCircular ? '50%' : '0.5em'}`
       }}>
-      <div className={`card ${focused ? "focused" : ""}`}>
+      <div className={`card ${focused ? "focused" : ""}`}
+      style={{borderRadius: `${isCircular ?'50%' : '0.5em'}`}}
+      >
         {assetData.isSeeMore ? (
           <FocusableButton
             className={`seeMore`}
