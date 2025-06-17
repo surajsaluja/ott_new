@@ -11,6 +11,7 @@ import SearchScreen from '../SearchScreen'
 
 import './index.css';
 import RadioHome from "../Radio/HomePage";
+import WishlistHome from "../Wishlist/HomePage";
 
 const MovieHomePage = () => {
   const { category } = useParams();
@@ -68,7 +69,7 @@ const MovieHomePage = () => {
     } else if (category?.toUpperCase() === "LIVETV") {
       return <LiveTvHome focusKey={'LIVE_TV_HOME'} />
     } else if (category?.toUpperCase() === "WISHLIST") {
-      return <div>WISHLIST</div>;
+      return <WishlistHome focusKey={'WISHLIST_HOME_PAGE'} />;
     } else if (category?.toUpperCase() === "PROFILE") {
       return <div>PROFILE</div>;
     } else if (category?.toUpperCase() === "RADIO") {

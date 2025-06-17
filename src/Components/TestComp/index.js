@@ -7,11 +7,12 @@ import LiveTvPlayer from '../LiveTv/Player/index.js'
 import LiveTvHome from '../LiveTv/HomePage'
 import RadioHome from '../Radio/HomePage/index.js'
 import RadioPlayer from '../Radio/Player/index.js'
+import WishlistHome from '../Wishlist/HomePage/index.js'
 // import SeekBarWithPreview from '../VirtualList/SeekWithPreview.js'
 // import VirtualizedSeekbarWithThumbnails from '../VirtualList/HorizontalList.js'
 function TestComp() {
   return (
-   <RadioPlayer focusKey={'RADIO_PLAYER'} />
+   <WishlistHome focusKey={'WISHLIST_PAGE'}/>
   )
 }
 

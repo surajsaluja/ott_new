@@ -67,5 +67,8 @@ export const API = {
     },
     RADIO:{
         GET_RADIO_HOME_PAGE:`Radio/Index?source=web`
+    },
+    WISHLIST:{
+        GET_USER_WISHLIST_DATA:(pageNum,pageSize) => `User/GetUserPlaylist/${pageNum ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
     }
 };

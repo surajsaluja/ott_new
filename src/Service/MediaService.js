@@ -2,6 +2,7 @@ import { fetchData, postData } from "../Api/apiService";
 import { API } from "../Api/constants";
 import { toast } from "react-toastify";
 import { getSanitizedToken } from "../Utils";
+import { useUserContext } from "../Context/userContext";
 
 const DEFAULT_PLAYLIST_TYPE = "Home";
 const DEFAULT_PAGE_SIZE = 10;
@@ -15,6 +16,7 @@ const uid = localStorage.getItem('uid') ?? null;
 const ThrowError = (functionName, error) => {
     toast.error(`Error in ${functionName}: ${error.message || error}`);
     console.error(`Api Error At ${functionName}:`, error);
+    throw new Error(error);
     return null;
 };
 
@@ -199,3 +201,24 @@ export const fetchRadioHomePageData = async()=>{
     }
 
 }
+
+export const fetchUserWishlistItems = async (pageNum,pageSize, options = {}) => {
+    try {
+        const token = getSanitizedToken();
+        if (!token) throw new Error("User Token Not Found");
+
+        const headers = {
+            Authorization: token,
+        };
+
+        const response = await fetchData(API.WISHLIST.GET_USER_WISHLIST_DATA(pageNum, pageSize), {
+            ...options,
+            headers
+        });
+
+        return response;
+    } catch (error) {
+        return ThrowError('fetchUserWishlistItems', error);
+    }
+}
+
