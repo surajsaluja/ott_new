@@ -89,7 +89,6 @@
   .keypad {
     display: grid;
     grid-template-columns: repeat(3, 4rem);
-    gap: 1rem;
     margin-top: 2rem;
   }
   

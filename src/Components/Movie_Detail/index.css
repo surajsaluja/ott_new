@@ -171,61 +171,6 @@
     display: inline-block;
   }
   
-  /* 🔥 Cast List with Smooth Scroll */
-  .cast-list {
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    padding-bottom: 10px;
-    scrollbar-width: none; /* Hide scrollbar in Firefox */
-  }
-  
-  .cast-list::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in Chrome/Safari */
-  }
-  
-  /* 🔥 Individual Cast Member */
-  .cast-member {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 150px;
-    text-align: center;
-    transition: transform 0.3s ease-in-out;
-  }
-  
-  .cast-member:hover {
-    transform: scale(1.1);
-  }
-  
-  /* 🔥 Cast Image */
-  .cast-image {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid white;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .cast-image:hover {
-    border-color: red;
-  }
-  
-  /* 🔥 Cast Info */
-  .cast-info {
-    margin-top: 8px;
-  }
-  
-  .cast-name {
-    font-size: 1rem;
-    font-weight: bold;
-  }
-  
-  .cast-character {
-    font-size: 0.9rem;
-    opacity: 0.8;
-  }
 
   .bottom-content-details{
     z-index: 2;

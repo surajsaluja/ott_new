@@ -45,7 +45,6 @@ const Popup = ({
       style={{
         display: "flex",
         flexDirection: "row",
-        gap: "20px",
         width: "100%",
         height: "200px",
         zIndex: 10,
