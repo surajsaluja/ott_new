@@ -12,6 +12,8 @@ import SearchScreen from '../SearchScreen'
 import './index.css';
 import RadioHome from "../Radio/HomePage";
 import WishlistHome from "../Wishlist/HomePage";
+import ProfileHomePage from "../Profile";
+import Error404 from "../Error404";
 
 const MovieHomePage = () => {
   const { category } = useParams();
@@ -71,11 +73,11 @@ const MovieHomePage = () => {
     } else if (category?.toUpperCase() === "WISHLIST") {
       return <WishlistHome focusKey={'WISHLIST_HOME_PAGE'} />;
     } else if (category?.toUpperCase() === "PROFILE") {
-      return <div>PROFILE</div>;
+      return <ProfileHomePage focusKey={'PROFILE_HOME_PAGE'} />
     } else if (category?.toUpperCase() === "RADIO") {
       return <RadioHome focusKey={'RADIO_HOME'}/>;
     }else {
-      return <div>Coming Soon...</div>; // Default fallback
+      return <Error404 />; // Default fallback
     }
   };
 

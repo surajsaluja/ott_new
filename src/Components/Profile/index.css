@@ -19,7 +19,7 @@
 }
 
 .profile-info p {
-  font-size: 18px;
+  font-size: 1.5vw;
   margin: 10px 0;
 }
 
@@ -30,28 +30,69 @@
   margin-bottom: 30px;
 }
 
-.profile-table tbody{
-    width: 100%;
+.profile-table tbody {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-table tr {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+
 }
 
 .profile-table td {
   padding: 12px;
-  border-bottom: 1px solid #444;
-  font-size: 18px;
+  font-size: 1.3vw;
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  margin: 0 15px;
 }
 
 .profile-table td:first-child {
   color: #aaa;
-  width: 200px;
+  justify-content: end;
+  font-weight: 700;
 }
 
-.btn-login{
+.profile-table td:first-child::after {
+  content: ':';
+}
+
+.profile-btn-login {
+  display: flex;
+  margin: 14px;
+  background-color: #333;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-btn-login-focused{
+  background-color: red;
+}
+
+.profile-login-container{
+  justify-content: center;
     display: flex;
-    margin: 14px;
-    background-color: #333;
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    margin: 1.5vw;
+}
+
+.profile-login-container img{
+  display: flex;
+    width: 7vw;
+    margin: 1.5vw;
+}
+
+.profile-login-container span{
+  display: flex;
+    justify-content: center;
+    font-size: 1.5vw;
 }

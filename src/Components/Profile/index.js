@@ -1,19 +1,38 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useUserContext } from '../../Context/userContext'
-import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import './index.css'
 import FocusableButton from '../Common/FocusableButton';
+import { kableOneLogo } from '../../assets';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 function ProfileHomePage({ focusKey }) {
-    const { isLoggedIn, uid, profileInfo } = useUserContext();
-    const { ref, focuskey: currentFocusKey, focusSelf } = useFocusable({ focusKey });
-    const user = {
-        name: 'suraj',
-        email: 'surajdgt15@gmail.com',
-        mobile: '+91-9053745551',
-        plan: 'Premium Yearly',
-        expiry: '2026-06-02',
-    };
+    const { isLoggedIn, uid, profileInfo, logout } = useUserContext();
+    const history = useHistory();
+    const { ref,  focusKey : currentFocusKey, focusSelf } = useFocusable({ focusKey });
+    useEffect(()=>{
+        focusSelf();
+    },[focusSelf])
+    
+    function getFormattedDate(dateString) {
+        const date = new Date(dateString);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const formattedDate = `${year}-${month}-${day}`;
+        return formattedDate;
+    }
+
+    const loginButtonEnterPressHandler = () =>{
+        if(isLoggedIn){
+            logout();
+        }else{
+            history.push('/login');
+        }
+    }
+
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div className='profile-container' ref={ref}>
@@ -23,31 +42,37 @@ function ProfileHomePage({ focusKey }) {
                         <tbody>
                             <tr>
                                 <td>User Name</td>
-                                <td>{user.name}</td>
+                                <td>{profileInfo.username}</td>
                             </tr>
                             <tr>
                                 <td>Email</td>
-                                <td>{user.email}</td>
+                                <td>{profileInfo.email}</td>
                             </tr>
                             <tr>
                                 <td>Mobile No.</td>
-                                <td>{user.mobile}</td>
+                                <td>{profileInfo.mobileWithDialCode}</td>
                             </tr>
                             <tr>
                                 <td>Active Plan</td>
-                                <td>{user.plan}</td>
+                                <td>{profileInfo.planname}</td>
                             </tr>
                             <tr>
                                 <td>Expire date</td>
-                                <td>{user.expiry}</td>
+                                <td>{getFormattedDate(profileInfo.expiredate)}</td>
                             </tr>
                         </tbody>
                     </table>
-                </>) : (<div className='login-container'>
+                </>) : (<div className='profile-login-container'>
+                    <img src={kableOneLogo} />
+                    <span>You are not logged in!!</span>
+                    <span>Please click on login to continue.</span> 
                 </div>)}
-                <FocusableButton 
-                text={isLoggedIn ? 'LOGOUT' : 'LOGIN'} 
-                className='btn-login'
+                <FocusableButton
+                    text={isLoggedIn ? 'LOGOUT' : 'LOGIN'}
+                    className='profile-btn-login'
+                    focusClass='profile-btn-login-focused'
+                    focuskey={'BTN_LOGIN_LOGOUT_PROFILE'}
+                    onEnterPress={loginButtonEnterPressHandler}
                 />
             </div>
         </FocusContext.Provider>
