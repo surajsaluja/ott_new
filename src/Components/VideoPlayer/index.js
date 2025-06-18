@@ -24,6 +24,7 @@ import FocusableButton from "../Common/FocusableButton";
 import { useSignalR } from "../../Hooks/useSignalR";
 import StreamLimitModal from "./StreamLimitError";
 import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
+import Spinner from "../Common/Spinner";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const THUMBNAIL_STRIP_FOCUSKEY = "STRIP_THUMBNAIL";
@@ -763,7 +764,7 @@ useOverrideBackHandler(() => {
 
         {isLoading && !isSeeking && (
           <div className="video-loader">
-            
+            <Spinner />
           </div>
         )}
       </div>
