@@ -25,7 +25,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isLoading, setIsLoading] = useState(false);
     const [mediaDetail, setMediaDetail] = useState(null);
     const [webSeriesId, setWebSeriesId] = useState(null);
-    const [webSeriesSeasons, setWebSeriesSeasons] = useState(null);
+    const [webSeriesSeasons, setWebSeriesSeasons] = useState([]);
     const [selectedSeasonId, setSelectedSeasonId] = useState(null);
     const [episodesCache, setEpisodesCache] = useState({});
     const [relatedItems, setRelatedItems] = useState([]);
@@ -58,7 +58,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         fetchMediaDetail(mediaId);
         setRelatedItems(null); // Reset related items when mediaId changes
         setIsRelatedItemsLoading(true); // Reset loading state
-        setWebSeriesSeasons(null);
+        setWebSeriesSeasons([]);
         setIsSeasonsLoading(true);
         setGroupedStarCasts(null);
         setIsError(false);
@@ -129,7 +129,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 setShowResumeButton(mediaDet.playDuration > 0);
                 if (categoryId == 2 && mediaDet.seasons && mediaDet.seasons.length > 0) {
                     setWebSeriesId(mediaDet.webSeriesId);
-                    setWebSeriesSeasons(mediaDet.seasons);
+                    setWebSeriesSeasons(mediaDet.seasons.length > 0 || []);
                     setSelectedSeasonId(mediaDet.seasons[0].id);
                 }
                 getRelatedMediaItems(mediaId);
