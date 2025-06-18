@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import FocusableButton from '../FocusableButton';
 import { useFocusable, setFocus, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 import './index.css';
+import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 
 const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
   const { ref, focusSelf, focusKey: currentFocusKey } = useFocusable({ focusKey: 'MODAL_BUTTONS' });
@@ -10,6 +11,10 @@ const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
   useEffect(() => {
       focusSelf();
   }, [isOpen]);
+
+  useOverrideBackHandler(()=>{
+    onClose();
+  })
 
   return createPortal(
     <FocusContext.Provider value={currentFocusKey}>

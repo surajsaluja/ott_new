@@ -51,6 +51,10 @@ export const ModalProvider = ({ children }) => {
       {children}
       {modalConfig.isOpen && (
         <Modal
+          onClose={()=>{
+            setFocusToPrevElement();
+            closeModal();
+          }}
           isOpen={modalConfig.isOpen}
           title={modalConfig.title}
           content={modalConfig.content}
