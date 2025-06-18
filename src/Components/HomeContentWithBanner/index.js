@@ -35,7 +35,7 @@
       <div ref = {ref} className="content-with-banner" style={{position:'relative', width: '100%', height: '100%'}}>
 
         <Banner data={focusedAssetData} banners={banners} />
-        <div className="assetContent" style={{position: 'absolute', height: '400px', bottom: 0, width: '100%'}}>
+        <div className="assetContent" style={{position: 'absolute', height: '55vh', bottom: 0, width: '100%'}}>
         <Content 
           onAssetFocus={handleAssetFocus} 
           data={data} 

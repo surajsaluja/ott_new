@@ -6,8 +6,8 @@ export const getDeviceId = () => {
 };
 
 export const getDeviceName = () => {
-    if (window.webapis && typeof window.webapis !== 'undefined' && window.webapis.productinfo) {
-        return window.webapis.productinfo.getModel();
+    if (window.webapis && typeof window.webapis !== 'undefined' && window?.webapis?.productinfo) {
+        return window.webapis.productinfo.getRealModel();
     }
     return 'unknown-device';
 };
@@ -18,3 +18,4 @@ export const getDeviceOS = () => {
     }
     return 'unknown-device-id';
 }
+

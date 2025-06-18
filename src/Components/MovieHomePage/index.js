@@ -77,7 +77,7 @@ const MovieHomePage = () => {
     } else if (category?.toUpperCase() === "RADIO") {
       return <RadioHome focusKey={'RADIO_HOME'}/>;
     }else {
-      return <Error404 />; // Default fallback
+      return <ContentWithBanner category={5} />; // Default fallback
     }
   };
 

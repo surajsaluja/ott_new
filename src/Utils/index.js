@@ -52,7 +52,7 @@ export const calculateDimensions = (height, width, showTitle = false) => {
   const gap = 40;
   const homeContentWrapper = document.getElementById('homeContentWrapper');
   let maxHeight = homeContentWrapper ? homeContentWrapper.offsetHeight - 70 : 320;
-  maxHeight = maxHeight - (showTitle ? 50 : 0);
+  maxHeight = maxHeight - (showTitle ? 70 : 0);
 
   const defaultDimensions = {
     itemWidth: 360,

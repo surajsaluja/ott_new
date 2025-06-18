@@ -38,7 +38,7 @@ const AssetCard = ({
     style={{
       width: `${dimensions.itemWidth}px`,
       maxWidth: `${dimensions.itemWidth}px`,
-      height: `${dimensions.itemHeight + (showTitle ? 50 : 0)}px`
+      height: `${dimensions.itemHeight + (showTitle ? 70 : 0)}px`
     }}>
     <div ref={ref}
       className={`asset-wrapper ${focused ? "focused" : ""}`}

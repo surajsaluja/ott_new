@@ -26,13 +26,13 @@ const ContentRow = ({ title, onAssetPress, onFocus, data, focusKey, handleAssetF
       <div
         ref={ref}
         className={`contentRowWrapper ${hasFocusedChild ? "RowFocused" : ""}`}
-        style={{ height: `${rowDimensions.containerHeight + (showTitle ? 50 : 0)}px` }}
+        style={{ height: `${rowDimensions.containerHeight + (showTitle ? 70 : 0)}px` }}
 
       >
         <div className="ContentRowTitle">{title}</div>
         <div className="ContentRowScrollingWrapper"
           ref={scrollingRowRef}
-          style={{ height: `${rowDimensions.itemHeight + (showTitle ? 50 : 0)}px` }}
+          style={{ height: `${rowDimensions.itemHeight + (showTitle ? 70 : 0)}px` }}
         >
           <div className="ContentRowScrollingContent">
             {data.map((item, index) => (
