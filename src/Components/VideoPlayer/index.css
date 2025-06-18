@@ -57,8 +57,8 @@
 
   .seek-icon {
     position: absolute;
-    top: 42%;
-    font-size: 2vw;
+    top: 36%;
+    font-size: 3vw;
     width: 100%;
     color: azure;
 }
@@ -68,6 +68,8 @@
     left:56%;
     display: flex;
     align-items: center;
+    animation-duration: 0.4s;
+  animation-fill-mode: forwards;
 }
 
 .seek-icon .rewind{
@@ -75,11 +77,13 @@
     left: 36%;
     display: flex;
     align-items: center;
+    animation-duration: 0.4s;
+  animation-fill-mode: forwards;
 }
 
-.seek-icon  p{
+/* .seek-icon  p{
     font-size: 2vw;
-}
+} */
 
 .skip-button{
   background-color: red;
@@ -118,7 +122,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 2vw;
+  font-size: 7vw;
   color: rgb(255, 255, 255); /* Changed to red */
   opacity: 0;
   pointer-events: none;
@@ -131,7 +135,25 @@
 }
 
 .playPauseRipple.show {
-      animation: rippleEffect 1.5s ease-out, fadeOut 1.5s ease-out;
+      animation: fadeIn 3s ease-in, fadeOut 3s ease-out;
+  }
+
+  .forward span,
+  .rewind span{
+    display: flex;
+    margin: 0px 10px;
+  }
+
+  .animate-slide-right {
+  animation-name: slideRight;
+}
+
+.animate-slide-left {
+  animation-name: slideLeft;
+}
+
+  .rewind i{
+    transform: rotate(180deg);
   }
 
 @keyframes rippleEffect {
@@ -159,5 +181,29 @@
 
   100% {
       opacity: 0;
+  }
+}
+
+/* Animate right (forward) */
+@keyframes slideRight {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(20px);
+    opacity: 1;
+  }
+}
+
+/* Animate left (rewind) */
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-20px);
+    opacity: 1;
   }
 }

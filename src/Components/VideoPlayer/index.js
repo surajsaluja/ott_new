@@ -8,23 +8,17 @@ import {
 import Popup from "./Popup";
 import SideBar_Tab from "./SideBar_Tab";
 import { useLocation, useHistory } from "react-router-dom";
-import {
-  MdFastForward,
-  MdFastRewind,
-  MdOutlinePause,
-  MdPlayArrow,
-} from "react-icons/md";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import VirtualThumbnailStripWithSeekBar from "../VirtualList/VirtualThumbnailStripWithSeekBar";
 import useSeekHandler from "./useSeekHandler";
 import { getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
 import { sendVideoAnalytics } from "../../Service/MediaService";
-import FocusableButton from "../Common/FocusableButton";
 import { useSignalR } from "../../Hooks/useSignalR";
 import StreamLimitModal from "./StreamLimitError";
 import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 import Spinner from "../Common/Spinner";
+import { FaForward, FaPause, FaPlay } from "react-icons/fa6";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const THUMBNAIL_STRIP_FOCUSKEY = "STRIP_THUMBNAIL";
@@ -479,7 +473,7 @@ useOverrideBackHandler(() => {
       if (!isSeekingRef.current) {
         setShowSeekIcon(false);
       }
-    }, 1000);
+    }, 2000);
 
     // Cleanup timeout on unmount
     return () => clearTimeout(seekIconTimeoutRef.current);
@@ -726,21 +720,21 @@ useOverrideBackHandler(() => {
         {showSeekIcon && (
           <div className="seek-icon">
             {seekDirection === "forward" && (
-              <div className="forward">
-                <p>{seekAmount}s</p> <MdFastForward />
+              <div className="forward animate-slide-right">
+                <p>{seekAmount}s</p> <span><FaForward /></span>
               </div>
             )}
             {seekDirection === "backward" && (
-              <div className="rewind">
-                <MdFastRewind /> <p>{seekAmount}s</p>
+              <div className="rewind animate-slide-left">
+                <span><i><FaForward/></i></span> <p>{seekAmount}s</p>
               </div>
             )}
           </div>
-        )}
+         )}
 
         {showPlayIcon && (
           <div className={`playPauseRipple ${showPlayIcon ? "show" : ""}`}>
-            {isPlaying ? <MdPlayArrow /> : <MdOutlinePause />}
+            {isPlaying ? <FaPlay /> : <FaPause />}
           </div>
         )}
 
