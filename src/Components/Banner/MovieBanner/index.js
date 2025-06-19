@@ -53,7 +53,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
 
   const renderMedia = () => {
     if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].fullPageBanner) {
-      return <img key="banner-image" src={displayBanners[0].fullPageBanner} className={`banner-video ${transitionClass}`} />;
+      return <img key="banner-image" src={displayBanners[0].fullPageBanner || displayBanners[0].mobileThumbnail} className={`banner-video ${transitionClass}`} />;
     }
 
     if (displayAsset?.trailerUrl && displayAsset.fullPageBanner) {

@@ -10,6 +10,8 @@ const DEFAULT_LANGUAGE = 1;
 const DEFAULT_PAGE = 1;
 const RELATED_MEDIA_DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_SECTION = 5;
+const DEFAULT_CULTURE = 0;
+const DEFAULT_GENRE = 0;
 const userObjId = localStorage.getItem('userObjectId') ?? null;
 const uid = localStorage.getItem('uid') ?? null;
 
@@ -219,6 +221,16 @@ export const fetchUserWishlistItems = async (pageNum,pageSize, options = {}) => 
         return response;
     } catch (error) {
         return ThrowError('fetchUserWishlistItems', error);
+    }
+}
+
+export const fetchPlayListContent = async(playListId, page, pageSize)=>{
+    try {
+        const response = await fetchData(API.SEE_ALL_PLAYLIST_DATA.FETCH_PLAYLIST_DATA(playListId,page,pageSize,uid,DEFAULT_LANGUAGE,DEFAULT_CULTURE,DEFAULT_GENRE));
+        return response;
+
+    } catch (error) {
+        return ThrowError("fetchTrendingSearch", error);
     }
 }
 

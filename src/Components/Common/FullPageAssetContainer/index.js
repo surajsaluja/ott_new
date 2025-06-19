@@ -52,6 +52,7 @@ const debouncedLoadMore = useCallback(() => {
         const containerWidth = assetScrollingRef.current.offsetWidth - 10;
         const gap = 20;
         const itemWidth = (containerWidth - itemsPerRow * gap) / itemsPerRow;
+        // const itemWidth  = 380
 
         setDimensions({
           itemWidth,

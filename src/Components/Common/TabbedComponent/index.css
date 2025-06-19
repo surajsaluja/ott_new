@@ -66,4 +66,5 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    padding: 0 0 1rem 0;
   }
