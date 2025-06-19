@@ -16,17 +16,32 @@ const useLoginScreen = () => {
     const { handleOTPLogin, isLoggedIn, logout } = useUserContext();
     const { ref, focusSelf } = useFocusable({ focusKey: 'LOGIN_KEYPAD' });
     const history = useHistory();
-  const location = useLocation();
+    const location = useLocation();
 
-  const { from, props } = location.state || { from: { pathname: '/' } , props:{} };
+    const { from, props } = location.state || { from: { pathname: '/' }, props: {} };
 
     useEffect(() => {
         focusSelf();
     }, []);
 
     const handleDigitInput = (digit) => {
+
         setAlertMsg('');
         if (selectedInputIndex >= OTP_LENGTH) return;
+        if(isLoggedIn){
+            setAlertMsg('You are already logged in !!');
+            return;
+        }
+
+        if (digit === 'delete') {
+            handleDelete();
+            return;
+        }
+
+        if (digit === 'clear') {
+            handleClear();
+            return;
+        }
 
         const newOtp = [...otpValues];
         newOtp[selectedInputIndex] = digit;
@@ -57,6 +72,15 @@ const useLoginScreen = () => {
         inputRefs.current[prevIndex]?.focus();
     };
 
+    const handleClear = () => {
+        setAlertMsg('');
+        if (selectedInputIndex === 0) return;
+
+        setOtpValues(Array(OTP_LENGTH).fill(''));
+        setSelectedInputIndex(0);
+        inputRefs.current[0]?.focus();
+    }
+
     const handlePaste = (e) => {
         const pasteData = e.clipboardData.getData('text').trim();
         if (/^\d+$/.test(pasteData) && pasteData.length === OTP_LENGTH) {
@@ -79,7 +103,7 @@ const useLoginScreen = () => {
             const response = await handleOTPLogin(inputOTP);
             if (response.isLoggedIn) {
                 setAlertMsg(response.message);
-                history.replace(from,props);
+                history.replace(from, props);
             } else {
                 setAlertMsg(response.message);
                 setOtpValues(Array(OTP_LENGTH).fill(''));
