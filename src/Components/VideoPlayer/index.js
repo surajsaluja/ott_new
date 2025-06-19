@@ -365,12 +365,10 @@ useOverrideBackHandler(() => {
     if (val === isSeekingRef.current) return;
     isSeekingRef.current = val;
     if (val === true) {
-      console.log("Seeking Started");
       handleSetIsPlaying(false);
       setIsSeeking(true);
     } else if (val === false) {
       clearSeek();
-      console.log("Stopped Seeking");
       setIsSeeking(false);
       handleSetIsPlaying(true);
     }
@@ -425,7 +423,7 @@ useOverrideBackHandler(() => {
     handleSetIsUserActive(true);
   };
 
-  const { seekMultiplier, seekDirection, clearSeek } = useSeekHandler(
+  const { seekMultiplier, seekDirection, clearSeek, resetMultiplier } = useSeekHandler(
     videoRef,
     seekInterval,
     handleSetIsSeeking,
@@ -452,14 +450,10 @@ useOverrideBackHandler(() => {
       return;
 
     if (seekMultiplier == 4 && isThumbnailStripVisibleRef.current != true) {
-      console.log("transferring focus to seekbar", {
-        seekMultiplier,
-        seekDirection,
-      });
+      resetMultiplier();
       clearSeek();
       setShowSeekIcon(false);
       setTimeout(() => {
-        console.log(" now focused after siteTimout");
         handleFocusSeekBar();
       }, 100);
       return;
@@ -473,7 +467,7 @@ useOverrideBackHandler(() => {
       if (!isSeekingRef.current) {
         setShowSeekIcon(false);
       }
-    }, 2000);
+    }, 500);
 
     // Cleanup timeout on unmount
     return () => clearTimeout(seekIconTimeoutRef.current);

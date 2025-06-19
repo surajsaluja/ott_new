@@ -8,6 +8,8 @@ const KEY_DOWN = 40;
 const KEY_ENTER = 13;
 const KEY_BACK = 10009;
 const KEY_ESC = 8;
+const MULTIPLIER_RESET_DELAY = 1000; // threshold to maintain multiplier
+const SEEK_MULTIPLIER_CHANGE_TIME = 500; // time to increase seek multiplier on hold
 
 export default function useSeekHandler(
   videoRef,
@@ -28,24 +30,29 @@ export default function useSeekHandler(
   const seekMultiplierRef = useRef(1);
   const seekIntervalRef = useRef(null);
   const directionRef = useRef(null);
-  const seekHoldTimeout = useRef(null);
+  const multiplierResetTimeout = useRef(null);
+  const lastKeyPressTimeRef = useRef(0);
+  const isHoldingRef = useRef(false);
+  const lastDirectionRef = useRef(null);
   const [seekDirection, setSeekDirection] = useState(null);
-  const [seekMultiplier, setSeekMultiplier] = useState(0);
+  const [seekMultiplier, setSeekMultiplier] = useState(1);
 
   const clearSeek = () => {
-    console.log('seeking  clear called');
     clearInterval(seekIntervalRef.current);
     seekIntervalRef.current = null;
+    isHoldingRef.current = false;
+  };
 
-    // Reset multiplier after short delay
-    clearTimeout(seekHoldTimeout.current);
-    seekHoldTimeout.current = setTimeout(() => {
-      // setIsSeeking(false);
-      seekMultiplierRef.current = 1;
-      setSeekDirection(null);
-      setSeekMultiplier(1);
-      console.log("Seeking Cleared");
-    }, 0);
+  const resetMultiplier = () => {
+    seekMultiplierRef.current = 1;
+    setSeekMultiplier(1);
+    setSeekDirection(null);
+    lastDirectionRef.current = null;
+  };
+
+  const increaseMultiplier = () => {
+    seekMultiplierRef.current = Math.min(seekMultiplierRef.current + 1, 4);
+    setSeekMultiplier(seekMultiplierRef.current);
   };
 
   const seek = useCallback(
@@ -68,100 +75,99 @@ export default function useSeekHandler(
     [seekInterval, videoRef]
   );
 
-  const handleKeyDown = (e) => {
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const isSidebarOpen = sideBarOpenRef.current === true;
-    const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
-    const isShowSkipButtons = showSkipButtonsRef.current === true;
-    const isSeeking = isSeekingRef.current === true;
+  const startSeekInterval = (direction) => {
+    if (seekIntervalRef.current) return;
     
-
-    if (isThumbnailStripVisibleRef.current) return;
- 
-    if(userActivityRef.current){
-        handleSetIsUserActive(true);
-        return false;
-    }else if (
-      isSidebarOpen ||
-      isSeeking
-    )
-      return;
-
-    if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-      console.log("on KeyDown", {
-        sideBarOpenRef: isSidebarOpen,
-        isThumbnailStripVisibleRef: isThumbnailStripVisible,
-        isSeekbarVisible,
-        isSeeking,
-        showSkipButtonsRef: isShowSkipButtons,
-      });
-      const direction = e.keyCode === KEY_RIGHT ? "forward" : "backward";
-      directionRef.current = direction;
-      setSeekDirection(directionRef.current);
-
-      if (!seekIntervalRef.current) {
-        // Initial seek
-        seek(direction);
-        // Start interval
-        seekIntervalRef.current = setInterval(() => {
-          seekMultiplierRef.current = Math.min(
-            seekMultiplierRef.current + 1,
-            4
-          );
-          setSeekMultiplier(seekMultiplierRef.current);
-          if (seekMultiplierRef.current > 3) {
-            // clearSeek();
+    // Initial seek
+    seek(direction);
+    
+    // Start interval for increasing multiplier while holding
+    seekIntervalRef.current = setInterval(() => {
+      isHoldingRef.current = true;
+      increaseMultiplier();
+      if (seekMultiplierRef.current > 4) {
+            resetMultiplier();
+            clearSeek();
             return;
           }
-          seek(directionRef.current);
-        }, 500); // Adjust interval for desired speed
-      }
-    }
-
-    if (e.keyCode == KEY_ENTER && !userActivityRef.current) {
-      console.log("enter pressed");
-      if (e.repeat) return;
-      handlePlayPause();
-    }
-
-    if (e.keyCode === KEY_DOWN || e.keyCode === KEY_UP) {
-      if (e.repeat) return;
-      handleFocusSeekBar();
-    }
+      seek(direction);
+    }, SEEK_MULTIPLIER_CHANGE_TIME);
   };
 
-  const handleKeyUp = (e) => {
-    const isSidebarOpen = sideBarOpenRef.current === true;
-    const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
-    const isShowSkipButtons = showSkipButtonsRef.current === true;
-    const isUserActive = userActivityRef.current === true;
+  const handleKeyDown = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
 
-    console.log({
-      sideBarOpenRef: isSidebarOpen,
-      isThumbnailStripVisibleRef: isThumbnailStripVisible,
-      isSeekbarVisible,
-      showSkipButtonsRef: isShowSkipButtons,
-    });
+  const isSidebarOpen = sideBarOpenRef.current === true;
+  const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
+  const isSeeking = isSeekingRef.current === true;
 
-    if (
-      isSidebarOpen ||
-      isThumbnailStripVisible ||
-      isSeekbarVisible ||
-      isShowSkipButtons ||
-      isUserActive
-    )
-      return;
+  if (isThumbnailStripVisible) return;
 
-    if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
+  if (userActivityRef.current) {
+    handleSetIsUserActive(true);
+    return false;
+  } else if (isSidebarOpen || isSeeking) return;
+
+  if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
+    const now = Date.now();
+    const direction = e.keyCode === KEY_RIGHT ? "forward" : "backward";
+
+    // Reset everything if direction changes
+    if (lastDirectionRef.current && lastDirectionRef.current !== direction) {
       clearSeek();
-      setIsSeeking(false);
-      setSeekDirection(null);
-      return;
+      resetMultiplier();
+      clearTimeout(multiplierResetTimeout.current);
     }
-  };
+
+    if (now - lastKeyPressTimeRef.current < MULTIPLIER_RESET_DELAY &&
+        direction === lastDirectionRef.current && 
+        !isHoldingRef.current) {
+      increaseMultiplier();
+    }
+
+    // Update direction references
+    lastDirectionRef.current = direction;
+    directionRef.current = direction;
+    setSeekDirection(direction);
+    lastKeyPressTimeRef.current = now;
+
+    // Start seeking
+    startSeekInterval(direction);
+  }
+
+  if (e.keyCode === KEY_ENTER && !userActivityRef.current) {
+    if (e.repeat) return;
+    handlePlayPause();
+  }
+
+  if (e.keyCode === KEY_DOWN || e.keyCode === KEY_UP) {
+    if (e.repeat) return;
+    handleFocusSeekBar();
+  }
+};
+
+const handleKeyUp = (e) => {
+  const isSidebarOpen = sideBarOpenRef.current === true;
+  const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
+  const isShowSkipButtons = showSkipButtonsRef.current === true;
+  const isUserActive = userActivityRef.current === true;
+
+  if (isSidebarOpen || isThumbnailStripVisible || 
+      isSeekbarVisible || isShowSkipButtons || isUserActive) {
+    return;
+  }
+
+  if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
+    clearSeek();
+    setIsSeeking(false);
+    
+    // Schedule multiplier reset only if no new key is pressed
+    clearTimeout(multiplierResetTimeout.current);
+    multiplierResetTimeout.current = setTimeout(resetMultiplier, MULTIPLIER_RESET_DELAY);
+  }
+};
+  
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -171,6 +177,7 @@ export default function useSeekHandler(
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       clearSeek();
+      clearTimeout(multiplierResetTimeout.current);
     };
   }, []);
 
@@ -178,5 +185,6 @@ export default function useSeekHandler(
     seekDirection,
     seekMultiplier,
     clearSeek,
+    resetMultiplier
   };
 }
