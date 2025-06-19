@@ -67,17 +67,15 @@ export default function RadioPlayer({ focusKey }) {
         audio.src = audioplayUrl;
         audio.load();
 
-        const onPlay = () => { console.log('playing'); handleSetIsPlaying(true); }
-        const onPause = () => { console.log('audio paused'); handleSetIsPlaying(false); }
-        const onEnded = () => { console.log('ended'); handleSetIsPlaying(false) };
+        const onPlay = () => { handleSetIsPlaying(true); }
+        const onPause = () => { handleSetIsPlaying(false); }
+        const onEnded = () => { handleSetIsPlaying(false) };
         const onError = () => console.error('Error playing radio');
         const onLoadStart = () => {
             handleSetIsPlaying(false);
-            console.log('Loading started');
         };
         const onCanPlay = () => {
             setIsLoading(false);
-            console.log('can play');
             handleSetIsPlaying(true);
         };
 

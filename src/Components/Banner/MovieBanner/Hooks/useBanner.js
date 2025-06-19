@@ -18,7 +18,6 @@ const useBanner = (asset, banners) => {
   const hlsRef = useRef(null);
 
   const handleVideoCanPlay = () => {
-    console.log('can play');
     setIsVideoLoaded(true);
     videoElement.play().catch(error => {
       console.error("Autoplay prevented:", error);
@@ -26,12 +25,10 @@ const useBanner = (asset, banners) => {
   }
 
   const handleVideoPlay = () => {
-    console.log('playing');
     setIsPlaying(true);
   }
 
   const handleVideoEnd = () => {
-    console.log('video ended');
     setIsPlaying(false);
     setIsVideoLoaded(false);
   }
@@ -54,7 +51,7 @@ const useBanner = (asset, banners) => {
     }
 
     if (!asset?.trailerUrl || !videoElement) {
-      console.log('trailer not avialable');
+      console.warn('trailer not avialable');
       return;
     }
 
@@ -67,11 +64,11 @@ const useBanner = (asset, banners) => {
       videoElement.src = "";
       setIsVideoLoaded(false);
 
-      videoElement.addEventListener("waiting", () => { console.log('waiting') });
+      videoElement.addEventListener("waiting", () => {});
       videoElement.addEventListener("canplay", handleVideoCanPlay);
       videoElement.addEventListener("playing", handleVideoPlay);
       videoElement.addEventListener("ended", handleVideoEnd)
-      videoElement.addEventListener("stalled", () => { console.log('stalled') });
+      videoElement.addEventListener("stalled", () => {});
 
       if (Hls.isSupported()) {
         hls = new Hls();
@@ -99,11 +96,11 @@ const useBanner = (asset, banners) => {
       }
 
       return () => {
-        videoElement.removeEventListener("waiting", () => { console.log('') });
+        videoElement.removeEventListener("waiting", () => { });
         videoElement.removeEventListener("canplay", handleVideoCanPlay);
         videoElement.removeEventListener("playing", handleVideoPlay);
         videoElement.removeEventListener("ended", handleVideoEnd)
-        videoElement.removeEventListener("stalled", () => { console.log('stalled') });
+        videoElement.removeEventListener("stalled", () => {});
         if (hls) hls.destroy();
         setIsPlaying(false);
       };

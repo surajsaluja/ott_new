@@ -40,7 +40,7 @@ const MovieHomePage = () => {
       console.warn('Tizen API is not available.');
     }
     }catch(error){
-      console.log('error at exit application',error);
+      console.error('error at exit application',error);
     }
   }
 

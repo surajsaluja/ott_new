@@ -28,11 +28,10 @@ function TvBanner({ focusKey, bannersData }) {
   };
 
   const onBannerFocus = (index) => {
-    console.log(`Banner ${index} focused`);
+    // handle Banner Focus
   };
 
   const onBannerEnterPress = (index) => {
-    console.log(`Banner ${index} enter pressed`);
     // Handle enter press logic
   };
 

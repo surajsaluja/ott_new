@@ -214,7 +214,6 @@ useEffect(() => {
   requestAnimationFrame(() => {
     const currentIndex = getCurrentThumbnailIndex();
     if (currentIndex !== undefined && currentIndex !== null) {
-      console.log('setFocus to '+ currentIndex);
       scrollToCenter(currentIndex);
       // Small delay to ensure the item is rendered before focusing
       setTimeout(() => {
@@ -307,7 +306,6 @@ useEffect(()=>{
 
   const scrollToCenter = useCallback(
     (index) => {
-      console.log('focus scrolled to center '+ index)
       listRef.current?.scrollToItem(index, "center");
       const preloadStart = Math.max(0, index - 30);
       const preloadEnd = Math.min(totalThumbnails - 1, index + 30);

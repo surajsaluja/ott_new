@@ -38,7 +38,6 @@ const useAssetCard = (
   useEffect(() => {
     if (!focused) return;
     const handleKeyUp = () => {
-      console.log('key up');
       lastAssetChangeRef.current = 0;
       lastRowChangeRef.current = 0;
     };
@@ -65,7 +64,7 @@ const useAssetCard = (
 
 const handleLoad = () => setIsLoaded(true);
   const handleError = (e) => {
-  console.log('Image load error:', e?.target?.src);
+  console.error('Image load error:', e?.target?.src);
   setHasError(true);
   setIsLoaded(true);
 };

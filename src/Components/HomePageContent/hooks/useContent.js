@@ -147,8 +147,6 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     if (element && ref.current && scrollDebounceRef.current) {
        const containerRect = ref.current.getBoundingClientRect();
        const scrollTop  = element.top - containerRect.top - 15;
-      console.log('el',element);
-      console.log('ref',ref.current);
       scrollDebounceRef.current(scrollTop);
     }
   }, [ref]);

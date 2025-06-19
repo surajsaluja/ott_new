@@ -111,7 +111,7 @@ const useLiveTvChannelPage = (focusKey,) => {
         showModal('Warning',response.message);
       }
     }catch(error){
-      console.log('error playing Live Tv');
+      console.error('error playing Live Tv');
     }
     
   }

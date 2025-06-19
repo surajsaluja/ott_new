@@ -16,7 +16,7 @@ apiClient.interceptors.request.use(
     if (!config?.requireApiKey) {
       let storedApiKey = localStorage.getItem('apiKey');
       if (!storedApiKey) {
-        console.log('apiKey not Set');
+        console.error('apiKey not Set');
       }
       config.headers.ApiKey = storedApiKey;
     }
