@@ -17,6 +17,7 @@ function FullPageAssetContainer({
   loadMoreRows = () =>{},
   hasMore = false,
   isPagination = false,
+  handleAssetFocus = ()=>{}
 }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusable: assets.length > 0 && !isLoading,
@@ -108,29 +109,28 @@ const debouncedLoadMore = useCallback(() => {
 
 
   const onAssetFocus = useCallback(
-    (el) => {
+    (el,data) => {
       assetScrollingRef.current.scrollTo({
         top: el?.offsetTop - assetScrollingRef?.current?.offsetTop - 20,
         behavior: "smooth",
       });
+      handleAssetFocus(data);
     },
     [assetScrollingRef]
   );
   
 
   return (
-    <>
-      {!isLoading && (
         <FocusContext.Provider value={currentFocusKey}>
           <div ref={ref} className="asset-container">
             {title && <p className="asset-container-title">{title}</p>}
             <div className={"asset-scrolling-wrapper"} ref={assetScrollingRef}>
               {
-                (assets.length > 0 || isLoading) ? (
+                (assets.length > 0) ? (
                 assets.map((asset, idx) => (
                   <AssetCard
-                    key={`${asset.id}_${idx}`}
-                    focusKey={`${asset.id}_${idx}`}
+                    key={`${asset.mediaID}_${idx}`}
+                    focusKey={`${asset.mediaID}_${idx}`}
                     assetData={asset}
                     index={idx}
                     onEnterPress={() => onAssetPress(asset)}
@@ -149,8 +149,6 @@ const debouncedLoadMore = useCallback(() => {
             </div>
           </div>
         </FocusContext.Provider>
-      )}
-    </>
   );
 }
 

@@ -1,10 +1,9 @@
 .asset-container {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+    display: flex;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
 }
 
 .asset-container-title {
@@ -43,4 +42,5 @@
     height: 100%;
     justify-content: center;
     align-items: center;
+    color: white;
 }
