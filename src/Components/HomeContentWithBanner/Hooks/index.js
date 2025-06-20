@@ -102,7 +102,12 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
 
   const onAssetPress = (item) => {
     if (isLoggedIn && userObjectId) {
+      if(item?.assetData?.isSeeMore && item?.assetData?.isSeeMore === true){
+        history.push('/seeAll',{playListId : item?.assetData?.playListId, playListName : '' })
+      }
+      else{
       history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
+      }
         }
         else {
           showModal('Login',

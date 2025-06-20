@@ -11,6 +11,7 @@ import VideoPlayer from "../Components/VideoPlayer";
 import LiveTvChannelPage from "../Components/LiveTv/ChannelPage";
 import LiveTvPlayer from "../Components/LiveTv/Player";
 import RadioPlayer from "../Components/Radio/Player";
+import SeeAllPlaylistContentHomePage from "../Components/SeeAll/HomePage";
 
 const AppNavigation = () => {
   return (
@@ -25,6 +26,7 @@ const AppNavigation = () => {
         <PrivateRoute path="/play" component={VideoPlayer} />
         <PrivateRoute path = "/livetvplayer" component={LiveTvPlayer}/>
         <PrivateRoute path = "/playRadio" component={RadioPlayer} />
+        <PrivateRoute path = '/seeAll' component={SeeAllPlaylistContentHomePage} />
 
         {/* Default landing route */}
         <Route exact path="/">
