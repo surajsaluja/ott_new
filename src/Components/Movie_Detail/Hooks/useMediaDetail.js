@@ -129,7 +129,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 setShowResumeButton(mediaDet.playDuration > 0);
                 if (categoryId == 2 && mediaDet.seasons && mediaDet.seasons.length > 0) {
                     setWebSeriesId(mediaDet.webSeriesId);
-                    setWebSeriesSeasons(mediaDet.seasons.length > 0 || []);
+                    setWebSeriesSeasons(mediaDet.seasons.length > 0 ?  mediaDet.seasons : []);
                     setSelectedSeasonId(mediaDet.seasons[0].id);
                 }
                 getRelatedMediaItems(mediaId);
