@@ -2,7 +2,6 @@ import { fetchData, postData } from "../Api/apiService";
 import { API } from "../Api/constants";
 import { toast } from "react-toastify";
 import { getSanitizedToken } from "../Utils";
-import { useUserContext } from "../Context/userContext";
 
 const DEFAULT_PLAYLIST_TYPE = "Home";
 const DEFAULT_PAGE_SIZE = 10;
@@ -19,7 +18,6 @@ const ThrowError = (functionName, error) => {
     toast.error(`Error in ${functionName}: ${error.message || error}`);
     console.error(`Api Error At ${functionName}:`, error);
     throw new Error(error);
-    return null;
 };
 
 export const fetchHomePageData = async (userId = null) => {
