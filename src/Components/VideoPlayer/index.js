@@ -675,7 +675,7 @@ useOverrideBackHandler(() => {
       )}
 
       <div ref={ref} className="video-container">
-        <video ref={videoRef} className="video-player" controls={false} muted />
+        <video ref={videoRef} className="video-player" controls={false}/>
 
         <Popup
           onVideoSettingsPressed={onVideoSettingsPressed}
