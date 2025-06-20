@@ -3,7 +3,7 @@ import FocusableButton from '../../Common/FocusableButton';
 import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import useBanner from './Hooks/useBanner'
-import {formatTime, getEclipsedTrimmedText} from '../../../Utils';
+import { formatTime, getEclipsedTrimmedText } from '../../../Utils';
 import './index.css';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
@@ -14,7 +14,9 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     watchMediaVOD,
     isVideoLoaded,
     isPlaying,
-    videoPlayerRef
+    videoPlayerRef,
+    handleImageLoaded,
+    isImageLoaded
   } = useBanner(asset, banners);
 
   const [transitionClass, setTransitionClass] = useState('');
@@ -28,7 +30,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     if (asset?.mediaID !== currentAsset?.mediaID || JSON.stringify(banners) !== JSON.stringify(currentBanners)) {
       setIsTransitioning(true);
       setTransitionClass('fade-out');
-      
+
       const timer = setTimeout(() => {
         prevAssetRef.current = currentAsset;
         prevBannersRef.current = currentBanners;
@@ -45,25 +47,32 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   // Determine which data to display during transition
   const displayAsset = isTransitioning ? prevAssetRef.current : currentAsset;
   const displayBanners = isTransitioning ? prevBannersRef.current : currentBanners;
-  const displayShowBanner = isTransitioning ? 
-    (prevBannersRef.current.length > 0 && !currentAsset) : 
+  const displayShowBanner = isTransitioning ?
+    (prevBannersRef.current.length > 0 && !currentAsset) :
     (currentBanners.length > 0 && !currentAsset);
 
   if (!displayAsset && displayBanners.length === 0) return null;
 
   const renderMedia = () => {
     if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].fullPageBanner) {
-      return <img key="banner-image" src={displayBanners[0].fullPageBanner || displayBanners[0].mobileThumbnail} className={`banner-video ${transitionClass}`} />;
+      return <img key="banner-image"
+        src={displayBanners[0].fullPageBanner || displayBanners[0].mobileThumbnail}
+        className={`banner-video ${transitionClass}`}
+        onLoad={handleImageLoaded}
+        style={{ opacity: (isImageLoaded ? 1 : 0) }}
+      />;
     }
 
     if (displayAsset?.trailerUrl && displayAsset.fullPageBanner) {
       return (
         <>
-          {!isVideoLoaded && displayAsset.fullPageBanner && 
-            <img 
-              key="banner-poster" 
-              src={displayAsset.fullPageBanner} 
+          {!isVideoLoaded && displayAsset.fullPageBanner &&
+            <img
+              key="banner-poster"
+              src={displayAsset.fullPageBanner}
               className={`banner-video ${transitionClass}`}
+              onLoad={handleImageLoaded}
+              style={{ opacity: (isImageLoaded ? 1 : 0) }}
             />
           }
           <video
@@ -73,14 +82,17 @@ const Banner = ({ data: asset = null, banners = [] }) => {
             autoPlay={false}
             poster={displayAsset.fullPageBanner}
             playsInline
-            muted
             style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
           />
         </>
       );
     }
 
-    return <img key="asset-image" src={displayAsset?.fullPageBanner} className={`banner-video ${transitionClass}`} />;
+    return <img key="asset-image"
+      src={displayAsset?.fullPageBanner}
+      className={`banner-video ${transitionClass}`}
+      onLoad={handleImageLoaded}
+      style={{ opacity: (isImageLoaded ? 1 : 0) }} />;
   };
 
   const renderMediaDetails = () => {
@@ -130,15 +142,15 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           {/* {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>} */}
           {/* {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>} */}
         </div>
-        <p className="description" >{getEclipsedTrimmedText(shortDescription,190)}</p>
-        <div className="genres" style={{bottom:`${displayAsset ? 0 : 18}%`}}>
+        <p className="description" >{getEclipsedTrimmedText(shortDescription, 190)}</p>
+        <div className="genres" style={{ bottom: `${displayAsset ? 0 : 18}%` }}>
           {genre && genre.split(',').map((genre, idx) => (
             <span key={idx} className="genre">{genre}</span>
           ))}
         </div>
         <div className='asset-buttons'>
-          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={()=>watchMediaVOD(true)} />}
-          {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={()=>watchMediaVOD(false)} />}
+          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />}
+          {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />}
         </div>
       </div>
     );

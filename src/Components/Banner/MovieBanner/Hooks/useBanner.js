@@ -11,6 +11,7 @@ const useBanner = (asset, banners) => {
   const [showOverlay, setShowOverlay] = useState(true);
   const [showBanner, setShowBanner] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isImageLoaded, setIsImageLaoded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const { userObjectId, uid, isLoggedIn } = useUserContext();
   const history = useHistory();
@@ -153,6 +154,10 @@ const useBanner = (asset, banners) => {
     }
   };
 
+  const handleImageLoaded = ()=>{
+      setIsImageLaoded(true);
+    }
+
   return {
     showBanner,
     videoRef,
@@ -160,7 +165,9 @@ const useBanner = (asset, banners) => {
     watchMediaVOD,
     isVideoLoaded,
     isPlaying,
-    videoPlayerRef
+    videoPlayerRef,
+    handleImageLoaded,
+    isImageLoaded
   };
 };
 
