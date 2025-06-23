@@ -1,9 +1,12 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SearchKeyboard } from './Keyboard';
 import FullPageAssetContainer from '../Common/FullPageAssetContainer';
 import './index.css';
 import { fetchSearchContentResult, fetchTrendingSearch } from '../../Service/MediaService';
+import { useHistory } from 'react-router-dom';
+import { showModal, getCategoryIdByCategoryName } from '../../Utils';
+import { useUserContext } from '../../Context/userContext';
 
 const SEARCH_PAGE_SIZE = 10;
 
@@ -13,6 +16,8 @@ function SearchScreen({ focusKey }) {
   const [inputQuery, setInputQuery] = useState('');
   const [pageNum, setPageNum] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const history = useHistory();
+  const{isLoggedIn, userObjectId} = useUserContext();
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey,
@@ -102,6 +107,25 @@ function SearchScreen({ focusKey }) {
     }
   };
 
+  const redirectToLogin = () => {
+         history.push('/login', { from: '/' });
+     };
+ 
+     const onAssetPress = useCallback((assetData) => {
+         if (isLoggedIn && userObjectId) {
+             const categoryId = getCategoryIdByCategoryName(assetData?.category);
+             history.push(`/detail/${categoryId}/${assetData?.mediaID}`);
+         }
+         else {
+             showModal('Login',
+                 'You are not logged in !!',
+                 [
+                     { label: 'Login', action: redirectToLogin, className: 'primary' }
+                 ]
+             );
+         }
+     }, [history]);
+
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className='search-page' ref={ref}>
@@ -121,6 +145,7 @@ function SearchScreen({ focusKey }) {
           isPagination={!!inputQuery}
           hasMore={hasMore}
           loadMoreRows={loadMoreRows}
+          onAssetPress={onAssetPress}
         />
       </div>
     </FocusContext.Provider>
