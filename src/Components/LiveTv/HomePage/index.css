@@ -1,7 +1,23 @@
-.LiveTv-Home{
-    display: flex;
-    flex: 1 1 auto;
-    overflow: hidden;
-    justify-content: center;
-    flex-direction: column;
+/* Make LiveTv-Home scrollable vertically */
+.LiveTv-Home {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+
+/* Optional: Give ImageSlider a height */
+.ImageSliderWrapper {
+  flex-shrink: 0;
+  height: 500px; /* adjust as needed */
+  width: 100%;
+}
+
+/* Ensure Content grows naturally */
+.ContentWrapper {
+  flex-grow: 1;
+  width: 100%;
+  padding-bottom: 2em; /* for spacing */
 }

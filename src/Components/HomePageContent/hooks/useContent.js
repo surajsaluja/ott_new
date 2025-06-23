@@ -94,7 +94,7 @@ const scrollToElement = (element) => {
 
 
 /* ------------------ Movie Home Page Hook ------------------ */
-const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus) => {
+const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus, scrollingRef) => {
   const scrollDebounceRef = useRef();
   const loadMoreRef = useRef(null);
 
@@ -144,12 +144,18 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
   }, [data]);
 
   const onRowFocus = useCallback((element) => {
+    let scroller  = scrollingRef != null ? scrollingRef : ref
     if (element && ref.current && scrollDebounceRef.current) {
-       const containerRect = ref.current.getBoundingClientRect();
+       const containerRect = scroller.current.getBoundingClientRect();
        const scrollTop  = element.top - containerRect.top - 15;
-      scrollDebounceRef.current(scrollTop);
+       if(scrollingRef && scrollTop){
+        scroller.current.scrollTo({ top: scrollTop, behavior: 'smooth' });
+       }else{
+      scrollDebounceRef.current(scrollTop- 200);
+       }
+
     }
-  }, [ref]);
+  }, [ref, scrollingRef]);
 
 
   return {

@@ -5,6 +5,8 @@ import TvBanner from '../../Banner/TvBanner';
 import Content from '../../HomePageContent/Content';
 import { useLiveTv } from './Hooks/useLiveTv';
 import LoadingSkeleton from '../../Common/MovieHomeSkeleton/LoadingSkeleton';
+import Carousel from '../../Common/Carousal_Banner';
+import ImageSlider from '../../Common/Carousal_Banner';
 
 function LiveTvHome({ focusKey }) {
   const {
@@ -30,13 +32,18 @@ function LiveTvHome({ focusKey }) {
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className='LiveTv-Home' ref={ref}>
-        <TvBanner focusKey='TV_BANNER_FOCUS_KEY' bannersData={liveTvBannersData} />
-        <Content
-          onAssetFocus={() => {}}
-          data={liveTvHomePageData}
-          handleAssetFocus={() => {}}
-          onAssetPress={onChannelEnterPress}
-        />
+        <div className='LiveTv-Home-Content'>
+          {/* <div className="ImageSliderWrapper"> */}
+            <ImageSlider data={liveTvBannersData} />
+          {/* </div> */}
+          <Content
+            onAssetFocus={() => { }}
+            data={liveTvHomePageData}
+            handleAssetFocus={() => { }}
+            onAssetPress={onChannelEnterPress}
+            scrollingRef={ref}
+          />
+        </div>
       </div>
     </FocusContext.Provider>
   );
