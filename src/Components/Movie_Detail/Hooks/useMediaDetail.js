@@ -38,6 +38,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isMediaFavourite, setIsMediaFavourite] = useState(false);
     const [isError,setIsError] = useState(false);
     const [errorMessage,setErrorMessage] = useState(false);
+    const [hasMoreRelatedItem,setHasMoreRelatedItems] = useState(false);
+    const [relatedItemsPageNum,setRelatedItemsPageNum] = useState(1);
 
      const {isLoggedIn, userObjectId } = useUserContext();
 
@@ -151,9 +153,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     const getRelatedMediaItems = async (mediaId) => {
         try {
-            const response = await getMediaRelatedItemDetails(mediaId);
+            const response = await getMediaRelatedItemDetails(mediaId,null,1,20);
             if (response.isSuccess && response.data?.length) {
-                setRelatedItems(getProcessedPlaylists(response.data, 10));
+                setRelatedItems(getProcessedPlaylists(response.data, 20));
             } else {
                 setRelatedItems([]);
             }
@@ -172,7 +174,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     const onRelatedItemEnterPress  = (assetData) =>{
         if (isLoggedIn && userObjectId) {
-             history.push(`/detail/${assetData?.categoryID}/${assetData?.mediaID}`);
+             history.replace(`/detail/${assetData?.categoryID}/${assetData?.mediaID}`);
                }
                else {
                  showModal('Login',
@@ -273,10 +275,20 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         onAssetPress={onRelatedItemEnterPress} />;
     }, [isRelatedItemsLoading, relatedItems]);
 
+    const onEpisodeEnterPress = (episode)=>{
+        history.replace(`/detail/${episode?.categoryID}/${episode?.mediaID}`);
+    }
+
     const RenderSeasonEpisodes = useCallback(() => {
         if (!webSeriesSeasons || webSeriesSeasons.length === 0) return <p>No Seasons available</p>;
 
-        return <Season_EpisodeList seasons={webSeriesSeasons} selectedSeason={selectedSeasonId} onSeasonSelect={handleSeasonSelect} episodes={episodesCache[selectedSeasonId] || []} focusKey={'SEASON_CNT'} />
+        return <Season_EpisodeList 
+        seasons={webSeriesSeasons} 
+        selectedSeason={selectedSeasonId} 
+        onSeasonSelect={handleSeasonSelect} 
+        episodes={episodesCache[selectedSeasonId] || []} 
+        focusKey={'SEASON_CNT'} 
+        onEpisodeEnterPress={onEpisodeEnterPress}/>
     }, [selectedSeasonId, webSeriesSeasons, handleSeasonSelect, setSelectedSeasonId, episodesCache]);
 
     const RenderCastData = useCallback(() => {
