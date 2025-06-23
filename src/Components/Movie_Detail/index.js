@@ -31,7 +31,8 @@ function Movie_Detail() {
         showResumeBtn,
         updateMediaWishlistStatus,
         watchMovie,
-        handleBackPressed
+        handleBackPressed,
+        isMediaPublished
     } = useMediaDetail(mediaId, categoryId, 'MOVIE_DETAIL_PAGE');
 
 
@@ -81,32 +82,39 @@ function Movie_Detail() {
                             {mediaDetail.title && <h1 className="title-detail">{mediaDetail.title}</h1>}
                             <div className="info-detail">
                                 {mediaDetail?.releasedYear && <span><i><MdOutlineDateRange /></i>{mediaDetail?.releasedYear}</span>}
-                                {mediaDetail?.rating && <span><i><MdStarRate /></i>{mediaDetail?.rating}</span>}
-                                {mediaDetail?.duration && <span><i><MdOutlineTimer /></i>{formatTime(mediaDetail?.duration)}</span>}
+                                {/* {mediaDetail?.rating && <span><i><MdStarRate /></i>{mediaDetail?.rating}</span>} */}
+                                {mediaDetail?.duration && isMediaPublished && <span><i><MdOutlineTimer /></i>{formatTime(mediaDetail?.duration)}</span>}
                                 {mediaDetail?.ageRangeId && <span><i><GiVibratingShield /></i>{`${mediaDetail?.ageRangeId}+`}</span>}
                                 {mediaDetail?.cultures && <span>{mediaDetail?.cultures}</span>}
                             </div>
                             <p className="description-detail">{mediaDetail.description}</p>
                             {mediaDetail &&
                                 <div className="buttons-detail">
-                                    <FocusableButton
+                                    {isMediaPublished &&<FocusableButton
                                         key={'detail_watch'}
                                         icon={<FaPlay />}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={showResumeBtn ? `Resume Movie` : `Watch Movie`}
                                         onEnterPress={()=>{watchMovie(false,showResumeBtn)}}
-                                    />
-                                    {showResumeBtn && <FocusableButtonIconTooltip
+                                    />}
+                                    {isMediaPublished && showResumeBtn && <FocusableButtonIconTooltip
                                         icon={<MdOutlineRestartAlt />}
                                         text={'Start Over'}
                                         onEnterPress={()=>{watchMovie(false,false)}}
                                     />}
-                                    <FocusableButtonIconTooltip
+                                    {isMediaPublished ? (<FocusableButtonIconTooltip
                                         icon={<MdMovie />}
                                         text={'Watch Trailer'}
                                         onEnterPress={()=>{watchMovie(true,false)}}
-                                    />
+                                    />):(<FocusableButton
+                                        key={'detail_watch_trailer'}
+                                        icon={<FaPlay />}
+                                        className="detail-play-button"
+                                        focusClass="detail-play-button-focus"
+                                        text={'Watch Trailer'}
+                                        onEnterPress={()=>{watchMovie(true,false)}}
+                                    />)}
                                     <FocusableButtonIconTooltip
                                         icon={isMediaFavourite ? <IoHeartSharp /> : <MdAdd />}
                                         text={isMediaFavourite ? 'Remove From Wishlist' : 'Add To Wishlist'}

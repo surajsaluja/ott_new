@@ -38,8 +38,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isMediaFavourite, setIsMediaFavourite] = useState(false);
     const [isError,setIsError] = useState(false);
     const [errorMessage,setErrorMessage] = useState(false);
-    const [hasMoreRelatedItem,setHasMoreRelatedItems] = useState(false);
-    const [relatedItemsPageNum,setRelatedItemsPageNum] = useState(1);
+    const [isMediaPublished,setIsMediaPublished] = useState(false);
 
      const {isLoggedIn, userObjectId } = useUserContext();
 
@@ -65,6 +64,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         setGroupedStarCasts(null);
         setIsError(false);
         setErrorMessage(false);
+        setIsMediaPublished(false);
         handleBottomDrawerClose();
     }, [mediaId]);
 
@@ -129,6 +129,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 setGroupedStarCasts(mediaDet.groupedStarCasts);
                 setIsMediaFavourite(mediaDet.isAddedByUser);
                 setShowResumeButton(mediaDet.playDuration > 0);
+                setIsMediaPublished(mediaDet.isMediaPublished);
                 if (categoryId == 2 && mediaDet.seasons && mediaDet.seasons.length > 0) {
                     setWebSeriesId(mediaDet.webSeriesId);
                     setWebSeriesSeasons(mediaDet.seasons.length > 0 ?  mediaDet.seasons : []);
@@ -345,6 +346,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         isDrawerContentReady,
         isError,
         errorMessage,
+        isMediaPublished,
         handleBottomDrawerOpen,
         handleBottomDrawerClose,
         showResumeBtn,

@@ -213,6 +213,7 @@ export const getTokenisedMedia = async (
       isMediaPublished = response.isMediaPublished;
       isFree = getIsContentFree(response.isPaid);
 
+      if(isMediaPublished && (!isTrailer)){
       if (isUserSubscribed || isFree || isTrailer) {
         mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
         mediaUrl = DecryptAESString(mediaUrl);
@@ -221,6 +222,9 @@ export const getTokenisedMedia = async (
       } else {
         throw new Error("You are not a subscribed user to watch this movie!");
       }
+    }else{
+      throw new Error('Media Not Published');
+    }
     } else {
       throw new Error(response?.message || "Invalid response for Tokenised Media");
     }
@@ -253,14 +257,14 @@ export const getMediaDetailWithTokenisedMedia = async (
   let mediaDetailReponse = null;
   let tokenisedMediaResponse = null;
   try {
-    mediaDetailReponse = await this.getMediaDetails(
+    mediaDetailReponse = await getMediaDetails(
       mediaId,
       categoryId,
       isTrailer,
       userObjectId
     );
     if (mediaDetailReponse.isSuccess) {
-      tokenisedMediaResponse = await this.getTokenisedMedia(
+      tokenisedMediaResponse = await getTokenisedMedia(
         mediaId,
         isTrailer,
         userObjectId
@@ -296,7 +300,6 @@ export const getMediaDetailWithTokenisedMedia = async (
 
 export const getMediaRelatedItemDetails = async (
   mediaId = null,
-  userObjectId = null,
   page = 1,
   pageSize = 10,
   language = 1
@@ -309,7 +312,6 @@ export const getMediaRelatedItemDetails = async (
     } else {
       relatedItemsReponse = await fetchMediaRelatedItem(
         mediaId,
-        userObjectId,
         page,
         pageSize,
         language
