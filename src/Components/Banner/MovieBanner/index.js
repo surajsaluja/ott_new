@@ -16,7 +16,8 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     isPlaying,
     videoPlayerRef,
     handleImageLoaded,
-    isImageLoaded
+    isImageLoaded,
+    showMediaDetail
   } = useBanner(asset, banners);
 
   const [transitionClass, setTransitionClass] = useState('');
@@ -106,6 +107,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     let rating = '';
     let isWatchTrailerButton = false;
     let isPlayButton = false;
+    let isShowDetailButton = false;
 
     if (displayShowBanner && displayBanners.length > 0) {
       title = displayBanners[0].mediaTitle;
@@ -116,8 +118,8 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       duration = displayBanners[0].duration;
       genre = displayBanners[0].genre;
       rating = displayBanners[0].rating;
-      isWatchTrailerButton = displayBanners[0].isWatchTrailerButton;
       isPlayButton = displayBanners[0].isPlayButton;
+      isShowDetailButton = true;
     }
 
     if (displayAsset) {
@@ -131,6 +133,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       rating = displayAsset.rating;
       isWatchTrailerButton = false;
       isPlayButton = false;
+      isShowDetailButton = false;
     }
 
     return (
@@ -149,8 +152,9 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           ))}
         </div>
         <div className='asset-buttons'>
-          {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />}
+          {/* {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />} */}
           {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />}
+          {isShowDetailButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />}
         </div>
       </div>
     );

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useUserContext } from "../../../../Context/userContext";
-import { showModal } from "../../../../Utils";
+import { getCategoryIdByCategoryName, showModal } from "../../../../Utils";
 import Hls from "hls.js";
 import { useHistory } from "react-router-dom";
+import { getMediaDetailWithTokenisedMedia } from "../../../../Utils/MediaDetails";
 
 const TRAILER_PLAY_DELAY = 1000;
 
@@ -65,11 +66,11 @@ const useBanner = (asset, banners) => {
       videoElement.src = "";
       setIsVideoLoaded(false);
 
-      videoElement.addEventListener("waiting", () => {});
+      videoElement.addEventListener("waiting", () => { });
       videoElement.addEventListener("canplay", handleVideoCanPlay);
       videoElement.addEventListener("playing", handleVideoPlay);
       videoElement.addEventListener("ended", handleVideoEnd)
-      videoElement.addEventListener("stalled", () => {});
+      videoElement.addEventListener("stalled", () => { });
 
       if (Hls.isSupported()) {
         hls = new Hls();
@@ -101,7 +102,7 @@ const useBanner = (asset, banners) => {
         videoElement.removeEventListener("canplay", handleVideoCanPlay);
         videoElement.removeEventListener("playing", handleVideoPlay);
         videoElement.removeEventListener("ended", handleVideoEnd)
-        videoElement.removeEventListener("stalled", () => {});
+        videoElement.removeEventListener("stalled", () => { });
         if (hls) hls.destroy();
         setIsPlaying(false);
       };
@@ -140,9 +141,40 @@ const useBanner = (asset, banners) => {
     history.replace('/login', { from: '/' });
   };
 
-  const watchMediaVOD = (isTrailer) => {
+  const showMediaDetail = () => {
+    if (isLoggedIn && userObjectId) {
+      const categoryId = getCategoryIdByCategoryName(banners[0].subCategory);
+      history.push(`/detail/${categoryId}/${banners[0].mediaID}`);
+
+    } else {
+      showModal('Login',
+        'You are not logged in !!',
+        [
+          { label: 'Login', action: redirectToLogin, className: 'primary' }
+        ]
+      );
+    }
+  }
+
+  const watchMediaVOD = async (isTrailer = false) => {
     if (isLoggedIn && userObjectId) {
       // get media Details and play that item
+      const tokenisedResponse = await getMediaDetailWithTokenisedMedia(banners[0].mediaID, banners[0].subCategory, isTrailer);
+      if (tokenisedResponse && tokenisedResponse.isSuccess) {
+        history.push('/play', {
+          src: tokenisedResponse.data.mediaUrl,
+          thumbnailBaseUrl: isTrailer ? tokenisedResponse?.data?.mediaDetail?.trailerBasePath : tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
+          title: tokenisedResponse?.data?.mediaDetail?.title,
+          mediaId: banners[0].mediaID,
+          onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
+          skipInfo: tokenisedResponse?.data?.skipInfo,
+          isTrailer: isTrailer,
+          playDuration: 0
+          // playDuration: isResume ? mediaDetail.playDuration : 0
+        });
+      } else {
+        console.error(tokenisedResponse.message);
+      }
     }
     else {
       showModal('Login',
@@ -154,9 +186,9 @@ const useBanner = (asset, banners) => {
     }
   };
 
-  const handleImageLoaded = ()=>{
-      setIsImageLaoded(true);
-    }
+  const handleImageLoaded = () => {
+    setIsImageLaoded(true);
+  }
 
   return {
     showBanner,
@@ -167,7 +199,8 @@ const useBanner = (asset, banners) => {
     isPlaying,
     videoPlayerRef,
     handleImageLoaded,
-    isImageLoaded
+    isImageLoaded,
+    showMediaDetail
   };
 };
 
