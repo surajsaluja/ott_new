@@ -4,26 +4,35 @@ import Seasons_Tab from './Seasons_Tab';
 import Episodes_List from './Episodes_List';
 import './index.css'
 
-function Season_EpisodeList({ seasons, selectedSeason, onSeasonSelect, episodes, focusKey }) {
-  
+function Season_EpisodeList({ seasons, selectedSeason, onSeasonSelect, episodes, focusKey, onEpisodeEnterPress }) {
+
   const SEASON_TABS_FOCUS_KEY = "SEASON_TABS";
   const EPISODES_LIST_FOCUS_KEY = "EPISODES_LIST";
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
-      focusable: true,
-      trackChildren: true,
-      focusKey,
-      saveLastFocusedChild: false,
-      autoRestoreFocus: true,
-      forceFocus: true,
-      preferredChildFocusKey: SEASON_TABS_FOCUS_KEY
-    });
+    focusable: true,
+    trackChildren: true,
+    focusKey,
+    saveLastFocusedChild: false,
+    autoRestoreFocus: true,
+    forceFocus: true,
+    preferredChildFocusKey: SEASON_TABS_FOCUS_KEY
+  });
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div ref={ref} className={'season-episode-list'}>
-      <Seasons_Tab seasons={seasons} selectedSeason={selectedSeason} onSeasonSelect={onSeasonSelect} episodesLength={episodes.length} focusKey={SEASON_TABS_FOCUS_KEY}/>
-      {episodes && episodes.length > 0 ? (<Episodes_List episodes={episodes} focusKey={EPISODES_LIST_FOCUS_KEY}/>) : (<div className='episode-error-container'>No Episodes Available</div>)}
+        <Seasons_Tab
+          seasons={seasons}
+          selectedSeason={selectedSeason}
+          onSeasonSelect={onSeasonSelect}
+          episodesLength={episodes.length}
+          focusKey={SEASON_TABS_FOCUS_KEY} />
+        {episodes && episodes.length > 0 ? (<Episodes_List
+          episodes={episodes}
+          focusKey={EPISODES_LIST_FOCUS_KEY}
+          onEpisodeEnterPress={onEpisodeEnterPress}
+        />) : (<div className='episode-error-container'>No Episodes Available</div>)}
       </div>
     </FocusContext.Provider>
   )

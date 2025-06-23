@@ -8,7 +8,7 @@ import {
 } from "@noriginmedia/norigin-spatial-navigation";
 
 const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress}) => {
-  const { ref, focused } = useFocusable({ onFocus: onEpisodeFocus, onEnterPress: onEpisodeEnterPress });
+  const { ref, focused } = useFocusable({ onFocus: onEpisodeFocus, onEnterPress: onEpisodeEnterPress,extraProps: episode });
 
   return (
     <div
@@ -31,12 +31,12 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
               {formatTime(episode.duration)}
             </span>
           )}
-          {episode?.rating && (
+          {/* {episode?.rating && (
             <span>
               <i><MdStarRate /></i>
               {episode.rating}
             </span>
-          )}
+          )} */}
         </div>
         <div className="episode-desc">{episode.shortDescription}</div>
       </div>
@@ -44,7 +44,7 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
   );
 };
 
-const Episodes_List = ({ episodes: selectedEpisodes, focusKey }) => {
+const Episodes_List = ({ episodes: selectedEpisodes, focusKey, onEpisodeEnterPress =()=>{} }) => {
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusable: true,
     trackChildren: true,
@@ -73,6 +73,7 @@ const Episodes_List = ({ episodes: selectedEpisodes, focusKey }) => {
                 key={`${episode.mediaID || "ep"}-${idx}`}
                 episode={episode}
                 onFocus={onEpisodeFocus}
+                onEpisodeEnterPress={onEpisodeEnterPress}
               />
             ))
           )}
