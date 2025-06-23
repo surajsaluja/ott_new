@@ -86,9 +86,10 @@ export const fetchMediaDetailById = async (mediaId, isWebSeries, userObjectId, o
     }
 }
 
-export const fetchMediaRelatedItem = async (mediaId, userObjId, page, pageSize, language, options = {}) => {
+export const fetchMediaRelatedItem = async (mediaId = null, userId = null, page = 1, pageSize = 10, language = 1, options = {}) => {
     try {
-        const response = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId, language ?? DEFAULT_LANGUAGE, userObjId ?? userObjId, page ?? DEFAULT_PAGE, pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE), options);
+        if(!mediaId) throw new Error('MediaId is required field');
+        const response = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId, language ?? DEFAULT_LANGUAGE, userId ?? uid, page ?? DEFAULT_PAGE, pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE), options);
         return response;
     } catch (error) {
         return ThrowError('getRelatedMedia', error);
