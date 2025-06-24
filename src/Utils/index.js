@@ -113,7 +113,7 @@ export const getProcessedPlaylists = (playlists, horizontalLazyLoadLimit = 10) =
     if (playlist.playListId !== "0") {
       modifiedItems = modifiedItems.slice(0, horizontalLazyLoadLimit);
 
-      if (items.length >= horizontalLazyLoadLimit) {
+      if (items.length > horizontalLazyLoadLimit) {
         const lastItem = modifiedItems[modifiedItems.length - 1];
         modifiedItems.push({
           ...lastItem,
