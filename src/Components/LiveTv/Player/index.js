@@ -8,12 +8,8 @@ import Popup from '../../VideoPlayer/Popup';
 import SideBar_Tab from '../../VideoPlayer/SideBar_Tab';
 import { useHistory, useLocation } from 'react-router-dom';
 import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
-
-import {
-  MdOutlinePause,
-  MdPlayArrow,
-} from "react-icons/md";
 import Spinner from '../../Common/Spinner';
+import { FaPause, FaPlay } from 'react-icons/fa6';
 
 const LIVE_TV_PLAYER_FOCUSKEY = 'LIVE_TV_FOCUSKEY'
 const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY_FOCUSKEY'
@@ -125,11 +121,11 @@ function LiveTvPlayer() {
     }, []);
 
       const handleBackPressed = useCallback(() => {
-       if (userActivityRef.current) {
+       if (isSideBarOpenRef.current) {
+          handleSidebarOpen(false);
           handleSetIsUserActive(false);
           return;
-        } else if (isSideBarOpenRef.current) {
-          handleSidebarOpen(false);
+        } else if (userActivityRef.current) {
           handleSetIsUserActive(false);
           return;
         } else {
@@ -143,7 +139,7 @@ function LiveTvPlayer() {
       }
 
       useOverrideBackHandler(()=>{
-        handleBackButtonPressed();
+        handleBackPressed();
       })
 
     const handleQualityChange = (quality) => {
@@ -344,11 +340,13 @@ function LiveTvPlayer() {
                     isVisible={isUserActive}
                     thumbnailBaseUrl={null}
                     handleBackButtonPressed={handleBackButtonPressed}
+                    isAudioSubtitlesSettingsAvailable = {false}
+                    isVideoSettingsAvailable = {true}
                 />
 
                 {showPlayIcon && (
                     <div className={`playPauseRipple ${showPlayIcon ? "show" : ""}`}>
-                        {isPlaying ? <MdPlayArrow /> : <MdOutlinePause />}
+                        {isPlaying ? <FaPlay /> : <FaPause />}
                     </div>
                 )}
 
