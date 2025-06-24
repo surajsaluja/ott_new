@@ -1,23 +1,29 @@
 /* Make LiveTv-Home scrollable vertically */
 .LiveTv-Home {
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   scroll-behavior: smooth;
 }
 
-/* Optional: Give ImageSlider a height */
-.ImageSliderWrapper {
-  flex-shrink: 0;
-  height: 500px; /* adjust as needed */
-  width: 100%;
+.live-tv-header{
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }
 
-/* Ensure Content grows naturally */
-.ContentWrapper {
-  flex-grow: 1;
-  width: 100%;
-  padding-bottom: 2em; /* for spacing */
+.live-tv-header div{
+  background-color: #b7b7b7;
+  border: none;
+  color: white;
+  display: flex;
+  padding: 10px 20px;
+  text-align: center;
+  border-radius: 40px;
+  height: 3vh;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  background-color: red;
 }

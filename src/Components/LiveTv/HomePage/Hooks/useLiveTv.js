@@ -4,13 +4,23 @@ import { processLiveTvCategoriesToPlaylist } from "../../../../Utils";
 import { useHistory } from "react-router-dom";
 import { useUserContext } from "../../../../Context/userContext";
 import { showModal } from "../../../../Utils";
+import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 
-export const useLiveTv = () =>{
+export const useLiveTv = (focusKey) =>{
 
     const [liveTvHomePageData,setLiveTvHomePageData] =  useState([]);
     const [liveTvBannersData,setLiveTvBannersData] = useState([]);
     const [isTvDataLoading, setIsTvDataLoading] = useState(false);
     const history = useHistory();
+
+    const {
+    focusKey: currentFocusKey,
+    ref
+  } = useFocusable({
+    focusKey,
+    preferredChildFocusKey: 'TV_BANNER_FOCUS_KEY',
+    saveLastFocusedChild: false
+  });
     
     const { userObjectId, uid, isLoggedIn } = useUserContext();
 
@@ -20,6 +30,7 @@ export const useLiveTv = () =>{
           const liveTvResponse = await fetchLiveTvHomePageData();
           let processed = processLiveTvCategoriesToPlaylist(liveTvResponse.categories);
           setLiveTvBannersData(liveTvResponse.banners)
+          // setLiveTvBannersData([]);
     
           setLiveTvHomePageData(processed);
         } catch (e) {
@@ -51,10 +62,22 @@ export const useLiveTv = () =>{
             }
           };
 
+          const onBannerEnterPress  = (selectedBanner) =>{
+            console.log('selected Banner Index', selectedBanner);
+          }
+
+          const onBannerFocus = () =>{
+            ref.current.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+
     return{
+      ref,
+      currentFocusKey,
         liveTvHomePageData,
         liveTvBannersData,
         isTvDataLoading,
-        onChannelEnterPress
+        onChannelEnterPress,
+        onBannerEnterPress,
+        onBannerFocus
     }
 }

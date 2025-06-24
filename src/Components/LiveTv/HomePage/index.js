@@ -9,21 +9,17 @@ import Carousel from '../../Common/Carousal_Banner';
 import ImageSlider from '../../Common/Carousal_Banner';
 
 function LiveTvHome({ focusKey }) {
-  const {
-    focusKey: currentFocusKey,
-    ref
-  } = useFocusable({
-    focusKey,
-    preferredChildFocusKey: 'TV_BANNER_FOCUS_KEY',
-    saveLastFocusedChild: false
-  });
 
   const {
+    ref,
+    currentFocusKey,
     liveTvHomePageData,
     isTvDataLoading,
     liveTvBannersData,
-    onChannelEnterPress
-  } = useLiveTv();
+    onChannelEnterPress,
+    onBannerEnterPress,
+    onBannerFocus
+  } = useLiveTv(focusKey);
 
   if (isTvDataLoading) {
     return <LoadingSkeleton />;
@@ -33,15 +29,20 @@ function LiveTvHome({ focusKey }) {
     <FocusContext.Provider value={currentFocusKey}>
       <div className='LiveTv-Home' ref={ref}>
         <div className='LiveTv-Home-Content'>
-          {/* <div className="ImageSliderWrapper"> */}
-            <ImageSlider data={liveTvBannersData} />
-          {/* </div> */}
+          <ImageSlider
+          focusKey={'TV_BANNER_FOCUS_KEY'}
+           data={liveTvBannersData} 
+           onBannerEnterPress={onBannerEnterPress} 
+           onBannerFocus={onBannerFocus}/>
+           <div className='live-tv-header'>
+            <div>OUR CHANNELS</div>
+           </div>
           <Content
             onAssetFocus={() => { }}
             data={liveTvHomePageData}
             handleAssetFocus={() => { }}
             onAssetPress={onChannelEnterPress}
-            scrollingRef={ref}
+            parentScrollingRef={ref}
           />
         </div>
       </div>
