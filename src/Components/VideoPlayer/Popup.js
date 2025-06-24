@@ -7,13 +7,15 @@ import { useEffect } from "react";
 
 const Popup = ({
   focusKey,
-  onVideoSettingsPressed,
-  onAudioSubtitlesSettingsPressed,
-  onBackPress,
+  onVideoSettingsPressed =() =>{},
+  onAudioSubtitlesSettingsPressed = () =>{},
+  onBackPress = () =>{},
   videoRef,
-  title,
-  isVisible,
-  handleBackButtonPressed
+  title = '',
+  isVisible = true,
+  handleBackButtonPressed = () =>{},
+  isAudioSubtitlesSettingsAvailable = true,
+  isVideoSettingsAvailable  = true
 }) => {
   const {
     ref,
@@ -65,7 +67,7 @@ const Popup = ({
         />
         <p className={"popup_title"}>{title}</p>
         <div className={"settings_icons"}>
-          <FocusableButton
+          {isVideoSettingsAvailable && <FocusableButton
             key={2}
             focuskey={"settingsBtn"}
             onEnterPress={onVideoSettingsPressed}
@@ -73,8 +75,8 @@ const Popup = ({
             className={`popup_settingButton`}
             focusClass={`popup_settingButton_focus`}
             text={"Quality"}
-          />
-          <FocusableButton
+          />}
+          {isAudioSubtitlesSettingsAvailable && <FocusableButton
             key={3}
             focuskey={"subtitlesBtn"}
             onEnterPress={onAudioSubtitlesSettingsPressed}
@@ -82,7 +84,7 @@ const Popup = ({
             className={`popup_settingButton`}
             focusClass={`popup_settingButton_focus`}
             text={"Audio & Subtitles"}
-          />
+          />}
         </div>
       </div>
     </div>
