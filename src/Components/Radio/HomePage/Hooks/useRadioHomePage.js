@@ -4,14 +4,29 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { fetchRadioHomePageData } from "../../../../Service/MediaService";
 import { useUserContext } from "../../../../Context/userContext";
 import { showModal } from "../../../../Utils";
+import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 
-export const useRadioHomePage = () => {
+export const useRadioHomePage = (focusKey) => {
 
   const [radioHomePageData, setRadioHomePageData] = useState([]);
   const [radioBannersData, setRadioBannersData] = useState([]);
   const [isRadioDataLoading, setIsRadioDataLoading] = useState(false);
   const { userObjectId, uid, isLoggedIn } = useUserContext();
   const history = useHistory();
+
+  const {
+      focusKey: currentFocusKey,
+      ref,
+      focusSelf
+    } = useFocusable({
+      focusKey,
+      preferredChildFocusKey: 'RADIO_BANNER_FOCUS_KEY',
+      saveLastFocusedChild: false
+    });
+
+      useEffect(()=>{
+    focusSelf();
+  },[focusSelf])
 
   const loadInitialData = async () => {
     setIsRadioDataLoading(true);
@@ -72,10 +87,22 @@ export const useRadioHomePage = () => {
     }
   }
 
+  const onBannerEnterPress  = (selectedBanner) =>{
+            console.log('selected Banner Index', selectedBanner);
+          }
+
+          const onBannerFocus = () =>{
+            ref.current.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+
   return {
+    ref,
+    currentFocusKey,
     radioHomePageData,
     radioBannersData,
     isRadioDataLoading,
-    onRadioChannelEnterPress
+    onRadioChannelEnterPress,
+    onBannerEnterPress,
+    onBannerFocus
   }
 }

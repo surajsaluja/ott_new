@@ -5,28 +5,20 @@ import TvBanner from '../../Banner/TvBanner';
 import Content from '../../HomePageContent/Content';
 import { useRadioHomePage } from './Hooks/useRadioHomePage';
 import LoadingSkeleton from '../../Common/MovieHomeSkeleton/LoadingSkeleton';
+import ImageSlider from '../../Common/Carousal_Banner';
 
 function RadioHome({ focusKey }) {
+
   const {
-    focusKey: currentFocusKey,
     ref,
-    focusSelf
-  } = useFocusable({
-    focusKey,
-    preferredChildFocusKey: 'RADIO_BANNER_FOCUS_KEY',
-    saveLastFocusedChild: false
-  });
-
-  useEffect(()=>{
-    focusSelf();
-  },[focusSelf])
-
-  const {
+    currentFocusKey,
     radioHomePageData,
     radioBannersData,
     isRadioDataLoading,
-    onRadioChannelEnterPress
-  } = useRadioHomePage();
+    onRadioChannelEnterPress,
+    onBannerEnterPress,
+    onBannerFocus
+  } = useRadioHomePage(focusKey);
 
   if (isRadioDataLoading) {
     return <LoadingSkeleton />;
@@ -35,7 +27,15 @@ function RadioHome({ focusKey }) {
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className='radio-home' ref={ref}>
-        <TvBanner focusKey='RADIO_BANNER_FOCUS_KEY' bannersData={radioBannersData} />
+        <div className='radio-Home-Content'>
+          <ImageSlider 
+          focusKey='RADIO_BANNER_FOCUS_KEY' 
+          data={radioBannersData}
+          onBannerEnterPress={onBannerEnterPress}
+          onBannerFocus={onBannerFocus} />
+          <div className='radio-header'>
+            <div>OUR RADIO CHANNELS</div>
+           </div>
         <Content
           onAssetFocus={() => { }}
           data={radioHomePageData}
@@ -43,7 +43,10 @@ function RadioHome({ focusKey }) {
           onAssetPress={onRadioChannelEnterPress}
           isCircular={true}
           showTitle={true}
+          parentScrollingRef={ref}
         />
+      </div>
+        
       </div>
     </FocusContext.Provider>
   );
