@@ -144,7 +144,7 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
   }, [data]);
 
   const onRowFocus = useCallback((element) => {
-    let scroller  = parentScrollingRef != null ? parentScrollingRef : ref
+    let scroller  = (parentScrollingRef && parentScrollingRef.current != null) ? parentScrollingRef : ref
     if (element && ref.current && scrollDebounceRef.current) {
        const containerRect = scroller.current.getBoundingClientRect();
        const scrollTop  = element.top - containerRect.top - 15;
