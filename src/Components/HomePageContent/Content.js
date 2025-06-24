@@ -69,7 +69,7 @@ const Content = ({
   className: userClass = "",
   showTitle = false,
   isCircular = false,
-scrollingRef = null }) => {
+parentScrollingRef = null }) => {
   const {
     ref,
     focusKey,
@@ -77,7 +77,7 @@ scrollingRef = null }) => {
     data: movieRowsData,
     loadMoreRef,
     isLoading: loadingSpinner,
-  } = useMovieHomePage(focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows, handleAssetFocus, scrollingRef);
+  } = useMovieHomePage(focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows, handleAssetFocus, parentScrollingRef);
 
   const lastRowChangeRef = useRef(Date.now());
 
