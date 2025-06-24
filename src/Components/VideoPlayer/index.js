@@ -192,7 +192,7 @@ const VideoPlayer = () => {
 
   if (val === true) {
     // Focus the thumbnail strip only if user was previously inactive
-    if (userActivityRef.current !== true && isSeekingRef.current != true) {
+    if (userActivityRef.current !== true && isSeekingRef.current != true && isSideBarOpenRef.current != true) {
       setFocus(SEEKBAR_THUMBIAL_STRIP_FOCUSKEY);
     }
 
@@ -230,15 +230,15 @@ useOverrideBackHandler(() => {
   if(isThumbnailStripVisibleRef.current){
     handleThumbnialStripVisibility(false);
     return;
-  }else if (userActivityRef.current) {
-      handleSetIsUserActive(false);
-      return;
-    } else if (isSideBarOpenRef.current) {
+  }else if (isSideBarOpenRef.current) {
       handleSidebarOpen(false);
       handleSetIsUserActive(false);
       // setFocus('Dummy_Btn');
       return;
-    } else if (isSeekbarVisibleRef.current) {
+    }else if (userActivityRef.current) {
+      handleSetIsUserActive(false);
+      return;
+    }  else if (isSeekbarVisibleRef.current) {
       return;
     } else {
       history.goBack();
@@ -635,12 +635,10 @@ useOverrideBackHandler(() => {
 
         if (newShowSkipButtons !== showSkipButtonsRef.current) {
           setShowSkipButtons(newShowSkipButtons);
-          handleSetIsUserActive(true);
-          // setTimeout(() => {
-          //   handleSetIsUserActive(true);
-          //   setFocus(SKIP_BTN_FOCUS_KEY);
-          // }, 100);
           showSkipButtonsRef.current = newShowSkipButtons;
+          if(isSideBarOpenRef.current != true){
+          handleSetIsUserActive(true);
+          }
         }
 
         if (newSkipButtonText !== skipButtonTextRef.current) {
@@ -687,6 +685,8 @@ useOverrideBackHandler(() => {
           isVisible={isUserActive}
           thumbnailBaseUrl={THUMBNAIL_BASE_URL}
           handleBackButtonPressed= {handleBackButtonPressed}
+          isAudioSubtitlesSettingsAvailable = {true}
+          isVideoSettingsAvailable = {true}
         />
 
         <VirtualThumbnailStripWithSeekBar
