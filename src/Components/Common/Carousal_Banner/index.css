@@ -1,0 +1,28 @@
+.slider-container{
+    width: 100%;
+    background-color: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    outline: none;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.slider-image-container{
+    width: 100%;
+    height: 100%;
+    border-width: 4px;
+    border-style: solid;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.slider-image{
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
