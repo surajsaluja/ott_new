@@ -19,6 +19,7 @@ import StreamLimitModal from "./StreamLimitError";
 import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 import Spinner from "../Common/Spinner";
 import { FaForward, FaPause, FaPlay } from "react-icons/fa6";
+import {getMediaDetailWithTokenisedMedia} from '../../Utils/MediaDetails'
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const THUMBNAIL_STRIP_FOCUSKEY = "STRIP_THUMBNAIL";
@@ -42,6 +43,7 @@ const VideoPlayer = () => {
     onScreenInfo,
     skipInfo,
     playDuration,
+    nextEpisodeMediaId
   } = location.state || {};
   const deviceInfo = getDeviceInfo();
   const { userObjectId } = useUserContext();
@@ -387,9 +389,30 @@ useOverrideBackHandler(() => {
     }
   };
 
+  const handleWatchNextEpisode = async(mediaId) =>{
+    if(!mediaId) return;
+    const tokenisedResponse = await getMediaDetailWithTokenisedMedia(mediaId, 'web series', false);
+            if (tokenisedResponse && tokenisedResponse.isSuccess) {
+              history.push('/play', {
+                src: tokenisedResponse.data.mediaUrl,
+                thumbnailBaseUrl: isTrailer ? tokenisedResponse?.data?.mediaDetail?.trailerBasePath : tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
+                title: tokenisedResponse?.data?.mediaDetail?.title,
+                mediaId: mediaId,
+                onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
+                skipInfo: tokenisedResponse?.data?.skipInfo,
+                isTrailer: isTrailer,
+                playDuration: 0
+                // playDuration: isResume ? mediaDetail.playDuration : 0
+              });
+            } else {
+              console.error(tokenisedResponse.message);
+            }
+  }
+
   const skipButtonEnterPress = () => {
     const currentSkipLabel = skipButtonTextRef.current;
     let endTime = null;
+    let handleNextEpisode = false;
 
     if (!currentSkipLabel || !skipInfo || !showSkipButtonsRef.current) return;
 
@@ -401,9 +424,14 @@ useOverrideBackHandler(() => {
         endTime = skipInfo.skipRecapET;
         break;
       case SKIP_NEXT_EPISODE_TEXT:
-        return;
+        handleNextEpisode = true;
+        break;
       default:
         return;
+    }
+
+    if(handleNextEpisode && nextEpisodeMediaId != null){
+      handleWatchNextEpisode(nextEpisodeMediaId);
     }
 
     if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {

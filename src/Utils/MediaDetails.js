@@ -4,20 +4,36 @@ import {
   fetchTokanizedMediaUrl,
   fetchMediaRelatedItem,
   fetchWebSeriesEpisodeBySeasonId,
+  fetchWebSeriesAllSeasonsWithEpisodes,
 } from "../Service/MediaService";
 import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
 import { getTokanizedLiveTVUrl } from "../Service/LiveTVService";
 
+const seasonCache = {};
+
 const findCurrentEpisode = (seasons, currentMediaId) => {
   for (const season of seasons || []) {
-    for (const episode of season.episodes || []) {
+    const episodes = season.episodes || [];
+    for (let i = 0; i < episodes.length; i++) {
+      const episode = episodes[i];
       if (episode.mediaID === currentMediaId) {
-        return episode;
+        const nextEpisode = episodes[i + 1] || null;
+        return {
+          currentSeason: season,
+          currentEpisode: episode,
+          nextEpisodeMediaId: nextEpisode?.mediaID || null,
+        };
       }
     }
   }
-  return null;
+  return {
+    currentSeason: null,
+    currentEpisode: null,
+    nextEpisodeMediaId: null,
+  };
 };
+
+
 
 const getIsContentFree = (isPaid) => {
   return typeof isPaid === "string"
@@ -39,7 +55,7 @@ const groupStarCasts = (starCastArray = []) => {
 
   starCastArray.forEach(({ iStarcastType, displayName, profileImage }) => {
     if (groupedStarCasts[iStarcastType]) {
-      groupedStarCasts[iStarcastType].push({displayName, profileImage});
+      groupedStarCasts[iStarcastType].push({ displayName, profileImage });
     }
   });
 
@@ -85,6 +101,8 @@ export const getMediaDetails = async (
   let webThumbnailUrl = null;
   let fullPageBannerUrl = null;
   let groupedStarCasts = null;
+  let webSeriesId = null;
+  let seasons = null;
 
   try {
     const isWebSeries = categoryId == 2;
@@ -140,9 +158,44 @@ export const getMediaDetails = async (
       mediaDetail.onScreenInfo = onScreenInfo;
       mediaDetail.skipInfo = skipInfo;
 
-      currentEpisode = isWebSeries
-        ? findCurrentEpisode(response?.seasons, mediaId)
-        : null;
+      if (isWebSeries) {
+        webSeriesId = mediaDetail.webSeriesId;
+        // Check in-memory cache
+        if (!seasonCache[webSeriesId]) {
+          const seasonRes = await fetchWebSeriesAllSeasonsWithEpisodes(webSeriesId);
+          if (!seasonRes?.isSuccess || !seasonRes.data) {
+            throw new Error("Failed to fetch seasons for web series");
+          }
+          let seasonsDataProcessed = seasonRes.data?.seasons ? seasonRes.data?.seasons?.map(season => {
+            let episodesProcessed = season?.episodes ? season?.episodes?.map(episode => ({
+              title: episode.title,
+              mediaID: episode.mediaID,
+              seasonId: episode.seasonId,
+              shortDescription : episode.shortDescription,
+              categoryID : episode.categoryID,
+              seasonId  : episode.seasonId,
+              seasonName : episode.seasonName,
+              webThumbnail : episode.webThumbnail,
+              isAddedByUser : episode.isAddedByUser
+            })) : null;
+            return {
+              ...season,
+              episodes: episodesProcessed
+            }
+
+          }) : null;
+          seasonCache[webSeriesId] = seasonsDataProcessed;
+        }
+
+        seasons = seasonCache[webSeriesId];
+        mediaDetail.seasons = seasons;
+
+        currentEpisode = findCurrentEpisode(seasons, mediaId); // { season, episode }
+        mediaDetail.currentEpisode = currentEpisode?.currentEpisode?.mediaID || null;
+        mediaDetail.currentSeason = currentEpisode?.currentSeason?.id || null;
+        mediaDetail.nextEpisodeMediaId = currentEpisode?.nextEpisodeMediaId || null;
+
+      }
 
       mediaUrl = mediaUrl ? DecryptAESString(mediaUrl) : mediaUrl;
       success = true;
@@ -213,18 +266,18 @@ export const getTokenisedMedia = async (
       isMediaPublished = response.isMediaPublished;
       isFree = getIsContentFree(response.isPaid);
 
-      if(isMediaPublished && (!isTrailer)){
-      if (isUserSubscribed || isFree || isTrailer) {
-        mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
-        mediaUrl = DecryptAESString(mediaUrl);
-        success = true;
-        message = "Media Tokenised SuccessFully";
+      if (isMediaPublished && (!isTrailer)) {
+        if (isUserSubscribed || isFree || isTrailer) {
+          mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
+          mediaUrl = DecryptAESString(mediaUrl);
+          success = true;
+          message = "Media Tokenised SuccessFully";
+        } else {
+          throw new Error("You are not a subscribed user to watch this movie!");
+        }
       } else {
-        throw new Error("You are not a subscribed user to watch this movie!");
+        throw new Error('Media Not Published');
       }
-    }else{
-      throw new Error('Media Not Published');
-    }
     } else {
       throw new Error(response?.message || "Invalid response for Tokenised Media");
     }
@@ -339,7 +392,7 @@ export const getMediaRelatedItemDetails = async (
 export const getWebSeriesEpisodesBySeason = async (
   webSeriesId = null,
   seasonId = null,
-  language = null ,
+  language = null,
   userObjectId = null,
   page = 1,
   pageSize = 10
@@ -349,7 +402,7 @@ export const getWebSeriesEpisodesBySeason = async (
   try {
     if (webSeriesId == null) {
       throw new Error("WebSeries Id can not be null");
-    } else if(seasonId == null) {
+    } else if (seasonId == null) {
       throw new Error("Season Id can not be null");
     } else {
       webSeriesEpisodesResponse = await fetchWebSeriesEpisodeBySeasonId(
@@ -381,13 +434,13 @@ export const getWebSeriesEpisodesBySeason = async (
 };
 
 
-export const getTokenisedTvMedia = async (channelHandle) =>{
-   if (!channelHandle) {
+export const getTokenisedTvMedia = async (channelHandle) => {
+  if (!channelHandle) {
     return {
       isSuccess: false,
       message: "channelHandle is required field",
     };
-  } 
+  }
 
   let isUserSubscribed = false;
   let isMediaPublished = false;

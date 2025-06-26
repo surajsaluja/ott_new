@@ -117,7 +117,7 @@ export const fetchTokanizedMediaUrl = async (mediaId, userObjectId = null, optio
     }
 }
 
-export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId, seasonId, language, userObjectId, page, pageSize) => {
+export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId, seasonId, language = null, userObjectId = null , page = 1 , pageSize = 10) => {
     try {
         if (!webSeriesId || webSeriesId == null) {
             throw Error('Webseries ID is an compulsary field');
@@ -125,11 +125,24 @@ export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId, seasonId, lan
         if (!seasonId || seasonId == null) {
             throw Error('Season Id is an compulsary field');
         }
-        const response = await fetchData(API.MEDIA.GET_WEBSERIES_EPISODES(webSeriesId, seasonId, language ?? DEFAULT_LANGUAGE, userObjectId ?? userObjectId, page ?? DEFAULT_PAGE, pageSize ?? DEFAULT_PAGE_SIZE));
+        const response = await fetchData(API.MEDIA.GET_WEBSERIES_EPISODES(webSeriesId, seasonId, language ?? DEFAULT_LANGUAGE, userObjectId ?? userObjId, page ?? DEFAULT_PAGE, pageSize ?? DEFAULT_PAGE_SIZE));
         return response;
 
     } catch (error) {
         return ThrowError('fetchWebSeriesEpisodeBySeasonId', error);
+    }
+}
+
+export const fetchWebSeriesAllSeasonsWithEpisodes = async (webSeriesId, userObjectId = null) => {
+    try {
+        if (!webSeriesId || webSeriesId == null) {
+            throw Error('Webseries ID is an compulsary field');
+        }
+        const response = await fetchData(API.MEDIA.GET_WEBSERIES_DETAILS_WITH_EPISODES(webSeriesId, userObjectId ?? userObjId));
+        return response;
+
+    } catch (error) {
+        return ThrowError('fetchWebSeriesAllSeasonsWithEpisodes', error);
     }
 }
 

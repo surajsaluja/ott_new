@@ -9,11 +9,12 @@ import RadioHome from '../Radio/HomePage/index.js'
 import RadioPlayer from '../Radio/Player/index.js'
 import WishlistHome from '../Wishlist/HomePage/index.js'
 import SeeAllPlaylistContentHomePage from '../SeeAll/HomePage/index.js'
+import ImageSlider from '../Common/Carousal_Banner/index.js'
 // import SeekBarWithPreview from '../VirtualList/SeekWithPreview.js'
 // import VirtualizedSeekbarWithThumbnails from '../VirtualList/HorizontalList.js'
 function TestComp() {
   return (
-   <SeeAllPlaylistContentHomePage />
+   <ImageSlider />
   )
 }
 

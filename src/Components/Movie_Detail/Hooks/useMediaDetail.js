@@ -1,5 +1,5 @@
 import { setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { getMediaDetails, getMediaRelatedItemDetails, getTokenisedMedia, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
 import { getMediaRelatedItem, updateMediaItemToWishlist } from "../../../Service/MediaService";
@@ -11,6 +11,7 @@ import StarCastContainer from "../../StarCastContainer";
 import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 import { useUserContext } from "../../../Context/userContext";
 import { showModal } from "../../../Utils";
+import { ImSinaWeibo } from "react-icons/im";
 
 const useMediaDetail = (mediaId, categoryId, focusKey) => {
     // References for Focusable
@@ -39,6 +40,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isError,setIsError] = useState(false);
     const [errorMessage,setErrorMessage] = useState(false);
     const [isMediaPublished,setIsMediaPublished] = useState(false);
+    const [webSeriesEpisodeSelected,setWebSeriesEpisodeSelected] = useState(null);
+    const webSeriesNextEpisodeMediaId = useRef(null);
+    let isWebSeries = false;
 
      const {isLoggedIn, userObjectId } = useUserContext();
 
@@ -65,6 +69,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         setIsError(false);
         setErrorMessage(false);
         setIsMediaPublished(false);
+        isWebSeries = false;
+        setSelectedSeasonId(null);
+        setWebSeriesEpisodeSelected(null);
         handleBottomDrawerClose();
     }, [mediaId]);
 
@@ -133,7 +140,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 if (categoryId == 2 && mediaDet.seasons && mediaDet.seasons.length > 0) {
                     setWebSeriesId(mediaDet.webSeriesId);
                     setWebSeriesSeasons(mediaDet.seasons.length > 0 ?  mediaDet.seasons : []);
-                    setSelectedSeasonId(mediaDet.seasons[0].id);
+                    setSelectedSeasonId(mediaDet.currentSeason);
+                    setWebSeriesEpisodeSelected(mediaDet.currentEpisode);
+                    webSeriesNextEpisodeMediaId.current = mediaDet.nextEpisodeMediaId;
                 }
                 getRelatedMediaItems(mediaId);
             }
@@ -255,7 +264,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 onScreenInfo: mediaDetail.onScreenInfo,
                 skipInfo: mediaDetail.skipInfo,
                 isTrailer: isTrailer,
-                playDuration: isResume ? mediaDetail.playDuration : 0
+                playDuration: isResume ? mediaDetail.playDuration : 0,
+                nextEpisodeMediaId: webSeriesNextEpisodeMediaId.current
             });
         }else{
             showModal('Warning',
