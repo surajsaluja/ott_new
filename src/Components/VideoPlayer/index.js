@@ -11,7 +11,7 @@ import { useLocation, useHistory } from "react-router-dom";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import VirtualThumbnailStripWithSeekBar from "../VirtualList/VirtualThumbnailStripWithSeekBar";
 import useSeekHandler from "./useSeekHandler";
-import { getDeviceInfo } from "../../Utils";
+import { getCategoryIdByCategoryName, getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
 import { sendVideoAnalytics } from "../../Service/MediaService";
 import { useSignalR } from "../../Hooks/useSignalR";
@@ -391,9 +391,10 @@ useOverrideBackHandler(() => {
 
   const handleWatchNextEpisode = async(mediaId) =>{
     if(!mediaId) return;
-    const tokenisedResponse = await getMediaDetailWithTokenisedMedia(mediaId, 'web series', false);
+    const tokenisedResponse = await getMediaDetailWithTokenisedMedia(mediaId, getCategoryIdByCategoryName('web series'), false);
             if (tokenisedResponse && tokenisedResponse.isSuccess) {
-              history.push('/play', {
+              handleSetIsPlaying(false);
+              history.replace('/play', {
                 src: tokenisedResponse.data.mediaUrl,
                 thumbnailBaseUrl: isTrailer ? tokenisedResponse?.data?.mediaDetail?.trailerBasePath : tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
                 title: tokenisedResponse?.data?.mediaDetail?.title,
@@ -401,7 +402,8 @@ useOverrideBackHandler(() => {
                 onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
                 skipInfo: tokenisedResponse?.data?.skipInfo,
                 isTrailer: isTrailer,
-                playDuration: 0
+                playDuration: 0,
+                nextEpisodeMediaId : tokenisedResponse?.data?.mediaDetail?.nextEpisodeMediaId
                 // playDuration: isResume ? mediaDetail.playDuration : 0
               });
             } else {
@@ -652,7 +654,9 @@ useOverrideBackHandler(() => {
             newSkipButtonText = "Skip Recap";
           } else if (
             skipInfo?.nextEpisodeST &&
-            currentTime >= skipInfo?.nextEpisodeST
+            currentTime >= skipInfo?.nextEpisodeST &&
+            nextEpisodeMediaId && 
+            nextEpisodeMediaId != null
           ) {
             newShowSkipButtons = true;
             newSkipButtonText = "Next Episode";
