@@ -11,7 +11,7 @@ import StarCastContainer from "../../StarCastContainer";
 import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 import { useUserContext } from "../../../Context/userContext";
 import { showModal } from "../../../Utils";
-import { ImSinaWeibo } from "react-icons/im";
+import { clearWebSeriesCache } from "../../../Utils/WebSeriesUtils";
 
 const useMediaDetail = (mediaId, categoryId, focusKey) => {
     // References for Focusable
@@ -28,8 +28,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [webSeriesId, setWebSeriesId] = useState(null);
     const [webSeriesSeasons, setWebSeriesSeasons] = useState([]);
     const [selectedSeasonId, setSelectedSeasonId] = useState(null);
-    const [episodesCache, setEpisodesCache] = useState({});
-    const [relatedItems, setRelatedItems] = useState([]);
+   
+  const [relatedItems, setRelatedItems] = useState([]);
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const [isDrawerContentReady, setDrawerContentReady] = useState(false);
     const [isRelatedItemsLoading, setIsRelatedItemsLoading] = useState(true); // Add a loading state for related items
@@ -75,6 +75,11 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         handleBottomDrawerClose();
     }, [mediaId]);
 
+    useEffect(()=>{
+        if(!webSeriesId) return
+        clearWebSeriesCache(webSeriesId);
+    },[webSeriesId])
+
     const handleBackPressed = () =>{
         if(isDrawerOpen){
             handleBottomDrawerClose();
@@ -117,13 +122,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     }, [isDrawerOpen]);
 
-    useEffect(() => {
-        if (selectedSeasonId == null) {
-            return;
-        }
-        loadEpisodes(selectedSeasonId)
-    }, [selectedSeasonId])
-
+   
     // Data Fetching Functions
 
     const fetchMediaDetail = async (mediaId) => {
@@ -214,27 +213,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     // Seasons and Episodes Functions
 
-    const loadEpisodes = useCallback(async (seasonId) => {
-        if (episodesCache[seasonId]) return;
+  
 
-        try {
-            const response = await getWebSeriesEpisodesBySeason(webSeriesId, seasonId);
-            if (response?.isSuccess) {
-                setEpisodesCache(prev => ({ ...prev, [seasonId]: response.data }));
-            }
-        } catch (err) {
-            console.error('Failed to load episodes', err);
-        }
-        finally {
-            setIsSeasonsLoading(false);
-        }
-    }, [webSeriesId, episodesCache]);
-
-
-    const handleSeasonSelect = (id) => {
-        setSelectedSeasonId(id);
-        loadEpisodes(id);
-    };
+  
 
 
     // Bottom Drawer Functions
@@ -294,13 +275,12 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         if (!webSeriesSeasons || webSeriesSeasons.length === 0) return <p>No Seasons available</p>;
 
         return <Season_EpisodeList 
-        seasons={webSeriesSeasons} 
-        selectedSeason={selectedSeasonId} 
-        onSeasonSelect={handleSeasonSelect} 
-        episodes={episodesCache[selectedSeasonId] || []} 
         focusKey={'SEASON_CNT'} 
-        onEpisodeEnterPress={onEpisodeEnterPress}/>
-    }, [selectedSeasonId, webSeriesSeasons, handleSeasonSelect, setSelectedSeasonId, episodesCache]);
+        onEpisodeEnterPress={onEpisodeEnterPress}
+        setIsSeasonsLoading = {setIsSeasonsLoading}
+        isSeasonsLoading = {isSeasonsLoading}
+        webSeriesId={webSeriesId}/>
+    }, [webSeriesId]);
 
     const RenderCastData = useCallback(() => {
         if (groupedStarCasts == null) return <p>No Star Cast Available</p>;

@@ -8,8 +8,10 @@ import {
 } from "../Service/MediaService";
 import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
 import { getTokanizedLiveTVUrl } from "../Service/LiveTVService";
+import { useWebSeries } from "../Context/WebSeriesContext";
+import { findSeasonByMediaId, setSeasonCache, } from "./WebSeriesUtils";
 
-const seasonCache = {};
+// const seasonCache = {};
 
 const findCurrentEpisode = (seasons, currentMediaId) => {
   for (const season of seasons || []) {
@@ -72,6 +74,7 @@ export const getMediaDetails = async (
   isTrailer = true,
   userObjectId = null
 ) => {
+
   const userObjId = localStorage.getItem("userObjectId");
 
   if (!mediaId) {
@@ -160,40 +163,12 @@ export const getMediaDetails = async (
 
       if (isWebSeries) {
         webSeriesId = mediaDetail.webSeriesId;
-        // Check in-memory cache
-        if (!seasonCache[webSeriesId]) {
-          const seasonRes = await fetchWebSeriesAllSeasonsWithEpisodes(webSeriesId);
-          if (!seasonRes?.isSuccess || !seasonRes.data) {
-            throw new Error("Failed to fetch seasons for web series");
-          }
-          let seasonsDataProcessed = seasonRes.data?.seasons ? seasonRes.data?.seasons?.map(season => {
-            let episodesProcessed = season?.episodes ? season?.episodes?.map(episode => ({
-              title: episode.title,
-              mediaID: episode.mediaID,
-              seasonId: episode.seasonId,
-              shortDescription : episode.shortDescription,
-              categoryID : episode.categoryID,
-              seasonId  : episode.seasonId,
-              seasonName : episode.seasonName,
-              webThumbnail : episode.webThumbnail,
-              isAddedByUser : episode.isAddedByUser
-            })) : null;
-            return {
-              ...season,
-              episodes: episodesProcessed
-            }
-
-          }) : null;
-          seasonCache[webSeriesId] = seasonsDataProcessed;
+        currentEpisode = await findSeasonByMediaId(mediaId, webSeriesId, mediaDetail.seasons);
+        if (currentEpisode) {
+          mediaDetail.currentEpisode = currentEpisode.currentEpisode?.mediaID || null;
+          mediaDetail.currentSeason = currentEpisode.currentSeason?.id || null;
+          mediaDetail.nextEpisodeMediaId = currentEpisode.nextEpisodeMediaId || null;
         }
-
-        seasons = seasonCache[webSeriesId];
-        mediaDetail.seasons = seasons;
-
-        currentEpisode = findCurrentEpisode(seasons, mediaId); // { season, episode }
-        mediaDetail.currentEpisode = currentEpisode?.currentEpisode?.mediaID || null;
-        mediaDetail.currentSeason = currentEpisode?.currentSeason?.id || null;
-        mediaDetail.nextEpisodeMediaId = currentEpisode?.nextEpisodeMediaId || null;
 
       }
 
