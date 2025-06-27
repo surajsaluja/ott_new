@@ -1,339 +1,353 @@
 .movie-detail-page {
-    color: white;
-    display: flex;
-    position: relative;
-    background-color: black;
-    flex-direction: column;
-    flex: 1;
-    min-height: 100vh;
-    overflow: auto;
-  }
-  
-  .movie-detail-page-poster {
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-  }
-  
-  .overlay-detail {
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    /* background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3)); */
-  }
-
-  .overlay-detail-ltr {
-    background: 
-      linear-gradient(178.5deg,
-        rgba(var(--debug-color), 0) 57.9%,
-        rgba(var(--debug-color), 0) 64.8%,
-        rgba(var(--debug-color), 0.05) 67.56%,
-        rgba(var(--debug-color), 1) 96.94%),
-      linear-gradient(90deg,
-        rgba(var(--debug-color), 1) 0%,
-        rgba(var(--debug-color), 0.9) 30.15%,
-        rgba(var(--debug-color), 0.7) 40.52%,
-        rgba(var(--debug-color), 0.6) 50.81%,
-        rgba(var(--debug-color), 0.5) 60.08%,
-        rgba(var(--debug-color), 0) 80.1%);
-  }
-  
-  /* 🔥 Content Section */
-  .content-detail {
-    position: relative;
-    display: flex;
-    align-items: center;
-    z-index: 2;
-    max-width: 90%;
-    text-align: left;
-    padding: 50px 50px 50px 50px;
-  }
-  
-  .details {
-    margin-left: 40px;
-    max-width: 840px;
-  }
-  
-  /* 🔥 Movie Title */
-  .title-detail {
-    font-size: 3rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-    position: relative;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-  }
-  
-  /* 🔥 Movie Description */
-  .description-detail {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    margin-bottom: 15px;
-    line-height: 1.5;
-    height: 14vw;
-    text-overflow: ellipsis;
-    --webkit-line-clamp: 4;
-    overflow: hidden;
-    position: relative;
-    text-align: justify;
-    margin-right: -1em;
-    padding-right: 1em;
-  }
-
-  /* 🔥 Movie Info (Genre, Year, Rating) */
-  .info-detail {
-    font-size: 1rem;
-    margin-bottom: 15px;
-    opacity: 0.8;
-    display: flex;
-  }
-  
-  .info-detail span{
-    margin-right: 10px;
-    background: #333;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    margin-right: 10px;
-  }
-
-  .info-detail span i{
-    margin: 0 3px 0 0; 
-    display: flex;
-  }
-  
-  /* 🔥 Buttons (Watch & Trailer) */
-  .buttons-detail {
-    display: flex;
-    margin-top: 40px;
-    flex-direction: row;
-    align-items: center;
-  }
-  
-  /* 🔥 Button Styling */
-  .detail-play-button {
-    font-size: 0.9rem;
-    width: 10em;
-    padding: 1em;
-    border: 2px solid white;
-    border-radius: 5px;
-    text-transform: uppercase;
-    transition: scale 0.3s ease-in-out;
-    cursor: pointer;
-    color: white;
-    margin: 7px;
-    display: flex;
-    align-items: center;
-    background: linear-gradient(45deg, #00000000, #f90000b5);
-  }
-  
-  
-  /* 🔥 Button Focus (for TV Remote Navigation) */
-  .detail-play-button-focus {
-    font-weight: 700;
-    background: white;
-    color: black
-  }
-
-  .detail-play-button .focusableButton_icon{
-    margin-right: 10px;
-    color: white;
-  }
-
-  .detail-play-button-focus .focusableButton_icon{
-    color: black;
-  }
-
-
-  
-  /* ⭐ Star Cast Section */
-  .start-cast-container {
-    width: 100%;
-    max-width: 1100px;
-    text-align: left;
-    padding: 30px;
-    margin-top: 30px;
-  }
-  
-  .start-cast-container h2 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 2px solid red;
-    display: inline-block;
-  }
-  
-
-  .bottom-content-details{
-    z-index: 2;
-    position: absolute;
-    bottom: 2rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding-left: 50px;
-  }
-
-  .details-dummy-buttons-wrapper{
-    display: flex;
-    position: fixed;
-    bottom: 5%;
-    padding: 0px 50px;
-  }
-
-  .details-dummy-buttons {
-    display: flex;
-    font-weight: 700;
-    margin: 10px;
-    font-size: 1.2rem;
-    border-style: solid;
-    border-color: transparent;
-    border-width: 2px;
-    padding: 8px;
-    border-radius: 4px;
-    color: white
-  }
-
-  .details-dummy-buttons-focused{
-    border-color: white;
-  }
-
-  .related-content-detail{
-    margin-left: 40px;
-  }
-
-  .btn-bottom-detail{
-    color: white;
-    border-width: 1px;
-    border-color: transparent;
-    border-style: solid;
-    border-radius: 4px;
-    padding: 10px;
-    font-weight: 700;
-
-  }
-
-  .btn-bottom-detail-focused{
-    border-color: white;
-  }
-
-  /*  Shimmer Loading */
-.shimmer-wrapper {
-    display: flex;
-    flex-direction: row;
-    width: 100vw;
-    flex: 1;
-    justify-content: space-between;
-  }
-
-  .details-shimmer {
-    padding: 20px 40px;
-  }
-
-
-  
-  .shimmer {
-    background: linear-gradient(to right, #222 8%, #333 18%, #222 33%);
-    background-size: 800px 104px;
-    animation: shimmer 1.2s infinite linear;
-    border-radius: 5px;
-  }
-  
-  .shimmer.title {
-    width: 80%;
-    height: 40px;
-  }
-  
-  .shimmer.description {
-    width: 100%;
-    height: 80px;
-  }
-  
-  .shimmer.info {
-    width: 60%;
-    height: 20px;
-  }
-  
-  .shimmer.buttons {
-    width: 200px;
-    height: 40px;
-  }
-
-  .shimmer-image-container{
-    display: flex;
-    flex: 1;
-    justify-content: end;
-  }
-
-  .shimmer-content-container{
-    display: flex;
-    width: 35%;
-    margin-top: 25%;
-    flex-direction: column;
-  }
-
-  .shimmer.image{
-    width: 500px;
-    height: 500px;
-    margin-right: 10%;
-  }
-  
-  @keyframes shimmer {
-    0% {
-      background-position: -800px 0;
-    }
-    100% {
-      background-position: 800px 0;
-    }
-  }
-
-  .error-container{
-    display: flex;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  .error-container .error-icon{
-    display: flex;
-    color: #bc0606;
-    justify-content: center;
-    align-items: center;
-    font-size: 8vw;
-  }
-
-  .error-container .error-message{
-    display: flex;
-    color: white;
-    justify-content: center;
-    align-items: center;
-    font-size: 3vw;
-    margin: 1vw 0;
-  }
-
-  .btn-error-return {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 10px 0;
-    font-size: 1.5vw;
-    border: 2px solid white;
-    padding: 13px;
-    border-radius: 14px;
-    background-color: #333
+  color: white;
+  display: flex;
+  position: relative;
+  background-color: black;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+  overflow: auto;
 }
 
-.btn-error-focused{
+.movie-detail-page-poster {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+.overlay-detail {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  /* background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3)); */
+}
+
+.overlay-detail-ltr {
+  background:
+    linear-gradient(178.5deg,
+      rgba(var(--debug-color), 0) 57.9%,
+      rgba(var(--debug-color), 0) 64.8%,
+      rgba(var(--debug-color), 0.05) 67.56%,
+      rgba(var(--debug-color), 1) 96.94%),
+    linear-gradient(90deg,
+      rgba(var(--debug-color), 1) 0%,
+      rgba(var(--debug-color), 0.9) 30.15%,
+      rgba(var(--debug-color), 0.7) 40.52%,
+      rgba(var(--debug-color), 0.6) 50.81%,
+      rgba(var(--debug-color), 0.5) 60.08%,
+      rgba(var(--debug-color), 0) 80.1%);
+}
+
+/* 🔥 Content Section */
+.content-detail {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  max-width: 90%;
+  text-align: left;
+  padding: 0 50px;
+}
+
+.details {
+  margin-left: 40px;
+  max-width: 55vw;
+  margin-top: 10vh;
+}
+
+/* 🔥 Movie Title */
+.title-detail {
+  font-size: 2.7vw;
+  font-weight: bold;
+  margin-bottom: 10px;
+  position: relative;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* 🔥 Movie Description */
+.description-detail {
+  font-size: 1.3vw;
+    height: 17vh;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    margin-right: -1em;
+    opacity: .9;
+    overflow: hidden;
+    padding-right: 1em;
+    position: relative;
+    text-align: justify;
+    text-overflow: ellipsis;
+}
+
+/* 🔥 Movie Info (Genre, Year, Rating) */
+.info-detail {
+  display: flex;
+  font-size: 1vw;
+  margin: 5vh 0;
+  opacity: .8;
+}
+
+.info-detail span {
+  margin-right: 10px;
+  background: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  /* font-size: 0.9rem; */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  margin-right: 1vw;
+}
+
+.info-detail span i {
+  margin: 0 3px 0 0;
+  display: flex;
+}
+
+/* 🔥 Buttons (Watch & Trailer) */
+.buttons-detail {
+  display: flex;
+  margin-top: 40px;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* 🔥 Button Styling */
+.detail-play-button {
+  align-items: center;
+  background: linear-gradient(45deg, #0000, #f90000b5);
+  border: 2px solid #fff;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-size: 1.2vw;
+  margin: 7px;
+  padding: 1em;
+  text-transform: uppercase;
+  transition: scale .3s ease-in-out;
+  width: 10em;
+  justify-content: center;
+}
+
+
+/* 🔥 Button Focus (for TV Remote Navigation) */
+.detail-play-button-focus {
+  font-weight: 700;
+  background: white;
+  color: black
+}
+
+.detail-play-button .focusableButton_icon {
+  margin-right: 10px;
+  color: white;
+}
+
+.detail-play-button-focus .focusableButton_icon {
+  color: black;
+}
+
+
+
+/* ⭐ Star Cast Section */
+.start-cast-container {
+  width: 100%;
+  max-width: 1100px;
+  text-align: left;
+  padding: 30px;
+  margin-top: 30px;
+}
+
+.start-cast-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid red;
+  display: inline-block;
+}
+
+
+.bottom-content-details {
+  z-index: 2;
+  position: absolute;
+  bottom: 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding-left: 50px;
+}
+
+.details-dummy-buttons-wrapper {
+  display: flex;
+  position: fixed;
+  bottom: 5%;
+  padding: 0px 80px;
+}
+
+.details-dummy-buttons {
+  display: flex;
+  font-weight: 700;
+  margin: 10px;
+  font-size: 1.4vw;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 2px;
+  padding: 8px;
+  border-radius: 4px;
+  color: white
+}
+
+.details-dummy-buttons-focused {
+  border-color: white;
+}
+
+.related-content-detail {
+  margin-left: 40px;
+}
+
+.btn-bottom-detail {
+  color: white;
+  border-width: 1px;
+  border-color: transparent;
+  border-style: solid;
+  border-radius: 4px;
+  padding: 10px;
+  font-weight: 700;
+
+}
+
+.btn-bottom-detail-focused {
+  border-color: white;
+}
+
+/*  Shimmer Loading */
+.shimmer-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.details-shimmer {
+  padding: 20px 40px;
+}
+
+
+
+.shimmer {
+  background: linear-gradient(to right, #222 8%, #333 18%, #222 33%);
+  background-size: 800px 104px;
+  animation: shimmer 1.2s infinite linear;
+  border-radius: 5px;
+}
+
+.shimmer.title {
+  width: 80%;
+  height: 40px;
+}
+
+.shimmer.description {
+  width: 100%;
+  height: 80px;
+}
+
+.shimmer.info {
+  width: 60%;
+  height: 20px;
+}
+
+.shimmer.buttons {
+  width: 200px;
+  height: 40px;
+}
+
+.shimmer-image-container {
+  display: flex;
+  flex: 1;
+  justify-content: end;
+}
+
+.shimmer-content-container {
+  display: flex;
+  width: 35%;
+  margin-top: 25%;
+  flex-direction: column;
+}
+
+.shimmer.image {
+  width: 500px;
+  height: 500px;
+  margin-right: 10%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -800px 0;
+  }
+
+  100% {
+    background-position: 800px 0;
+  }
+}
+
+.error-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.error-container .error-icon {
+  display: flex;
+  color: #bc0606;
+  justify-content: center;
+  align-items: center;
+  font-size: 8vw;
+}
+
+.error-container .error-message {
+  display: flex;
+  color: white;
+  justify-content: center;
+  align-items: center;
+  font-size: 3vw;
+  margin: 1vw 0;
+}
+
+.btn-error-return {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 1.5vw;
+  border: 2px solid white;
+  padding: 13px;
+  border-radius: 14px;
+  background-color: #333
+}
+
+.btn-error-focused {
   color: black;
   background-color: white;
   border-color: #333;
+}
+
+.round-focusable-button {
+  height: 4vw !important;
+  width: 4vw !important;
+}
+
+.round-focusable-button .focusableButton_icon-tooltip-button {
+  font-size: 2.5vw !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }

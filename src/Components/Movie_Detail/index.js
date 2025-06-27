@@ -102,11 +102,13 @@ function Movie_Detail() {
                                         icon={<MdOutlineRestartAlt />}
                                         text={'Start Over'}
                                         onEnterPress={()=>{watchMovie(false,false)}}
+                                        className="round-focusable-button"
                                     />}
                                     {isMediaPublished ? (<FocusableButtonIconTooltip
                                         icon={<MdMovie />}
                                         text={'Watch Trailer'}
                                         onEnterPress={()=>{watchMovie(true,false)}}
+                                        className="round-focusable-button"
                                     />):(<FocusableButton
                                         key={'detail_watch_trailer'}
                                         icon={<FaPlay />}
@@ -119,6 +121,7 @@ function Movie_Detail() {
                                         icon={isMediaFavourite ? <IoHeartSharp /> : <MdAdd />}
                                         text={isMediaFavourite ? 'Remove From Wishlist' : 'Add To Wishlist'}
                                         onEnterPress={updateMediaWishlistStatus}
+                                        className="round-focusable-button"
                                     />
                                 </div>
 

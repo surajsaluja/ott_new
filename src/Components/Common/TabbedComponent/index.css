@@ -2,8 +2,9 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding: 10px;
+  height: 100%;
 }
 
   .tabbedContent-tabs-wrapper{
@@ -17,7 +18,7 @@
     display: flex;
     font-weight: 700;
     margin: 10px;
-    font-size: 1.2rem;
+    font-size: 1.5vw;
     border-style: solid;
     border-color: transparent;
     border-width: 2px;
@@ -32,7 +33,7 @@
     color: var(--BTN-WHITE3);
     font-weight: var(--BUTTON1-MEDIUM-WEIGHT);
     line-height: var(--BUTTON1-MEDIUM-HEIGHT);
-    font-size: 26px;
+    /* font-size: 26px; */
   }
 
   .tabbedContent-tab-focused{
@@ -49,15 +50,13 @@
     flex: 1 1 auto;
     display: flex;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
   
   .tabbedContent-window-slider {
-    flex: 1 1 auto;
-    display: flex;
     overflow: hidden;
-    height: 100%;
-    margin: 20px 5px 30px 20px;
+    height: 90%;
+
   }
   
   .tabbedContent-tab-detail {
@@ -65,6 +64,6 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
     padding: 0 0 1rem 0;
   }
