@@ -7,21 +7,18 @@ import { UserProvider } from "./Context/userContext";
 import { ModalProvider } from "./Context/modalContext";
 import { BackHandlerProvider } from "./Context/BackHandlerContext";
 import { BrowserRouter as Router } from "react-router-dom";
-import { WebSeriesProvider } from "./Context/WebSeriesContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Router>
-      <UserProvider>
-        <WebSeriesProvider>
-          <ModalProvider>
-            <BackHandlerProvider>
-              <App />
-            </BackHandlerProvider>
-          </ModalProvider>
-        </WebSeriesProvider>
-      </UserProvider>
+    <UserProvider>
+      <BackHandlerProvider>
+        <ModalProvider>
+          <App />
+        </ModalProvider>
+      </BackHandlerProvider>
+    </UserProvider>
     </Router>
   </React.StrictMode>
 );
