@@ -85,25 +85,6 @@
     font-size: 2vw;
 } */
 
-.skip-button{
-  background-color: red;
-  color: white;
-    position: absolute;
-    bottom: 100px;
-    right: 50px;
-    display: flex;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: 700;
-    border-width: 3px;
-    border-style: solid;
-    border-color: transparent;
-}
-
-.skip-button-focused{
-  border-color: white;
-}
-
 .play-icon {
   position: absolute;
   top: 50%;

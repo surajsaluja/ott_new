@@ -161,3 +161,22 @@
   width: 0%;
   /* Initial width */
 }
+
+.skip-button{
+  background-color: rgba(115, 133, 159, 0.5);
+  color: white;
+    position: absolute;
+    bottom: 100px;
+    right: 50px;
+    display: flex;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    border-width: 3px;
+    border-style: solid;
+    border-color: transparent;
+}
+
+.skip-button-focused{
+  background-color: red !important;
+}
