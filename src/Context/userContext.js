@@ -113,7 +113,7 @@ export const UserProvider = ({ children }) => {
             setIsUserSubscribed(true);
         }
         else if (response && response.statusCode == 401){
-            endAppSession();
+            saveAppSession();
             setIsUserSubscribed(false);
         }
         else {
@@ -142,7 +142,7 @@ const startAppSession = async () => {
     }
 };
 
-const endAppSession = async () => {
+const saveAppSession = async () => {
 
     if (sessionId && sessionStartTime) {
         const sessionEndTime = new Date();
@@ -150,7 +150,7 @@ const endAppSession = async () => {
             "TokenId": localStorage.getItem('userObjectId'),
             "StartTime": sessionStartTime,
             "EndTime": sessionEndTime,
-            "DeviceId": deviceInfo.deviceID,
+            "DeviceId": deviceInfo.deviceId,
             "DeviceName": deviceInfo.deviceName,
             "AppSessionId": sessionId,
             "DeviceType": 5
@@ -198,7 +198,7 @@ const logout = async () => {
 
         const response = await logoutTv(data);
         if (response && response.isSuccess) {
-            endAppSession();
+            saveAppSession();
         }
     }
 
@@ -227,7 +227,7 @@ return (
             isUserSubscribed,
             startAppSession,
             fetchUserProfileData,
-            endAppSession,
+            saveAppSession,
             handleOTPLogin,
             logout,
             getUserSubscriptionStatus,
