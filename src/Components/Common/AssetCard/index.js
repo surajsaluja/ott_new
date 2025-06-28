@@ -29,7 +29,8 @@ const AssetCard = ({
     handleLoad,
     handleError,
     ref,
-    focused
+    focused,
+    cachedImage
   } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress);
 
 
@@ -64,10 +65,11 @@ const AssetCard = ({
                 <img
                   ref={imgRef}
                   className={`card-image ${focused ? 'focused' : ''}`}
-                  src={imageUrl}
+                  src={cachedImage ? cachedImage.src : imageUrl}
                   alt={assetData.title}
-                  onLoad={handleLoad}
-                  onError={handleError}
+                  loading="lazy"
+                  onLoad={cachedImage ? undefined :  handleLoad}
+                  onError={cachedImage ? undefined : handleError}
                   style={{
                     display: isLoaded ? 'block' : 'none',
                   }}
