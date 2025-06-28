@@ -1,39 +1,49 @@
-import { useRef,useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { useUserContext } from "../../../Context/userContext";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { fetchBannersBySection, fetchPlaylistPage, fetchContinueWatchingData } from "../../../Service/MediaService";
-import { getProcessedPlaylists, getProcessedPlaylistsWithContinueWatch } from "../../../Utils";
+import {
+  fetchBannersBySection,
+  fetchPlaylistPage,
+  fetchContinueWatchingData
+} from "../../../Service/MediaService";
+import {
+  getProcessedPlaylists,
+  getProcessedPlaylistsWithContinueWatch,
+  showModal
+} from "../../../Utils";
 import { useThrottle } from "../../../Utils";
 import { useHistory } from "react-router-dom";
-import { showModal } from "../../../Utils";
-import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
+import {
+  getCache,
+  setCache,
+  hasCache,
+  CACHE_KEYS
+} from "../../../Utils/DataCache";
 
-export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
+export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const {
     ref,
     focusKey: currentFocusKey,
-    hasFocusedChild,
+    hasFocusedChild
   } = useFocusable({
     focusKey,
     trackChildren: true,
     saveLastFocusedChild: false,
-    onFocus,
+    onFocus
   });
 
   const [focusedAssetData, setFocusedAssetData] = useState(null);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingPagingRows,setIsLoadingPagingRows] = useState(false);
+  const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
   const [banners, setBanners] = useState([]);
   const horizontalLimit = 10;
   const [page, setPage] = useState(1);
+
   const { uid, isLoggedIn, userObjectId } = useUserContext();
-
-
-  const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
-  const SETTLE_DELAY = 200;
-
   const history = useHistory();
+  const settleTimerRef = useRef(null);
+  const SETTLE_DELAY = 200;
 
   useEffect(() => {
     loadInitialData();
@@ -42,23 +52,48 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
     };
   }, [category]);
 
+  const getCategoryKeys = () => {
+    switch (category) {
+      case 1: return CACHE_KEYS.MOVIE_PAGE;
+      case 2: return CACHE_KEYS.WEBSERIES_PAGE;
+      case 5: return CACHE_KEYS.HOME_PAGE;
+      default: return null;
+    }
+  };
+
   const loadInitialData = async () => {
     setIsLoading(true);
     try {
-      const bannerData = await fetchBannersBySection(category);
-      if (bannerData) {
-        setBanners(bannerData?.data);
+      let processed = [];
+      const cacheKeyGroup = getCategoryKeys();
+
+      if (cacheKeyGroup && hasCache(cacheKeyGroup.HOME_DATA) && hasCache(cacheKeyGroup.BANNERS_DATA)) {
+        processed = getCache(cacheKeyGroup.HOME_DATA);
+        setBanners(getCache(cacheKeyGroup.BANNERS_DATA));
+      } else {
+        const bannerData = await fetchBannersBySection(category);
+        const playlistData = await fetchPlaylistPage(category, 1, uid);
+        const processedPlaylists = getProcessedPlaylists(playlistData, horizontalLimit);
+
+        if (cacheKeyGroup) {
+          setCache(cacheKeyGroup.HOME_DATA, processedPlaylists);
+          setCache(cacheKeyGroup.BANNERS_DATA, bannerData?.data || []);
+        }
+
+        setBanners(bannerData?.data || []);
+        processed = processedPlaylists;
       }
 
-      const playlistData = await fetchPlaylistPage(category, 1, uid);
-      let processed = getProcessedPlaylists(playlistData, horizontalLimit);
+      //Remove stale continue-watching row if any
+      processed = processed.filter(row => !row?.isContinueWatching);
 
-      if (isLoggedIn && uid && category == 5) {
-        const continueWatchlistData = await fetchContinueWatchingData(isLoggedIn ? uid : 0);
+      // Always fetch fresh continueWatching data if category === 5 (home page)
+      if (isLoggedIn && uid && category === 5) {
+        const continueWatchlistData = await fetchContinueWatchingData(uid);
         processed = getProcessedPlaylistsWithContinueWatch(processed, continueWatchlistData);
       }
 
-      setPage(1); // initially setting page to 1
+      setPage(1);
       setData(processed);
     } catch (e) {
       console.error("Failed to load homepage", e);
@@ -73,8 +108,8 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
     try {
       const raw = await fetchPlaylistPage(category, page + 1, uid);
       const processed = getProcessedPlaylists(raw, horizontalLimit);
-      setData((prev) => [...prev, ...processed]);
-      setPage((prev) => prev + 1);
+      setData(prev => [...prev, ...processed]);
+      setPage(prev => prev + 1);
     } catch (e) {
       console.error("Pagination error", e);
     } finally {
@@ -83,40 +118,34 @@ export const useContentWithBanner = (onFocus,category = 5, focusKey) => {
   }, 1000);
 
   const handleAssetFocus = useCallback((asset) => {
-    // Cancel any pending update
     if (settleTimerRef.current) {
       clearTimeout(settleTimerRef.current);
     }
-
-    // Fire a new timer
     settleTimerRef.current = setTimeout(() => {
-      setFocusedAssetData(asset);      // <-- update happens only after the delay
-      settleTimerRef.current = null;   // clean up
+      setFocusedAssetData(asset);
+      settleTimerRef.current = null;
     }, SETTLE_DELAY);
   }, []);
 
-  
   const redirectToLogin = () => {
     history.push('/login', { from: '/' });
   };
 
   const onAssetPress = (item) => {
     if (isLoggedIn && userObjectId) {
-      if(item?.assetData?.isSeeMore && item?.assetData?.isSeeMore === true){
-        history.push('/seeAll',{playListId : item?.assetData?.playListId, playListName : '' })
+      if (item?.assetData?.isSeeMore === true) {
+        history.push('/seeAll', {
+          playListId: item?.assetData?.playListId,
+          playListName: ''
+        });
+      } else {
+        history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
       }
-      else{
-      history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
-      }
-        }
-        else {
-          showModal('Login',
-            'You are not logged in !!',
-            [
-              { label: 'Login', action: redirectToLogin, className: 'primary' }
-            ]
-          );
-        }
+    } else {
+      showModal('Login', 'You are not logged in !!', [
+        { label: 'Login', action: redirectToLogin, className: 'primary' }
+      ]);
+    }
   };
 
   return {

@@ -1,12 +1,13 @@
-import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import React, { useEffect, useState, useCallback } from 'react';
+import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { useHistory } from 'react-router-dom';
 import { SearchKeyboard } from './Keyboard';
 import FullPageAssetContainer from '../Common/FullPageAssetContainer';
-import './index.css';
 import { fetchSearchContentResult, fetchTrendingSearch } from '../../Service/MediaService';
-import { useHistory } from 'react-router-dom';
 import { showModal, getCategoryIdByCategoryName } from '../../Utils';
 import { useUserContext } from '../../Context/userContext';
+import { getCache, setCache, CACHE_KEYS } from '../../Utils/DataCache';
+import './index.css';
 
 const SEARCH_PAGE_SIZE = 10;
 
@@ -16,23 +17,32 @@ function SearchScreen({ focusKey }) {
   const [inputQuery, setInputQuery] = useState('');
   const [pageNum, setPageNum] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
   const history = useHistory();
-  const{isLoggedIn, userObjectId} = useUserContext();
+  const { isLoggedIn, userObjectId } = useUserContext();
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusKey,
-    focusable: true
+    focusable: true,
   });
 
-  // Fetch trending search
   const loadTrendingSearchResult = async () => {
+    const cachedData = getCache(CACHE_KEYS.SEARCH.TRENDING_SEARCH);
+    if (cachedData) {
+      setSearchData(cachedData);
+      setHasMore(false);
+      return;
+    }
+
     setIsLoading(true);
     setSearchData([]);
     setPageNum(1);
+
     try {
       const response = await fetchTrendingSearch();
       if (response?.isSuccess) {
         setSearchData(response.data);
+        setCache(CACHE_KEYS.SEARCH.TRENDING_SEARCH, response.data);
         setHasMore(false);
       } else {
         throw new Error(response.message);
@@ -44,7 +54,6 @@ function SearchScreen({ focusKey }) {
     }
   };
 
-  // Initial + Paginated search
   const loadSearchData = async (page = 1) => {
     if (inputQuery.length === 0) return;
 
@@ -57,7 +66,7 @@ function SearchScreen({ focusKey }) {
       const response = await fetchSearchContentResult(inputQuery, page, SEARCH_PAGE_SIZE);
       if (response?.isSuccess) {
         const newData = response.data;
-        setSearchData(prev => page === 1 ? newData : [...prev, ...newData]);
+        setSearchData(prev => (page === 1 ? newData : [...prev, ...newData]));
         setHasMore(newData.length === SEARCH_PAGE_SIZE);
         setPageNum(page);
       } else {
@@ -70,12 +79,10 @@ function SearchScreen({ focusKey }) {
     }
   };
 
-  // Load on first mount
   useEffect(() => {
     loadTrendingSearchResult();
   }, []);
 
-  // Re-query when text changes
   useEffect(() => {
     if (inputQuery.length > 0) {
       loadSearchData(1);
@@ -84,7 +91,6 @@ function SearchScreen({ focusKey }) {
     }
   }, [inputQuery]);
 
-  // Load more on scroll
   const loadMoreRows = async () => {
     if (isLoading || !hasMore) return;
     const nextPage = pageNum + 1;
@@ -108,23 +114,19 @@ function SearchScreen({ focusKey }) {
   };
 
   const redirectToLogin = () => {
-         history.push('/login', { from: '/' });
-     };
- 
-     const onAssetPress = useCallback((assetData) => {
-         if (isLoggedIn && userObjectId) {
-             const categoryId = getCategoryIdByCategoryName(assetData?.category);
-             history.push(`/detail/${categoryId}/${assetData?.mediaID}`);
-         }
-         else {
-             showModal('Login',
-                 'You are not logged in !!',
-                 [
-                     { label: 'Login', action: redirectToLogin, className: 'primary' }
-                 ]
-             );
-         }
-     }, [history]);
+    history.push('/login', { from: '/' });
+  };
+
+  const onAssetPress = useCallback((assetData) => {
+    if (isLoggedIn && userObjectId) {
+      const categoryId = getCategoryIdByCategoryName(assetData?.category);
+      history.push(`/detail/${categoryId}/${assetData?.mediaID}`);
+    } else {
+      showModal('Login', 'You are not logged in !!', [
+        { label: 'Login', action: redirectToLogin, className: 'primary' },
+      ]);
+    }
+  }, [isLoggedIn, userObjectId, history]);
 
   return (
     <FocusContext.Provider value={currentFocusKey}>

@@ -17,7 +17,7 @@ export const API = {
         LOGIN: 'LiveTV/TVLogin',
         POST_USERACCOUNT_STATUS: 'Account/GetUserAccountStatusv2',
         POST_APPSESSION: 'LiveTV/AppProgress',
-        GET_APIKEY: 'Account/GetApikeyV2',
+        GET_APIKEY: 'Account/GetApikeyNew',
         GET_USERACTIVE_INDICATOR: 'User/GetUserActiveIndicator',
         POST_LOGOUT_DEVICE: 'Account/LogoutDevice',
         GET_USER_PROFILE: 'LiveTV/Profile',

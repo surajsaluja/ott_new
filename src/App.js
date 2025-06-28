@@ -19,10 +19,14 @@ function App() {
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
 
+  const initialiseSession = async ()=>{
+    await fetchApiKeyAndSetSession();
+      hasInitializedSession.current = true;
+  }
+
   useEffect(() => {
     if (isOnline && !hasInitializedSession.current) {
-      fetchApiKeyAndSetSession();
-      hasInitializedSession.current = true;
+      initialiseSession();
     }
   }, [isOnline, fetchApiKeyAndSetSession]);
 

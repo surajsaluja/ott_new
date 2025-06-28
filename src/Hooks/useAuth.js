@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { fetchApiKey} from "../Service/AuthService";
+import { fetchApiKeyandAppFeatures} from "../Service/AuthService";
 import { useUserContext } from "../Context/userContext";
+import { CACHE_KEYS, getCache, setCache } from "../Utils/DataCache";
 
 const useAuth = () => {
     
@@ -11,16 +12,28 @@ const useAuth = () => {
         const fetchAndSetApiKey = async () => {
             setIsLoadingSession(true);
             try {
-                const apikeyRes = await fetchApiKey();
+                const cached = getCache(CACHE_KEYS.API_KEY.API_KEY_DATA);
+                if(cached){
+                    return;
+                }
+
+                const apikeyRes = await fetchApiKeyandAppFeatures();
                 if (apikeyRes && apikeyRes.apiKey) {
                     localStorage.setItem('apiKey', apikeyRes.apiKey);
                     setApiKey(apikeyRes.apiKey);
+                    setCache(CACHE_KEYS.API_KEY.API_KEY_DATA,apikeyRes.apiKey);
                 }
                 if (apikeyRes && apikeyRes.appIdleTime) {
-                    localStorage.setItem('appIdleTime', apikeyRes.appIdleTime)
+                    localStorage.setItem('appIdleTime', apikeyRes.appIdleTime);
+                    setCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME,apikeyRes.appIdleTime);
+
                 }
                 if (apikeyRes && apikeyRes.minVersion) {
                     checkAppVersion(apikeyRes.minVersion);
+                    setCache(CACHE_KEYS.API_KEY.APP_MIN_VERSION,apikeyRes.minVersion);
+                }
+                if(apikeyRes && apikeyRes.menu){
+                    setCache(CACHE_KEYS.MENU.MENU_DATA,apikeyRes.menu);
                 }
             } catch (error) {
                 console.error('Failed to fetch and set API key:', error);

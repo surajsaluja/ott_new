@@ -12,14 +12,22 @@ const ThrowError = (functionName, error) => {
   };
 
 
-  export const fetchApiKey = async () => {
+  export const fetchApiKeyandAppFeatures = async () => {
     try {
       const response = await fetchData(API.AUTH.GET_APIKEY, { requireApiKey: false });
       if (response?.isSuccess) {
-        const { apiKey, appIdleTime, minVersions } = response.data;
+        const { apiKey, appIdleTime, minVersions, isTVEnabled, isRadioEnabled, isVODEnabled, isMovieEnabled, isWebseriesEnabled, isGoogleCastEnabled } = response.data;
         return {
           apiKey,
           appIdleTime,
+          menu:{
+            isTVEnabled,
+            isRadioEnabled,
+            isVODEnabled,
+            isMovieEnabled,
+            isWebseriesEnabled,
+            isGoogleCastEnabled
+          },
           minVersion: minVersions?.result?.data?.min_tizen,
         };
       }
