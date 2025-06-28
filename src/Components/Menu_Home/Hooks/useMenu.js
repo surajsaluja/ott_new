@@ -136,7 +136,7 @@ const useMenu = (activeTabId, focusKey) => {
       } else {
         const response = await fetchAppFeatures();
         if (response?.isSuccess && response?.data) {
-          const features = response.data;
+          features = response.data;
         }
       }
       const filteredMenu = menu.filter((item) => features[item.permission]);

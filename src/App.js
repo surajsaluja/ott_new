@@ -62,7 +62,7 @@ useEffect(() => {
   return () => window.removeEventListener('keydown', onKeyDown, true);
 }, [handleBackPress]);
 
-  if (isLoadingSession || !hasInitializedSession.current) {
+  if (isLoadingSession) {
     return (
       <div className='App'>
         <p className='loading'>Loading ....</p>

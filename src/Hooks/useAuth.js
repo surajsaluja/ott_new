@@ -6,7 +6,7 @@ import { CACHE_KEYS, getCache, setCache } from "../Utils/DataCache";
 const useAuth = () => {
     
     const [apiKey, setApiKey] = useState();
-    const[IsLoadingSession,setIsLoadingSession] = useState(true);
+    const[isLoadingSession,setIsLoadingSession] = useState(true);
     const {logout,startAppSession,getUserAccountStatus,fetchUserProfileData} = useUserContext(); 
     useEffect(() => {
         const fetchAndSetApiKey = async () => {
@@ -99,7 +99,7 @@ const useAuth = () => {
     return {
         fetchApiKeyAndSetSession,
         apiKey,
-        IsLoadingSession
+        isLoadingSession
     };
 }
 
