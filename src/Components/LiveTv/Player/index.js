@@ -10,6 +10,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 import Spinner from '../../Common/Spinner';
 import { FaPause, FaPlay } from 'react-icons/fa6';
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../Utils/DataCache';
 
 const LIVE_TV_PLAYER_FOCUSKEY = 'LIVE_TV_FOCUSKEY'
 const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY_FOCUSKEY'
@@ -230,6 +231,7 @@ function LiveTvPlayer() {
     }, [src]);
 
     useEffect(() => {
+        setCache(CACHE_KEYS.CURRENT_SCREEN,SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE);
         if (videoRef && videoRef.current) {
             const video = videoRef.current;
 

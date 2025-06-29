@@ -8,7 +8,8 @@ import {
   getCache,
   setCache,
   hasCache,
-  CACHE_KEYS
+  CACHE_KEYS,
+  SCREEN_KEYS
 } from '../../../../Utils/DataCache';
 
 const WISHLIST_PAGE_SIZE = 10;
@@ -65,6 +66,7 @@ const useWishList = (focusKey) => {
   };
 
   useEffect(() => {
+    setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.FAVORITES_HOME_PAGE);
     loadFavouriteData(1);
   }, []);
 

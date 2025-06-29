@@ -12,6 +12,7 @@ import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 import { useUserContext } from "../../../Context/userContext";
 import { showModal } from "../../../Utils";
 import { clearWebSeriesCache } from "../../../Utils/WebSeriesUtils";
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../../Utils/DataCache";
 
 const useMediaDetail = (mediaId, categoryId, focusKey) => {
     // References for Focusable
@@ -127,6 +128,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     const fetchMediaDetail = async (mediaId) => {
         try {
+            setCache(CACHE_KEYS.CURRENT_SCREEN,categoryId == 1 ? SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE : SCREEN_KEYS.DETAILS.WEBSERIES_DETAIL_PAGE);
             setIsLoading(true);
             const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId);
             if (mediaDetailsResponse.isSuccess) {

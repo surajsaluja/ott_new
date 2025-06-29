@@ -17,7 +17,8 @@ import {
   getCache,
   setCache,
   hasCache,
-  CACHE_KEYS
+  CACHE_KEYS,
+  SCREEN_KEYS
 } from "../../../Utils/DataCache";
 
 export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
@@ -61,11 +62,21 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     }
   };
 
+  const getCurrentScreenKey = () => {
+    switch (category) {
+      case 1: return SCREEN_KEYS.HOME.MOVIES_HOME_PAGE;
+      case 2: return SCREEN_KEYS.HOME.WEBSERIES_HOME_PAGE;
+      case 5: return SCREEN_KEYS.HOME.HOME_PAGE;
+      default: return null;
+    }
+  };
+
   const loadInitialData = async () => {
     setIsLoading(true);
     try {
       let processed = [];
       const cacheKeyGroup = getCategoryKeys();
+      setCache(CACHE_KEYS.CURRENT_SCREEN,getCurrentScreenKey());
 
       if (cacheKeyGroup && hasCache(cacheKeyGroup.HOME_DATA) && hasCache(cacheKeyGroup.BANNERS_DATA)) {
         processed = getCache(cacheKeyGroup.HOME_DATA);

@@ -5,6 +5,7 @@ import { fetchAllLiveTvSchedule } from '../../../../Service/LiveTVService';
 import { useHistory, useLocation } from 'react-router-dom';
 import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
 import { getTokenisedTvMedia } from '../../../../Utils/MediaDetails';
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
 
 const useLiveTvChannelPage = (focusKey,) => {
 
@@ -83,6 +84,7 @@ const useLiveTvChannelPage = (focusKey,) => {
   }
 
   useEffect(() => {
+    setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.DETAILS.LIVE_TV_DETAIL_PAGE);
     const loadProgrammesFromServer = async () => {
       const data = {
         "TvId": channelData.id,

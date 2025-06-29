@@ -20,6 +20,7 @@ import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 import Spinner from "../Common/Spinner";
 import { FaForward, FaPause, FaPlay } from "react-icons/fa6";
 import {getMediaDetailWithTokenisedMedia} from '../../Utils/MediaDetails'
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../Utils/DataCache";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const THUMBNAIL_STRIP_FOCUSKEY = "STRIP_THUMBNAIL";
@@ -589,6 +590,8 @@ useOverrideBackHandler(() => {
       } else if (playCapability == false) {
         setStreamLimitError(true);
       }
+
+      setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.PLAYER.MOVIES_PLAYER_PAGE);
 
       return () => {
         video?.hls?.destroy();

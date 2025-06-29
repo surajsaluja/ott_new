@@ -10,6 +10,7 @@ import {
   setCache,
   hasCache,
   CACHE_KEYS,
+  SCREEN_KEYS,
 } from "../../../../Utils/DataCache"; 
 
 export const useLiveTv = (focusKey) => {
@@ -29,6 +30,8 @@ export const useLiveTv = (focusKey) => {
   const loadInitialData = async () => {
     const HOME_KEY = CACHE_KEYS.LIVE_TV_PAGE.HOME_DATA;
     const BANNERS_KEY = CACHE_KEYS.LIVE_TV_PAGE.BANNERS_DATA;
+
+    setCache(CACHE_KEYS.CURRENT_SCREEN,SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE);
 
     if (hasCache(HOME_KEY) && hasCache(BANNERS_KEY)) {
       setLiveTvHomePageData(getCache(HOME_KEY));

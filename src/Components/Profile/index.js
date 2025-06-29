@@ -5,6 +5,7 @@ import './index.css'
 import FocusableButton from '../Common/FocusableButton';
 import { kableOneLogo } from '../../assets';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../Utils/DataCache';
 
 function ProfileHomePage({ focusKey }) {
     const { isLoggedIn, uid, profileInfo, logout } = useUserContext();
@@ -13,6 +14,10 @@ function ProfileHomePage({ focusKey }) {
     useEffect(()=>{
         focusSelf();
     },[focusSelf])
+    
+    useEffect(()=>{
+        setCache(CACHE_KEYS.CURRENT_SCREEN,SCREEN_KEYS.HOME.PROFILE_HOME_PAGE);
+    },[])
     
     function getFormattedDate(dateString) {
         const date = new Date(dateString);

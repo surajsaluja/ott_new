@@ -8,7 +8,8 @@ import {
   getCache,
   setCache,
   hasCache,
-  CACHE_KEYS
+  CACHE_KEYS,
+  SCREEN_KEYS
 } from "../../../../Utils/DataCache";
 
 export const useRadioHomePage = (focusKey) => {
@@ -35,6 +36,8 @@ export const useRadioHomePage = (focusKey) => {
 
   const loadInitialData = async () => {
     const { HOME_DATA, BANNERS_DATA } = CACHE_KEYS.RADIO;
+
+    setCache(CACHE_KEYS.CURRENT_SCREEN,SCREEN_KEYS.HOME.RADIO_HOME_PAGE);
 
     // Use cached data if available
     if (hasCache(HOME_DATA) && hasCache(BANNERS_DATA)) {

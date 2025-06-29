@@ -5,6 +5,7 @@ import { showModal } from '../../../../Utils';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useHistory, useLocation } from 'react-router-dom';
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
 
 const PLAYLIST_PAGE_SIZE = 10;
 
@@ -51,6 +52,7 @@ const useSeeAllPage = (focusKey) => {
     };
 
     useEffect(() => {
+        setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE);
         loadPlayListData(1);
     }, []);
 

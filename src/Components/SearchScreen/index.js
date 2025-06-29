@@ -6,7 +6,7 @@ import FullPageAssetContainer from '../Common/FullPageAssetContainer';
 import { fetchSearchContentResult, fetchTrendingSearch } from '../../Service/MediaService';
 import { showModal, getCategoryIdByCategoryName } from '../../Utils';
 import { useUserContext } from '../../Context/userContext';
-import { getCache, setCache, CACHE_KEYS } from '../../Utils/DataCache';
+import { getCache, setCache, CACHE_KEYS, SCREEN_KEYS } from '../../Utils/DataCache';
 import './index.css';
 
 const SEARCH_PAGE_SIZE = 10;
@@ -80,6 +80,7 @@ function SearchScreen({ focusKey }) {
   };
 
   useEffect(() => {
+    setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.SEARCH_HOME_PAGE);
     loadTrendingSearchResult();
   }, []);
 

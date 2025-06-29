@@ -6,6 +6,7 @@ import Spinner from '../../Common/Spinner';
 import './index.css'
 import { MdArrowBack, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
 import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
+import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../Utils/DataCache';
 
 export default function RadioPlayer({ focusKey }) {
 
@@ -59,6 +60,7 @@ export default function RadioPlayer({ focusKey }) {
     }
 
     useEffect(() => {
+        setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.PLAYER.RADIO_PLAYER_PAGE);
         const audio = audioRef.current;
         if (!audio) return;
 
