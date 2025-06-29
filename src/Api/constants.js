@@ -73,6 +73,9 @@ export const API = {
     },
     SEE_ALL_PLAYLIST_DATA:{
         FETCH_PLAYLIST_DATA:(playListId,page,pageSize,userId,language,culture,genre)=>
-            `/Content/GetPlaylistItems/${playListId}/${page??DEFAULTS.PAGE}/${pageSize??DEFAULTS.PAGE_SIZE}/${userId ?? DEFAULTS.USER_ID}/${language ?? DEFAULTS.LANGUAGE_CODE}/${culture}/${genre}`
+            `Content/GetPlaylistItems/${playListId}/${page??DEFAULTS.PAGE}/${pageSize??DEFAULTS.PAGE_SIZE}/${userId ?? DEFAULTS.USER_ID}/${language ?? DEFAULTS.LANGUAGE_CODE}/${culture}/${genre}`
+    },
+    SCREENSAVER:{
+        FETCH_SCREENSAVER_CONTENT: `Content/GetScreenSaverContent`
     }
 };

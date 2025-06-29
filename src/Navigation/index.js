@@ -12,12 +12,14 @@ import LiveTvChannelPage from "../Components/LiveTv/ChannelPage";
 import LiveTvPlayer from "../Components/LiveTv/Player";
 import RadioPlayer from "../Components/Radio/Player";
 import SeeAllPlaylistContentHomePage from "../Components/SeeAll/HomePage";
+import Screensaver from "../Components/ScreenSaver";
 
 const AppNavigation = () => {
   return (
       <Switch>
         <Route path="/login" component={LoginScreen} />
         <Route path="/test" component={TestComp} />
+        <Route path="/screensaver" component={Screensaver}/>
 
         {/* Dynamic route for details page */}
         <PrivateRoute path="/detail/:categoryId/:mediaId" component={Movie_Detail} />

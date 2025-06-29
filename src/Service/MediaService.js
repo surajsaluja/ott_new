@@ -246,3 +246,13 @@ export const fetchPlayListContent = async(playListId, page, pageSize)=>{
     }
 }
 
+export const fetchScreenSaverContent = async()=>{
+    try {
+        const response = await fetchData(API.SCREENSAVER.FETCH_SCREENSAVER_CONTENT);
+        return response;
+
+    } catch (error) {
+        return ThrowError("fetchTrendingSearch", error);
+    }
+}
+
