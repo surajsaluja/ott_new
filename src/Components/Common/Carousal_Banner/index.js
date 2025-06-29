@@ -1,6 +1,7 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import './index.css'
+import { sanitizeAndResizeImage } from '../../../Utils';
 
 export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, onBannerFocus = () => {}, focusKey }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,7 +58,7 @@ export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, 
     );
   }
 
-  const currentImageUrl = data[currentIndex]?.bannerImage;
+  const currentImageUrl = sanitizeAndResizeImage(data[currentIndex]?.bannerImage,1280);
   const imageSrc = imageCacheRef.current[currentImageUrl]?.src || currentImageUrl;
 
   return (
@@ -77,24 +78,3 @@ export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, 
     </FocusContext.Provider>
   );
 }
-
-const styles = {
-  sliderContainer: {
-    width: '100%',
-    backgroundColor: '#000',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    outline: 'none',
-    boxSizing: 'border-box',
-    padding : '10px'
-  },
-  image: {
-    maxWidth: '100%',
-    maxHeight: '100%',
-    borderRadius: '12px',
-    objectFit: 'cover',
-    transition: 'transform 0.3s ease',
-  },
-};
