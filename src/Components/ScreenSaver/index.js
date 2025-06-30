@@ -1,62 +1,49 @@
-
 import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
-import './index.css'; // Make sure all styles are moved here
+import './index.css';
 import useScreenSaver from './Hooks/useScreenSaver';
+import FocusableButton from '../Common/FocusableButton';
 
 const Screensaver = () => {
-
   const {
-      ref,
-        currentFocusKey,
-        currentIndex,
-        screensaverResources
+    ref,
+    currentFocusKey,
+    currentIndex,
+    screensaverResources
   } = useScreenSaver();
- 
+
+  const current = screensaverResources[currentIndex];
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className="screensaver" ref={ref}>
-        {screensaverResources && screensaverResources.length > 0  && 
-          <div
-            className={`screen-item active `}
-            key={screensaverResources[currentIndex].title}
-          >
-            <img src={screensaverResources[currentIndex].fullPageBanner} alt={screensaverResources[currentIndex].title} />
-            <div className="info">
-              <h1 className="montserrat-extrabold">{screensaverResources[currentIndex].title}</h1>
-              <ul className="genres">
-                {screensaverResources[currentIndex].genre?.split(',').map((gr, i) => (
+          {current && <div className="screen-saver-screen-item active" key={current.title}>
+            <img src={current.fullPageBanner} alt={current.title} />
+            <div className="screen-saver-info">
+              <h1 className="montserrat-extrabold">{current.title}</h1>
+              <ul className="screen-saver-genres">
+                {current.genre?.split(',').map((gr, i) => (
                   <li key={i} className={i > 0 ? 'with-dot' : ''}>{gr}</li>
                 ))}
               </ul>
-              <h2>{screensaverResources[currentIndex].caption}</h2>
+              <h2>{current.caption}</h2>
+
+              {/* 👇 Make button container a focusable parent */}
+              <div className='screen-saver-buttons-container'>
+                <FocusableButton
+                  className='screen-saver-button'
+                  focusClass='screen-saver-button-focused'
+                  text='Watch Now'
+                  focusKey='SCREEN_SAVER_WATCH_BUTTON'
+                />
+                <FocusableButton
+                  className='screen-saver-button'
+                  focusClass='screen-saver-button-focused'
+                  text='More Info'
+                  focusKey='SCREEN_SAVER_DETAIL_BUTTON'
+                />
+              </div>
             </div>
-          </div>
-}
-
-
-        {/* <img className="logoss" src="images/logo-ss.png" alt="Logo" /> */}
-
-        {/* <div className="buttons">
-          <span
-            className="ssblured ssbtn"
-            ref={watchRef}
-            data-focusable
-            data-focusable-depth="1"
-            data-focusable-initial-focus="true"
-          >
-            ▶&nbsp; Watch
-          </span>
-          <span
-            className="ssblured ssbtn"
-            ref={moreInfoRef}
-            data-focusable
-            data-focusable-depth="1"
-            style={{ marginLeft: 30 }}
-          >
-            More Details
-          </span>
-        </div> */}
+          </div>}
       </div>
     </FocusContext.Provider>
   );

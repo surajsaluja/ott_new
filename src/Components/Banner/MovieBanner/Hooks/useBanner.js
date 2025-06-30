@@ -9,7 +9,6 @@ const TRAILER_PLAY_DELAY = 1000;
 
 const useBanner = (asset, banners) => {
   const [videoElement, setVideoElement] = useState(null);
-  const [showOverlay, setShowOverlay] = useState(true);
   const [showBanner, setShowBanner] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isImageLoaded, setIsImageLaoded] = useState(false);
@@ -193,7 +192,6 @@ const useBanner = (asset, banners) => {
   return {
     showBanner,
     videoRef,
-    showOverlay,
     watchMediaVOD,
     isVideoLoaded,
     isPlaying,

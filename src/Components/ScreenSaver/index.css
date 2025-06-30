@@ -5,7 +5,7 @@
   overflow: hidden;
 }
 
-.screen-item {
+.screen-saver-screen-item {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -13,18 +13,18 @@
   transition: opacity 2s ease-in-out;
 }
 
-.screen-item.active {
+.screen-saver-screen-item.active {
   opacity: 1;
 }
 
-.screen-item img {
+.screen-saver-screen-item img {
   height: 100%;
   width: 100%;
   transform: scale(1);
   transition: transform 20s ease-in-out;
 }
 
-.screen-item.active img {
+.screen-saver-screen-item.active img {
   animation: zoomInOut 20s infinite;
 }
 
@@ -40,46 +40,69 @@
   }
 }
 
-.info {
+.screen-saver-info {
   position: absolute;
-  bottom: 250px;
+  bottom: 10vh;
   left: 100px;
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  min-width: 90%;
 }
 
-.info h1 {
+.screen-saver-info h1 {
   margin: 0;
   font-size: 2.5em;
   font-weight: bolder;
+  position: relative;
 }
 
-.info h2 {
+.screen-saver-info h2 {
   margin: 0;
   font-size: 1.5em;
-  position: absolute;
+  position: relative;
   margin-top: 132px;
+  height: 3vh;
 }
 
-.info p {
+.screen-saver-info p {
   margin: 5px 0 0;
   font-size: 1.2em;
+  position: relative;
 }
 
-.genres {
+.screen-saver-genres {
   list-style: none;
   padding: 0;
   margin: 12px 0 10px;
   display: flex;
+  position: relative;
   gap: 10px;
 }
 
-.genres li {
+.screen-saver-genres li {
   position: relative;
 }
 
-.genres li.with-dot::before {
+.screen-saver-genres li.with-dot::before {
   content: '•';
   margin-right: 10px;
   color: white;
+}
+
+.screen-saver-buttons-container{
+  display: flex;
+}
+
+.screen-saver-button{
+  display: flex;
+  margin-right: 2vw;
+  background: #ccc;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 1.2vw;
+    font-weight: 700;
+}
+
+.screen-saver-button-focused{
+  background-color: red;
 }

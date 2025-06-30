@@ -11,7 +11,7 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
   const {
     showBanner,
     videoRef,
-    showOverlay,
+    showOverlay = true,
     watchMediaVOD,
     isVideoLoaded,
     isPlaying,
@@ -57,11 +57,11 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
     }
   }, [asset, banners, currentAsset, currentBanners]);
 
-  useEffect(() => {
-  if (!isTransitioning && banners?.length > 0) {
-    focusSelf();
-  }
-}, [banners, isTransitioning, focusSelf]);
+//   useEffect(() => {
+//   if (!isTransitioning && banners?.length > 0) {
+//     focusSelf();
+//   }
+// }, [banners, isTransitioning, focusSelf]);
 
   // Determine which data to display during transition
   const displayAsset = isTransitioning ? prevAssetRef.current : currentAsset;
@@ -180,15 +180,22 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
-    <div className="top-banner" ref={ref}>
+    <div className="top-banner">
       <div className="banner-video-container">
         {renderMedia()}
-        {showOverlay && (
           <div className="banner-overlay">
             <div className='overlay overlay-ltr'></div>
             {renderMediaDetails()}
+            <div className='asset-buttons' ref={ref}>
+          {/* {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />} */}
+          {/* {isPlayButton &&  */}
+          <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />
+          // }
+          {/* {isShowDetailButton &&  */}
+          <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />
+            {/* } */}
+        </div>
           </div>
-        )}
       </div>
     </div>
     </FocusContext.Provider>

@@ -42,6 +42,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const [banners, setBanners] = useState([]);
   const horizontalLimit = 10;
   const [page, setPage] = useState(1);
+  const isBannerLoadedRef = useRef(false);
 
   const { uid, isLoggedIn, userObjectId } = useUserContext();
   const history = useHistory();
@@ -56,10 +57,18 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   }, [category]);
 
   useEffect(() => {
-    if(!isLoading){
-    focusSelf();
+  if (banners && banners.length > 0 && focusedAssetData === null) {
+    isBannerLoadedRef.current = true;
+  }
+}, [banners, focusedAssetData]);
+
+  useEffect(() => {
+    if (!isLoading || isBannerLoadedRef.current) {
+       setTimeout(() => {
+      focusSelf();
+    }, 0);
     }
-  }, [focusSelf, isLoading])
+  }, [focusSelf, banners, isLoading, isBannerLoadedRef.current])
 
   const getCategoryKeys = () => {
     switch (category) {
@@ -180,6 +189,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     setIsLoading,
     banners,
     setFocusedAssetData,
-    onAssetPress
+    onAssetPress,
+    isBannerLoadedRef
   };
 };

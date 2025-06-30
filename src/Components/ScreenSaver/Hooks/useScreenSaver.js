@@ -3,6 +3,7 @@ import { fetchScreenSaverContent } from "../../../Service/MediaService";
 import { sanitizeAndResizeImage } from "../../../Utils";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../Utils/imageCache";
+import { CACHE_KEYS, getCache } from "../../../Utils/DataCache";
 
 const useScreenSaver = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -14,19 +15,24 @@ const useScreenSaver = () => {
   const intervalRef = useRef(null);
   const isScreenSaverLoadedRef = useRef(false);
 
-  const { ref, focusKey: currentFocusKey } = useFocusable({ focusKey: "SCREENSAVER" });
+  const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey: "SCREENSAVER" });
 
   const loadScreenSaverData = async () => {
     try {
-      const response = await fetchScreenSaverContent();
-      if (response?.isSuccess && response?.data) {
-        const processed = response.data.map((el) => ({
-          ...el,
-          fullPageBanner: sanitizeAndResizeImage(el.fullPageBanner, 1280),
-        }));
-        setScreensaverResources(processed);
+      const cachedScreenSaverContent = getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA);
+      if (cachedScreenSaverContent) {
+        setScreensaverResources(cachedScreenSaverContent);
       } else {
-        throw new Error(response?.message || "Failed to load screensaver data");
+        const response = await fetchScreenSaverContent();
+        if (response?.isSuccess && response?.data) {
+          const processed = response.data.map((el) => ({
+            ...el,
+            fullPageBanner: sanitizeAndResizeImage(el.fullPageBanner, 1280),
+          }));
+          setScreensaverResources(processed);
+        } else {
+          throw new Error(response?.message || "Failed to load screensaver data");
+        }
       }
     } catch (err) {
       console.error("Screensaver load error:", err);
@@ -36,16 +42,23 @@ const useScreenSaver = () => {
   useEffect(() => {
     if (isScreenSaverLoadedRef.current) return;
     loadScreenSaverData();
-    isScreenSaverLoadedRef.current = true;
   }, []);
+
+useEffect(() => {
+  if (screensaverResources.length > 0 && !isScreenSaverLoadedRef.current) {
+    focusSelf();
+    isScreenSaverLoadedRef.current = true;
+  }
+}, [screensaverResources]);
+
 
   useEffect(() => {
     if (screensaverResources.length === 0) return;
 
-    // Cycle through banners every 2 seconds
+    // Cycle through banners every 20 seconds
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % screensaverResources.length);
-    }, 2000);
+    }, 200000);
 
     return () => clearInterval(intervalRef.current);
   }, [screensaverResources]);
@@ -81,7 +94,7 @@ const useScreenSaver = () => {
     const nextIndex = (currentIndex + 1) % screensaverResources.length;
     const nextImage = screensaverResources[nextIndex]?.fullPageBanner;
     if (nextImage && !getCachedImage(nextImage)) {
-      preloadImage(nextImage).catch(() => {});
+      preloadImage(nextImage).catch(() => { });
     }
   }, [currentIndex, screensaverResources]);
 
