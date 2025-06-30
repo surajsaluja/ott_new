@@ -37,15 +37,22 @@ export const getEclipsedTrimmedText = (text = '', maxLength = 0) => {
 };
 
 export const getResizedOptimizedImage = (url, width, height) => {
-  if (width && height)
-    return url + "?im=Resize,width=" + width + ",height=" + height;
-  else if (width && !height)
-    return url + "?im=Resize,width=" + width;
-  else if (!width && height)
-    return url + "?im=Resize,height=" + height;
-  else
-    return url;
+  if (!url) return null;
+
+  // Prevent double optimization
+  const hasResizeParam = url.includes("?im=Resize") || url.includes("&im=Resize");
+  if (hasResizeParam) return url;
+
+  const resizeParams = [];
+  if (width) resizeParams.push(`width=${width}`);
+  if (height) resizeParams.push(`height=${height}`);
+
+  if (resizeParams.length === 0) return url;
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}im=Resize,${resizeParams.join(",")}`;
 };
+
 
 // utils/calculateDimensions.js
 export const calculateDimensions = (height, width, showTitle = false) => {
@@ -88,10 +95,13 @@ export const calculateDimensions = (height, width, showTitle = false) => {
 
 export const sanitizeAndResizeImage = (url, width) => {
   if (!url) return null;
-  const lastPart = url.substring(url.lastIndexOf("/") + 1)
+
+  const lastPart = url
+    .substring(url.lastIndexOf("/") + 1)
     .replace(/ /g, "%20")
-    .replace("(", "%28")
-    .replace(")", "%29");
+    .replace(/\(/g, "%28")
+    .replace(/\)/g, "%29");
+
   const sanitizedUrl = url.substring(0, url.lastIndexOf("/") + 1) + lastPart;
   return getResizedOptimizedImage(sanitizedUrl, width, null);
 };
