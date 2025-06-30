@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { getCachedImage, preloadImage } from "./imageCache";
+import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
 
 const LEFT_RIGHT_DELAY = 300;
 const UP_DOWN_DELAY = 500;
