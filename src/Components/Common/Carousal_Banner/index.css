@@ -13,9 +13,18 @@
 .slider-image-container{
     width: 100%;
     height: 100%;
-    border-width: 4px;
-    border-style: solid;
+    /* border-width: 4px;
+    border-style: solid; */
     padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.slider-image-wrapper{
+        padding: 10px;
+        border-style: solid;
+        border-width: 4px;
     border-radius: 10px;
 }
 

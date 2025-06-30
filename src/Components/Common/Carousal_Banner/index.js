@@ -6,6 +6,7 @@ import { sanitizeAndResizeImage } from '../../../Utils';
 export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, onBannerFocus = () => {}, focusKey }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const imageCacheRef = useRef({});
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const {
     ref,
@@ -39,6 +40,10 @@ export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, 
     }
   }, [data.length]);
 
+  const handleImageLoaded = () =>{
+    setIsImageLoaded(true);
+  }
+
   // Preload and cache images
   useEffect(() => {
     data && data.forEach((item) => {
@@ -67,12 +72,15 @@ export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, 
         ref={ref}
         className='slider-container'
       >
-        <div  className='slider-image-container' style={{borderColor: focused ? 'white' : 'transparent'}}>
+        <div  className='slider-image-container'>
+          <div className='slider-image-wrapper' style={{borderColor: focused && isImageLoaded ? 'white' : 'transparent'}}>
         <img
           src={imageSrc}
           alt={`Slide ${currentIndex}`}
           className='slider-image'
+          onLoad={handleImageLoaded}
         />
+        </div>
         </div>
       </div>
     </FocusContext.Provider>
