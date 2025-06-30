@@ -1,48 +1,59 @@
 import { useEffect, useState } from "react";
-import { fetchApiKeyandAppFeatures} from "../Service/AuthService";
+import { fetchApiKeyandAppFeatures } from "../Service/AuthService";
 import { useUserContext } from "../Context/userContext";
 import { CACHE_KEYS, getCache, setCache } from "../Utils/DataCache";
+import { fetchScreenSaverContent } from "../Service/MediaService";
+import { sanitizeAndResizeImage } from "../Utils";
 
 const useAuth = () => {
-    
+
     const [apiKey, setApiKey] = useState();
-    const[isLoadingSession,setIsLoadingSession] = useState(true);
-    const {logout,startAppSession,getUserAccountStatus,fetchUserProfileData} = useUserContext(); 
-    useEffect(() => {
-        const fetchAndSetApiKey = async () => {
-            setIsLoadingSession(true);
-            try {
-                const cached = getCache(CACHE_KEYS.API_KEY.API_KEY_DATA);
-                if(cached){
-                    return;
-                }
-
-                const apikeyRes = await fetchApiKeyandAppFeatures();
-                if (apikeyRes && apikeyRes.apiKey) {
-                    localStorage.setItem('apiKey', apikeyRes.apiKey);
-                    setApiKey(apikeyRes.apiKey);
-                    setCache(CACHE_KEYS.API_KEY.API_KEY_DATA,apikeyRes.apiKey);
-                }
-                if (apikeyRes && apikeyRes.appIdleTime) {
-                    localStorage.setItem('appIdleTime', apikeyRes.appIdleTime);
-                    setCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME,apikeyRes.appIdleTime);
-
-                }
-                if (apikeyRes && apikeyRes.minVersion) {
-                    checkAppVersion(apikeyRes.minVersion);
-                    setCache(CACHE_KEYS.API_KEY.APP_MIN_VERSION,apikeyRes.minVersion);
-                }
-                if(apikeyRes && apikeyRes.menu){
-                    setCache(CACHE_KEYS.MENU.MENU_DATA,apikeyRes.menu);
-                }
-            } catch (error) {
-                console.error('Failed to fetch and set API key:', error);
-            } finally {
-                setIsLoadingSession(false); // STEP 2: done fetching
+    const [isLoadingSession, setIsLoadingSession] = useState(true);
+    const { logout, startAppSession, getUserAccountStatus, fetchUserProfileData } = useUserContext();
+    const fetchAndSetApiKey = async () => {
+        setIsLoadingSession(true);
+        try {
+            const cached = getCache(CACHE_KEYS.API_KEY.API_KEY_DATA);
+            if (cached) {
+                return;
             }
-        };
-        fetchAndSetApiKey();
-    }, []);
+
+            const apikeyRes = await fetchApiKeyandAppFeatures();
+            const screenSaverContentRes = await fetchScreenSaverContent();
+            if (apikeyRes && apikeyRes.apiKey) {
+                localStorage.setItem('apiKey', apikeyRes.apiKey);
+                setApiKey(apikeyRes.apiKey);
+                setCache(CACHE_KEYS.API_KEY.API_KEY_DATA, apikeyRes.apiKey);
+            }
+            if (apikeyRes && apikeyRes.appIdleTime) {
+                localStorage.setItem('appIdleTime', apikeyRes.appIdleTime);
+                setCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME, (apikeyRes.appIdleTime * 1000));
+
+            }
+            if (apikeyRes && apikeyRes.minVersion) {
+                checkAppVersion(apikeyRes.minVersion);
+                setCache(CACHE_KEYS.API_KEY.APP_MIN_VERSION, apikeyRes.minVersion);
+            }
+            if (apikeyRes && apikeyRes.menu) {
+                setCache(CACHE_KEYS.MENU.MENU_DATA, apikeyRes.menu);
+            }
+
+            if (screenSaverContentRes && screenSaverContentRes?.isSuccess && screenSaverContentRes?.data) {
+                const processedScreenSaverData = Array.isArray(screenSaverContentRes?.data)
+                    ? screenSaverContentRes.data.map((el) => ({
+                        ...el,
+                        fullPageBanner: sanitizeAndResizeImage(el.fullPageBanner, 1280),
+                    }))
+                    : [];
+                setCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA, processedScreenSaverData);
+            }
+
+        } catch (error) {
+            console.error('Failed to fetch and set API key:', error);
+        } finally {
+            setIsLoadingSession(false); // STEP 2: done fetching
+        }
+    };
 
     const checkAppVersion = (minVersion) => {
         let tizen = window.tizen;
@@ -81,19 +92,20 @@ const useAuth = () => {
     };
 
     const fetchApiKeyAndSetSession = async () => {
-        try{
-        const token = localStorage.getItem("userObjectId");
-        if (token) {
-            let res = await getUserAccountStatus();
-            if(res){
-            await startAppSession();
-            await fetchUserProfileData();
+        try {
+            await fetchAndSetApiKey();
+            const token = localStorage.getItem("userObjectId");
+            if (token) {
+                let res = await getUserAccountStatus();
+                if (res) {
+                    await startAppSession();
+                    await fetchUserProfileData();
+                }
+            } else {
+                // logout();
             }
-        } else {
-            logout();
+        } catch (error) {
         }
-    }catch(error){
-    }
     }
 
     return {

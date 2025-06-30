@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import AppNavigation from './Navigation';
 import { useBackHandler } from './Context/BackHandlerContext';
 import Screensaver from './Components/ScreenSaver';
+import { getCache, CACHE_KEYS, SCREEN_KEYS } from './Utils/DataCache';
+import { useHistory } from 'react-router-dom';
 
 init({
   debug: false,
@@ -16,29 +18,40 @@ init({
 
 function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [showScreensaver, setShowScreensaver] = useState(false);
   const idleTimer = useRef(null);
+  const idleTimeoutRef = useRef(null);
+  const screenSaverContentRef = useRef([]);
   const hasInitializedSession = useRef(false);
+  const history = useHistory();
 
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
-  const isVideoPlaying = false;
-
-  const IDLE_TIMEOUT = 60 * 1000; // 60 seconds
 
   const initialiseSession = async () => {
     await fetchApiKeyAndSetSession();
     hasInitializedSession.current = true;
+    // idleTimeoutRef.current = getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME);
+    screenSaverContentRef.current = getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA);
+    idleTimeoutRef.current = 30000
+    resetIdleTimer();
+    console.log('app idle time',idleTimeoutRef.current)
   };
 
   const resetIdleTimer = () => {
-    clearTimeout(idleTimer.current);
-    if (!isVideoPlaying) {
-      idleTimer.current = setTimeout(() => {
-        setShowScreensaver(true);
-      }, IDLE_TIMEOUT);
-    }
-  };
+    console.log('app idle time reset');
+  if (idleTimeoutRef.current == null || screenSaverContentRef.current.length === 0) return;
+  clearTimeout(idleTimer.current);
+
+  const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);
+  const isOnPlayerScreen = Object.values(SCREEN_KEYS.PLAYER).includes(currentScreen) || currentScreen === SCREEN_KEYS.SCREEN_SAVER;
+
+  if (!isOnPlayerScreen) {
+    idleTimer.current = setTimeout(() => {
+      history.push('/screenSaver');
+    }, idleTimeoutRef.current);
+  }
+};
+
 
   useEffect(() => {
     if (isOnline && !hasInitializedSession.current) {
@@ -69,13 +82,6 @@ function App() {
     const onKeyDown = (e) => {
       resetIdleTimer();
 
-      if (showScreensaver) {
-        e.preventDefault();
-        e.stopPropagation();
-        setShowScreensaver(false);
-        return;
-      }
-
       if (e.key === 'Backspace' || e.key === 'Escape' || e.keyCode === 10009) {
         e.preventDefault();
         e.stopPropagation();
@@ -91,17 +97,7 @@ function App() {
       window.removeEventListener('keydown', onKeyDown, true);
       clearTimeout(idleTimer.current);
     };
-  }, [handleBackPress, showScreensaver, isVideoPlaying]);
-
-  useEffect(() => {
-    // When playback status changes, reset timer if video is paused/stopped
-    if (!isVideoPlaying) {
-      resetIdleTimer();
-    } else {
-      clearTimeout(idleTimer.current); // Stop screensaver while video plays
-      setShowScreensaver(false); // Hide if currently shown
-    }
-  }, [isVideoPlaying]);
+  }, [handleBackPress]);
 
   if (isLoadingSession) {
     return (
@@ -116,7 +112,6 @@ function App() {
     <div className='App'>
       <AppNavigation />
       <ToastContainer position="top-right" autoClose={3000} />
-      {showScreensaver && <Screensaver />}
     </div>
   );
 }
