@@ -1,12 +1,19 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import React, { useEffect, useRef, useState } from 'react';
-import './index.css'
 import { sanitizeAndResizeImage } from '../../../Utils';
+import { getCachedImage, preloadImage } from '../../../Utils/imageCache';
+import './index.css';
 
-export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, onBannerFocus = () => {}, focusKey }) {
+export default function ImageSlider({
+  data = [],
+  onBannerEnterPress = () => {},
+  onBannerFocus = () => {},
+  focusKey
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const imageCacheRef = useRef({});
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [cachedImage, setCachedImage] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const {
     ref,
@@ -33,54 +40,73 @@ export default function ImageSlider({ data = [], onBannerEnterPress = () => {}, 
     },
   });
 
-  // Focus the component on mount if data exists
+  const currentImageUrl = sanitizeAndResizeImage(data[currentIndex]?.bannerImage, 1280);
+
+  // Load from cache or preload
+  useEffect(() => {
+    if (!currentImageUrl) return;
+
+    const cached = getCachedImage(currentImageUrl);
+    if (cached) {
+      setCachedImage(cached);
+      setIsLoaded(true);
+      return;
+    }
+
+    preloadImage(currentImageUrl)
+      .then((img) => {
+        setCachedImage(img);
+        setIsLoaded(true);
+        setHasError(false);
+      })
+      .catch((err) => {
+        console.error('Slider preload error:', err);
+        setHasError(true);
+        setIsLoaded(true);
+      });
+  }, [currentImageUrl]);
+
+  // Preload adjacent images
+  useEffect(() => {
+    const preloadAdjacent = [currentIndex - 1, currentIndex + 1];
+    preloadAdjacent.forEach((i) => {
+      if (i >= 0 && i < data.length) {
+        const url = sanitizeAndResizeImage(data[i]?.bannerImage, 1280);
+        if (url && !getCachedImage(url)) {
+          preloadImage(url).catch(() => {});
+        }
+      }
+    });
+  }, [currentIndex, data]);
+
   useEffect(() => {
     if (data.length > 0) {
       focusSelf();
     }
   }, [data.length]);
 
-  const handleImageLoaded = () =>{
-    setIsImageLoaded(true);
-  }
-
-  // Preload and cache images
-  useEffect(() => {
-    data && data.forEach((item) => {
-      const url = item?.bannerImage;
-      if (url && !imageCacheRef.current[url]) {
-        const img = new Image();
-        img.src = url;
-        imageCacheRef.current[url] = img;
-      }
-    });
-  }, [data]);
-
-  // Fallback rendering to prevent ref-null registration
-  if (!data.length) {
-    return (
-      <div ref={ref} />
-    );
-  }
-
-  const currentImageUrl = sanitizeAndResizeImage(data[currentIndex]?.bannerImage,1280);
-  const imageSrc = imageCacheRef.current[currentImageUrl]?.src || currentImageUrl;
+  if (!data.length) return <div ref={ref} />;
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
-      <div
-        ref={ref}
-        className='slider-container'
-      >
-        <div  className='slider-image-container'>
-          <div className='slider-image-wrapper' style={{borderColor: focused && isImageLoaded ? 'white' : 'transparent'}}>
-        <img
-          src={imageSrc}
-          alt={`Slide ${currentIndex}`}
-          className='slider-image'
-          onLoad={handleImageLoaded}
-        />
-        </div>
+      <div ref={ref} className="slider-container">
+        <div className="slider-image-container">
+          <div
+            className="slider-image-wrapper"
+            style={{ borderColor: focused && isLoaded ? 'white' : 'transparent' }}
+          >
+            <img
+              src={cachedImage?.src || currentImageUrl}
+              alt={`Slide ${currentIndex}`}
+              className="slider-image"
+              onLoad={() => setIsLoaded(true)}
+              onError={() => {
+                console.error('Image load failed:', currentImageUrl);
+                setHasError(true);
+                setIsLoaded(true);
+              }}
+            />
+          </div>
         </div>
       </div>
     </FocusContext.Provider>
