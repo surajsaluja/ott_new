@@ -27,7 +27,7 @@ function RadioHome({ focusKey }) {
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className='radio-home' ref={ref}>
-        <div className='radio-Home-Content'>
+        <div className='radio-home-content'>
           <ImageSlider 
           focusKey='RADIO_BANNER_FOCUS_KEY' 
           data={radioBannersData}

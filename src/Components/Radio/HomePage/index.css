@@ -7,6 +7,11 @@
   scroll-behavior: smooth;
 }
 
+.radio-home-content{
+  width: 100%;
+  height: 100%;
+}
+
 .radio-header{
   display: flex;
   justify-content: center;
