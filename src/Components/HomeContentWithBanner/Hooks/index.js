@@ -25,12 +25,14 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const {
     ref,
     focusKey: currentFocusKey,
-    hasFocusedChild
+    hasFocusedChild,
+    focusSelf
   } = useFocusable({
     focusKey,
     trackChildren: true,
     saveLastFocusedChild: false,
-    onFocus
+    onFocus,
+    // preferredChildFocusKey: 'BANNER_FOCUS_KEY'
   });
 
   const [focusedAssetData, setFocusedAssetData] = useState(null);
@@ -52,6 +54,12 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
       if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     };
   }, [category]);
+
+  useEffect(() => {
+    if(!isLoading){
+    focusSelf();
+    }
+  }, [focusSelf, isLoading])
 
   const getCategoryKeys = () => {
     switch (category) {
@@ -76,7 +84,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     try {
       let processed = [];
       const cacheKeyGroup = getCategoryKeys();
-      setCache(CACHE_KEYS.CURRENT_SCREEN,getCurrentScreenKey());
+      setCache(CACHE_KEYS.CURRENT_SCREEN, getCurrentScreenKey());
 
       if (cacheKeyGroup && hasCache(cacheKeyGroup.HOME_DATA) && hasCache(cacheKeyGroup.BANNERS_DATA)) {
         processed = getCache(cacheKeyGroup.HOME_DATA);

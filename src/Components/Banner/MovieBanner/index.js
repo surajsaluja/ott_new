@@ -4,9 +4,10 @@ import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import useBanner from './Hooks/useBanner'
 import { formatTime, getEclipsedTrimmedText } from '../../../Utils';
+import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 import './index.css';
 
-const Banner = ({ data: asset = null, banners = [] }) => {
+const Banner = ({ data: asset = null, banners = [], focusKey }) => {
   const {
     showBanner,
     videoRef,
@@ -19,6 +20,17 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     isImageLoaded,
     showMediaDetail
   } = useBanner(asset, banners);
+  const {
+      ref,
+      focusKey: currentFocusKey,
+      focused,
+      focusSelf,
+    } = useFocusable({
+      focusKey,
+      trackChildren: true,
+      focusable: banners.length > 0
+    });
+
 
   const [transitionClass, setTransitionClass] = useState('');
   const [currentAsset, setCurrentAsset] = useState(asset);
@@ -44,6 +56,12 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       return () => clearTimeout(timer);
     }
   }, [asset, banners, currentAsset, currentBanners]);
+
+  useEffect(() => {
+  if (!isTransitioning && banners?.length > 0) {
+    focusSelf();
+  }
+}, [banners, isTransitioning, focusSelf]);
 
   // Determine which data to display during transition
   const displayAsset = isTransitioning ? prevAssetRef.current : currentAsset;
@@ -161,7 +179,8 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   };
 
   return (
-    <div className="top-banner">
+    <FocusContext.Provider value={currentFocusKey}>
+    <div className="top-banner" ref={ref}>
       <div className="banner-video-container">
         {renderMedia()}
         {showOverlay && (
@@ -172,6 +191,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
         )}
       </div>
     </div>
+    </FocusContext.Provider>
   );
 };
 

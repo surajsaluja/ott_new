@@ -34,7 +34,7 @@
       <FocusContext.Provider value={currentFocusKey}>
       <div ref = {ref} className="content-with-banner" style={{position:'relative', width: '100%', height: '100%'}}>
 
-        <Banner data={focusedAssetData} banners={banners} />
+        <Banner data={focusedAssetData} banners={banners} focusKey={'BANNER_FOCUS_KEY'} />
         <div className="assetContent" style={{position: 'absolute', height: '55vh', bottom: 0, width: '100%'}}>
         <Content 
           onAssetFocus={handleAssetFocus} 

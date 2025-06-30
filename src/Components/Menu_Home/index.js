@@ -21,9 +21,9 @@ function Menu_Home({ activeTab, focusKey , setIsSideBarOpen}) {
         getIconComponent 
     } = useMenu(activeTab,focusKey);
 
-    useEffect(()=>{
-        focusSelf();
-    },[loading])
+    // useEffect(()=>{
+    //     focusSelf();
+    // },[loading])
 
     useEffect(()=>{
       setIsSideBarOpen(hasFocusedChild);
