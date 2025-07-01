@@ -4,14 +4,13 @@ import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
 import { GiVibratingShield } from "react-icons/gi";
 import useBanner from './Hooks/useBanner'
 import { formatTime, getEclipsedTrimmedText } from '../../../Utils';
-import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 import './index.css';
 
-const Banner = ({ data: asset = null, banners = [], focusKey }) => {
+const Banner = ({ data: asset = null, banners = [] }) => {
   const {
     showBanner,
     videoRef,
-    showOverlay = true,
+    showOverlay=true,
     watchMediaVOD,
     isVideoLoaded,
     isPlaying,
@@ -20,17 +19,6 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
     isImageLoaded,
     showMediaDetail
   } = useBanner(asset, banners);
-  const {
-      ref,
-      focusKey: currentFocusKey,
-      focused,
-      focusSelf,
-    } = useFocusable({
-      focusKey,
-      trackChildren: true,
-      focusable: banners.length > 0
-    });
-
 
   const [transitionClass, setTransitionClass] = useState('');
   const [currentAsset, setCurrentAsset] = useState(asset);
@@ -56,12 +44,6 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
       return () => clearTimeout(timer);
     }
   }, [asset, banners, currentAsset, currentBanners]);
-
-//   useEffect(() => {
-//   if (!isTransitioning && banners?.length > 0) {
-//     focusSelf();
-//   }
-// }, [banners, isTransitioning, focusSelf]);
 
   // Determine which data to display during transition
   const displayAsset = isTransitioning ? prevAssetRef.current : currentAsset;
@@ -156,17 +138,17 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
 
     return (
       <div className={`asset-info ${transitionClass}`}>
-        <h1 className="title">{title}</h1>
-        <div className="tags">
+        <h1 className="asset-title">{title}</h1>
+        <div className="asset-tags">
           {/* {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>} */}
           {/* {rating && <span><i><MdStarRate /></i>{rating}</span>} */}
           {/* {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>} */}
           {/* {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>} */}
         </div>
-        <p className="description" >{getEclipsedTrimmedText(shortDescription, 190)}</p>
-        <div className="genres" style={{ bottom: `${displayAsset ? 0 : 18}%` }}>
+        <p className="asset-description" >{getEclipsedTrimmedText(shortDescription, 80)}</p>
+        <div className="asset-genres" style={{ bottom: `${displayAsset ? 0 : 20}%` }}>
           {genre && genre.split(',').map((genre, idx) => (
-            <span key={idx} className="genre">{genre}</span>
+            <span key={idx} className="asset-genre">{genre}</span>
           ))}
         </div>
         <div className='asset-buttons'>
@@ -179,26 +161,17 @@ const Banner = ({ data: asset = null, banners = [], focusKey }) => {
   };
 
   return (
-    <FocusContext.Provider value={currentFocusKey}>
     <div className="top-banner">
       <div className="banner-video-container">
         {renderMedia()}
+        {showOverlay && (
           <div className="banner-overlay">
             <div className='overlay overlay-ltr'></div>
             {renderMediaDetails()}
-            <div className='asset-buttons' ref={ref}>
-          {/* {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />} */}
-          {/* {isPlayButton &&  */}
-          <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />
-          // }
-          {/* {isShowDetailButton &&  */}
-          <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />
-            {/* } */}
-        </div>
           </div>
+        )}
       </div>
     </div>
-    </FocusContext.Provider>
   );
 };
 

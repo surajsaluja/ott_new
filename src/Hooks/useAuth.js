@@ -14,12 +14,13 @@ const useAuth = () => {
         setIsLoadingSession(true);
         try {
             const cached = getCache(CACHE_KEYS.API_KEY.API_KEY_DATA);
-            if (cached) {
-                return;
-            }
+            // if (cached) {
+            //     console.log('cached data');
+            //     return;
+            // }
 
             const apikeyRes = await fetchApiKeyandAppFeatures();
-            const screenSaverContentRes = await fetchScreenSaverContent();
+            console.log('apikeyRes',apikeyRes);
             if (apikeyRes && apikeyRes.apiKey) {
                 localStorage.setItem('apiKey', apikeyRes.apiKey);
                 setApiKey(apikeyRes.apiKey);
@@ -47,6 +48,8 @@ const useAuth = () => {
                     : [];
                 setCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA, processedScreenSaverData);
             }
+
+            const screenSaverContentRes = await fetchScreenSaverContent();
 
         } catch (error) {
             console.error('Failed to fetch and set API key:', error);
@@ -94,6 +97,7 @@ const useAuth = () => {
     const fetchApiKeyAndSetSession = async () => {
         try {
             await fetchAndSetApiKey();
+            console.log('set api key done');
             const token = localStorage.getItem("userObjectId");
             if (token) {
                 let res = await getUserAccountStatus();
@@ -105,6 +109,7 @@ const useAuth = () => {
                 // logout();
             }
         } catch (error) {
+            console.log('error at fetch and set api');
         }
     }
 

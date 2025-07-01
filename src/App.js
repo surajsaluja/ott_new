@@ -30,16 +30,16 @@ function App() {
   const initialiseSession = async () => {
     await fetchApiKeyAndSetSession();
     hasInitializedSession.current = true;
-    // idleTimeoutRef.current = getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME);
+    idleTimeoutRef.current = getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME);
     screenSaverContentRef.current = getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA);
-    idleTimeoutRef.current = 30000
+    // idleTimeoutRef.current = 20000
     resetIdleTimer();
     console.log('app idle time',idleTimeoutRef.current)
   };
 
   const resetIdleTimer = () => {
     console.log('app idle time reset');
-  if (idleTimeoutRef.current == null || screenSaverContentRef.current.length === 0) return;
+  if (idleTimeoutRef.current && idleTimeoutRef.current == null || screenSaverContentRef.current && screenSaverContentRef.current.length === 0) return;
   clearTimeout(idleTimer.current);
 
   const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);

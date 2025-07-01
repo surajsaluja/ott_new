@@ -32,7 +32,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     trackChildren: true,
     saveLastFocusedChild: false,
     onFocus,
-    // preferredChildFocusKey: 'BANNER_FOCUS_KEY'
+    preferredChildFocusKey: 'BANNER_FOCUS_KEY'
   });
 
   const [focusedAssetData, setFocusedAssetData] = useState(null);
@@ -56,19 +56,25 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     };
   }, [category]);
 
-  useEffect(() => {
-  if (banners && banners.length > 0 && focusedAssetData === null) {
-    isBannerLoadedRef.current = true;
-  }
-}, [banners, focusedAssetData]);
+//   useEffect(() => {
+//   if (banners && banners.length > 0 && focusedAssetData === null) {
+//     isBannerLoadedRef.current = true;
+//   }
+// }, [banners, focusedAssetData]);
 
-  useEffect(() => {
-    if (!isLoading || isBannerLoadedRef.current) {
-       setTimeout(() => {
-      focusSelf();
-    }, 0);
-    }
-  }, [focusSelf, banners, isLoading, isBannerLoadedRef.current])
+// useEffect(()=>{
+//   isBannerLoadedRef.current = hasFocusedChild;
+// },[hasFocusedChild])
+
+
+
+//   useEffect(() => {
+//     if (!isLoading) {
+//        setTimeout(() => {
+//       focusSelf();
+//     }, 0);
+//     }
+//   }, [focusSelf, banners, isLoading, isBannerLoadedRef.current])
 
   const getCategoryKeys = () => {
     switch (category) {
