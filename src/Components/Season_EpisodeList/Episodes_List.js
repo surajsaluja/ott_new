@@ -1,6 +1,6 @@
 import "./Episodes_List.css";
 import { useRef, useCallback } from "react";
-import { formatTime } from "../../Utils";
+import { formatTime, getEclipsedTrimmedText } from "../../Utils";
 import { MdOutlineTimer, MdStarRate } from "react-icons/md";
 import {
   FocusContext,
@@ -23,7 +23,7 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
       />
       </div>
       <div className="episode-meta">
-        <div className="episode-title">{episode.title}</div>
+        <div className="episode-title">{getEclipsedTrimmedText(episode.title,55)}</div>
         <div className="episode-info">
           {episode?.duration && (
             <span>
@@ -38,7 +38,7 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
             </span>
           )} */}
         </div>
-        <div className="episode-desc">{episode.shortDescription}</div>
+        <div className="episode-desc">{getEclipsedTrimmedText(episode.shortDescription,200)}</div>
       </div>
     </div>
   );

@@ -343,10 +343,11 @@
 .round-focusable-button {
   height: 4vw !important;
   width: 4vw !important;
+  font-size: 1.3vw;
 }
 
 .round-focusable-button .focusableButton_icon-tooltip-button {
-  font-size: 2.5vw !important;
+  /* font-size: 2.5vw !important; */
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
