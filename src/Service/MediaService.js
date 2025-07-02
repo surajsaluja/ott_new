@@ -15,8 +15,8 @@ const userObjId = localStorage.getItem('userObjectId') ?? null;
 const uid = localStorage.getItem('uid') ?? null;
 
 const ThrowError = (functionName, error) => {
-    toast.error(`Error in ${functionName}: ${error.message || error}`);
-    console.error(`Api Error At ${functionName}:`, error);
+    // toast.error(`Error in ${functionName}: ${error.message || error}`);
+    console.error(`Error in ${functionName}: ${error.message || error}`);
     throw new Error(error);
 };
 
@@ -38,10 +38,10 @@ export const fetchBannersBySection = async (section, language = null, userId = n
     }
 }
 
-export const fetchPlaylistPage = async (section, page, userId = null) => {
+export const fetchPlaylistPage = async (section, page, userId = null, pageSize = null) => {
     try {
         const response = await fetchData(
-            API.HOMEPAGE.GET_PLAYLIST_DATA(section ?? DEFAULT_PLAYLIST_TYPE, userId ?? uid, page, DEFAULT_PAGE_SIZE)
+            API.HOMEPAGE.GET_PLAYLIST_DATA(section ?? DEFAULT_PLAYLIST_TYPE, userId ?? uid, page, pageSize ?? DEFAULT_PAGE_SIZE)
         );
         return response?.data || [];
     } catch (error) {
