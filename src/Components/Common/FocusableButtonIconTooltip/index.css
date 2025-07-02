@@ -23,7 +23,7 @@
 }
 
 .focusableButton_icon-tooltip-button {
-    font-size: 20px;
+    font-size: 1.7em;
     color: white;
 }
 
@@ -35,7 +35,7 @@
     color: black;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 1em;
     white-space: nowrap;
     z-index: 10;
     opacity: 1;
