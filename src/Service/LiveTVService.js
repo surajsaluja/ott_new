@@ -7,8 +7,8 @@ const userObjId = localStorage.getItem('userObjectId') ?? null;
 const uid = localStorage.getItem('uid') ?? null;
 
 const ThrowError = (functionName, error) => {
-    toast.error(`Error in ${functionName}: ${error.message || error}`);
-    console.error(`Api Error At ${functionName}:`, error);
+    // toast.error(`Error in ${functionName}: ${error.message || error}`);
+    console.error(`Api Error in ${functionName}: ${error.message || error}`);
     return null;
 };
 

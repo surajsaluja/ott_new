@@ -10,16 +10,38 @@ const apiClient = axios.create({
   },
 });
 
+// Optional: reliable ping for actual connectivity
+const isOnline = async () => {
+  if (!navigator.onLine) return false;
+
+  try {
+    await fetch(API_BASE_URL+'User/GetUserActiveIndicator', {
+      method: 'HEAD',
+      cache: 'no-store',
+      mode: 'no-cors',
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 // Request Interceptor
 apiClient.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    const online = await isOnline();
+    if (!online) {
+      return Promise.reject(new Error('No Internet Connection'));
+    }
+
     if (!config?.requireApiKey) {
-      let storedApiKey = localStorage.getItem('apiKey');
+      const storedApiKey = localStorage.getItem('apiKey');
       if (!storedApiKey) {
         console.error('apiKey not Set');
       }
       config.headers.ApiKey = storedApiKey;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -29,7 +51,6 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // You can handle errors globally here
     console.error('API Error:', error.response || error.message);
     return Promise.reject(error);
   }

@@ -6,14 +6,15 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AppNavigation from './Navigation';
 import { useBackHandler } from './Context/BackHandlerContext';
-import Screensaver from './Components/ScreenSaver';
 import { getCache, CACHE_KEYS, SCREEN_KEYS } from './Utils/DataCache';
 import { useHistory } from 'react-router-dom';
+import { kableOneLogo } from './assets';
+import { MdError } from 'react-icons/md';
 
 init({
   debug: false,
   visualDebug: false,
-  distanceCalculationMethod: 'center'
+  distanceCalculationMethod: 'center',
 });
 
 function App() {
@@ -27,47 +28,69 @@ function App() {
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
 
+  // Check if the current screen is a player screen
+  const isPlayerScreen = () => {
+    const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);
+    return Object.values(SCREEN_KEYS.PLAYER).includes(currentScreen);
+  };
+
+  const isScreensaverScreen = () => {
+    const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);
+    return currentScreen === SCREEN_KEYS.SCREEN_SAVER;
+  };
+
   const initialiseSession = async () => {
-    await fetchApiKeyAndSetSession();
-    hasInitializedSession.current = true;
-    idleTimeoutRef.current = getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME);
-    screenSaverContentRef.current = getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA);
-    // idleTimeoutRef.current = 20000
-    resetIdleTimer();
-    console.log('app idle time',idleTimeoutRef.current)
+    try {
+      await fetchApiKeyAndSetSession();
+      idleTimeoutRef.current =
+        getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME) || 300000; // fallback 5 mins
+      screenSaverContentRef.current =
+        getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA) || [];
+      resetIdleTimer();
+    } catch (err) {
+      toast.error('Session initialization failed');
+    } finally {
+      hasInitializedSession.current = true;
+    }
   };
 
   const resetIdleTimer = () => {
-    console.log('app idle time reset');
-  if (idleTimeoutRef.current && idleTimeoutRef.current == null || screenSaverContentRef.current && screenSaverContentRef.current.length === 0) return;
-  clearTimeout(idleTimer.current);
+    if (
+      !idleTimeoutRef.current ||
+      screenSaverContentRef.current.length === 0
+    ) {
+      return;
+    }
 
-  const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);
-  const isOnPlayerScreen = Object.values(SCREEN_KEYS.PLAYER).includes(currentScreen) || currentScreen === SCREEN_KEYS.SCREEN_SAVER;
+    clearTimeout(idleTimer.current);
 
-  if (!isOnPlayerScreen) {
-    idleTimer.current = setTimeout(() => {
-      history.push('/screenSaver');
-    }, idleTimeoutRef.current);
-  }
-};
-
+    if (!isPlayerScreen() && !isScreensaverScreen() && isOnline) {
+      idleTimer.current = setTimeout(() => {
+        history.push('/screenSaver');
+      }, idleTimeoutRef.current);
+    }
+  };
 
   useEffect(() => {
     if (isOnline && !hasInitializedSession.current) {
+      hasInitializedSession.current = true; // lock
       initialiseSession();
     }
-  }, [isOnline, fetchApiKeyAndSetSession]);
+  }, [isOnline]);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      toast.success('You are online !!');
+      if (!isPlayerScreen()) {
+        toast.success('You are online !!');
+      }
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      toast.warn('No Internet Connection');
+      if (!isPlayerScreen()) {
+        toast.warn('No Internet Connection');
+      }
     };
 
     window.addEventListener('online', handleOnline);
@@ -82,7 +105,7 @@ function App() {
     const onKeyDown = (e) => {
       resetIdleTimer();
 
-      if (e.key === 'Backspace' || e.key === 'Escape' || e.keyCode === 10009) {
+      if (['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation?.();
@@ -99,17 +122,34 @@ function App() {
     };
   }, [handleBackPress]);
 
+  // Session loading splash screen
   if (isLoadingSession) {
     return (
-      <div className='App'>
-        <p className='loading'>Loading ....</p>
+      <div className="App">
+        <div className="loading-splash-screen">
+          <img className="loading" src={kableOneLogo} alt="Loading..." />
+        </div>
         <ToastContainer position="top-right" autoClose={3000} />
       </div>
     );
   }
 
+  // Offline error screen (but not on player)
+  if (!isOnline && hasInitializedSession.current && !isPlayerScreen()) {
+    return (
+      <div className="App">
+        <div className="error-container">
+          <div className="error-icon">
+            <MdError />
+          </div>
+          <div className="error-message">No Internet Connection</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className='App'>
+    <div className="App">
       <AppNavigation />
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

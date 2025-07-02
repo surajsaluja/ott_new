@@ -38,7 +38,7 @@ function LiveTvPlayer() {
 
     const history = useHistory();
     const location = useLocation();
-    const {src, title : movieTitle} = location.state || {};
+    const { src, title: movieTitle } = location.state || {};
 
 
 
@@ -90,7 +90,7 @@ function LiveTvPlayer() {
 
         try {
             if (val && video.paused) {
-               // startWatchTimer();
+                // startWatchTimer();
                 await video.play();
                 isPlayingRef.current = true;
                 setIsPlaying(true);
@@ -121,27 +121,27 @@ function LiveTvPlayer() {
         playIconTimeoutRef.current = setTimeout(() => setShowPlayIcon(false), 700);
     }, []);
 
-      const handleBackPressed = useCallback(() => {
-       if (isSideBarOpenRef.current) {
-          handleSidebarOpen(false);
-          handleSetIsUserActive(false);
-          return;
+    const handleBackPressed = useCallback(() => {
+        if (isSideBarOpenRef.current) {
+            handleSidebarOpen(false);
+            handleSetIsUserActive(false);
+            return;
         } else if (userActivityRef.current) {
-          handleSetIsUserActive(false);
-          return;
+            handleSetIsUserActive(false);
+            return;
         } else {
-          history.goBack();
-          return;
+            history.goBack();
+            return;
         }
-      }, [isSideBarOpenRef, userActivityRef]);
+    }, [isSideBarOpenRef, userActivityRef]);
 
-      const handleBackButtonPressed = () =>{
+    const handleBackButtonPressed = () => {
         history.goBack();
-      }
+    }
 
-      useOverrideBackHandler(()=>{
+    useOverrideBackHandler(() => {
         handleBackPressed();
-      })
+    })
 
     const handleQualityChange = (quality) => {
         if (videoRef.current.hls) {
@@ -172,7 +172,7 @@ function LiveTvPlayer() {
         isSideBarOpenRef.current = val;
         setSidebarOpen(val);
         handleSetIsUserActive(false);
-        
+
     };
 
     const handleFocusVideoOverlay = () => {
@@ -184,7 +184,7 @@ function LiveTvPlayer() {
         // Only update if value has changed
 
         if (val === true) {
-            
+
             // Clear previous timeout if any
             if (inactivityTimeoutRef.current) {
                 clearTimeout(inactivityTimeoutRef.current);
@@ -197,7 +197,7 @@ function LiveTvPlayer() {
         }
 
         if (val === false) {
-            if(isSideBarOpenRef.current) return;
+            if (isSideBarOpenRef.current) return;
             setFocus(DUMMY_BTN_FOCUS_KEY);
         }
 
@@ -219,7 +219,7 @@ function LiveTvPlayer() {
             hls.loadSource(src);
             hls.attachMedia(video);
 
-           // sendAnalyticsForMedia();
+            // sendAnalyticsForMedia();
             handleSetIsPlaying(true);
 
             video.hls = hls;
@@ -231,7 +231,7 @@ function LiveTvPlayer() {
     }, [src]);
 
     useEffect(() => {
-        setCache(CACHE_KEYS.CURRENT_SCREEN,SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE);
+        setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE);
         if (videoRef && videoRef.current) {
             const video = videoRef.current;
 
@@ -248,10 +248,32 @@ function LiveTvPlayer() {
                 setIsLoading(true);
             };
 
+            const handlePlayerOnline = () => {
+                handleSetIsPlaying(true);
+            }
+
+            const handlePlayerOffline = () => {
+                handleSetIsPlaying(false);
+            }
+
+            const handlePlayerVisibilityChange = () => {
+                console.log(document.hidden);
+                if (document.hidden) {
+                    handleSetIsPlaying(false);
+                    console.log('video paused');
+                } else {
+                    handleSetIsPlaying(true);
+                    console.log('video played');
+                }
+            }
+
             video.addEventListener("waiting", handleWaiting);
             video.addEventListener("canplay", handleCanPlay);
             video.addEventListener("playing", handlePlaying);
             video.addEventListener("stalled", handleStalled);
+            window.addEventListener('online', handlePlayerOnline);
+            window.addEventListener('offline', handlePlayerOffline);
+            window.addEventListener('visibilitychange', handlePlayerVisibilityChange)
 
             if (playCapability == true) {
                 setStreamLimitError(false);
@@ -272,6 +294,10 @@ function LiveTvPlayer() {
                 video.removeEventListener("canplay", handleCanPlay);
                 video.removeEventListener("playing", handlePlaying);
                 video.removeEventListener("stalled", handleStalled);
+                window.removeEventListener('online', handlePlayerOnline);
+                window.removeEventListener('offline', handlePlayerOffline);
+                window.removeEventListener('visibilitychange', handlePlayerVisibilityChange)
+
             };
         }
     }, [initializePlayer, videoRef, playCapability]);
@@ -297,29 +323,29 @@ function LiveTvPlayer() {
         };
     }, [isConnected]);
 
-    const handleKeyDown  = (e) =>{
-        if(isSideBarOpenRef.current){
+    const handleKeyDown = (e) => {
+        if (isSideBarOpenRef.current) {
             return;
         }
 
-        if(userActivityRef.current){
+        if (userActivityRef.current) {
             handleSetIsUserActive(true);
             return false;
         }
 
-        if(e.keyCode == 13){
+        if (e.keyCode == 13) {
             togglePlayPause();
-        }else{
+        } else {
             handleFocusVideoOverlay();
         }
     }
 
     useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, []);
 
 
 
@@ -334,7 +360,7 @@ function LiveTvPlayer() {
 
                 <Popup
                     onVideoSettingsPressed={onVideoSettingsPressed}
-                    onAudioSubtitlesSettingsPressed={()=>{}}
+                    onAudioSubtitlesSettingsPressed={() => { }}
                     onBackPress={handleBackPressed}
                     videoRef={videoRef}
                     title={movieTitle}
@@ -342,8 +368,8 @@ function LiveTvPlayer() {
                     isVisible={isUserActive}
                     thumbnailBaseUrl={null}
                     handleBackButtonPressed={handleBackButtonPressed}
-                    isAudioSubtitlesSettingsAvailable = {false}
-                    isVideoSettingsAvailable = {true}
+                    isAudioSubtitlesSettingsAvailable={false}
+                    isVideoSettingsAvailable={true}
                 />
 
                 {showPlayIcon && (
@@ -364,7 +390,7 @@ function LiveTvPlayer() {
                 )}
 
 
-                {isLoading && <Spinner/>}
+                {isLoading && <Spinner />}
             </div>
         </FocusContext.Provider>
     );

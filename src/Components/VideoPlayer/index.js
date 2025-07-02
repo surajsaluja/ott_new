@@ -577,11 +577,33 @@ useOverrideBackHandler(() => {
         video.currentTime = 0;
       }
 
+      const handlePlayerOnline = () =>{
+        handleSetIsPlaying(true);
+      }
+
+      const handlePlayerOffline = () =>{
+        handleSetIsPlaying(false);
+      }
+
+      const handlePlayerVisibilityChange =() =>{
+        console.log(document.hidden);
+        if(document.hidden){
+          handleSetIsPlaying(false);
+          console.log('video paused');
+        }else{
+          handleSetIsPlaying(true);
+          console.log('video played');
+        }
+      }
+
       video.addEventListener("waiting", handleWaiting);
       video.addEventListener("canplay", handleCanPlay);
       video.addEventListener("playing", handlePlaying);
       video.addEventListener("stalled", handleStalled);
       video.addEventListener("ended",handleEnded);
+      window.addEventListener('online', handlePlayerOnline);
+      window.addEventListener('offline', handlePlayerOffline);
+      window.addEventListener('visibilitychange',handlePlayerVisibilityChange)
 
       if (playCapability == true) {
         setStreamLimitError(false);
@@ -601,9 +623,13 @@ useOverrideBackHandler(() => {
         analyticsHistoryIdRef.current = null;
 
         video.removeEventListener("waiting", handleWaiting);
-        video.removeEventListener("canplay", handleCanPlay);
-        video.removeEventListener("playing", handlePlaying);
-        video.removeEventListener("stalled", handleStalled);
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("playing", handlePlaying);
+      video.removeEventListener("stalled", handleStalled);
+      video.removeEventListener("ended",handleEnded);
+      window.removeEventListener('online', handlePlayerOnline);
+      window.removeEventListener('offline', handlePlayerOffline);
+      window.removeEventListener('visibilitychange',handlePlayerVisibilityChange);
       };
     }
   }, [initializePlayer, videoRef, playCapability]);
