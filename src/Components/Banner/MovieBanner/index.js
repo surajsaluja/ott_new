@@ -145,16 +145,16 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           {/* {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>} */}
           {/* {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>} */}
         </div>
-        <p className="asset-description" >{getEclipsedTrimmedText(shortDescription, 80)}</p>
-        <div className="asset-genres" style={{ bottom: `${displayAsset ? 0 : 20}%` }}>
+        <p className="asset-description" >{getEclipsedTrimmedText(shortDescription, 160)}</p>
+        <div className="asset-genres" style={{ bottom: `${displayAsset ? 0 : 22}%` }}>
           {genre && genre.split(',').map((genre, idx) => (
             <span key={idx} className="asset-genre">{genre}</span>
           ))}
         </div>
         <div className='asset-buttons'>
           {/* {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />} */}
-          {isPlayButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />}
-          {isShowDetailButton && <FocusableButton className='play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />}
+          {isPlayButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />}
+          {isShowDetailButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />}
         </div>
       </div>
     );

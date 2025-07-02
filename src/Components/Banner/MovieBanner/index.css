@@ -71,8 +71,8 @@
   width: 100%;
 }
 
-.play-btn,
-.trailer-btn {
+.banner-play-btn,
+.banner-trailer-btn {
   background-color: #979797c9;
   color: white;
   border: none;
@@ -86,6 +86,7 @@
   width: 7vw;
   justify-content: center;
   display: flex;
+  border-radius: 10px;
 }
 
 .play-btn-focus,
@@ -112,6 +113,7 @@
   font-size: 3vw;
   color: white;
   margin-bottom: 10px;
+  margin-top: 0;
 }
 
 .asset-tags span {
