@@ -3,7 +3,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 5em;
+    max-width: 5vw;
     /* background-color: rgb(15, 2, 51); */
     background-color: black;
     /* background-color: #25395a8f; */
@@ -18,63 +18,62 @@
     justify-content: center;
 }
 
-.menu-logo-container{
-    height: 80px;
-    display: flex;
-    margin: 20px 0;
-    justify-content: start;
+.menu-logo-container {
     align-items: center;
+    display: flex;
+    /* height: 13vw; */
+    justify-content: start;
+    margin: 7vh 0;
 }
 
-.menu-logo{
-    max-width: 80px;
+.menu-logo {
+    max-width: 5vw;
 }
 
-.menu-logo-small{
+.menu-logo-small {
     max-width: 70px;
 }
 
- .menuContainer_focused {
-    max-width: 15em;
-}
-.menuItem {
-    width: 3em;
-    height: 3em;
-    background-color: transparent;
-    border-color:transparent;
-    border-style: solid;
-    box-sizing: border-box;
-    border-radius: 0.5em;
-    margin: 0.5em;
-    border-width: 0.1em;
-    padding: 0.5em;
-    display: flex;
-    color: azure
+.menuContainer_focused {
+    max-width: 13vw;
 }
 
-.menuItem span{
+.menuItem {
+    background-color: initial;
+    border: .1em solid #0000;
+    border-radius: .5em;
+    box-sizing: border-box;
+    color: azure;
+    display: flex;
+    height: 5.5vh;
+    margin: 1.5vh;
+    padding: .5em;
+    width: 3vw;
+}
+
+.menuItem span {
     display: flex;
     margin: 0 3px;
     align-items: center;
 }
 
- .menuContainer_focused .menuItem {
-    width: 171px;
+.menuContainer_focused .menuItem {
+    width: 11vw;
 }
 
 .menuItem_focused {
     border-color: white;
 }
 
-.menuItem_focused span{
+.menuItem_focused span {
     font-weight: 700;
     stroke-width: 1px;
 }
 
 .menuItem .focusableButton_icon {
-    font-size: 30px;
+    font-size: 2vw;
 }
 
-.menuItem .focusableButton_text{
+.menuItem .focusableButton_text {
     font-size: 18px;
 }
