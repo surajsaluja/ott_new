@@ -73,14 +73,14 @@ const LoginScreen = () => {
               />
             ))}
           </div>
-          <div>
+          {/* <div>
              <FocusableButton
               className='submit-button logout-button'
               focusClass='keypad-key-focus'
               text={isLoggedIn ? 'Logout' : 'Login'}
               onEnterPress={isLoggedIn ? () => logout() : () => submitOtp()}
             />
-          </div>
+          </div> */}
         </FocusContext.Provider>
       </div>
     </div>
