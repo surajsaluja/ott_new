@@ -357,6 +357,19 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     }, []);
 
+     const handlePlayerVisibilityChange = () => {
+                console.log(document.hidden);
+                if (document.hidden) {
+                    videoElement.pause();
+                    setIsPlaying(false);
+                    console.log('video paused');
+                } else {
+                    videoElement.play();
+                    setIsPlaying(true);
+                    console.log('video played');
+                }
+            }
+
     useEffect(() => {
         if(!isLoading){
         setIsVideoLoaded(false);
@@ -386,6 +399,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             videoElement.addEventListener("playing", handleVideoPlay);
             videoElement.addEventListener("ended", handleVideoEnd)
             videoElement.addEventListener("stalled", () => { });
+            window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
 
             if (Hls.isSupported()) {
                 hls = new Hls();
@@ -418,6 +432,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 videoElement.removeEventListener("playing", handleVideoPlay);
                 videoElement.removeEventListener("ended", handleVideoEnd)
                 videoElement.removeEventListener("stalled", () => { });
+                window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
                 if (hls) hls.destroy();
                 setIsPlaying(false);
             };

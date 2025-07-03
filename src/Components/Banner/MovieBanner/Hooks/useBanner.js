@@ -34,6 +34,19 @@ const useBanner = (asset, banners) => {
     setIsVideoLoaded(false);
   }
 
+  const handlePlayerVisibilityChange = () => {
+    console.log(document.hidden);
+    if (document.hidden) {
+      videoElement.pause();
+      setIsPlaying(false);
+      console.log('video paused');
+    } else {
+      videoElement.play();
+      setIsPlaying(true);
+      console.log('video played');
+    }
+  }
+
   const videoRef = useCallback((node) => {
     if (node !== null) {
       setVideoElement(node);
@@ -70,6 +83,7 @@ const useBanner = (asset, banners) => {
       videoElement.addEventListener("playing", handleVideoPlay);
       videoElement.addEventListener("ended", handleVideoEnd)
       videoElement.addEventListener("stalled", () => { });
+      window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
 
       if (Hls.isSupported()) {
         hls = new Hls();
@@ -102,6 +116,7 @@ const useBanner = (asset, banners) => {
         videoElement.removeEventListener("playing", handleVideoPlay);
         videoElement.removeEventListener("ended", handleVideoEnd)
         videoElement.removeEventListener("stalled", () => { });
+        window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
         if (hls) hls.destroy();
         setIsPlaying(false);
       };
