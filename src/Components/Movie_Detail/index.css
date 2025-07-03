@@ -140,10 +140,11 @@
 /* 🔥 Button Styling */
 .detail-play-button {
   align-items: center;
-  background: linear-gradient(45deg, #0000, #f90000b5);
+  /* background: linear-gradient(45deg, #0000, #f90000b5); */
+  background-color: #ccc;
   border: 2px solid #fff;
   border-radius: 5px;
-  color: #fff;
+  color: black;
   cursor: pointer;
   display: flex;
   font-size: 1em;
@@ -152,6 +153,7 @@
   text-transform: uppercase;
   transition: scale .3s ease-in-out;
   width: 10em;
+  font-weight: 600;
   justify-content: center;
 }
 
@@ -159,17 +161,17 @@
 /* 🔥 Button Focus (for TV Remote Navigation) */
 .detail-play-button-focus {
   font-weight: 700;
-  background: white;
-  color: black
+  background: red;
+  color: white
 }
 
 .detail-play-button .focusableButton_icon {
   margin-right: 10px;
-  color: white;
+  color: black;
 }
 
 .detail-play-button-focus .focusableButton_icon {
-  color: black;
+  color: white;
 }
 
 
