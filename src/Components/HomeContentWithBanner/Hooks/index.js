@@ -106,7 +106,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
         setBanners(getCache(cacheKeyGroup.BANNERS_DATA));
       } else {
         const bannerData = await fetchBannersBySection(category);
-        const playlistData = await fetchPlaylistPage(category, 1, uid, horizontalLimit + 1);
+        const playlistData = await fetchPlaylistPage(category, 1, uid, horizontalLimit);
         const processedPlaylists = getProcessedPlaylists(playlistData, horizontalLimit);
 
         if (cacheKeyGroup) {
