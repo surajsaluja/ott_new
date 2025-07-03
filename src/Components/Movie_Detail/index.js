@@ -14,7 +14,7 @@ import { IoHeartSharp } from "react-icons/io5";
 import { FaPlay } from "react-icons/fa6";
 
 function Movie_Detail() {
-    const {categoryId, mediaId} = useParams();
+    const { categoryId, mediaId } = useParams();
     const {
         ref,
         btnControlsFocusKey,
@@ -32,7 +32,11 @@ function Movie_Detail() {
         updateMediaWishlistStatus,
         watchMovie,
         handleBackPressed,
-        isMediaPublished
+        isMediaPublished,
+        isVideoLoaded,
+        isPlaying,
+        videoPlayerRef,
+        videoRef
     } = useMediaDetail(mediaId, categoryId, 'MOVIE_DETAIL_PAGE');
 
 
@@ -52,70 +56,79 @@ function Movie_Detail() {
                     </div>
                 </div>
             ) : (
-               (isError) ? (<div className="error-container">
-                <div className="error-icon">
-                    <MdError />
-                </div>
-                <div className="error-message">
-                    {errorMessage}
-                </div>
-                <FocusableButton 
-                    text="Return Back"
-                    focuskey={'DETAIL_ERROR_BUTTON'}
-                    className="btn-error-return"
-                    focusClass="btn-error-focused"
-                    onEnterPress={handleBackPressed}
-                />
-               </div>)  :( <>
+                (isError) ? (<div className="error-container">
+                    <div className="error-icon">
+                        <MdError />
+                    </div>
+                    <div className="error-message">
+                        {errorMessage}
+                    </div>
+                    <FocusableButton
+                        text="Return Back"
+                        focuskey={'DETAIL_ERROR_BUTTON'}
+                        className="btn-error-return"
+                        focusClass="btn-error-focused"
+                        onEnterPress={handleBackPressed}
+                    />
+                </div>) : (<>
                     <div
                         className={`movie-detail-page-poster ${mediaDetail.fullPageBanner ? 'bg-image-found' : 'bg-image-not-found'}`}
                         style={{
-                            backgroundImage: mediaDetail.fullPageBanner
+                            backgroundImage: mediaDetail.fullPageBanner && !isVideoLoaded
                                 ? `url("${mediaDetail.fullPageBanner}")`
                                 : "none",
                         }}
-                    ></div>
-                    <div className="overlay-detail overlay-detail-ltr"></div>
+                    >
+                        <video
+                        key="detail-video"
+                        ref={videoRef}
+                        autoPlay={false}
+                        // poster={displayAsset.fullPageBanner}
+                        playsInline
+                        style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out'}}
+                    />
+                    </div>
+                    <div className={` overlay-detail ${!isVideoLoaded ? 'overlay-detail-ltr' : 'overlay-bottom-gradient'}`}></div>
 
                     <div className="content-detail">
-                        <div className="details">
+                        <div className={`details ${isVideoLoaded ? 'videoLoaded' : ''}`}>
                             {mediaDetail.title && <h1 className="title-detail">{mediaDetail.title}</h1>}
-                            <div className="info-detail">
+                            {!isVideoLoaded && <div className="info-detail">
                                 {mediaDetail?.releasedYear && <span><i><MdOutlineDateRange /></i>{mediaDetail?.releasedYear}</span>}
                                 {/* {mediaDetail?.rating && <span><i><MdStarRate /></i>{mediaDetail?.rating}</span>} */}
                                 {mediaDetail?.duration && isMediaPublished && <span><i><MdOutlineTimer /></i>{formatTime(mediaDetail?.duration)}</span>}
                                 {mediaDetail?.ageRangeId && <span><i><GiVibratingShield /></i>{`${mediaDetail?.ageRangeId}+`}</span>}
                                 {mediaDetail?.cultures && <span>{mediaDetail?.cultures}</span>}
-                            </div>
-                            <p className="description-detail">{mediaDetail.description}</p>
+                            </div>}
+                            {!isVideoLoaded && <p className="description-detail">{mediaDetail.description}</p>}
                             {mediaDetail &&
                                 <div className="buttons-detail">
-                                    {isMediaPublished &&<FocusableButton
+                                    {isMediaPublished && <FocusableButton
                                         key={'detail_watch'}
                                         icon={<FaPlay />}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={showResumeBtn ? `Resume Movie` : `Watch Movie`}
-                                        onEnterPress={()=>{watchMovie(false,showResumeBtn)}}
+                                        onEnterPress={() => { watchMovie(false, showResumeBtn) }}
                                     />}
                                     {isMediaPublished && showResumeBtn && <FocusableButtonIconTooltip
                                         icon={<MdOutlineRestartAlt />}
                                         text={'Start Over'}
-                                        onEnterPress={()=>{watchMovie(false,false)}}
+                                        onEnterPress={() => { watchMovie(false, false) }}
                                         className="round-focusable-button"
                                     />}
                                     {isMediaPublished ? (<FocusableButtonIconTooltip
                                         icon={<MdMovie />}
                                         text={'Watch Trailer'}
-                                        onEnterPress={()=>{watchMovie(true,false)}}
+                                        onEnterPress={() => { watchMovie(true, false) }}
                                         className="round-focusable-button"
-                                    />):(<FocusableButton
+                                    />) : (<FocusableButton
                                         key={'detail_watch_trailer'}
                                         icon={<FaPlay />}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
                                         text={'Watch Trailer'}
-                                        onEnterPress={()=>{watchMovie(true,false)}}
+                                        onEnterPress={() => { watchMovie(true, false) }}
                                     />)}
                                     <FocusableButtonIconTooltip
                                         icon={isMediaFavourite ? <IoHeartSharp /> : <MdAdd />}
@@ -142,7 +155,7 @@ function Movie_Detail() {
                         ))}
                     </div>
                 </>
-            ))}
+                ))}
         </div>
         {isDrawerOpen && (
             <BottomDrawer isOpen={isDrawerOpen} onClose={handleBottomDrawerClose} focusKey={'BTM_DRWR'}>

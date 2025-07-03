@@ -1,6 +1,7 @@
 import { setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
+import Hls from "hls.js";
 import { getMediaDetails, getMediaRelatedItemDetails, getTokenisedMedia, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
 import { getMediaRelatedItem, updateMediaItemToWishlist } from "../../../Service/MediaService";
 import { getProcessedPlaylists } from "../../../Utils";
@@ -29,8 +30,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [webSeriesId, setWebSeriesId] = useState(null);
     const [webSeriesSeasons, setWebSeriesSeasons] = useState([]);
     const [selectedSeasonId, setSelectedSeasonId] = useState(null);
-   
-  const [relatedItems, setRelatedItems] = useState([]);
+
+    const [relatedItems, setRelatedItems] = useState([]);
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const [isDrawerContentReady, setDrawerContentReady] = useState(false);
     const [isRelatedItemsLoading, setIsRelatedItemsLoading] = useState(true); // Add a loading state for related items
@@ -38,14 +39,18 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isSeasonsLoading, setIsSeasonsLoading] = useState(true);
     const [showResumeBtn, setShowResumeButton] = useState(false);
     const [isMediaFavourite, setIsMediaFavourite] = useState(false);
-    const [isError,setIsError] = useState(false);
-    const [errorMessage,setErrorMessage] = useState(false);
-    const [isMediaPublished,setIsMediaPublished] = useState(false);
-    const [webSeriesEpisodeSelected,setWebSeriesEpisodeSelected] = useState(null);
+    const [isError, setIsError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
+    const [isMediaPublished, setIsMediaPublished] = useState(false);
+    const [webSeriesEpisodeSelected, setWebSeriesEpisodeSelected] = useState(null);
     const webSeriesNextEpisodeMediaId = useRef(null);
-    let isWebSeries = false;
+    const [videoElement, setVideoElement] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const hlsRef = useRef(null);
+    const videoPlayerRef = useRef(null);
 
-     const {isLoggedIn, userObjectId } = useUserContext();
+    const { isLoggedIn, userObjectId } = useUserContext();
 
     // Support Functions
     const history = useHistory();
@@ -70,42 +75,43 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         setIsError(false);
         setErrorMessage(false);
         setIsMediaPublished(false);
-        isWebSeries = false;
         setSelectedSeasonId(null);
         setWebSeriesEpisodeSelected(null);
         handleBottomDrawerClose();
+        setIsVideoLoaded(false);
+        setIsPlaying(false);
     }, [mediaId]);
 
-    useEffect(()=>{
-        if(!webSeriesId) return
+    useEffect(() => {
+        if (!webSeriesId) return
         clearWebSeriesCache(webSeriesId);
-    },[webSeriesId])
+    }, [webSeriesId])
 
-    const handleBackPressed = () =>{
-        if(isDrawerOpen){
+    const handleBackPressed = () => {
+        if (isDrawerOpen) {
             handleBottomDrawerClose();
             return;
-        }else{
+        } else {
             history.goBack();
         }
     }
 
     useOverrideBackHandler(() => {
         handleBackPressed();
-      });
+    });
 
     // set Focus to Page when media Loads
     useEffect(() => {
         if (!isLoading && !isError && focusSelf) {
-            setTimeout(()=>{
+            setTimeout(() => {
                 focusSelf();
-            },50);
+            }, 50);
         }
 
-        if(isError){
-            setTimeout(()=>{
+        if (isError) {
+            setTimeout(() => {
                 focusSelf();
-            },50)
+            }, 50)
         }
     }, [isLoading, focusSelf, isError]);
 
@@ -117,18 +123,18 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             return () => clearTimeout(timer);
         } else {
             setDrawerContentReady(false); // Reset when closing
-            setTimeout(()=>{
+            setTimeout(() => {
                 focusSelf();
-            },50);
+            }, 50);
         }
     }, [isDrawerOpen]);
 
-   
+
     // Data Fetching Functions
 
     const fetchMediaDetail = async (mediaId) => {
         try {
-            setCache(CACHE_KEYS.CURRENT_SCREEN,categoryId == 1 ? SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE : SCREEN_KEYS.DETAILS.WEBSERIES_DETAIL_PAGE);
+            setCache(CACHE_KEYS.CURRENT_SCREEN, categoryId == 1 ? SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE : SCREEN_KEYS.DETAILS.WEBSERIES_DETAIL_PAGE);
             setIsLoading(true);
             const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId);
             if (mediaDetailsResponse.isSuccess) {
@@ -140,7 +146,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 setIsMediaPublished(mediaDet.isMediaPublished);
                 if (categoryId == 2 && mediaDet.seasons && mediaDet.seasons.length > 0) {
                     setWebSeriesId(mediaDet.webSeriesId);
-                    setWebSeriesSeasons(mediaDet.seasons.length > 0 ?  mediaDet.seasons : []);
+                    setWebSeriesSeasons(mediaDet.seasons.length > 0 ? mediaDet.seasons : []);
                     setSelectedSeasonId(mediaDet.currentSeason);
                     setWebSeriesEpisodeSelected(mediaDet.currentEpisode);
                     webSeriesNextEpisodeMediaId.current = mediaDet.nextEpisodeMediaId;
@@ -164,7 +170,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     const getRelatedMediaItems = async (mediaId) => {
         try {
-            const response = await getMediaRelatedItemDetails(mediaId,null,1,20);
+            const response = await getMediaRelatedItemDetails(mediaId, null, 1, 20);
             if (response.isSuccess && response.data?.length) {
                 setRelatedItems(getProcessedPlaylists(response.data, 20));
             } else {
@@ -178,23 +184,23 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     };
 
-      const redirectToLogin = () => {
-    history.push('/login', { from: '/' });
-  };
+    const redirectToLogin = () => {
+        history.push('/login', { from: '/' });
+    };
 
 
-    const onRelatedItemEnterPress  = (assetData) =>{
+    const onRelatedItemEnterPress = (assetData) => {
         if (isLoggedIn && userObjectId) {
-             history.replace(`/detail/${assetData?.categoryID}/${assetData?.mediaID}`);
-               }
-               else {
-                 showModal('Login',
-                   'You are not logged in !!',
-                   [
-                     { label: 'Login', action: redirectToLogin, className: 'primary' }
-                   ]
-                 );
-               }
+            history.replace(`/detail/${assetData?.categoryID}/${assetData?.mediaID}`);
+        }
+        else {
+            showModal('Login',
+                'You are not logged in !!',
+                [
+                    { label: 'Login', action: redirectToLogin, className: 'primary' }
+                ]
+            );
+        }
     }
 
     const updateMediaWishlistStatus = async () => {
@@ -215,9 +221,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     // Seasons and Episodes Functions
 
-  
 
-  
+
+
 
 
     // Bottom Drawer Functions
@@ -250,10 +256,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 playDuration: isResume ? mediaDetail.playDuration : 0,
                 nextEpisodeMediaId: webSeriesNextEpisodeMediaId.current
             });
-        }else{
+        } else {
             showModal('Warning',
-                    tokenisedResponse.message,
-      );
+                tokenisedResponse.message,
+            );
         }
     }
 
@@ -263,25 +269,25 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         if (isRelatedItemsLoading) return <p>Loading related items...</p>;
         if (!relatedItems.length) return <p>No related items available.</p>;
 
-        return <FullPageAssetContainer 
-        assets={relatedItems} 
-        focusKey={'AST_CNT_DET_REL'}
-        onAssetPress={onRelatedItemEnterPress} />;
+        return <FullPageAssetContainer
+            assets={relatedItems}
+            focusKey={'AST_CNT_DET_REL'}
+            onAssetPress={onRelatedItemEnterPress} />;
     }, [isRelatedItemsLoading, relatedItems]);
 
-    const onEpisodeEnterPress = (episode)=>{
+    const onEpisodeEnterPress = (episode) => {
         history.replace(`/detail/${episode?.categoryID}/${episode?.mediaID}`);
     }
 
     const RenderSeasonEpisodes = useCallback(() => {
         if (!webSeriesSeasons || webSeriesSeasons.length === 0) return <p>No Seasons available</p>;
 
-        return <Season_EpisodeList 
-        focusKey={'SEASON_CNT'} 
-        onEpisodeEnterPress={onEpisodeEnterPress}
-        setIsSeasonsLoading = {setIsSeasonsLoading}
-        isSeasonsLoading = {isSeasonsLoading}
-        webSeriesId={webSeriesId}/>
+        return <Season_EpisodeList
+            focusKey={'SEASON_CNT'}
+            onEpisodeEnterPress={onEpisodeEnterPress}
+            setIsSeasonsLoading={setIsSeasonsLoading}
+            isSeasonsLoading={isSeasonsLoading}
+            webSeriesId={webSeriesId} />
     }, [webSeriesId]);
 
     const RenderCastData = useCallback(() => {
@@ -327,6 +333,101 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         return dynamicTabs;
     }, [mediaDetail, webSeriesSeasons, RenderRelatedItems, RenderSeasonEpisodes]);
 
+    
+    const handleVideoCanPlay = () => {
+        setIsVideoLoaded(true);
+        videoElement.play().catch(error => {
+            console.error("Autoplay prevented:", error);
+        });
+    }
+
+    const handleVideoPlay = () => {
+        setIsPlaying(true);
+    }
+
+    const handleVideoEnd = () => {
+        setIsPlaying(false);
+        setIsVideoLoaded(false);
+    }
+
+    const videoRef = useCallback((node) => {
+        if (node !== null) {
+            setVideoElement(node);
+            videoPlayerRef.current = node;
+        }
+    }, []);
+
+    useEffect(() => {
+        if(!isLoading){
+        setIsVideoLoaded(false);
+        setIsPlaying(false);
+
+        if (hlsRef.current) {
+            hlsRef.current.destroy();
+            hlsRef.current = null;
+        }
+
+        if (!mediaDetail?.trailerPlayUrl || !videoElement) {
+            console.warn('trailer not avialable');
+            return;
+        }
+
+        const playTrailer = () => {
+            if (!videoElement) return;
+
+            let hls;
+
+            videoElement.pause();
+            videoElement.src = "";
+            setIsVideoLoaded(false);
+
+            videoElement.addEventListener("waiting", () => { });
+            videoElement.addEventListener("canplay", handleVideoCanPlay);
+            videoElement.addEventListener("playing", handleVideoPlay);
+            videoElement.addEventListener("ended", handleVideoEnd)
+            videoElement.addEventListener("stalled", () => { });
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hlsRef.current = hls;
+                hls.loadSource(mediaDetail.trailerPlayUrl);
+                hls.attachMedia(videoElement);
+
+                hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {
+                    if (videoElement.textTracks) {
+                        for (let i = 0; i < videoElement.textTracks.length; i++) {
+                            videoElement.textTracks[i].mode = "disabled";
+                        }
+                    }
+                });
+            } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+                videoElement.src = mediaDetail.trailerPlayUrl;
+            }
+
+            // Disable subtitles/text tracks
+            // Disable all subtitles / text tracks
+            if (videoElement.textTracks) {
+                for (let i = 0; i < videoElement.textTracks.length; i++) {
+                    videoElement.textTracks[i].mode = "disabled";
+                }
+            }
+
+            return () => {
+                videoElement.removeEventListener("waiting", () => { });
+                videoElement.removeEventListener("canplay", handleVideoCanPlay);
+                videoElement.removeEventListener("playing", handleVideoPlay);
+                videoElement.removeEventListener("ended", handleVideoEnd)
+                videoElement.removeEventListener("stalled", () => { });
+                if (hls) hls.destroy();
+                setIsPlaying(false);
+            };
+        };
+
+        const delayPlay = setTimeout(playTrailer, 2000);
+        return () => clearTimeout(delayPlay);
+    }
+    }, [isLoading,mediaDetail, videoElement]);
+
 
     return {
         ref,
@@ -345,7 +446,11 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         isMediaFavourite,
         updateMediaWishlistStatus,
         watchMovie,
-        handleBackPressed
+        handleBackPressed,
+        isVideoLoaded,
+        isPlaying,
+        videoPlayerRef,
+        videoRef
     }
 }
 

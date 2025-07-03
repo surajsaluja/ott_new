@@ -127,6 +127,7 @@ export const getMediaDetails = async (
       isFree = getIsContentFree(isPaid);
       userCurrentPlayTime = mediaDetail.playDuration;
       isMediaPublished = mediaDetail.isMediaPublished;
+      mediaDetail.trailerPlayUrl = mediaDetail?.trailerUrl ? DecryptAESString(mediaDetail.trailerUrl) : null;
       mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
       webThumbnailUrl = sanitizeAndResizeImage(
         mediaDetail.webThumbnailUrl,
