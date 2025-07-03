@@ -25,6 +25,9 @@ export default function BottomDrawer({ isOpen, onClose, children, focusKey }) {
     trackChildren: false,
     focusKey,
     saveLastFocusedChild: false,
+    onArrowPress:(direction)=>{
+      console.log(`${direction} pressed in bottom drawer`);
+    }
   });
 
   useEffect(() => {

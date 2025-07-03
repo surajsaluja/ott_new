@@ -1,7 +1,16 @@
 .credits-container {
-    padding: 1rem;
-    color: white;
-  }
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+
+/* .radio-home-content{
+  width: 100%;
+  height: 100%;
+}
   
   .credits-row {
     display: flex;
@@ -38,4 +47,4 @@
     text-align: center;
     font-weight: 700;
   }
-  
+   */

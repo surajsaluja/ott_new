@@ -7,7 +7,7 @@
     display: flex;
     height: 100%;
     flex-direction: column;
-    width: 17vw;
+    width: 21vw;
 }
 
 .seasonsTabScrollingWrapper {
@@ -21,7 +21,7 @@
 
 .tab_season {
     width: 90%;
-    height: 3em;
+    height: 4em;
     background-color: transparent;
     border-color:transparent;
     border-style: solid;
@@ -41,7 +41,7 @@
 
 .tab_season span{
     color: var(--BTN-WHITE3);
-    font-size: 1.3em;
+    font-size: 2em;
     font-weight: var(--BUTTON2-MEDIUM-WEIGHT);
     line-height: var(--BUTTON2-MEDIUM-HEIGHT);
 }
@@ -57,12 +57,12 @@
 .tab_season_focused .episodes-length{
     display: inline-flex;
     color: #ccc;
-    font-size: 0.6em;
+    font-size: 0.7em;
 }
 
 .tab_season_selected span{
     color: var(--BTN-WHITE1);
-    font-size: 1.4em;
+    font-size: 2em;
     font-weight: var(--BUTTON2-SEMIBOLD-WEIGHT);
     line-height: var(--BUTTON2-SEMIBOLD-HEIGHT);
 }

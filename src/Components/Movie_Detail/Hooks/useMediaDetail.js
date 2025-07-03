@@ -119,13 +119,19 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         if (isDrawerOpen) {
             const timer = setTimeout(() => {
                 setDrawerContentReady(true);
-            }, 300);
+            }, 500);
+            if(videoElement && isPlaying){
+                videoElement.pause();
+            }
             return () => clearTimeout(timer);
         } else {
             setDrawerContentReady(false); // Reset when closing
             setTimeout(() => {
                 focusSelf();
             }, 50);
+            if(videoElement && isPlaying){
+                videoElement.play();
+            }
         }
     }, [isDrawerOpen]);
 
@@ -371,7 +377,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             }
 
     useEffect(() => {
-        if(!isLoading){
+        if(!isLoading || mediaDetail != null){
         setIsVideoLoaded(false);
         setIsPlaying(false);
 

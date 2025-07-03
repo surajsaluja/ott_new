@@ -48,7 +48,14 @@ const groupStarCasts = (starCastArray = []) => {
     return null;
   }
 
-  const groupedStarCasts = {
+  const ROLE_DISPLAY_NAME = {
+    Producer: "Producers",
+    Director: "Directors",
+    Writer: "Writers",
+    Starcast: "Star Cast",
+  };
+
+  const grouped = {
     Producer: [],
     Director: [],
     Writer: [],
@@ -56,17 +63,33 @@ const groupStarCasts = (starCastArray = []) => {
   };
 
   starCastArray.forEach(({ iStarcastType, displayName, profileImage }) => {
-    if (groupedStarCasts[iStarcastType]) {
-      groupedStarCasts[iStarcastType].push({ displayName, profileImage });
+    if (grouped[iStarcastType]) {
+      grouped[iStarcastType].push({
+        title: displayName,
+        webThumbnail: profileImage,
+        mobileThumbnail: profileImage,
+        fullPageBanner: profileImage,
+        category: "StarCast",
+        categoryID: "0",
+      });
     }
   });
 
-  // Check if all groups are still empty
-  const hasAnyStarCast = Object.values(groupedStarCasts).some(
-    (list) => list.length > 0
-  );
-  return hasAnyStarCast ? groupedStarCasts : null;
+  const result = Object.entries(grouped)
+    .filter(([, items]) => items.length > 0)
+    .map(([role, playlistItems]) => ({
+      playListId: 0,
+      playListTypeId: 0,
+      playlistName: ROLE_DISPLAY_NAME[role],
+      playlistType: null,
+      height: 50,
+      width: 50,
+      playlistItems
+    }));
+
+  return result.length ? result : null;
 };
+
 
 export const getMediaDetails = async (
   mediaId = null,

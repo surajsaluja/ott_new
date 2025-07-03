@@ -1,5 +1,7 @@
 import React from 'react';
 import './index.css';
+import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import Content from '../HomePageContent/Content';
 
 const flattenCast = (data) => {
   const combined = [];
@@ -17,24 +19,23 @@ const flattenCast = (data) => {
 };
 
 const Credits = ({ data }) => {
-  const allMembers = flattenCast(data);
+  // const allMembers = flattenCast(data);
+  const {ref,focusKey: currentFocusKey } = useFocusable({focusKey: 'STARCAST_CONTAINER'});
 
   return (
-    <div className="credits-container">
-      <div className="credits-row">
-        {allMembers.map((person, index) => (
-          <div key={index} className="credits-card">
-            <img
-              src={person.profileImage}
-              alt={person.displayName}
-              className="credits-image"
-            />
-            <div className="credits-role">{person.role}</div>
-            <div className="credits-name">{person.displayName}</div>
-          </div>
-        ))}
-      </div>
+    <FocusContext.Provider value={currentFocusKey}>
+    <div className="credits-container" ref={ref}>
+        <Content
+          onAssetFocus={() => { }}
+          data={data}
+          handleAssetFocus={() => { }}
+          // onAssetPress={onRadioChannelEnterPress}
+          isCircular={true}
+          showTitle={true}
+          parentScrollingRef={ref}
+        />
     </div>
+    </FocusContext.Provider>
   );
 };
 
