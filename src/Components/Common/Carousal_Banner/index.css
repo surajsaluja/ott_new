@@ -19,6 +19,7 @@
     border-radius: 10px;
     display: flex;
     justify-content: center;
+    width: 100%;
 }
 
 .slider-image-wrapper{
@@ -26,10 +27,12 @@
         border-style: solid;
         border-width: 4px;
     border-radius: 10px;
+    width: 100%;
 }
 
 .slider-image{
     max-width: 100%;
+    min-width: 100%;
     max-height: 100%;
     border-radius: 12px;
     object-fit: cover;
