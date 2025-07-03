@@ -72,9 +72,9 @@
   transition: all 0.5s ease-in-out;
 }
 
-.details.videoLoaded{
+.details.videoLoaded {
   margin-top: 60vh !important;
-  width: 90vw; 
+  width: 90vw;
   font-size: 0.7vw;
 }
 
@@ -90,16 +90,16 @@
 /* 🔥 Movie Description */
 .description-detail {
   font-size: 1.3em;
-    height: 17vh;
-    line-height: 1.5;
-    margin-bottom: 15px;
-    margin-right: -1em;
-    opacity: .9;
-    overflow: hidden;
-    padding-right: 1em;
-    position: relative;
-    text-align: justify;
-    text-overflow: ellipsis;
+  height: 17vh;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  margin-right: -1em;
+  opacity: .9;
+  overflow: hidden;
+  padding-right: 1em;
+  position: relative;
+  text-align: justify;
+  text-overflow: ellipsis;
 }
 
 /* 🔥 Movie Info (Genre, Year, Rating) */
@@ -272,33 +272,38 @@
 .shimmer.title {
   width: 80%;
   height: 40px;
+  margin: 5vh;
 }
 
 .shimmer.description {
   width: 100%;
   height: 80px;
+  margin: 5vh;
 }
 
 .shimmer.info {
   width: 60%;
-  height: 20px;
+  height: 40px;
+  margin: 5vh;
 }
 
 .shimmer.buttons {
   width: 200px;
   height: 40px;
+  margin: 5vh;
 }
 
 .shimmer-image-container {
   display: flex;
-  flex: 1;
-  justify-content: end;
+  flex: 1 1;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .shimmer-content-container {
   display: flex;
   width: 35%;
-  margin-top: 25%;
+  margin-top: 10vh;
   flex-direction: column;
 }
 
