@@ -43,7 +43,7 @@
   height: 50%;
   margin-left: 5vw;
   position: relative;
-  width: 65%;
+  width: 40%;
   z-index: 10;
 }
 
@@ -211,6 +211,11 @@
 .overlay-bottom-gradient {
   background: linear-gradient(180deg,
       rgba(16, 14, 17, 0) 0%,
+      rgba(16, 14, 17, 0) 50%,
+      rgba(16, 14, 17, 0.6) 60%,
+      rgba(16, 14, 17, 0.8) 70%,
+      rgba(16, 14, 17, 0.9) 80%,
+      rgba(16, 14, 17, 1) 90%,
       rgba(16, 14, 17, 1) 100%);
 }
 

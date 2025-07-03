@@ -116,7 +116,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       ageRangeId = displayBanners[0].ageRangeId;
       shortDescription = displayBanners[0].shortDescription;
       duration = displayBanners[0].duration;
-      genre = displayBanners[0].genre;
+      // genre = displayBanners[0].genre;
       rating = displayBanners[0].rating;
       isPlayButton = displayBanners[0].isPlayButton;
       isShowDetailButton = true;
@@ -145,7 +145,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           {/* {duration && <span><i><MdOutlineTimer /></i>{formatTime(duration)}</span>} */}
           {/* {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>} */}
         </div>
-        <p className="asset-description" >{getEclipsedTrimmedText(shortDescription, 160)}</p>
+        <p className="asset-description" >{getEclipsedTrimmedText(shortDescription, 120)}</p>
         <div className="asset-genres" style={{ bottom: `${displayAsset ? 0 : 22}%` }}>
           {genre && genre.split(',').map((genre, idx) => (
             <span key={idx} className="asset-genre">{genre}</span>
