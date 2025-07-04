@@ -29,7 +29,7 @@ function Season_EpisodeList({ webSeriesId, focusKey, onEpisodeEnterPress, setIsS
     saveLastFocusedChild: false,
     autoRestoreFocus: true,
     forceFocus: true,
-    preferredChildFocusKey: SEASON_TABS_FOCUS_KEY
+    preferredChildFocusKey: EPISODES_LIST_FOCUS_KEY
   });
 
   const loadEpisodes = useCallback(async (seasonId) => {

@@ -379,3 +379,35 @@
   justify-content: center !important;
   align-items: center !important;
 }
+
+.details-episodedata{
+  display: inline-flex;
+  font-size: 1.3vw;
+  align-items: center;
+}
+
+.seriesNumber-detail{
+  display: inline-flex;
+  font-size: 1em;
+  margin-right: 0.5em;
+  align-items: center;
+}
+
+.seriesNumber-detail span{
+  display: inline-flex;
+  font-size: 1em;
+  margin-right: 0.2em;
+}
+
+.seriesName-detail{
+  display: inline-flex;
+  font-size: 1em;
+}
+
+.episode-detail-seprator{
+  width: 0.4em;
+  height: 0.4em;
+  background-color: white;
+  border-radius: 50%;
+  margin: 0 0.2em;
+}

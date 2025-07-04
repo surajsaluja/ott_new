@@ -80,19 +80,36 @@ function Movie_Detail() {
                         }}
                     >
                         <video
-                        key="detail-video"
-                        ref={videoRef}
-                        autoPlay={false}
-                        // poster={displayAsset.fullPageBanner}
-                        playsInline
-                        style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out'}}
-                    />
+                            key="detail-video"
+                            ref={videoRef}
+                            autoPlay={false}
+                            // poster={displayAsset.fullPageBanner}
+                            playsInline
+                            style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
+                        />
                     </div>
                     <div className={` overlay-detail ${!isVideoLoaded ? 'overlay-detail-ltr' : 'overlay-bottom-gradient'}`}></div>
 
                     <div className="content-detail">
                         <div className={`details ${isVideoLoaded ? 'videoLoaded' : ''}`}>
-                            {mediaDetail.title && <h1 className="title-detail">{mediaDetail.title}</h1>}
+                            {mediaDetail.webSeriesId != null && mediaDetail.webSeriesName != null ? (
+                                <>
+                                    {mediaDetail.webSeriesName && <h1 className="title-detail">{mediaDetail.webSeriesName}</h1>}
+                                    <div className="details-episodedata">
+                                        {(mediaDetail?.currentseasonNumber || mediaDetail.currentEpisodeNumber) &&
+                                        <div className="seriesNumber-detail">
+                                        <span className="episode-detail-seprator"></span>
+                                        {mediaDetail.currentseasonNumber && <span className="">S{mediaDetail.currentseasonNumber}</span>}
+                                        <span className="episode-detail-seprator"></span>
+                                        {mediaDetail.currentEpisodeNumber && <span className="">E{mediaDetail.currentEpisodeNumber}</span>}
+                                        </div>}
+                                        <span className="episode-detail-seprator"></span>
+                                        {mediaDetail.title && <span className="seriesName-detail">{mediaDetail.title}</span>}
+                                    </div>
+                                </>
+                            ) : (
+                                mediaDetail.title && <h1 className="title-detail">{mediaDetail.title}</h1>
+                            )}
                             {!isVideoLoaded && <div className="info-detail">
                                 {mediaDetail?.releasedYear && <span><i><MdOutlineDateRange /></i>{mediaDetail?.releasedYear}</span>}
                                 {/* {mediaDetail?.rating && <span><i><MdStarRate /></i>{mediaDetail?.rating}</span>} */}

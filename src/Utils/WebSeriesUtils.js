@@ -20,7 +20,7 @@ export const getEpisodes = async (webSeriesId, seasonId) => {
         const episodesRes = await fetchWebSeriesEpisodeBySeasonId(webSeriesId, seasonId);
         if (episodesRes && episodesRes.isSuccess) {
             if (!episodeCache[webSeriesId]) episodeCache[webSeriesId] = {};
-            let episodesProcessed = episodesRes?.data ? episodesRes?.data?.map(episode => ({
+            let episodesProcessed = episodesRes?.data ? episodesRes?.data?.map((episode, index)=> ({
                 title: episode.title,
                 mediaID: episode.mediaID,
                 seasonId: episode.seasonId,
@@ -30,7 +30,8 @@ export const getEpisodes = async (webSeriesId, seasonId) => {
                 webThumbnail: episode.webThumbnail,
                 isAddedByUser: episode.isAddedByUser,
                 duration: episode.duration,
-                webSeriesId: episode.webSeriesId
+                webSeriesId: episode.webSeriesId,
+                 episodeNumber: String(index + 1).padStart(2, '0')
             })) : [];
             episodeCache[webSeriesId][seasonId] = episodesProcessed;
             return {isSuccess: true,
@@ -50,9 +51,10 @@ export const getEpisodes = async (webSeriesId, seasonId) => {
 
 // Find season by mediaId
 export const findSeasonByMediaId = async (mediaId, webSeriesId, seasonsData = null) => {
-    const seasons = seasonCache[webSeriesId] || seasonsData;
+    let seasons = seasonCache[webSeriesId] || seasonsData;
     if (!seasonCache[webSeriesId]) {
         setSeasonCache(webSeriesId, seasons);
+        seasons  = getSeasonsCache(webSeriesId);
     }
     if (!seasons) return null;
 
@@ -96,7 +98,12 @@ const getNextEpisodeMediaId = (episodes, mediaId) => {
 };
 
 export const setSeasonCache = (webSeriesId, seasons) => {
-    seasonCache[webSeriesId] = seasons;
+    // Add seasonNumber before storing
+    const updatedSeasons = seasons.map((season, index) => ({
+        ...season,
+        seasonNumber: index + 1 // 1-based index
+    }));
+    seasonCache[webSeriesId] = updatedSeasons;
 };
 
 export const setCurrentSeason = (webseriesId,seasonId) =>{

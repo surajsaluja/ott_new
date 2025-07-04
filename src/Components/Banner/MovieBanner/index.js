@@ -55,9 +55,9 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   if (!displayAsset && displayBanners.length === 0) return null;
 
   const renderMedia = () => {
-    if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].fullPageBanner) {
+    if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].mobileThumbnail) {
       return <img key="banner-image"
-        src={displayBanners[0].fullPageBanner || displayBanners[0].mobileThumbnail}
+        src={displayBanners[0].mobileThumbnail || displayBanners[0].fullPageBanner}
         className={`banner-video ${transitionClass}`}
         onLoad={handleImageLoaded}
         style={{ opacity: (isImageLoaded ? 1 : 0) }}
@@ -110,14 +110,14 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     let isShowDetailButton = false;
 
     if (displayShowBanner && displayBanners.length > 0) {
-      title = displayBanners[0].mediaTitle;
-      mediaTitle = displayBanners[0].mediaTitle;
-      releasedYear = displayBanners[0].releasedYear;
-      ageRangeId = displayBanners[0].ageRangeId;
-      shortDescription = displayBanners[0].shortDescription;
-      duration = displayBanners[0].duration;
+      // title = displayBanners[0].mediaTitle;
+      // mediaTitle = displayBanners[0].mediaTitle;
+      // releasedYear = displayBanners[0].releasedYear;
+      // ageRangeId = displayBanners[0].ageRangeId;
+      // shortDescription = displayBanners[0].shortDescription;
+      // duration = displayBanners[0].duration;
       // genre = displayBanners[0].genre;
-      rating = displayBanners[0].rating;
+      // rating = displayBanners[0].rating;
       isPlayButton = displayBanners[0].isPlayButton;
       isShowDetailButton = true;
     }
