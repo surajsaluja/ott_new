@@ -58,20 +58,20 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].mobileThumbnail) {
       return <img key="banner-image"
         src={displayBanners[0].mobileThumbnail || displayBanners[0].fullPageBanner}
-        className={`banner-video ${transitionClass}`}
+        className={`banner-video-w-100 ${transitionClass}`}
         onLoad={handleImageLoaded}
         style={{ opacity: (isImageLoaded ? 1 : 0) }}
       />;
     }
 
-    if (displayAsset?.trailerUrl && displayAsset.fullPageBanner) {
+    if (displayAsset && displayAsset?.trailerUrl && displayAsset.fullPageBanner) {
       return (
         <>
           {!isVideoLoaded && displayAsset.fullPageBanner &&
             <img
               key="banner-poster"
               src={displayAsset.fullPageBanner}
-              className={`banner-video ${transitionClass}`}
+              className={`banner-video-w-70 ${transitionClass}`}
               onLoad={handleImageLoaded}
               style={{ opacity: (isImageLoaded ? 1 : 0) }}
             />
@@ -79,7 +79,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           <video
             key="banner-video"
             ref={videoRef}
-            className={`banner-video ${transitionClass}`}
+            className={`banner-video-w-70 ${transitionClass}`}
             autoPlay={false}
             poster={displayAsset.fullPageBanner}
             playsInline
@@ -91,7 +91,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
 
     return <img key="asset-image"
       src={displayAsset?.fullPageBanner}
-      className={`banner-video ${transitionClass}`}
+      className={`banner-video-w-70 ${transitionClass}`}
       onLoad={handleImageLoaded}
       style={{ opacity: (isImageLoaded ? 1 : 0) }} />;
   };
@@ -161,12 +161,12 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   };
 
   return (
-    <div className="top-banner">
+    <div className="top-banner" style={{height:`${asset==null ? '100vh' :  '61vh'}`}}>
       <div className="banner-video-container">
         {renderMedia()}
         {showOverlay && (
           <div className="banner-overlay">
-            <div className='overlay overlay-ltr'></div>
+            <div className={`overlay ${displayShowBanner ?  'banner-overlay-bottom-gradient' : 'overlay-ltr'}`}></div>
             {renderMediaDetails()}
           </div>
         )}

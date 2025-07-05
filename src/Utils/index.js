@@ -58,7 +58,12 @@ export const getResizedOptimizedImage = (url, width, height) => {
 export const calculateDimensions = (height, width, showTitle = false) => {
   const gap = 40;
   const homeContentWrapper = document.getElementById('homeContentWrapper');
-  let maxHeight = homeContentWrapper ? homeContentWrapper.offsetHeight - 70 : 320;
+  const viewportHeight = window.innerHeight;
+let maxHeight = 320;
+
+if (homeContentWrapper && homeContentWrapper.offsetHeight > 0.45 * viewportHeight) {
+  maxHeight = homeContentWrapper.offsetHeight - 70;
+}
   maxHeight = maxHeight - (showTitle ? 70 : 0);
 
   const defaultDimensions = {
