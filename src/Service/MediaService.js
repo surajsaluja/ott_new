@@ -3,6 +3,7 @@ import { API } from "../Api/constants";
 import { toast } from "react-toastify";
 import { getSanitizedToken } from "../Utils";
 
+// Default values
 const DEFAULT_PLAYLIST_TYPE = "Home";
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_LANGUAGE = 1;
@@ -11,18 +12,22 @@ const RELATED_MEDIA_DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_SECTION = 5;
 const DEFAULT_CULTURE = 0;
 const DEFAULT_GENRE = 0;
-const userObjId = localStorage.getItem('userObjectId') ?? null;
-const uid = localStorage.getItem('uid') ?? null;
 
+// LocalStorage accessors
+const getUid = () => localStorage.getItem("uid") ?? null;
+const getUserObjectId = () => localStorage.getItem("userObjectId") ?? null;
+
+// Error handler
 const ThrowError = (functionName, error) => {
-    // toast.error(`Error in ${functionName}: ${error.message || error}`);
     console.error(`Error in ${functionName}: ${error.message || error}`);
     throw new Error(error);
 };
 
+// API functions
+
 export const fetchHomePageData = async (userId = null) => {
     try {
-        const response = await fetchData(API.HOMEPAGE.GET_HOMEPAGE_DATA(userId ?? uid));
+        const response = await fetchData(API.HOMEPAGE.GET_HOMEPAGE_DATA(userId ?? getUid()));
         return response?.data || [];
     } catch (error) {
         return ThrowError("fetchHomePageData", error);
@@ -31,17 +36,19 @@ export const fetchHomePageData = async (userId = null) => {
 
 export const fetchBannersBySection = async (section, language = null, userId = null) => {
     try {
-        const response = await fetchData(API.HOMEPAGE.GET_BANNER_DATA(section ?? DEFAULT_SECTION, language ?? DEFAULT_LANGUAGE, userId ?? uid));
+        const response = await fetchData(
+            API.HOMEPAGE.GET_BANNER_DATA(section ?? DEFAULT_SECTION, language ?? DEFAULT_LANGUAGE, userId ?? getUid())
+        );
         return response || null;
     } catch (error) {
-        return ThrowError('fetchBannersBySection', error);
+        return ThrowError("fetchBannersBySection", error);
     }
-}
+};
 
 export const fetchPlaylistPage = async (section, page, userId = null, pageSize = null) => {
     try {
         const response = await fetchData(
-            API.HOMEPAGE.GET_PLAYLIST_DATA(section ?? DEFAULT_PLAYLIST_TYPE, userId ?? uid, page, pageSize ?? DEFAULT_PAGE_SIZE)
+            API.HOMEPAGE.GET_PLAYLIST_DATA(section ?? DEFAULT_PLAYLIST_TYPE, userId ?? getUid(), page, pageSize ?? DEFAULT_PAGE_SIZE)
         );
         return response?.data || [];
     } catch (error) {
@@ -51,7 +58,7 @@ export const fetchPlaylistPage = async (section, page, userId = null, pageSize =
 
 export const fetchContinueWatchingData = async (userId = null) => {
     try {
-        const response = await fetchData(API.HOMEPAGE.GET_CONTINUE_WATCH(userId ?? uid));
+        const response = await fetchData(API.HOMEPAGE.GET_CONTINUE_WATCH(userId ?? getUid()));
         return response?.data || [];
     } catch (error) {
         return ThrowError("fetchContinueWatchingData", error);
@@ -61,90 +68,105 @@ export const fetchContinueWatchingData = async (userId = null) => {
 export const fetchMediaDetailById = async (mediaId, isWebSeries, userObjectId, options = {}) => {
     try {
         const token = getSanitizedToken();
-        let url = null;
         if (!token) throw new Error("User Token Not Found");
 
-        const headers = {
-            Authorization: token,
-        };
+        const headers = { Authorization: token };
+        const url = isWebSeries ? API.MEDIA.GET_WEBSERIES_DETAILS : API.MEDIA.GET_MOVIE_DETAILS;
 
-        if (isWebSeries) {
-            url = API.MEDIA.GET_WEBSERIES_DETAILS;
-        }
-        else {
-            url = API.MEDIA.GET_MOVIE_DETAILS;
-        }
-
-        const response = await fetchData(url(mediaId, userObjectId ?? userObjId), {
+        const response = await fetchData(url(mediaId, userObjectId ?? getUserObjectId()), {
             ...options,
-            headers
+            headers,
         });
 
         return response;
     } catch (error) {
-        return ThrowError('loadMediaDetailById', error);
+        return ThrowError("loadMediaDetailById", error);
     }
-}
+};
 
-export const fetchMediaRelatedItem = async (mediaId = null, userId = null, page = 1, pageSize = 10, language = 1, options = {}) => {
+export const fetchMediaRelatedItem = async (
+    mediaId = null,
+    userId = null,
+    page = DEFAULT_PAGE,
+    pageSize = RELATED_MEDIA_DEFAULT_PAGE_SIZE,
+    language = DEFAULT_LANGUAGE,
+    options = {}
+) => {
     try {
-        if(!mediaId) throw new Error('MediaId is required field');
-        const response = await fetchData(API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId, language ?? DEFAULT_LANGUAGE, userId ?? uid, page ?? DEFAULT_PAGE, pageSize ?? RELATED_MEDIA_DEFAULT_PAGE_SIZE), options);
+        if (!mediaId) throw new Error("MediaId is required field");
+
+        const response = await fetchData(
+            API.MEDIA.GET_MEDIA_RELATED_ITEMS(mediaId, language, userId ?? getUid(), page, pageSize),
+            options
+        );
         return response;
     } catch (error) {
-        return ThrowError('getRelatedMedia', error);
-
+        return ThrowError("getRelatedMedia", error);
     }
-}
+};
 
 export const fetchTokanizedMediaUrl = async (mediaId, userObjectId = null, options = {}) => {
     try {
         const token = getSanitizedToken();
         if (!token) throw new Error("User Token Not Found");
 
-        const headers = {
-            Authorization: token,
-        };
+        const headers = { Authorization: token };
 
-        const response = await fetchData(API.MEDIA.GET_TOKENIZED_MEDIA_URL(mediaId, userObjectId ?? userObjId), {
-            ...options,
-            headers
-        });
+        const response = await fetchData(
+            API.MEDIA.GET_TOKENIZED_MEDIA_URL(mediaId, userObjectId ?? getUserObjectId()),
+            {
+                ...options,
+                headers,
+            }
+        );
 
         return response;
     } catch (error) {
-        return ThrowError('getTokenisedMediaUrl', error);
+        return ThrowError("getTokenisedMediaUrl", error);
     }
-}
+};
 
-export const fetchWebSeriesEpisodeBySeasonId = async (webSeriesId, seasonId, language = null, userObjectId = null , page = 1 , pageSize = 10) => {
+export const fetchWebSeriesEpisodeBySeasonId = async (
+    webSeriesId,
+    seasonId,
+    language = null,
+    userObjectId = null,
+    page = DEFAULT_PAGE,
+    pageSize = DEFAULT_PAGE_SIZE
+) => {
     try {
-        if (!webSeriesId || webSeriesId == null) {
-            throw Error('Webseries ID is an compulsary field');
-        }
-        if (!seasonId || seasonId == null) {
-            throw Error('Season Id is an compulsary field');
-        }
-        const response = await fetchData(API.MEDIA.GET_WEBSERIES_EPISODES(webSeriesId, seasonId, language ?? DEFAULT_LANGUAGE, userObjectId ?? userObjId, page ?? DEFAULT_PAGE, pageSize ?? DEFAULT_PAGE_SIZE));
-        return response;
+        if (!webSeriesId) throw new Error("Webseries ID is a compulsory field");
+        if (!seasonId) throw new Error("Season Id is a compulsory field");
 
+        const response = await fetchData(
+            API.MEDIA.GET_WEBSERIES_EPISODES(
+                webSeriesId,
+                seasonId,
+                language ?? DEFAULT_LANGUAGE,
+                userObjectId ?? getUserObjectId(),
+                page,
+                pageSize
+            )
+        );
+
+        return response;
     } catch (error) {
-        return ThrowError('fetchWebSeriesEpisodeBySeasonId', error);
+        return ThrowError("fetchWebSeriesEpisodeBySeasonId", error);
     }
-}
+};
 
 export const fetchWebSeriesAllSeasonsWithEpisodes = async (webSeriesId, userObjectId = null) => {
     try {
-        if (!webSeriesId || webSeriesId == null) {
-            throw Error('Webseries ID is an compulsary field');
-        }
-        const response = await fetchData(API.MEDIA.GET_WEBSERIES_DETAILS_WITH_EPISODES(webSeriesId, userObjectId ?? userObjId));
-        return response;
+        if (!webSeriesId) throw new Error("Webseries ID is a compulsory field");
 
+        const response = await fetchData(
+            API.MEDIA.GET_WEBSERIES_DETAILS_WITH_EPISODES(webSeriesId, userObjectId ?? getUserObjectId())
+        );
+        return response;
     } catch (error) {
-        return ThrowError('fetchWebSeriesAllSeasonsWithEpisodes', error);
+        return ThrowError("fetchWebSeriesAllSeasonsWithEpisodes", error);
     }
-}
+};
 
 export const updateMediaItemToWishlist = async (data, options = {}) => {
     try {
@@ -152,9 +174,7 @@ export const updateMediaItemToWishlist = async (data, options = {}) => {
         if (!data) throw new Error("Post Data Required");
         if (!token) throw new Error("User Token Not Found");
 
-        const headers = {
-            Authorization: token,
-        };
+        const headers = { Authorization: token };
 
         const response = await postData(API.MEDIA.POST_FAVOURITE_MEDIA_ITEM, data, {
             ...options,
@@ -164,95 +184,105 @@ export const updateMediaItemToWishlist = async (data, options = {}) => {
     } catch (error) {
         return ThrowError("fetchUserSubscriptionStatus", error);
     }
-}
+};
 
 export const sendVideoAnalytics = async (data, options) => {
     try {
         if (!data) throw new Error("Post Data Required");
+
         const response = await postData(API.MEDIA.POST_PLAY_HISTORY, data, options);
         return response;
     } catch (error) {
         return ThrowError("sendVideoAnalytics", error);
     }
-}
+};
 
 export const fetchTrendingSearch = async (userId, languageCode) => {
     try {
-        const response = await fetchData(API.SEARCH.TRENDING_SEARCH(userId ?? uid, languageCode ?? DEFAULT_LANGUAGE));
+        const response = await fetchData(
+            API.SEARCH.TRENDING_SEARCH(userId ?? getUid(), languageCode ?? DEFAULT_LANGUAGE)
+        );
         return response;
-
     } catch (error) {
         return ThrowError("fetchTrendingSearch", error);
     }
-}
+};
 
-export const fetchSearchContentResult = async (searchParam = "",pageNum =1, pageSize = 10, options = {}) => {
+export const fetchSearchContentResult = async (
+    searchParam = "",
+    pageNum = DEFAULT_PAGE,
+    pageSize = DEFAULT_PAGE_SIZE,
+    options = {}
+) => {
     try {
-        if (!searchParam) { throw new Error('Post Data Required') };
+        if (!searchParam) throw new Error("Post Data Required");
 
         const data = {
             key: searchParam,
-            userId: uid,
+            userId: getUid(),
             languageId: DEFAULT_LANGUAGE.toString(),
             pageNo: pageNum,
-            pageSize: pageSize
+            pageSize,
         };
+
         const response = await postData(API.SEARCH.SEACH_CONTENT, data, options);
         return response;
-
     } catch (error) {
         return ThrowError("fetchSearchContentResult", error);
     }
-}
+};
 
-export const fetchRadioHomePageData = async()=>{
+export const fetchRadioHomePageData = async () => {
     try {
         const response = await fetchData(API.RADIO.GET_RADIO_HOME_PAGE);
         return response;
-
     } catch (error) {
         return ThrowError("fetchTrendingSearch", error);
     }
+};
 
-}
-
-export const fetchUserWishlistItems = async (pageNum,pageSize, options = {}) => {
+export const fetchUserWishlistItems = async (pageNum, pageSize, options = {}) => {
     try {
         const token = getSanitizedToken();
         if (!token) throw new Error("User Token Not Found");
 
-        const headers = {
-            Authorization: token,
-        };
+        const headers = { Authorization: token };
 
         const response = await fetchData(API.WISHLIST.GET_USER_WISHLIST_DATA(pageNum, pageSize), {
             ...options,
-            headers
+            headers,
         });
 
         return response;
     } catch (error) {
-        return ThrowError('fetchUserWishlistItems', error);
+        return ThrowError("fetchUserWishlistItems", error);
     }
-}
+};
 
-export const fetchPlayListContent = async(playListId, page, pageSize)=>{
+export const fetchPlayListContent = async (playListId, page, pageSize) => {
     try {
-        const response = await fetchData(API.SEE_ALL_PLAYLIST_DATA.FETCH_PLAYLIST_DATA(playListId,page,pageSize,uid,DEFAULT_LANGUAGE,DEFAULT_CULTURE,DEFAULT_GENRE));
+        const response = await fetchData(
+            API.SEE_ALL_PLAYLIST_DATA.FETCH_PLAYLIST_DATA(
+                playListId,
+                page,
+                pageSize,
+                getUid(),
+                DEFAULT_LANGUAGE,
+                DEFAULT_CULTURE,
+                DEFAULT_GENRE
+            )
+        );
         return response;
-
     } catch (error) {
-        return ThrowError("fetchTrendingSearch", error);
+        return ThrowError("fetchPlayListContent", error);
     }
-}
+};
 
-export const fetchScreenSaverContent = async()=>{
+export const fetchScreenSaverContent = async () => {
     try {
         const response = await fetchData(API.SCREENSAVER.FETCH_SCREENSAVER_CONTENT);
         return response;
-
     } catch (error) {
-        return ThrowError("fetchTrendingSearch", error);
+        return ThrowError("fetchScreenSaverContent", error);
     }
-}
-
+};

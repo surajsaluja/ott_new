@@ -3,9 +3,6 @@ import { API } from "../Api/constants";
 import { toast } from "react-toastify";
 import { getSanitizedToken } from "../Utils";
 
-const userObjId = localStorage.getItem('userObjectId') ?? null;
-const uid = localStorage.getItem('uid') ?? null;
-
 const ThrowError = (functionName, error) => {
     // toast.error(`Error in ${functionName}: ${error.message || error}`);
     console.error(`Api Error in ${functionName}: ${error.message || error}`);
@@ -44,6 +41,9 @@ export const fetchLiveTvScheduleWithDetail = async (channelHandle, options = {})
 export const getTokanizedLiveTVUrl = async (channelHandle, options = {}) => {
     try {
         const token = getSanitizedToken();
+        const userObjId = localStorage.getItem('userObjectId');
+        const uid = localStorage.getItem('uid');
+
         if (!channelHandle) throw new Error("Channel Handle Required");
         if (!token) throw new Error("User Token Not Found");
 
@@ -51,13 +51,16 @@ export const getTokanizedLiveTVUrl = async (channelHandle, options = {}) => {
             Authorization: token,
         };
 
-        const response = await fetchData(API.LIVETV.GET_TOKENIZED_MEDIA_TV_URL(channelHandle, userObjId), {
-            ...options,
-            headers,
-        });
+        const response = await fetchData(
+            API.LIVETV.GET_TOKENIZED_MEDIA_TV_URL(channelHandle, userObjId),
+            {
+                ...options,
+                headers,
+            }
+        );
         return response;
 
     } catch (error) {
         return ThrowError('getTokanizedLiveTVUrl', error);
     }
-}
+};
