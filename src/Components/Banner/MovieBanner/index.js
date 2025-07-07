@@ -153,7 +153,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
         </div>
         <div className='asset-buttons'>
           {/* {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />} */}
-          {isPlayButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Play'} onEnterPress={() => watchMediaVOD(false)} />}
+          {isPlayButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Watch Now'} onEnterPress={() => watchMediaVOD(false)} />}
           {isShowDetailButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />}
         </div>
       </div>
