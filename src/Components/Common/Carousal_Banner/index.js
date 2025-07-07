@@ -83,11 +83,11 @@ export default function ImageSlider({
     });
   }, [currentIndex, data]);
 
-  // useEffect(() => {
-  //   if (data.length > 0) {
-  //     focusSelf();
-  //   }
-  // }, [data.length]);
+  useEffect(() => {
+    if (data.length > 0 && isLoaded) {
+      focusSelf();
+    }
+  }, [data.length, isLoaded]);
 
   if (!data.length) return <div ref={ref} />;
 
