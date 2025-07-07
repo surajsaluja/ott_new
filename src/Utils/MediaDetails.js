@@ -245,7 +245,7 @@ export const getTokenisedMedia = async (
       isMediaPublished = response.isMediaPublished;
       isFree = getIsContentFree(response.isPaid);
 
-      if (isMediaPublished && (!isTrailer)) {
+      if (isMediaPublished) {
         if (isUserSubscribed || isFree || isTrailer) {
           mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
           mediaUrl = DecryptAESString(mediaUrl);
