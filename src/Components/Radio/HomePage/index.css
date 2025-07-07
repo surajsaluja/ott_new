@@ -12,6 +12,10 @@
   height: 100%;
 }
 
+.radio-content{
+  max-height: 100%;
+}
+
 .radio-header{
   display: flex;
   justify-content: center;

@@ -16,6 +16,7 @@ export const useRadioHomePage = (focusKey) => {
   const [radioHomePageData, setRadioHomePageData] = useState([]);
   const [radioBannersData, setRadioBannersData] = useState([]);
   const [isRadioDataLoading, setIsRadioDataLoading] = useState(false);
+  const [isBannerLoaded, setIsBannerLoaded] = useState(false);
 
   const { userObjectId, isLoggedIn } = useUserContext();
   const history = useHistory();
@@ -30,9 +31,11 @@ export const useRadioHomePage = (focusKey) => {
     saveLastFocusedChild: false
   });
 
-  useEffect(() => {
-    focusSelf();
-  }, [focusSelf]);
+  // useEffect(() => {
+  //   if(isBannerLoaded && !isRadioDataLoading){
+  //   focusSelf();
+  //   }
+  // }, [focusSelf, isBannerLoaded]);
 
   const loadInitialData = async () => {
     const { HOME_DATA, BANNERS_DATA } = CACHE_KEYS.RADIO;
@@ -119,8 +122,10 @@ export const useRadioHomePage = (focusKey) => {
     radioHomePageData,
     radioBannersData,
     isRadioDataLoading,
+    isBannerLoaded,
     onRadioChannelEnterPress,
     onBannerEnterPress,
-    onBannerFocus
+    onBannerFocus,
+    setIsBannerLoaded
   };
 };

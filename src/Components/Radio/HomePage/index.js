@@ -15,27 +15,32 @@ function RadioHome({ focusKey }) {
     radioHomePageData,
     radioBannersData,
     isRadioDataLoading,
+    isBannerLoaded,
     onRadioChannelEnterPress,
     onBannerEnterPress,
-    onBannerFocus
+    onBannerFocus,
+    setIsBannerLoaded
   } = useRadioHomePage(focusKey);
 
-  if (isRadioDataLoading) {
-    return <LoadingSkeleton />;
-  }
+  // if (isRadioDataLoading || !isBannerLoaded) {
+  //   return <LoadingSkeleton />;
+  // }
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className='radio-home' ref={ref}>
-        <div className='radio-home-content'>
+        {(isRadioDataLoading || !isBannerLoaded) && <LoadingSkeleton />}
+        <div className='radio-home-content'  style={{ display : isRadioDataLoading || !isBannerLoaded ? 'none' : 'block' }}>
           <ImageSlider 
           focusKey='RADIO_BANNER_FOCUS_KEY' 
           data={radioBannersData}
           onBannerEnterPress={onBannerEnterPress}
-          onBannerFocus={onBannerFocus} />
+          onBannerFocus={onBannerFocus}
+          setIsBannerLoaded={setIsBannerLoaded}/>
           <div className='radio-header'>
             <div>OUR RADIO CHANNELS</div>
            </div>
+           <div className='radio-content'>
         <Content
           onAssetFocus={() => { }}
           data={radioHomePageData}
@@ -45,6 +50,7 @@ function RadioHome({ focusKey }) {
           showTitle={true}
           parentScrollingRef={ref}
         />
+        </div>
       </div>
         
       </div>
