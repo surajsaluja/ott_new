@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { fetchAppFeatures } from "../../../Service/AuthService";
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import * as MdIcons from "react-icons/md";
 import {
   IoTv,
@@ -18,6 +18,7 @@ const useMenu = (activeTabId, focusKey) => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMenu, setSelectedMenu] = useState(1);
+  const [menuFocusMap, setMenuFocusMap] = useState({});
   const history = useHistory();
 
   const menu = [
@@ -178,6 +179,20 @@ const useMenu = (activeTabId, focusKey) => {
     getAppFeatures();
   }, []);
 
+  useEffect(() => {
+        const newFocusMap = {};
+        menu.forEach((item) => {
+            newFocusMap[item.id] = `MENU_ITEM_${item.id}`;
+        });
+        setMenuFocusMap(newFocusMap);
+    }, []);
+
+    useEffect(() => {
+  if (!loading && menuFocusMap[selectedMenu]) {
+    setFocus(menuFocusMap[selectedMenu]);
+  }
+}, [loading, selectedMenu, menuFocusMap]);
+
   return {
     menuItems,
     loading,
@@ -190,6 +205,8 @@ const useMenu = (activeTabId, focusKey) => {
     menuScrollingRef,
     onMenuFocus,
     getIconComponent,
+    menuFocusMap,
+    setMenuFocusMap
   };
 };
 
