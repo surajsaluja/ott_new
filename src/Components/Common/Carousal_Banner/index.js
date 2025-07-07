@@ -8,7 +8,8 @@ export default function ImageSlider({
   data = [],
   onBannerEnterPress = () => {},
   onBannerFocus = () => {},
-  focusKey
+  focusKey,
+   setIsBannerLoaded = ()=>{}
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cachedImage, setCachedImage] = useState(null);
@@ -50,6 +51,7 @@ export default function ImageSlider({
     if (cached) {
       setCachedImage(cached);
       setIsLoaded(true);
+      setIsBannerLoaded(true);
       return;
     }
 
@@ -58,11 +60,13 @@ export default function ImageSlider({
         setCachedImage(img);
         setIsLoaded(true);
         setHasError(false);
+        setIsBannerLoaded(true);
       })
       .catch((err) => {
         console.error('Slider preload error:', err);
         setHasError(true);
         setIsLoaded(true);
+        setIsBannerLoaded(true);
       });
   }, [currentImageUrl]);
 
@@ -79,11 +83,11 @@ export default function ImageSlider({
     });
   }, [currentIndex, data]);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      focusSelf();
-    }
-  }, [data.length]);
+  // useEffect(() => {
+  //   if (data.length > 0) {
+  //     focusSelf();
+  //   }
+  // }, [data.length]);
 
   if (!data.length) return <div ref={ref} />;
 
