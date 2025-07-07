@@ -1,87 +1,123 @@
 import { useState, useEffect, useRef } from 'react';
 import FocusableButton from '../../Common/FocusableButton';
-import { MdOutlineTimer, MdOutlineDateRange, MdStarRate } from 'react-icons/md';
-import { GiVibratingShield } from "react-icons/gi";
-import useBanner from './Hooks/useBanner'
-import { formatTime, getEclipsedTrimmedText } from '../../../Utils';
+import { getEclipsedTrimmedText } from '../../../Utils';
+import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import useBanner from './Hooks/useBanner';
 import './index.css';
+
+const SHOW_DETAIL_BTN_FOCUS_KEY = 'SHOW_DETAIL_BTN_FOCUS_KEY';
 
 const Banner = ({ data: asset = null, banners = [] }) => {
   const {
     showBanner,
     videoRef,
-    showOverlay=true,
+    showOverlay = true,
     watchMediaVOD,
     isVideoLoaded,
     isPlaying,
-    videoPlayerRef,
     handleImageLoaded,
     isImageLoaded,
     showMediaDetail
   } = useBanner(asset, banners);
 
-  const [transitionClass, setTransitionClass] = useState('');
-  const [currentAsset, setCurrentAsset] = useState(asset);
-  const [currentBanners, setCurrentBanners] = useState(banners);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const prevAssetRef = useRef(asset);
-  const prevBannersRef = useRef(banners);
+  const { ref, focusSelf, focusKey } = useFocusable({ focusKey: 'MOVIE_BANNER', focusable: banners.length>0 });
 
+  const [transitionClass, setTransitionClass] = useState('');
+  const [displayAsset, setDisplayAsset] = useState(asset);
+  const [displayBanners, setDisplayBanners] = useState(banners);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(false);
+
+  const prevAsset = useRef(asset);
+  const prevBanners = useRef(banners);
+  const hasAutoFocused = useRef(false);
+
+  // Handle transitions between banners/assets
   useEffect(() => {
-    if (asset?.mediaID !== currentAsset?.mediaID || JSON.stringify(banners) !== JSON.stringify(currentBanners)) {
+    const assetChanged = asset?.mediaID !== prevAsset.current?.mediaID;
+    const bannersChanged = JSON.stringify(banners) !== JSON.stringify(prevBanners.current);
+
+    if (assetChanged || bannersChanged) {
       setIsTransitioning(true);
       setTransitionClass('fade-out');
 
       const timer = setTimeout(() => {
-        prevAssetRef.current = currentAsset;
-        prevBannersRef.current = currentBanners;
-        setCurrentAsset(asset);
-        setCurrentBanners(banners);
+        prevAsset.current = asset;
+        prevBanners.current = banners;
+        setDisplayAsset(asset);
+        setDisplayBanners(banners);
         setTransitionClass('fade-in');
         setIsTransitioning(false);
       }, 300);
 
       return () => clearTimeout(timer);
     }
-  }, [asset, banners, currentAsset, currentBanners]);
+  }, [asset, banners]);
 
-  // Determine which data to display during transition
-  const displayAsset = isTransitioning ? prevAssetRef.current : currentAsset;
-  const displayBanners = isTransitioning ? prevBannersRef.current : currentBanners;
-  const displayShowBanner = isTransitioning ?
-    (prevBannersRef.current.length > 0 && !currentAsset) :
-    (currentBanners.length > 0 && !currentAsset);
+  // Reset auto-focus flag when banners change
+  useEffect(() => {
+    hasAutoFocused.current = false;
+  }, [banners]);
 
-  if (!displayAsset && displayBanners.length === 0) return null;
+  // Auto-focus logic
+  useEffect(() => {
+    if (!isTransitioning && !hasAutoFocused.current && asset == null) {
+      const timer = setTimeout(() => {
+        focusSelf();
+        hasAutoFocused.current = true;
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning, asset, focusSelf]);
+
+  // Determine when to show the play button
+  useEffect(() => {
+    if (!asset && displayBanners.length > 0) {
+      setShowPlayButton(displayBanners[0]?.isPlayButton ?? false);
+    }
+  }, [asset, displayBanners]);
+
+  // Compute current display source
+  const showBannerOnly = !asset && displayBanners.length > 0;
+  const currentDisplayAsset = isTransitioning ? prevAsset.current : displayAsset;
+  const currentDisplayBanners = isTransitioning ? prevBanners.current : displayBanners;
+
+  if (!currentDisplayAsset && currentDisplayBanners.length === 0) return null;
 
   const renderMedia = () => {
-    if (displayShowBanner && displayBanners.length > 0 && displayBanners[0].mobileThumbnail) {
-      return <img key="banner-image"
-        src={displayBanners[0].mobileThumbnail || displayBanners[0].fullPageBanner}
-        className={`banner-video-w-100 ${transitionClass}`}
-        onLoad={handleImageLoaded}
-        style={{ opacity: (isImageLoaded ? 1 : 0) }}
-      />;
+    const banner = currentDisplayBanners[0];
+
+    if (showBannerOnly && banner?.mobileThumbnail) {
+      return (
+        <img
+          key="banner-image"
+          src={banner.mobileThumbnail || banner.fullPageBanner}
+          className={`banner-video-w-100 ${transitionClass}`}
+          onLoad={handleImageLoaded}
+          style={{ opacity: isImageLoaded ? 1 : 0 }}
+        />
+      );
     }
 
-    if (displayAsset && displayAsset?.trailerUrl && displayAsset.fullPageBanner) {
+    if (currentDisplayAsset?.trailerUrl && currentDisplayAsset?.fullPageBanner) {
       return (
         <>
-          {!isVideoLoaded && displayAsset.fullPageBanner &&
+          {!isVideoLoaded && (
             <img
-              key="banner-poster"
-              src={displayAsset.fullPageBanner}
+              key="poster"
+              src={currentDisplayAsset.fullPageBanner}
               className={`banner-video-w-70 ${transitionClass}`}
               onLoad={handleImageLoaded}
-              style={{ opacity: (isImageLoaded ? 1 : 0) }}
+              style={{ opacity: isImageLoaded ? 1 : 0 }}
             />
-          }
+          )}
           <video
-            key="banner-video"
+            key="video"
             ref={videoRef}
             className={`banner-video-w-70 ${transitionClass}`}
             autoPlay={false}
-            poster={displayAsset.fullPageBanner}
+            poster={currentDisplayAsset.fullPageBanner}
             playsInline
             style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
           />
@@ -89,14 +125,18 @@ const Banner = ({ data: asset = null, banners = [] }) => {
       );
     }
 
-    return <img key="asset-image"
-      src={displayAsset?.fullPageBanner}
-      className={`banner-video-w-70 ${transitionClass}`}
-      onLoad={handleImageLoaded}
-      style={{ opacity: (isImageLoaded ? 1 : 0) }} />;
+    return (
+      <img
+        key="fallback-image"
+        src={currentDisplayAsset?.fullPageBanner}
+        className={`banner-video-w-70 ${transitionClass}`}
+        onLoad={handleImageLoaded}
+        style={{ opacity: isImageLoaded ? 1 : 0 }}
+      />
+    );
   };
 
-  const renderMediaDetails = () => {
+   const renderDetails = () => {
     let mediaTitle = '';
     let title = '';
     let releasedYear = '';
@@ -109,7 +149,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     let isPlayButton = false;
     let isShowDetailButton = false;
 
-    if (displayShowBanner && displayBanners.length > 0) {
+    if (displayBanners && displayBanners.length > 0) {
       // title = displayBanners[0].mediaTitle;
       // mediaTitle = displayBanners[0].mediaTitle;
       // releasedYear = displayBanners[0].releasedYear;
@@ -146,32 +186,60 @@ const Banner = ({ data: asset = null, banners = [] }) => {
           {/* {ageRangeId && <span><i><GiVibratingShield /></i>{ageRangeId}</span>} */}
         </div>
         <p className="asset-description" >{getEclipsedTrimmedText(shortDescription, 120)}</p>
-        <div className="asset-genres" style={{ bottom: `${displayAsset ? 0 : 22}%` }}>
+        <div className="asset-genres" style={{ bottom: `${displayAsset ? 0 : 22}% `}}>
           {genre && genre.split(',').map((genre, idx) => (
             <span key={idx} className="asset-genre">{genre}</span>
           ))}
-        </div>
-        <div className='asset-buttons'>
-          {/* {isWatchTrailerButton && <FocusableButton className='trailer-btn' focusClass={'trailer-btn-focus'} text={'Watch Trailer'} onEnterPress={() => watchMediaVOD(true)} />} */}
-          {isPlayButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Watch Now'} onEnterPress={() => watchMediaVOD(false)} />}
-          {isShowDetailButton && <FocusableButton className='banner-play-btn' focusClass={'play-btn-focus'} text={'Show Details'} onEnterPress={() => showMediaDetail()} />}
         </div>
       </div>
     );
   };
 
-  return (
-    <div className="top-banner" style={{height:`${asset==null ? '100vh' :  '61vh'}`}}>
-      <div className="banner-video-container">
-        {renderMedia()}
-        {showOverlay && (
-          <div className="banner-overlay">
-            <div className={`overlay ${displayShowBanner ?  'banner-overlay-bottom-gradient' : 'overlay-ltr'}`}></div>
-            {renderMediaDetails()}
-          </div>
+  const renderButtons = () => {
+    if (!showBannerOnly) return null;
+
+    const banner = currentDisplayBanners[0];
+    return (
+      <>
+        {showPlayButton && (
+          <FocusableButton
+            className="banner-play-btn"
+            focusClass="play-btn-focus"
+            text="Watch Now"
+            focuskey=""
+            onEnterPress={() => watchMediaVOD(false)}
+          />
         )}
+        <FocusableButton
+          className="banner-play-btn"
+          focusClass="play-btn-focus"
+          text="Show Details"
+          focuskey={SHOW_DETAIL_BTN_FOCUS_KEY}
+          onEnterPress={showMediaDetail}
+        />
+      </>
+    );
+  };
+
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <div className="top-banner" style={{ height: asset ? '61vh' : '100vh' }}>
+        <div className="banner-video-container">
+          {renderMedia()}
+
+          {showOverlay && (
+            <div className="banner-overlay">
+              <div className={`overlay ${showBannerOnly ? 'banner-overlay-bottom-gradient' : 'overlay-ltr'}`} />
+              {renderDetails()}
+            </div>
+          )}
+
+          <div className="asset-buttons" ref={ref}>
+            {renderButtons()}
+          </div>
+        </div>
       </div>
-    </div>
+    </FocusContext.Provider>
   );
 };
 
