@@ -143,19 +143,26 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     return () => observer.disconnect();
   }, [data]);
 
-  const onRowFocus = useCallback((element) => {
-    let scroller  = (parentScrollingRef && parentScrollingRef.current != null) ? parentScrollingRef : ref
-    if (element && ref.current && scrollDebounceRef.current) {
-       const containerRect = scroller.current.getBoundingClientRect();
-       const scrollTop  = element.top - containerRect.top - 15;
-       if(parentScrollingRef != null){
-        scroller.current.scrollTo({ top: scrollTop - 70, behavior: 'smooth' });
-       }else{
-      scrollDebounceRef.current(scrollTop);
-       }
+ const onRowFocus = useCallback((element) => {
+  let scroller = (parentScrollingRef && parentScrollingRef.current != null) ? parentScrollingRef : ref;
 
+  if (element && ref.current && scrollDebounceRef.current) {
+    const containerRect = scroller.current.getBoundingClientRect();
+    const scrollTop = element.top - containerRect.top;
+
+    if (parentScrollingRef != null) {
+      // Center the element in the scrolling container
+      const containerHeight = containerRect.height;
+      const elementHeight = element.height || 0;
+      const centerOffset = scrollTop - (containerHeight / 2) + (elementHeight / 2);
+      scroller.current.scrollTo({ top: centerOffset, behavior: 'smooth' });
+    } else {
+      // Scroll so the element is near the top with some padding
+      scrollDebounceRef.current(scrollTop - 15);
     }
-  }, [ref, parentScrollingRef]);
+  }
+}, [ref, parentScrollingRef]);
+
 
 
   return {
