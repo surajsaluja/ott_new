@@ -16,27 +16,32 @@ function LiveTvHome({ focusKey }) {
     liveTvHomePageData,
     isTvDataLoading,
     liveTvBannersData,
+    isBannerLoaded,
     onChannelEnterPress,
     onBannerEnterPress,
-    onBannerFocus
+    onBannerFocus,
+    setIsBannerLoaded
   } = useLiveTv(focusKey);
 
-  if (isTvDataLoading) {
-    return <LoadingSkeleton />;
-  }
+  // if (isTvDataLoading) {
+  //   return <LoadingSkeleton />;
+  // }
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div className='LiveTv-Home' ref={ref}>
-        <div className='LiveTv-Home-Content'>
+        {(isTvDataLoading || !isBannerLoaded) && <LoadingSkeleton />}
+        <div className='LiveTv-Home-Content'  style={{ display : isTvDataLoading || !isBannerLoaded ? 'none' : 'block' }}>
           <ImageSlider
           focusKey={'TV_BANNER_FOCUS_KEY'}
            data={liveTvBannersData} 
            onBannerEnterPress={onBannerEnterPress} 
-           onBannerFocus={onBannerFocus}/>
+           onBannerFocus={onBannerFocus}
+           setIsBannerLoaded={setIsBannerLoaded}/>
            <div className='live-tv-header'>
             <div>OUR CHANNELS</div>
            </div>
+           <div className='tv-content'>
           <Content
             onAssetFocus={() => { }}
             data={liveTvHomePageData}
@@ -44,6 +49,7 @@ function LiveTvHome({ focusKey }) {
             onAssetPress={onChannelEnterPress}
             parentScrollingRef={ref}
           />
+          </div>
         </div>
       </div>
     </FocusContext.Provider>

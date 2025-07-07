@@ -17,6 +17,7 @@ export const useLiveTv = (focusKey) => {
   const [liveTvHomePageData, setLiveTvHomePageData] = useState([]);
   const [liveTvBannersData, setLiveTvBannersData] = useState([]);
   const [isTvDataLoading, setIsTvDataLoading] = useState(false);
+  const [isBannerLoaded,setIsBannerLoaded] = useState(false);
   const history = useHistory();
 
   const { focusKey: currentFocusKey, ref } = useFocusable({
@@ -89,8 +90,10 @@ export const useLiveTv = (focusKey) => {
     liveTvHomePageData,
     liveTvBannersData,
     isTvDataLoading,
+    isBannerLoaded,
     onChannelEnterPress,
     onBannerEnterPress,
     onBannerFocus,
+    setIsBannerLoaded
   };
 };
