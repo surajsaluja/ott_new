@@ -305,12 +305,12 @@ export const getMediaDetailWithTokenisedMedia = async (
         success = true;
       } else {
         throw new Error(
-          tokenisedMediaResponse.error || 'Could Not Get Tokenised Detail'
+          tokenisedMediaResponse.message || 'Could Not Get Tokenised Detail'
         );
       }
     } else {
       throw new Error(
-        mediaDetailReponse.error || 'Could Not Get Media Detail'
+        mediaDetailReponse.message || 'Could Not Get Media Detail'
       );
     }
   } catch (error) {
