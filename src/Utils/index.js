@@ -318,3 +318,25 @@ export function getCategoryIdByCategoryName(categoryName){
 
   return catId;
 }
+
+const exitApplication = () =>{
+    let tizen  = window.tizen;
+    try{
+     if (typeof tizen !== 'undefined' && tizen.application) {
+      tizen.application.getCurrentApplication().exit();
+    } else {
+      console.warn('Tizen API is not available.');
+    }
+    }catch(error){
+      console.error('error at exit application',error);
+    }
+  }
+
+  export const showExitApplicationModal = () =>{
+    showModal('Confirm Exit Application',
+      'Are You Sure You Want To Exit The Application',
+      [
+        {label: 'Yes', action: exitApplication, className: 'primary'}
+      ]
+    )
+  }

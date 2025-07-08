@@ -11,6 +11,7 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS
 } from '../../../../Utils/DataCache';
+import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
 
 const WISHLIST_PAGE_SIZE = 10;
 
@@ -99,6 +100,10 @@ const useWishList = (focusKey) => {
       focusSelf();
     }
   }, [focusSelf, isLoading]);
+
+  useOverrideBackHandler(()=>{
+    history.replace('/home');
+  })
 
   return {
     ref,

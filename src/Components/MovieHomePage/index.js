@@ -53,9 +53,9 @@ const MovieHomePage = () => {
     )
   }
 
-  useOverrideBackHandler(()=>{
-    onBackPressHandler();
-  })
+  // useOverrideBackHandler(()=>{
+  //   onBackPressHandler();
+  // })
 
   const catId = category ? categoryMap[category.toUpperCase()] || 5 : 5;
 

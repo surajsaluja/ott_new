@@ -9,6 +9,7 @@ import {
 import {
   getProcessedPlaylists,
   getProcessedPlaylistsWithContinueWatch,
+  showExitApplicationModal,
   showModal
 } from "../../../Utils";
 import { useThrottle } from "../../../Utils";
@@ -20,6 +21,7 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS
 } from "../../../Utils/DataCache";
+import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 
 export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const {
@@ -181,6 +183,15 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
       ]);
     }
   };
+
+  useOverrideBackHandler(()=>{
+    if(category === 5){
+       showExitApplicationModal();
+    }else{
+      history.push('/home');
+    }
+    // setFocus("Menu_Abc");
+  })
 
   return {
     ref,

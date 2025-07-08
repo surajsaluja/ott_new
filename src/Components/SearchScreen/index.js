@@ -8,6 +8,7 @@ import { showModal, getCategoryIdByCategoryName } from '../../Utils';
 import { useUserContext } from '../../Context/userContext';
 import { getCache, setCache, CACHE_KEYS, SCREEN_KEYS } from '../../Utils/DataCache';
 import './index.css';
+import useOverrideBackHandler from '../../Hooks/useOverrideBackHandler';
 
 const SEARCH_PAGE_SIZE = 10;
 
@@ -117,6 +118,10 @@ function SearchScreen({ focusKey }) {
   const redirectToLogin = () => {
     history.push('/login', { from: '/' });
   };
+
+  useOverrideBackHandler(()=>{
+    history.replace('/home');
+  })
 
   const onAssetPress = useCallback((assetData) => {
     if (isLoggedIn && userObjectId) {

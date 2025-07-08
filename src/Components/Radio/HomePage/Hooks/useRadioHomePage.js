@@ -11,6 +11,7 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS
 } from "../../../../Utils/DataCache";
+import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
 
 export const useRadioHomePage = (focusKey) => {
   const [radioHomePageData, setRadioHomePageData] = useState([]);
@@ -115,6 +116,10 @@ export const useRadioHomePage = (focusKey) => {
   const onBannerFocus = () => {
     ref.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useOverrideBackHandler(()=>{
+    history.replace('/home');
+  })
 
   return {
     ref,

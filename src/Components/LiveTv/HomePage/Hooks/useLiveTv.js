@@ -12,6 +12,7 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS,
 } from "../../../../Utils/DataCache"; 
+import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
 
 export const useLiveTv = (focusKey) => {
   const [liveTvHomePageData, setLiveTvHomePageData] = useState([]);
@@ -76,7 +77,12 @@ export const useLiveTv = (focusKey) => {
     }
   };
 
+  useOverrideBackHandler(()=>{
+    history.replace('/home');
+  })
+
   const onBannerEnterPress = (selectedBanner) => {
+    debugger;
     console.log("selected Banner Index", selectedBanner);
   };
 
