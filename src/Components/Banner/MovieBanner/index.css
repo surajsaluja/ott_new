@@ -16,6 +16,7 @@
   position: relative;
   height: 80%;
   object-fit: cover;
+  object-position: top;
 }
 
 .banner-video-w-70 {
@@ -68,11 +69,12 @@
 }
 
 .asset-buttons {
-  bottom: 0;
+  bottom: 50vh;
   display: flex;
   margin-top: 1rem;
   position: absolute;
   width: 100%;
+  margin-left: 5vw;
 }
 
 .banner-play-btn,
