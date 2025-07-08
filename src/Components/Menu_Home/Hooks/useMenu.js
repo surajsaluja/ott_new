@@ -23,7 +23,7 @@ const useMenu = (activeTabId, focusKey) => {
 
   const menu = [
     {
-      id: 1,
+      id: 'HOME',
       text: "HOME",
       iconOutline: "MdOutlineHome",
       iconFill: "MdHome",
@@ -32,7 +32,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 5,
     },
     {
-      id: 2,
+      id: 'MOVIES',
       text: "MOVIES",
       iconOutline: "RiMovie2Line",
       iconFill: "RiMovie2Fill",
@@ -41,7 +41,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 1,
     },
     {
-      id: 3,
+      id: 'WEB_SERIES',
       text: "WEB SERIES",
       iconOutline: "MdOutlineWebStories",
       iconFill: "MdWebStories",
@@ -50,7 +50,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 2,
     },
     {
-      id: 4,
+      id: 'LIVE_TV',
       text: "LIVE TV",
       iconOutline: "IoTvOutline",
       iconFill: "IoTv",
@@ -59,7 +59,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 3,
     },
     {
-      id: 5,
+      id: 'RADIO',
       text: "RADIO",
       iconOutline: "MdOutlineRadio",
       iconFill: "MdRadio",
@@ -68,7 +68,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 4,
     },
     {
-      id: 6,
+      id: 'SEARCH',
       text: "SEARCH",
       iconOutline: "IoSearchOutline",
       iconFill: "IoSearchSharp",
@@ -77,7 +77,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 6,
     },
     {
-      id: 7,
+      id: 'FAVOURITE',
       text: "FAVOURITES",
       iconOutline: "IoHeartOutline",
       iconFill: "IoHeartSharp",
@@ -86,7 +86,7 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 7,
     },
     {
-      id: 8,
+      id: 'PROFILE',
       text: "PROFILE",
       iconOutline: "MdPersonOutline",
       iconFill: "MdPerson",
