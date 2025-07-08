@@ -1,9 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchScreenSaverContent } from "../../../Service/MediaService";
-import { sanitizeAndResizeImage } from "../../../Utils";
+import { sanitizeAndResizeImage, showModal } from "../../../Utils";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../Utils/imageCache";
 import { CACHE_KEYS, getCache } from "../../../Utils/DataCache";
+import { getMediaDetailWithTokenisedMedia, getTokenisedMedia } from "../../../Utils/MediaDetails";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useUserContext } from "../../../Context/userContext";
 
 const useScreenSaver = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,9 +14,12 @@ const useScreenSaver = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [cachedImage, setCachedImage] = useState(null);
+  const { userObjectId, isLoggedIn } = useUserContext();
 
   const intervalRef = useRef(null);
   const isScreenSaverLoadedRef = useRef(false);
+
+  const history = useHistory();
 
   const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey: "SCREENSAVER" });
 
@@ -44,12 +50,12 @@ const useScreenSaver = () => {
     loadScreenSaverData();
   }, []);
 
-useEffect(() => {
-  if (screensaverResources.length > 0 && !isScreenSaverLoadedRef.current) {
-    focusSelf();
-    isScreenSaverLoadedRef.current = true;
-  }
-}, [screensaverResources]);
+  useEffect(() => {
+    if (screensaverResources.length > 0 && !isScreenSaverLoadedRef.current) {
+      focusSelf();
+      isScreenSaverLoadedRef.current = true;
+    }
+  }, [screensaverResources]);
 
 
   useEffect(() => {
@@ -58,7 +64,7 @@ useEffect(() => {
     // Cycle through banners every 20 seconds
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % screensaverResources.length);
-    }, 200000);
+    }, 20000);
 
     return () => clearInterval(intervalRef.current);
   }, [screensaverResources]);
@@ -98,14 +104,47 @@ useEffect(() => {
     }
   }, [currentIndex, screensaverResources]);
 
-  const onWatchClipSS = () => {
-    console.log("Watch Now clicked");
-    // trigger player
+  const redirectToLogin = () => {
+    history.replace('/login', { from: '/' });
+  };
+
+  const onWatchClipSS = async () => {
+    const currentMedia = screensaverResources[currentIndex];
+    if (isLoggedIn && userObjectId) {
+      const tokenisedResponse = await getMediaDetailWithTokenisedMedia(currentMedia.mediaID, currentMedia.categoryID, false);
+      if (tokenisedResponse.isSuccess) {
+        history.replace('/play', {
+          src: tokenisedResponse.data.mediaUrl,
+          thumbnailBaseUrl: tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
+          title: tokenisedResponse?.data?.mediaDetail?.title,
+          mediaId: screensaverResources[currentIndex].mediaID,
+          onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
+          skipInfo: tokenisedResponse?.data?.skipInfo,
+          isTrailer: false,
+          playDuration: 0
+        });
+      } else {
+        showModal('Error','Error Playing Content');
+      }
+    } else {
+      history.replace('/login', {
+        from: '/play', props: {
+          mediaID: currentMedia.mediaID,
+          categoryID: currentMedia.categoryID,
+          isTrailer: false
+        }
+      });
+    }
   };
 
   const onMoreInfoItemClickSS = () => {
-    console.log("More Details clicked");
-    // open detail page
+    const currentMedia = screensaverResources[currentIndex];
+    if (isLoggedIn && userObjectId) {
+          history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}`);
+    
+        } else {
+          history.replace('/login',{from:`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}`});
+        }
   };
 
   return {

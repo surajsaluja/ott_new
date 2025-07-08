@@ -8,7 +8,9 @@ const Screensaver = () => {
     ref,
     currentFocusKey,
     currentIndex,
-    screensaverResources
+    screensaverResources,
+    onWatchClipSS,
+    onMoreInfoItemClickSS,
   } = useScreenSaver();
 
   const current = screensaverResources[currentIndex];
@@ -34,12 +36,14 @@ const Screensaver = () => {
                   focusClass='screen-saver-button-focused'
                   text='Watch Now'
                   focusKey='SCREEN_SAVER_WATCH_BUTTON'
+                  onEnterPress={onWatchClipSS}
                 />
                 <FocusableButton
                   className='screen-saver-button'
                   focusClass='screen-saver-button-focused'
                   text='More Info'
                   focusKey='SCREEN_SAVER_DETAIL_BUTTON'
+                  onEnterPress={onMoreInfoItemClickSS}
                 />
               </div>
             </div>
