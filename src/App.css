@@ -50,6 +50,13 @@
     flex: 1 1;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+}
+
+.loading-splash-screen div{
+  margin-top: 3vh;
+  color: white;
+  font-size: 1.5vw;
 }
 
 .loading {

@@ -19,6 +19,7 @@ init({
 
 function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [sessionError, setSessionError] = useState(null);
   const idleTimer = useRef(null);
   const idleTimeoutRef = useRef(null);
   const screenSaverContentRef = useRef([]);
@@ -41,16 +42,21 @@ function App() {
 
   const initialiseSession = async () => {
     try {
-      await fetchApiKeyAndSetSession();
+     const sessionRes =  await fetchApiKeyAndSetSession();
+     if(sessionRes && sessionRes.isSuccess){
+      setSessionError(null);
       idleTimeoutRef.current =
         getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME) || 300000; // fallback 5 mins
       screenSaverContentRef.current =
         getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA) || [];
       resetIdleTimer();
+     }else{
+      throw new Error(sessionRes.message)
+     }
     } catch (err) {
-      toast.error('Session initialization failed');
-    } finally {
-      hasInitializedSession.current = true;
+      setSessionError(`Session initialized failed : ${err.message || err}`)
+      toast.error('Session initialization failed', err.message || err);
+      hasInitializedSession.current = false;
     }
   };
 
@@ -73,7 +79,7 @@ function App() {
 
   useEffect(() => {
     if (isOnline && !hasInitializedSession.current) {
-      hasInitializedSession.current = true; // lock
+      hasInitializedSession.current = true;
       initialiseSession();
     }
   }, [isOnline]);
@@ -123,11 +129,12 @@ function App() {
   }, [handleBackPress]);
 
   // Session loading splash screen
-  if (isLoadingSession) {
+  if (isLoadingSession || sessionError) {
     return (
       <div className="App">
         <div className="loading-splash-screen">
           <img className="loading" src={kableOneLogo} alt="Loading..." />
+          {sessionError && <div>{sessionError}</div>}
         </div>
         <ToastContainer position="top-right" autoClose={3000} />
       </div>
