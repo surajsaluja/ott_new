@@ -20,7 +20,7 @@ const getUserObjectId = () => localStorage.getItem("userObjectId") ?? null;
 // Error handler
 const ThrowError = (functionName, error) => {
     console.error(`Error in ${functionName}: ${error.message || error}`);
-    throw new Error(error);
+    throw new Error(error.message || error);
 };
 
 // API functions

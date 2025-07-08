@@ -6,7 +6,7 @@ import { getSanitizedToken } from "../Utils";
 const ThrowError = (functionName, error) => {
     // toast.error(`Error in ${functionName}: ${error.message || error}`);
     console.error(`Api Error in ${functionName}: ${error.message || error}`);
-    return null;
+    throw new Error(error.message || error);
 };
 
 export const fetchLiveTvHomePageData = async () => {
