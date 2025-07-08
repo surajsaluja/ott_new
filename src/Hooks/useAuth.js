@@ -13,46 +13,52 @@ const useAuth = () => {
     const fetchAndSetApiKey = async () => {
         setIsLoadingSession(true);
         try {
-            const cached = getCache(CACHE_KEYS.API_KEY.API_KEY_DATA);
-            // if (cached) {
-            //     console.log('cached data');
-            //     return;
-            // }
+            const apikeyResponse = await fetchApiKeyandAppFeatures();
+            if (apikeyResponse && apikeyResponse.isSuccess) {
+                const apikeyRes = apikeyResponse.data;
+                if (apikeyRes && apikeyRes.apiKey) {
+                    localStorage.setItem('apiKey', apikeyRes.apiKey);
+                    setApiKey(apikeyRes.apiKey);
+                    setCache(CACHE_KEYS.API_KEY.API_KEY_DATA, apikeyRes.apiKey);
+                }
+                if (apikeyRes && apikeyRes.appIdleTime) {
+                    localStorage.setItem('appIdleTime', apikeyRes.appIdleTime);
+                    setCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME, (apikeyRes.appIdleTime * 1000));
 
-            const apikeyRes = await fetchApiKeyandAppFeatures();
-            console.log('apikeyRes',apikeyRes);
-            if (apikeyRes && apikeyRes.apiKey) {
-                localStorage.setItem('apiKey', apikeyRes.apiKey);
-                setApiKey(apikeyRes.apiKey);
-                setCache(CACHE_KEYS.API_KEY.API_KEY_DATA, apikeyRes.apiKey);
-            }
-            if (apikeyRes && apikeyRes.appIdleTime) {
-                localStorage.setItem('appIdleTime', apikeyRes.appIdleTime);
-                setCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME, (apikeyRes.appIdleTime * 1000));
+                }
+                if (apikeyRes && apikeyRes.minVersion) {
+                    checkAppVersion(apikeyRes.minVersion);
+                    setCache(CACHE_KEYS.API_KEY.APP_MIN_VERSION, apikeyRes.minVersion);
+                }
+                if (apikeyRes && apikeyRes.menu) {
+                    setCache(CACHE_KEYS.MENU.MENU_DATA, apikeyRes.menu);
+                }
 
-            }
-            if (apikeyRes && apikeyRes.minVersion) {
-                checkAppVersion(apikeyRes.minVersion);
-                setCache(CACHE_KEYS.API_KEY.APP_MIN_VERSION, apikeyRes.minVersion);
-            }
-            if (apikeyRes && apikeyRes.menu) {
-                setCache(CACHE_KEYS.MENU.MENU_DATA, apikeyRes.menu);
-            }
+                const screenSaverContentRes = await fetchScreenSaverContent();
+                if (screenSaverContentRes && screenSaverContentRes?.isSuccess && screenSaverContentRes?.data) {
+                    const processedScreenSaverData = Array.isArray(screenSaverContentRes?.data)
+                        ? screenSaverContentRes.data.map((el) => ({
+                            ...el,
+                            fullPageBanner: sanitizeAndResizeImage(el.fullPageBanner, 1280),
+                        }))
+                        : [];
+                    setCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA, processedScreenSaverData);
+                }
 
-            if (screenSaverContentRes && screenSaverContentRes?.isSuccess && screenSaverContentRes?.data) {
-                const processedScreenSaverData = Array.isArray(screenSaverContentRes?.data)
-                    ? screenSaverContentRes.data.map((el) => ({
-                        ...el,
-                        fullPageBanner: sanitizeAndResizeImage(el.fullPageBanner, 1280),
-                    }))
-                    : [];
-                setCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA, processedScreenSaverData);
+                return {
+                    isSuccess: true,
+                    message: 'ApiKey fetched & cached successfully'
+                }
+            } else {
+                throw new Error(apikeyResponse.message);
             }
-
-            const screenSaverContentRes = await fetchScreenSaverContent();
 
         } catch (error) {
-            console.error('Failed to fetch and set API key:', error);
+            console.error('Failed to fetch and set API key:', error.message || error);
+            return {
+                isSuccess: false,
+                message: `${error.message || error}`,
+            }
         } finally {
             setIsLoadingSession(false); // STEP 2: done fetching
         }
@@ -96,8 +102,8 @@ const useAuth = () => {
 
     const fetchApiKeyAndSetSession = async () => {
         try {
-            await fetchAndSetApiKey();
-            console.log('set api key done');
+            const apiKeySetRes  = await fetchAndSetApiKey();
+            if(apiKeySetRes && apiKeySetRes.isSuccess){
             const token = localStorage.getItem("userObjectId");
             if (token) {
                 let res = await getUserAccountStatus();
@@ -106,10 +112,21 @@ const useAuth = () => {
                     await fetchUserProfileData();
                 }
             } else {
-                // logout();
+                logout();
             }
+            return{
+                isSuccess: true,
+                message: ' api key set successfully',
+            }
+        }else{
+            throw new Error(apiKeySetRes.message);
+        }
         } catch (error) {
-            console.log('error at fetch and set api');
+            console.log('error at fetch and set api', error);
+            return{ 
+                isSuccess: false,
+                message: error.message || error,
+            }
         }
     }
 
