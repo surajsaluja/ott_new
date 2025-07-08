@@ -8,7 +8,8 @@ const deviceInfo = getDeviceInfo();
 const ThrowError = (functionName, error) => {
   // toast.error(`Error in ${functionName}: ${error.message || error}`);
   console.error(`Api Error in ${functionName}: ${error.message || error}`);
-  return null;
+
+  throw new Error(error.message || error);
 };
 
 export const fetchApiKeyandAppFeatures = async () => {
@@ -16,7 +17,7 @@ export const fetchApiKeyandAppFeatures = async () => {
     const response = await fetchData(API.AUTH.GET_APIKEY, { requireApiKey: false });
     console.log('response for api', response);
 
-    if (response?.isSuccess) {
+    if (response && response?.isSuccess) {
       const {
         apiKey,
         appIdleTime,
@@ -30,6 +31,8 @@ export const fetchApiKeyandAppFeatures = async () => {
       } = response.data;
 
       return {
+        isSuccess: response.isSuccess,
+        data:{
         apiKey,
         appIdleTime,
         menu: {
@@ -41,10 +44,11 @@ export const fetchApiKeyandAppFeatures = async () => {
           isGoogleCastEnabled
         },
         minVersion: minVersions?.result?.data?.min_tizen,
+      }
       };
-    }
-
+    }else{
     throw new Error("Api Data Not Found, GET_APIKEY");
+    }
   } catch (error) {
     return ThrowError("fetchApiKey", error);
   }
