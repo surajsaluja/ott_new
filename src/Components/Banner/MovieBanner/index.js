@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import FocusableButton from '../../Common/FocusableButton';
 import { getEclipsedTrimmedText } from '../../../Utils';
-import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import useBanner from './Hooks/useBanner';
 import './index.css';
 
 const SHOW_DETAIL_BTN_FOCUS_KEY = 'SHOW_DETAIL_BTN_FOCUS_KEY';
+const WATCH_MOVIE_BANNER_BTN_FOCUS_KEY = 'WATCH_MOVIE_BANNER_BTN_FOCUS_KEY'
 
 const Banner = ({ data: asset = null, banners = [] }) => {
   const {
@@ -20,7 +21,6 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     showMediaDetail
   } = useBanner(asset, banners);
 
-  const { ref, focusSelf, focusKey } = useFocusable({ focusKey: 'MOVIE_BANNER', focusable: banners.length>0 });
 
   const [transitionClass, setTransitionClass] = useState('');
   const [displayAsset, setDisplayAsset] = useState(asset);
@@ -31,6 +31,21 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   const prevAsset = useRef(asset);
   const prevBanners = useRef(banners);
   const hasAutoFocused = useRef(false);
+
+    const { ref, focusSelf, focusKey } = useFocusable({ 
+    focusKey: 'MOVIE_BANNER', 
+    focusable: banners.length>0,
+  // saveLastFocusedChild: true,
+// preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY, 
+onFocus:()=>{
+ setTimeout(() => {
+    const targetFocusKey = showPlayButton
+      ? WATCH_MOVIE_BANNER_BTN_FOCUS_KEY
+      : SHOW_DETAIL_BTN_FOCUS_KEY;
+
+    setFocus(targetFocusKey);
+  }, 10);
+} });
 
   // Handle transitions between banners/assets
   useEffect(() => {
@@ -206,7 +221,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
             className="banner-play-btn"
             focusClass="play-btn-focus"
             text="Watch Now"
-            focuskey=""
+            focuskey={WATCH_MOVIE_BANNER_BTN_FOCUS_KEY}
             onEnterPress={() => watchMediaVOD(false)}
           />
         )}
