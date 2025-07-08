@@ -19,8 +19,6 @@ function Menu_Home({ activeTab, focusKey, setIsSideBarOpen }) {
         menuScrollingRef,
         onMenuFocus,
         getIconComponent,
-        menuFocusMap,
-        setMenuFocusMap
     } = useMenu(activeTab, focusKey);
 
     useEffect(() => {
