@@ -263,10 +263,11 @@
 
 
 .shimmer {
-  background: linear-gradient(to right, #222 8%, #333 18%, #222 33%);
-  background-size: 800px 104px;
-  animation: shimmer 1.2s infinite linear;
+  /* background: linear-gradient(to right, #222 8%, #333 18%, #222 33%); */
+  /* background-size: 800px 104px; */
+  /* animation: shimmer 1.2s infinite linear; */
   border-radius: 5px;
+   background: #292e32;
 }
 
 .shimmer.title {
