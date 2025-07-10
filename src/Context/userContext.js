@@ -137,6 +137,7 @@ const startAppSession = async () => {
 
     const appSessionData = await getUserAppSession(data);
     if (appSessionData && appSessionData.appSessionId) {
+         localStorage.setItem('appSessionId', appSessionData.appSessionId);
         setSessionStartTime(appStartTime);
         setSessionId(appSessionData.appSessionId);
     }
