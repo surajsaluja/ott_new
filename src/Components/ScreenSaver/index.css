@@ -51,14 +51,14 @@
 
 .screen-saver-info h1 {
   margin: 0;
-  font-size: 2.5em;
+  font-size: 3em;
   font-weight: bolder;
   position: relative;
 }
 
 .screen-saver-info h2 {
   margin: 0;
-  font-size: 1.5em;
+  font-size: 2.5em;
   position: relative;
   margin-top: 132px;
   height: 3vh;
@@ -77,6 +77,7 @@
   display: flex;
   position: relative;
   gap: 10px;
+  font-size: 1.2em;
 }
 
 .screen-saver-genres li {
@@ -86,23 +87,31 @@
 .screen-saver-genres li.with-dot::before {
   content: '•';
   margin-right: 10px;
+  margin-left: 10px;
   color: white;
 }
 
 .screen-saver-buttons-container{
   display: flex;
+  position: absolute;
+  bottom: 10vh;
+  left: 5vw;
 }
 
 .screen-saver-button{
   display: flex;
-  margin-right: 2vw;
+  margin-right: 1.5vw;
   background: #ccc;
-    padding: 10px 15px;
+    padding: 12px 15px;
     border-radius: 20px;
-    font-size: 1.2vw;
+    font-size: 1.3em;
     font-weight: 700;
 }
 
 .screen-saver-button-focused{
   background-color: red;
+}
+
+.screen-saver-button-focused{
+  color: white !important;
 }
