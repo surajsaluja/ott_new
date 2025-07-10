@@ -57,7 +57,7 @@
 }
 
 .radio-play-pause-focused{
-    color: red
+    color: var(--THEME-RED);
 }
 
 .image-container-radio{
