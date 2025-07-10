@@ -20,7 +20,8 @@ const useLiveTvChannelPage = (focusKey,) => {
   const channelInfo  = {
     channelImage: channelData.image,
     channelTitle: channelData.title,
-    channelDescription: channelData.description
+    channelDescription: channelData.description,
+    channelId: channelData.id
   };
 
   const getScheduledPrograms = (scheduledPrograms) => {
@@ -107,7 +108,8 @@ const useLiveTvChannelPage = (focusKey,) => {
       if(response && response.isSuccess){
         history.push('/livetvplayer',{
           src: response.data.tvUrl,
-          title: channelData.name
+          title: channelData.name,
+          channelId : channelData.id
         })
       }else{
         showModal('Warning',response.message);

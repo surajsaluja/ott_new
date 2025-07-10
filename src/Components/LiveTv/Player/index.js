@@ -11,6 +11,8 @@ import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 import Spinner from '../../Common/Spinner';
 import { FaPause, FaPlay } from 'react-icons/fa6';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../Utils/DataCache';
+import { useUserContext } from '../../../Context/userContext';
+import { saveLiveTvChannelProgress } from '../../../Service/LiveTVService';
 
 const LIVE_TV_PLAYER_FOCUSKEY = 'LIVE_TV_FOCUSKEY'
 const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY_FOCUSKEY'
@@ -33,13 +35,13 @@ function LiveTvPlayer() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isUserActive, setIsUserActive] = useState(false);
     const [selectedQuality, setSelectedQuality] = useState(-1);
+    const channelPlayStartTimeRef =  useRef(null);
 
     let inactivityDelay = 5000;
 
     const history = useHistory();
     const location = useLocation();
-    const { src, title: movieTitle } = location.state || {};
-
+    const { src, title: movieTitle, channelId } = location.state || {};
 
 
     // SignalR
@@ -82,6 +84,21 @@ function LiveTvPlayer() {
         },
     ];
 
+    const saveChannelProgress = async() =>{
+        try{
+            const channelPlayEndTime  = new Date();
+            const res = await saveLiveTvChannelProgress(channelPlayStartTimeRef.current, channelPlayEndTime, channelId);
+            if(res && res.isSuccess){
+                console.log('Session Saved Suucessfully');
+            }
+            else{
+                throw new Error(res.message || res);
+            }
+        }catch(err){
+            console.log(err.message || err);
+        }
+    }
+
     const handleSetIsPlaying = async (val) => {
         let video = videoRef.current;
         if (!video) return;
@@ -94,12 +111,13 @@ function LiveTvPlayer() {
                 await video.play();
                 isPlayingRef.current = true;
                 setIsPlaying(true);
+                channelPlayStartTimeRef.current = new Date();
             } else if (!val && !video.paused) {
                 // stopWatchTimer();
                 await video.pause();
                 isPlayingRef.current = false;
                 setIsPlaying(false);
-                //sendAnalyticsForMedia();
+                saveChannelProgress();
             }
         } catch (error) {
             console.error("Error in handleSetIsPlaying:", error);
@@ -142,6 +160,8 @@ function LiveTvPlayer() {
     useOverrideBackHandler(() => {
         handleBackPressed();
     })
+
+    
 
     const handleQualityChange = (quality) => {
         if (videoRef.current.hls) {
@@ -356,7 +376,7 @@ function LiveTvPlayer() {
             )}
 
             <div ref={ref} className="video-container">
-                <video ref={videoRef} className="video-player" controls={false} muted />
+                <video ref={videoRef} className="video-player" controls={false} />
 
                 <Popup
                     onVideoSettingsPressed={onVideoSettingsPressed}

@@ -58,7 +58,8 @@ export const API = {
         GET_CHANNEL_SCHEDULE:(channelHandleName) => 
             `LiveTV/WatchChannel/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}`,
         GET_TOKENIZED_MEDIA_TV_URL: (channelHandleName, userObjectId) => 
-            `LiveTV/GetTokanizedLiveTVUrlV2/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`
+            `LiveTV/GetTokanizedLiveTVUrlV2/${channelHandleName ?? DEFAULTS.DEFAULT_CHANNEL_HANDLE_NAME}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
+        SAVE_CHANNEL_PROGRESS:'LiveTV/ChannelProgress'
     },
     SEARCH:{
         TRENDING_SEARCH: (userId,languageCode) => 

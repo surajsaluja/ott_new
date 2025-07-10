@@ -64,3 +64,37 @@ export const getTokanizedLiveTVUrl = async (channelHandle, options = {}) => {
         return ThrowError('getTokanizedLiveTVUrl', error);
     }
 };
+
+export const saveLiveTvChannelProgress = async (startTime, endTime, channelId, options = {}) => {
+
+    try {
+        const userObjId = localStorage.getItem('userObjectId');
+        const appSessionId = localStorage.getItem('appSessionId');
+
+        if (!userObjId) throw new Error('User Object Id not found');
+        if (!appSessionId) throw new Error('app session id not found');
+        if (!channelId) throw new Error('Channel Id not provided');
+
+        const data = {
+            "TokenId": userObjId,
+            "ChannelId": channelId,
+            "StartTime": startTime,
+            "EndTime": endTime,
+            "AppSessionId": appSessionId
+        };
+
+        const response = await postData(API.LIVETV.SAVE_CHANNEL_PROGRESS, data, options);
+        if (response && response.status) {
+            console.log('Live Tv App Session Saved');
+            return {
+                isSuccess: true,
+                message: response.message
+            } 
+        } else {
+            throw new Error(response.message);
+        }
+    } catch (error) {
+        return ThrowError('saveLiveTvChannelProgress', error.message || error);
+    }
+
+}
