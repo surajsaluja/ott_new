@@ -5,7 +5,7 @@ export default function useOverrideBackHandler(handler) {
     const { setBackHandler, clearBackHandler } = useBackHandler();
 
     useEffect(() => {
-        if (handler && typeof handler === 'function') {
+        if (typeof handler === 'function') {
             setBackHandler(handler);
         }
 

@@ -4,23 +4,25 @@ import { useHistory } from 'react-router-dom';
 const BackHandlerContext = createContext();
 
 export function BackHandlerProvider({ children }) {
-    const backHandlerRef = useRef(null);
+    const backHandlerStack = useRef([]);
     const history = useHistory();
 
     const setBackHandler = (handler) => {
-        backHandlerRef.current = handler;
+        if (typeof handler === 'function') {
+            backHandlerStack.current.push(handler);
+        }
     };
 
     const clearBackHandler = () => {
-        backHandlerRef.current = null;
+        backHandlerStack.current.pop();
     };
 
     const handleBackPress = () => {
-        if (backHandlerRef.current) {
-            backHandlerRef.current(); // call custom back
+        const handler = backHandlerStack.current[backHandlerStack.current.length - 1];
+        if (handler) {
+            handler();
         } else {
-            // default behavior, like goBack()
-            history.goBack(); // Or your router's goBack()
+            history.goBack();
         }
     };
 
