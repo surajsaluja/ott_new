@@ -49,6 +49,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const hlsRef = useRef(null);
     const videoPlayerRef = useRef(null);
+    const videoCleanupRef = useRef(() => {});
 
     const { isLoggedIn, userObjectId } = useUserContext();
 
@@ -365,7 +366,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             videoElement.pause();
             setIsPlaying(false);
         } else {
-            videoElement.play().then(() => setIsPlaying(true)).catch(console.error);
+            // videoElement.play().then(() => setIsPlaying(true)).catch(console.error);
         }
     };
 
@@ -376,99 +377,97 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     }, []);
 
-    useEffect(() => {
-        // Cleanup function for the entire effect
-        let cleanup = () => { };
+useEffect(() => {
+    if (!isLoading && mediaDetail != null) {
+        setIsVideoLoaded(false);
+        setIsPlaying(false);
 
-        if (!isLoading && mediaDetail != null) {
-            setIsVideoLoaded(false);
-            setIsPlaying(false);
+        if (!mediaDetail?.trailerPlayUrl || !videoElement) {
+            console.warn('Trailer not available');
+            return;
+        }
 
-            if (!mediaDetail?.trailerPlayUrl || !videoElement) {
-                console.warn('Trailer not available');
-                return;
+        const setupVideo = () => {
+            if (!videoElement) return;
+
+            // Cleanup any existing HLS instance
+            if (hlsRef.current) {
+                hlsRef.current.destroy();
+                hlsRef.current = null;
             }
 
-            const setupVideo = () => {
-                if (!videoElement) return;
+            videoElement.pause();
+            videoElement.src = "";
 
-                // Cleanup any existing HLS instance
+            // Add event listeners
+            videoElement.addEventListener("canplay", handleVideoCanPlay);
+            videoElement.addEventListener("playing", handleVideoPlay);
+            videoElement.addEventListener("ended", handleVideoEnd);
+            window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
+
+            let hls;
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                hlsRef.current = hls;
+                hls.loadSource(mediaDetail.trailerPlayUrl);
+                hls.attachMedia(videoElement);
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.error('Fatal network error encountered');
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.error('Fatal media error encountered');
+                                break;
+                            default:
+                                console.error('Fatal error encountered');
+                        }
+                    }
+                });
+            } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+                videoElement.src = mediaDetail.trailerPlayUrl;
+            }
+
+            // Disable subtitles
+            if (videoElement.textTracks) {
+                for (let i = 0; i < videoElement.textTracks.length; i++) {
+                    videoElement.textTracks[i].mode = "disabled";
+                }
+            }
+
+            // Set video cleanup
+            videoCleanupRef.current = () => {
+                console.log('Video cleanup running');
+                videoElement.removeEventListener("canplay", handleVideoCanPlay);
+                videoElement.removeEventListener("playing", handleVideoPlay);
+                videoElement.removeEventListener("ended", handleVideoEnd);
+                videoElement.pause();
+                videoElement.src = "";
+                window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
+                if (hls) hls.destroy();
                 if (hlsRef.current) {
                     hlsRef.current.destroy();
                     hlsRef.current = null;
                 }
-
-                videoElement.pause();
-                videoElement.src = "";
-
-                // Add event listeners
-                videoElement.addEventListener("canplay", handleVideoCanPlay);
-                videoElement.addEventListener("playing", handleVideoPlay);
-                videoElement.addEventListener("ended", handleVideoEnd);
-                window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
-
-                let hls;
-
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hlsRef.current = hls;
-                    hls.loadSource(mediaDetail.trailerPlayUrl);
-                    hls.attachMedia(videoElement);
-
-                    hls.on(Hls.Events.ERROR, (event, data) => {
-                        if (data.fatal) {
-                            switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    console.error('Fatal network error encountered');
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    console.error('Fatal media error encountered');
-                                    break;
-                                default:
-                                    console.error('Fatal error encountered');
-                            }
-                        }
-                    });
-                } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
-                    videoElement.src = mediaDetail.trailerPlayUrl;
-                }
-
-                // Disable all subtitles/text tracks
-                if (videoElement.textTracks) {
-                    for (let i = 0; i < videoElement.textTracks.length; i++) {
-                        videoElement.textTracks[i].mode = "disabled";
-                    }
-                }
-
-                // Set up cleanup function
-                cleanup = () => {
-                    if (videoElement) {
-                        videoElement.removeEventListener("canplay", handleVideoCanPlay);
-                        videoElement.removeEventListener("playing", handleVideoPlay);
-                        videoElement.removeEventListener("ended", handleVideoEnd);
-                        videoElement.pause();
-                        videoElement.src = "";
-                    }
-                    window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
-                    if (hls) hls.destroy();
-                    if (hlsRef.current) {
-                        hlsRef.current.destroy();
-                        hlsRef.current = null;
-                    }
-                    setIsPlaying(false);
-                    setIsVideoLoaded(false);
-                };
+                setIsPlaying(false);
+                setIsVideoLoaded(false);
             };
+        };
 
-            const delayPlay = setTimeout(setupVideo, 2000);
-            cleanup = () => {
-                clearTimeout(delayPlay);
-                // The setupVideo cleanup will be called on next effect run
-            };
-        }
+        const delayPlay = setTimeout(setupVideo, 2000);
 
-        return cleanup;
-    }, [isLoading, mediaDetail, videoElement]);
+        // Return cleanup for useEffect
+        return () => {
+            clearTimeout(delayPlay);
+            videoCleanupRef.current();
+        };
+    }
+
+    return () => {};
+}, [isLoading, mediaDetail, videoElement]);
 
 
     return {
