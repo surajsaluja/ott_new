@@ -229,7 +229,7 @@ useOverrideBackHandler(() => {
   });
 
 
-  const handleBackPressed = useCallback(() => {
+  const handleBackPressed = useCallback( async() => {
   if(isThumbnailStripVisibleRef.current){
     handleThumbnialStripVisibility(false);
     return;
@@ -244,6 +244,7 @@ useOverrideBackHandler(() => {
     }  else if (isSeekbarVisibleRef.current) {
       return;
     } else {
+     await handleSetIsPlaying(false);
       history.goBack();
       return;
     }
@@ -555,84 +556,91 @@ useOverrideBackHandler(() => {
     }
   }, [src]);
 
-  useEffect(() => {
-    if (videoRef && videoRef.current) {
-      const video = videoRef.current;
+useEffect(() => {
+  if (videoRef && videoRef.current) {
+    const video = videoRef.current;
 
-      const handleWaiting = () => {
-        setIsLoading(true);
-      };
-      const handleCanPlay = () => {
-        setIsLoading(false);
-      };
-      const handlePlaying = () => {
-        setIsLoading(false);
-      };
-      const handleStalled = () => {
-        setIsLoading(true);
-      };
-
-      const handleEnded = () =>{
+    const handleWaiting = () => {
+      setIsLoading(true);
+    };
+    const handleCanPlay = () => {
+      setIsLoading(false);
+    };
+    const handlePlaying = () => {
+      setIsLoading(false);
+    };
+    const handleStalled = () => {
+      setIsLoading(true);
+    };
+    const handleEnded = () => {
+      handleSetIsPlaying(false);
+      video.currentTime = 0;
+    };
+    const handlePlayerOnline = () => {
+      handleSetIsPlaying(true);
+    };
+    const handlePlayerOffline = () => {
+      handleSetIsPlaying(false);
+    };
+    const handlePlayerVisibilityChange = () => {
+      if (document.hidden) {
         handleSetIsPlaying(false);
-        video.currentTime = 0;
-      }
-
-      const handlePlayerOnline = () =>{
+      } else {
         handleSetIsPlaying(true);
       }
+    };
 
-      const handlePlayerOffline = () =>{
-        handleSetIsPlaying(false);
-      }
+    // Add event listeners
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("playing", handlePlaying);
+    video.addEventListener("stalled", handleStalled);
+    video.addEventListener("ended", handleEnded);
+    window.addEventListener('online', handlePlayerOnline);
+    window.addEventListener('offline', handlePlayerOffline);
+    window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
 
-      const handlePlayerVisibilityChange =() =>{
-        console.log(document.hidden);
-        if(document.hidden){
-          handleSetIsPlaying(false);
-          console.log('video paused');
-        }else{
-          handleSetIsPlaying(true);
-          console.log('video played');
+    if (playCapability == true) {
+      setStreamLimitError(false);
+      watchTimeRef.current = 0;
+      initializePlayer();
+    } else if (playCapability == false) {
+      setStreamLimitError(true);
+    }
+
+    setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.PLAYER.MOVIES_PLAYER_PAGE);
+
+    // Cleanup function
+    return () => {
+      // Pause the video and clean up HLS
+      if (video) {
+        video.pause();
+        if (video.hls) {
+          video.hls.destroy();
         }
-      }
-
-      video.addEventListener("waiting", handleWaiting);
-      video.addEventListener("canplay", handleCanPlay);
-      video.addEventListener("playing", handlePlaying);
-      video.addEventListener("stalled", handleStalled);
-      video.addEventListener("ended",handleEnded);
-      window.addEventListener('online', handlePlayerOnline);
-      window.addEventListener('offline', handlePlayerOffline);
-      window.addEventListener('visibilitychange',handlePlayerVisibilityChange)
-
-      if (playCapability == true) {
-        setStreamLimitError(false);
-        watchTimeRef.current = 0;
-        initializePlayer();
-      } else if (playCapability == false) {
-        setStreamLimitError(true);
-      }
-
-      setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.PLAYER.MOVIES_PLAYER_PAGE);
-
-      return () => {
-        video?.hls?.destroy();
-        clearTimeout(playIconTimeoutRef.current);
-        clearTimeout(inactivityTimeoutRef.current);
-        clearInterval(watchTimeIntervalRef.current);
-        analyticsHistoryIdRef.current = null;
-
         video.removeEventListener("waiting", handleWaiting);
-      video.removeEventListener("canplay", handleCanPlay);
-      video.removeEventListener("playing", handlePlaying);
-      video.removeEventListener("stalled", handleStalled);
-      video.removeEventListener("ended",handleEnded);
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("playing", handlePlaying);
+        video.removeEventListener("stalled", handleStalled);
+        video.removeEventListener("ended", handleEnded);
+      }
+
+      // Clean up window event listeners
       window.removeEventListener('online', handlePlayerOnline);
       window.removeEventListener('offline', handlePlayerOffline);
-      window.removeEventListener('visibilitychange',handlePlayerVisibilityChange);
-      };
-    }
-  }, [initializePlayer, videoRef, playCapability]);
+      window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
+
+      // Clean up timeouts and intervals
+      clearTimeout(playIconTimeoutRef.current);
+      clearTimeout(inactivityTimeoutRef.current);
+      clearInterval(watchTimeIntervalRef.current);
+      analyticsHistoryIdRef.current = null;
+
+      // Send final analytics
+      sendAnalyticsForMedia();
+    };
+  }
+}, [initializePlayer, videoRef, playCapability]);
 
   useEffect(() => {
     const setup = async () => {
