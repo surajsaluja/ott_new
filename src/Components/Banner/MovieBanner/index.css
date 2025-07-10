@@ -97,7 +97,7 @@
 
 .play-btn-focus,
 .trailer-btn-focus {
-  background-color: rgba(255, 0, 0, 0.768);
+  background-color: var(--THEME-RED);
   border-color: azure;
 }
 

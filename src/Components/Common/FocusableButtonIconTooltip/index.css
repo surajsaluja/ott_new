@@ -15,11 +15,11 @@
 }
 
 .defaultFocusClass-tooltip-button {
-    background-color: white; /* highlight on focus */
+    background-color: var(--THEME-RED); /* highlight on focus */
 }
 
 .defaultFocusClass-tooltip-button .focusableButton_icon-tooltip-button{
-    color: black !important;
+    color: white!important;
 }
 
 .focusableButton_icon-tooltip-button {

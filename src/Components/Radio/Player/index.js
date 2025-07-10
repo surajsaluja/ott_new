@@ -128,7 +128,7 @@ export default function RadioPlayer({ focusKey }) {
         <>
             {isLoading ? (<Spinner />) :
                 (<FocusContext.Provider value={currentFocusKey}>
-                    <div className="player" style={{ backgroundColor: '#080808', height: '100vh' }} ref={ref}>
+                    <div className="radio-player"  ref={ref}>
                         <div className="radio-top-container">
                             <FocusableButton
                                 className={'radio-back-button'}

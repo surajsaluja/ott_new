@@ -63,6 +63,6 @@
 
 .madal-button-focused{
  border-color: black;
-    background-color: #d70d0d !important;
+    background-color: var(--THEME-RED) !important;
 }
   

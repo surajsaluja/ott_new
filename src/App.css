@@ -4,6 +4,8 @@
   --BTN-WHITE2: hsla(0, 0%, 100%, 0.84);
   --BTN-WHITE3: hsla(0, 0%, 100%, 0.6);
   --BTN-WHITE4: hsla(0, 0%, 100%, 0.32);
+  --THEME-RED:#E53935;
+  --BLACK-BG: #080808;
   --BUTTON1-SEMIBOLD-WEIGHT: 600;
   --BUTTON1-SEMIBOLD-HEIGHT: 28px;
   --BUTTON1-SEMIBOLD-SIZE: 1.2vw;
@@ -34,7 +36,7 @@
 
 .App {
   display: flex;
-  background-color: #080808;
+  background-color: var(--BLACK-BG);
   height: 100vh;
 }
 

@@ -5,7 +5,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  background: #080808;
+  background: var(--BLACK-BG);
 }
 
 .video-player{
@@ -104,7 +104,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 7vw;
-  color: rgb(255, 255, 255); /* Changed to red */
+  color: rgb(255, 255, 255); 
   opacity: 0;
   pointer-events: none;
   display: flex;

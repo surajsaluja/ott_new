@@ -14,7 +14,7 @@
 }
 
 .stream-modal-content {
-  background-color: #080808;
+  background-color: var(--BLACK-BG);
   color: white;
   width: 50%;
   max-width: 800px;
@@ -69,5 +69,5 @@
 }
 
 .stream-modal-button-focused{
-    border: 2px solid red;
+    border: 2px solid var(--THEME-RED);
 }

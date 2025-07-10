@@ -62,7 +62,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
 
   .placeholder-text {
@@ -130,7 +130,7 @@
     z-index: 10;
     justify-content: center;
     flex: 1 1 auto;
-    background-color: #dd252d;
+    background-color: var(--THEME-RED);
     transform: translate(0, 0);
     padding: 0px 10px;
     border-radius: 25px;

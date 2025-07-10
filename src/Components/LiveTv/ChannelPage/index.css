@@ -11,7 +11,7 @@
 }
 
 .liveTvChannelScheduleContent .ContentRow .contentRowWrapper .ContentRowTitle{
-    background-color: red;
+    background-color: var(--THEME-RED);
     display: inline-flex;
     align-items: center;
     padding: 0.2em 1em;
@@ -82,11 +82,15 @@
   justify-content: center;
   align-items: center;
   font-weight: 700;
-  width: 100px
+  width: 100px;
+  border-style: solid;
+  border-color: #ddd;
+  border-width: 3px;
 }
 
 .playBtnLiveTvChannel-focused{
-    background-color: red;
+    background-color: var(--THEME-RED);
+    border-color: black;
 }
 
 .channelInformationWrapper{

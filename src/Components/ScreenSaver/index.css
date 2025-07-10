@@ -109,7 +109,7 @@
 }
 
 .screen-saver-button-focused{
-  background-color: red;
+  background-color: var(--THEME-RED);
 }
 
 .screen-saver-button-focused{

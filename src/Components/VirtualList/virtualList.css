@@ -129,7 +129,7 @@
   left: 0;
   height: 5px;
   width: 100%;
-  background-color: red;
+  background-color: var(--THEME-RED);
   border-radius: 2px;
 }
 
@@ -178,5 +178,5 @@
 }
 
 .skip-button-focused{
-  background-color: red !important;
+  background-color: var(--THEME-RED) !important;
 }

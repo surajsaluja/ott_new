@@ -73,7 +73,7 @@
 }
 
 .profile-btn-login-focused{
-  background-color: red;
+  background-color: var(--THEME-RED);
 }
 
 .profile-login-container{

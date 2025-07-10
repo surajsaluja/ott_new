@@ -2,7 +2,7 @@
   color: white;
   display: flex;
   position: relative;
-  background-color: #080808;
+  background-color: var(--BLACK-BG);
   flex-direction: column;
   flex: 1;
   height: 100vh;
@@ -161,7 +161,7 @@
 /* 🔥 Button Focus (for TV Remote Navigation) */
 .detail-play-button-focus {
   font-weight: 700;
-  background: red;
+  background: var(--THEME-RED);
   color: white
 }
 
@@ -190,7 +190,7 @@
   margin-bottom: 15px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 2px solid red;
+  border-bottom: 2px solid var(--THEME-RED);
   display: inline-block;
 }
 

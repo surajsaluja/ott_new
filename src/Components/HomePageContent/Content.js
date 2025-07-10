@@ -44,7 +44,7 @@ const ContentRow = React.memo(({
   );
 
   const scrollingWrapperHeight = useMemo(() => 
-    `${rowDimensions.itemHeight + (showTitle ? 70 : 0)}px`,
+    `${rowDimensions.itemHeight + (showTitle ? 85 : 15)}px`,
     [rowDimensions.itemHeight, showTitle]
   );
 
@@ -55,7 +55,7 @@ const ContentRow = React.memo(({
         className={`contentRowWrapper ${hasFocusedChild ? "RowFocused" : ""}`}
         style={{ height: containerHeight }}
       >
-        {showTitle && <div className="ContentRowTitle">{title}</div>}
+        <div className="ContentRowTitle">{title}</div>
         <div 
           className="ContentRowScrollingWrapper"
           ref={scrollingRowRef}
@@ -83,7 +83,6 @@ const ContentRow = React.memo(({
   );
 });
 
-// Optimized Content component
 const Content = React.memo(({
   focusKey: focusKeyParam,
   onAssetFocus = () => {},
