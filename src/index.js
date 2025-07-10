@@ -12,13 +12,13 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Router>
-    <UserProvider>
       <BackHandlerProvider>
-        <ModalProvider>
-          <App />
-        </ModalProvider>
+        <UserProvider>
+          <ModalProvider>
+            <App />
+          </ModalProvider>
+        </UserProvider>
       </BackHandlerProvider>
-    </UserProvider>
     </Router>
   </React.StrictMode>
 );
