@@ -120,7 +120,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             const timer = setTimeout(() => {
                 setDrawerContentReady(true);
             }, 500);
-            if(videoElement && isPlaying){
+            if (videoElement && isPlaying) {
                 videoElement.pause();
             }
             return () => clearTimeout(timer);
@@ -129,7 +129,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             setTimeout(() => {
                 focusSelf();
             }, 50);
-            if(videoElement && isPlaying){
+            if (videoElement && isPlaying) {
                 videoElement.play();
             }
         }
@@ -339,22 +339,35 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         return dynamicTabs;
     }, [mediaDetail, webSeriesSeasons, RenderRelatedItems, RenderSeasonEpisodes]);
 
-    
+
     const handleVideoCanPlay = () => {
-        setIsVideoLoaded(true);
-        videoElement.play().catch(error => {
-            console.error("Autoplay prevented:", error);
-        });
-    }
+        if (!isDrawerOpen) {
+            setIsVideoLoaded(true);
+            videoElement.play().catch(error => {
+                console.error("Autoplay prevented:", error);
+            });
+        }
+    };
 
     const handleVideoPlay = () => {
         setIsPlaying(true);
-    }
+    };
 
     const handleVideoEnd = () => {
         setIsPlaying(false);
         setIsVideoLoaded(false);
-    }
+    };
+
+    const handlePlayerVisibilityChange = () => {
+        if (!videoElement) return;
+
+        if (document.hidden) {
+            videoElement.pause();
+            setIsPlaying(false);
+        } else {
+            videoElement.play().then(() => setIsPlaying(true)).catch(console.error);
+        }
+    };
 
     const videoRef = useCallback((node) => {
         if (node !== null) {
@@ -363,91 +376,99 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     }, []);
 
-     const handlePlayerVisibilityChange = () => {
-                console.log(document.hidden);
-                if (document.hidden) {
-                    videoElement.pause();
-                    setIsPlaying(false);
-                    console.log('video paused');
-                } else {
-                    videoElement.play();
-                    setIsPlaying(true);
-                    console.log('video played');
-                }
-            }
-
     useEffect(() => {
-        if(!isLoading || mediaDetail != null){
-        setIsVideoLoaded(false);
-        setIsPlaying(false);
+        // Cleanup function for the entire effect
+        let cleanup = () => { };
 
-        if (hlsRef.current) {
-            hlsRef.current.destroy();
-            hlsRef.current = null;
-        }
-
-        if (!mediaDetail?.trailerPlayUrl || !videoElement) {
-            console.warn('trailer not avialable');
-            return;
-        }
-
-        const playTrailer = () => {
-            if (!videoElement) return;
-
-            let hls;
-
-            videoElement.pause();
-            videoElement.src = "";
+        if (!isLoading && mediaDetail != null) {
             setIsVideoLoaded(false);
+            setIsPlaying(false);
 
-            videoElement.addEventListener("waiting", () => { });
-            videoElement.addEventListener("canplay", handleVideoCanPlay);
-            videoElement.addEventListener("playing", handleVideoPlay);
-            videoElement.addEventListener("ended", handleVideoEnd)
-            videoElement.addEventListener("stalled", () => { });
-            window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
-
-            if (Hls.isSupported()) {
-                hls = new Hls();
-                hlsRef.current = hls;
-                hls.loadSource(mediaDetail.trailerPlayUrl);
-                hls.attachMedia(videoElement);
-
-                hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {
-                    if (videoElement.textTracks) {
-                        for (let i = 0; i < videoElement.textTracks.length; i++) {
-                            videoElement.textTracks[i].mode = "disabled";
-                        }
-                    }
-                });
-            } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
-                videoElement.src = mediaDetail.trailerPlayUrl;
+            if (!mediaDetail?.trailerPlayUrl || !videoElement) {
+                console.warn('Trailer not available');
+                return;
             }
 
-            // Disable subtitles/text tracks
-            // Disable all subtitles / text tracks
-            if (videoElement.textTracks) {
-                for (let i = 0; i < videoElement.textTracks.length; i++) {
-                    videoElement.textTracks[i].mode = "disabled";
+            const setupVideo = () => {
+                if (!videoElement) return;
+
+                // Cleanup any existing HLS instance
+                if (hlsRef.current) {
+                    hlsRef.current.destroy();
+                    hlsRef.current = null;
                 }
-            }
 
-            return () => {
-                videoElement.removeEventListener("waiting", () => { });
-                videoElement.removeEventListener("canplay", handleVideoCanPlay);
-                videoElement.removeEventListener("playing", handleVideoPlay);
-                videoElement.removeEventListener("ended", handleVideoEnd)
-                videoElement.removeEventListener("stalled", () => { });
-                window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
-                if (hls) hls.destroy();
-                setIsPlaying(false);
+                videoElement.pause();
+                videoElement.src = "";
+
+                // Add event listeners
+                videoElement.addEventListener("canplay", handleVideoCanPlay);
+                videoElement.addEventListener("playing", handleVideoPlay);
+                videoElement.addEventListener("ended", handleVideoEnd);
+                window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
+
+                let hls;
+
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hlsRef.current = hls;
+                    hls.loadSource(mediaDetail.trailerPlayUrl);
+                    hls.attachMedia(videoElement);
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error('Fatal network error encountered');
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error('Fatal media error encountered');
+                                    break;
+                                default:
+                                    console.error('Fatal error encountered');
+                            }
+                        }
+                    });
+                } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+                    videoElement.src = mediaDetail.trailerPlayUrl;
+                }
+
+                // Disable all subtitles/text tracks
+                if (videoElement.textTracks) {
+                    for (let i = 0; i < videoElement.textTracks.length; i++) {
+                        videoElement.textTracks[i].mode = "disabled";
+                    }
+                }
+
+                // Set up cleanup function
+                cleanup = () => {
+                    if (videoElement) {
+                        videoElement.removeEventListener("canplay", handleVideoCanPlay);
+                        videoElement.removeEventListener("playing", handleVideoPlay);
+                        videoElement.removeEventListener("ended", handleVideoEnd);
+                        videoElement.pause();
+                        videoElement.src = "";
+                    }
+                    window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
+                    if (hls) hls.destroy();
+                    if (hlsRef.current) {
+                        hlsRef.current.destroy();
+                        hlsRef.current = null;
+                    }
+                    setIsPlaying(false);
+                    setIsVideoLoaded(false);
+                };
             };
-        };
 
-        const delayPlay = setTimeout(playTrailer, 2000);
-        return () => clearTimeout(delayPlay);
-    }
-    }, [isLoading,mediaDetail, videoElement]);
+            const delayPlay = setTimeout(setupVideo, 2000);
+            cleanup = () => {
+                clearTimeout(delayPlay);
+                // The setupVideo cleanup will be called on next effect run
+            };
+        }
+
+        return cleanup;
+    }, [isLoading, mediaDetail, videoElement]);
 
 
     return {
