@@ -83,26 +83,22 @@ export function useSignalR() {
   };
 
 const disconnectManually = async () => {
-  const connection = connectionRef.current;
-
-  if (!connection) return;
-
-  const state = connection.state;
-
-  if (state === signalR.HubConnectionState.Connected) {
+  if(!connectionRef.current) return;
+    if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
     try {
-      await connection.invoke("DisconnectMannually", userId.toString(), deviceId);
+        await connectionRef.current.invoke("DisconnectMannually", userId.toString(), deviceId);
+       
     } catch (err) {
       console.error("Error invoking DisconnectMannually:", err);
     }
-  } else if (state === signalR.HubConnectionState.Connecting || state === signalR.HubConnectionState.Disconnecting) {
-    console.warn("Connection is not in a valid state to disconnect manually:", state);
+  } else if (connectionRef.current.state === signalR.HubConnectionState.Connecting || connectionRef.current.state === signalR.HubConnectionState.Disconnecting) {
+    console.warn("Connection is not in a valid state to disconnect manually:", connectionRef.current.state);
     // Optionally wait until fully disconnected
-    await waitForDisconnected(connection);
+    await waitForDisconnected(connectionRef.current);
   }
 
   try {
-    await connection.stop();
+    await connectionRef.current.stop();
   } catch (err) {
     console.error("Error stopping connection:", err);
   }
