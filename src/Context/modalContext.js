@@ -1,7 +1,17 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 import Modal from '../Components/Common/Modal';
 import { setModalOpener } from '../Utils';
-import { getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import {
+  getCurrentFocusKey,
+  setFocus,
+} from '@noriginmedia/norigin-spatial-navigation';
 
 const ModalContext = createContext();
 
@@ -9,10 +19,35 @@ export const ModalProvider = ({ children }) => {
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const previousFocusKeyRef = useRef(null);
 
-  const openModal = useCallback(({ title, description, buttons }) => {
-    if(!previousFocusKeyRef.current){
-    previousFocusKeyRef.current = getCurrentFocusKey();
+  // Focus management
+  const setFocusToPreviousElement = useCallback(() => {
+    const previousKey = previousFocusKeyRef.current;
+    if (previousKey) {
+      setTimeout(() => {
+        setFocus(previousKey);
+        previousFocusKeyRef.current = null;
+      }, 0);
+    } else {
+      console.warn('No previous focus key available. Consider setting a fallback.');
+      // Optionally: setFocus('MAIN_CONTAINER');
     }
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalConfig({ isOpen: false });
+    previousFocusKeyRef.current = null;
+  }, []);
+
+  const openModal = useCallback(({ title, description, buttons }) => {
+    const currentFocusKey = getCurrentFocusKey();
+
+    if (!previousFocusKeyRef.current && currentFocusKey) {
+      previousFocusKeyRef.current = currentFocusKey;
+      console.log('Saved current focus key:', currentFocusKey);
+    } else if (!currentFocusKey) {
+      console.warn('Could not save focus key — no active focus.');
+    }
+
     setModalConfig({
       isOpen: true,
       title,
@@ -22,26 +57,13 @@ export const ModalProvider = ({ children }) => {
         {
           label: 'Close',
           className: 'secondary',
-          action: setFocusToPrevElement,
+          action: setFocusToPreviousElement,
         },
       ],
     });
-  }, []);
+  }, [setFocusToPreviousElement]);
 
-  const setFocusToPrevElement = () =>{
-    if(!previousFocusKeyRef.current) return false;
-    setTimeout(() => {
-      if (previousFocusKeyRef.current) {
-        setFocus(previousFocusKeyRef.current);
-        previousFocusKeyRef.current = null;
-      }
-    }, 0);
-  }
-
-  const closeModal = useCallback(() => {
-    setModalConfig({ isOpen: false });
-  }, []);
-
+  // Register modal opener globally
   useEffect(() => {
     setModalOpener(openModal);
   }, [openModal]);
@@ -51,14 +73,14 @@ export const ModalProvider = ({ children }) => {
       {children}
       {modalConfig.isOpen && (
         <Modal
-          onClose={()=>{
-            setFocusToPrevElement();
-            closeModal();
-          }}
           isOpen={modalConfig.isOpen}
           title={modalConfig.title}
           content={modalConfig.content}
-          buttons={modalConfig.buttons?.map(btn => ({
+          onClose={() => {
+            setFocusToPreviousElement();
+            closeModal();
+          }}
+          buttons={modalConfig.buttons?.map((btn) => ({
             ...btn,
             action: () => {
               btn.action?.();
