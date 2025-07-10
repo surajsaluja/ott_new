@@ -44,7 +44,7 @@ const VideoPlayer = () => {
     onScreenInfo,
     skipInfo,
     playDuration,
-    nextEpisodeMediaId
+    nextEpisodeMediaId,
   } = location.state || {};
   const deviceInfo = getDeviceInfo();
   const { userObjectId } = useUserContext();
@@ -409,6 +409,8 @@ useOverrideBackHandler(() => {
                 // playDuration: isResume ? mediaDetail.playDuration : 0
               });
             } else {
+              // history.replace(`/detail/${getCategoryIdByCategoryName('WEB SERIES')}/${mediaId}`);
+              history.goBack();
               console.error(tokenisedResponse.message);
             }
   }
