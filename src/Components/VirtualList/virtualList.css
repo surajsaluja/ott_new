@@ -119,7 +119,7 @@
 }
 
 .thumbnail.focused {
-  outline: 3px solid #0af;
+  outline: 3px solid rgb(224, 20, 24);
   z-index: 2;
 }
 
