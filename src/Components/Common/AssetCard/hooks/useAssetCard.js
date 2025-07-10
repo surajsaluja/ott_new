@@ -3,8 +3,8 @@ import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
 
-const LEFT_RIGHT_DELAY = 300;
-const UP_DOWN_DELAY = 500;
+const LEFT_RIGHT_DELAY = 100;
+const UP_DOWN_DELAY = 200;
 
 const useAssetCard = (
   assetData,

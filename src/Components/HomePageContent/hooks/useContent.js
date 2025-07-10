@@ -2,9 +2,9 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useRef, useEffect } from "react";
 import { smoothScroll } from "../../../Utils";
 import { debounce } from "lodash"
+import { useMemo } from "react";
 const SCROLL_OFFSET = 80;
 
-/* ------------------ Content Row Hook ------------------ */
 const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   const {
     ref,
@@ -20,7 +20,7 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   const scrollingRowRef = useRef(null);
   const rafRef = useRef(null);
 
-const scrollToElement = (element) => {
+  const scrollToElement = useCallback((element) => {
     if (!element || !scrollingRowRef.current) return;
 
     cancelAnimationFrame(rafRef.current);
@@ -35,53 +35,25 @@ const scrollToElement = (element) => {
 
       smoothScroll(scrollingRowRef.current, scrollLeft, 150);
     });
-  };
+  }, []);
 
-
-//  const throttleScroll = useRef(throttle((element) => {
-//     if (!element || !scrollingRowRef.current) return;
-//     const parentRect = scrollingRowRef.current.getBoundingClientRect();
-//     const elementRect = element.getBoundingClientRect();
-//     const scrollLeft = scrollingRowRef.current.scrollLeft +
-//       (elementRect.left - parentRect.left - SCROLL_OFFSET);
-//     smoothScroll(scrollingRowRef.current, scrollLeft, 100);
-//   }, 200)).current;
-
-//   const debouncedSnap = useRef(debounce((element) => {
-//     if (!element || !scrollingRowRef.current) return;
-//     const parentRect = scrollingRowRef.current.getBoundingClientRect();
-//     const elementRect = element.getBoundingClientRect();
-//     const scrollLeft = scrollingRowRef.current.scrollLeft +
-//       (elementRect.left - parentRect.left - SCROLL_OFFSET);
-//     smoothScroll(scrollingRowRef.current, scrollLeft, 250);
-//   }, 50)).current;
-
-  // Debounced version of scrollToElement
-  const debouncedScroll = useRef(
-    debounce((element) => {
-      scrollToElement(element);
-    }, 100)
-  ).current;
+  const debouncedScroll = useMemo(() => 
+    debounce((element) => scrollToElement(element), 100),
+    [scrollToElement]
+  );
 
   const onAssetFocus = useCallback(
     (element, data) => {
-      // Always update asset focus immediately
       handleAssetFocus(data);
-      // Scroll only after focus is stable (debounced)
-      // throttleScroll(element);      // during key repeat
-    // debouncedSnap(element);
       debouncedScroll(element);
     },
-    [handleAssetFocus,debouncedScroll]
+    [handleAssetFocus, debouncedScroll]
   );
 
-  // Cleanup debounce on unmount
-  useEffect(() => {
-    return () => {
-      debouncedScroll.cancel();
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
+  useEffect(() => () => {
+    debouncedScroll.cancel();
+    cancelAnimationFrame(rafRef.current);
+  }, [debouncedScroll]);
 
   return {
     ref,
@@ -92,9 +64,16 @@ const scrollToElement = (element) => {
   };
 };
 
-
-/* ------------------ Movie Home Page Hook ------------------ */
-const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading, loadMoreRows,handleAssetFocus, parentScrollingRef) => {
+const useMovieHomePage = (
+  focusKeyParam,
+  data,
+  setData,
+  isLoading,
+  setIsLoading,
+  loadMoreRows,
+  handleAssetFocus,
+  parentScrollingRef
+) => {
   const scrollDebounceRef = useRef();
   const loadMoreRef = useRef(null);
 
@@ -104,24 +83,23 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
     saveLastFocusedChild: true,
   });
 
-  useEffect(()=>{
-    if(!hasFocusedChild){
+  useEffect(() => {
+    if (!hasFocusedChild) {
       handleAssetFocus(null);
     }
-  },[hasFocusedChild]);
+  }, [hasFocusedChild, handleAssetFocus]);
 
   useEffect(() => {
-  // initialize debounce once
-  scrollDebounceRef.current = debounce((scrollTop) => {
-    if (ref.current) {
-      ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
-    }
-  }, 50); // 300ms debounce
-   return () => {
-    scrollDebounceRef.current?.cancel?.();
-  };
-}, []);
+    scrollDebounceRef.current = debounce((scrollTop) => {
+      if (ref.current) {
+        ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
+      }
+    }, 50);
 
+    return () => {
+      scrollDebounceRef.current?.cancel?.();
+    };
+  }, [ref]);
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -129,7 +107,7 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !isLoading) {
           loadMoreRows();
         }
       },
@@ -141,29 +119,26 @@ const useMovieHomePage = (focusKeyParam, data, setData, isLoading, setIsLoading,
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [data]);
+  }, [data, loadMoreRows, isLoading]);
 
- const onRowFocus = useCallback((element) => {
-  let scroller = (parentScrollingRef && parentScrollingRef.current != null) ? parentScrollingRef : ref;
+  const onRowFocus = useCallback(
+    (element) => {
+      const scroller = parentScrollingRef?.current ?? ref.current;
+      if (!element || !scroller) return;
 
-  if (element && ref.current && scrollDebounceRef.current) {
-    const containerRect = scroller.current.getBoundingClientRect();
-    const scrollTop = element.top - containerRect.top;
+      const containerRect = scroller.getBoundingClientRect();
+      const scrollTop = element.top - containerRect.top;
 
-    if (parentScrollingRef != null) {
-      // Center the element in the scrolling container
-      const containerHeight = containerRect.height;
-      const elementHeight = element.height || 0;
-      const centerOffset = scrollTop - (containerHeight / 2) + (elementHeight / 2);
-      scroller.current.scrollTo({ top: centerOffset, behavior: 'smooth' });
-    } else {
-      // Scroll so the element is near the top with some padding
-      scrollDebounceRef.current(scrollTop - 15);
-    }
-  }
-}, [ref, parentScrollingRef]);
-
-
+      if (parentScrollingRef) {
+        const containerHeight = containerRect.height;
+        const centerOffset = scrollTop - containerHeight / 2 + (element.height ?? 0) / 2;
+        scroller.scrollTo({ top: centerOffset, behavior: "smooth" });
+      } else {
+        scrollDebounceRef.current?.(scrollTop - 15);
+      }
+    },
+    [ref, parentScrollingRef]
+  );
 
   return {
     ref,
