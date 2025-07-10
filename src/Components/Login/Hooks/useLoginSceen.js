@@ -27,7 +27,11 @@ const useLoginScreen = () => {
   }, [focusSelf]);
 
   useEffect(() => {
+     if(isLoggedIn){
+      history.replace('/profile');
+    }else{
     setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.LOGIN);
+    }
   }, []);
 
   const handleDigitInput = (digit) => {
@@ -111,6 +115,8 @@ const useLoginScreen = () => {
                 isTrailer: false,
                 playDuration: 0
               });
+            }else{
+              history.replace(`/detail/${props.categoryID}/${props.mediaID}`)
             }
     }else{
     history.replace(from, props);
