@@ -6,40 +6,49 @@ const apiClient = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
   },
 });
 
-// Optional: reliable ping for actual connectivity
+// Cached ping status (10s window)
+let lastCheck = 0;
+let lastStatus = true;
+
 const isOnline = async () => {
   if (!navigator.onLine) return false;
 
+  const now = Date.now();
+  if (now - lastCheck < 10000) {
+    return lastStatus;
+  }
+
   try {
-    await fetch(API_BASE_URL+'User/GetUserActiveIndicator', {
-      method: 'HEAD',
+    const res = await fetch(API_BASE_URL + 'User/GetUserActiveIndicator', {
+      method: 'GET',
       cache: 'no-store',
-      mode: 'no-cors',
     });
-    return true;
-  } catch (e) {
+    lastCheck = now;
+    lastStatus = res.ok;
+    return res.ok;
+  } catch {
+    lastCheck = now;
+    lastStatus = false;
     return false;
   }
 };
 
-// Request Interceptor
 apiClient.interceptors.request.use(
   async (config) => {
-    const online = await isOnline();
-    if (!online) {
-      return Promise.reject(new Error('No Internet Connection'));
-    }
-
     if (!config?.requireApiKey) {
-      const storedApiKey = localStorage.getItem('apiKey');
-      if (!storedApiKey) {
+      const online = await isOnline();
+      if (!online) {
+        return Promise.reject(new Error('No Internet Connection'));
+      }
+
+      const apiKey = localStorage.getItem('apiKey');
+      if (!apiKey) {
         console.error('apiKey not Set');
       }
-      config.headers.ApiKey = storedApiKey;
+      config.headers.ApiKey = apiKey;
     }
 
     return config;
