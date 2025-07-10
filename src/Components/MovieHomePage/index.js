@@ -59,9 +59,9 @@ const MovieHomePage = () => {
 
   const catId = category ? categoryMap[category.toUpperCase()] || 5 : 5;
 
-  useEffect(() => {
-    setFocus("Menu_Abc"); // Keep focus on menu after mount
-  }, []);
+  // useEffect(() => {
+  //   setFocus("Menu_Abc"); // Keep focus on menu after mount
+  // }, []);
 
   const renderContent = () => {
     if (["HOME", "MOVIES", "WEBSERIES"].includes(category?.toUpperCase())) {
