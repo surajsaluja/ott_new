@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import './App.css';
 import { init } from '@noriginmedia/norigin-spatial-navigation';
 import useAuth from './Hooks/useAuth';
@@ -29,74 +29,61 @@ function App() {
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
 
-  // Check if the current screen is a player screen
-  const isPlayerScreen = () => {
+  const isPlayerScreen = useCallback(() => {
     const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);
     return Object.values(SCREEN_KEYS.PLAYER).includes(currentScreen);
-  };
+  }, []);
 
-  const isScreensaverScreen = () => {
+  const isScreensaverScreen = useCallback(() => {
     const currentScreen = getCache(CACHE_KEYS.CURRENT_SCREEN);
     return currentScreen === SCREEN_KEYS.SCREEN_SAVER;
-  };
+  }, []);
 
-  const initialiseSession = async () => {
-    try {
-     const sessionRes =  await fetchApiKeyAndSetSession();
-     if(sessionRes && sessionRes.isSuccess){
-      setSessionError(null);
-      idleTimeoutRef.current =
-        getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME) || 300000; // fallback 5 mins
-      screenSaverContentRef.current =
-        getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA) || [];
-      resetIdleTimer();
-     }else{
-      throw new Error(sessionRes.message)
-     }
-    } catch (err) {
-      setSessionError(`Session initialized failed : ${err.message || err}`)
-      toast.error('Session initialization failed', err.message || err);
-      hasInitializedSession.current = false;
-    }
-  };
-
-  const resetIdleTimer = () => {
-    if (
-      !idleTimeoutRef.current ||
-      screenSaverContentRef.current.length === 0
-    ) {
-      return;
-    }
+  const resetIdleTimer = useCallback(() => {
+    if (!idleTimeoutRef.current || screenSaverContentRef.current.length === 0) return;
 
     clearTimeout(idleTimer.current);
-
-    if (!isPlayerScreen() && !isScreensaverScreen() && isOnline) {
-      idleTimer.current = setTimeout(() => {
+    idleTimer.current = setTimeout(() => {
+      if (!isPlayerScreen() && !isScreensaverScreen() && isOnline) {
         history.push('/screenSaver');
-      }, idleTimeoutRef.current);
+      }
+    }, idleTimeoutRef.current);
+  }, [history, isOnline, isPlayerScreen, isScreensaverScreen]);
+
+  const initialiseSession = useCallback(async () => {
+    try {
+      const sessionRes = await fetchApiKeyAndSetSession();
+      if (sessionRes?.isSuccess) {
+        setSessionError(null);
+        idleTimeoutRef.current = getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME) || 300000; // 5 mins fallback
+        screenSaverContentRef.current = getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA) || [];
+        resetIdleTimer();
+      } else {
+        throw new Error(sessionRes.message);
+      }
+    } catch (err) {
+      const msg = `Session initialization failed: ${err.message || err}`;
+      setSessionError(msg);
+      toast.error(msg);
+      hasInitializedSession.current = false;
     }
-  };
+  }, [fetchApiKeyAndSetSession, resetIdleTimer]);
 
   useEffect(() => {
     if (isOnline && !hasInitializedSession.current) {
       hasInitializedSession.current = true;
       initialiseSession();
     }
-  }, [isOnline]);
+  }, [isOnline, initialiseSession]);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      if (!isPlayerScreen()) {
-        toast.success('You are online !!');
-      }
+      if (!isPlayerScreen()) toast.success('You are online !!');
     };
-
     const handleOffline = () => {
       setIsOnline(false);
-      if (!isPlayerScreen()) {
-        toast.warn('No Internet Connection');
-      }
+      if (!isPlayerScreen()) toast.warn('No Internet Connection');
     };
 
     window.addEventListener('online', handleOnline);
@@ -105,17 +92,18 @@ function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [isPlayerScreen]);
 
   useEffect(() => {
     const onKeyDown = (e) => {
       resetIdleTimer();
 
-      if (['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009) {
+      const isBackKey = ['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009;
+      if (isBackKey) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation?.();
-        handleBackPress();
+        handleBackPress?.();
       }
     };
 
@@ -126,9 +114,9 @@ function App() {
       window.removeEventListener('keydown', onKeyDown, true);
       clearTimeout(idleTimer.current);
     };
-  }, [handleBackPress]);
+  }, [handleBackPress, resetIdleTimer]);
 
-  // Session loading splash screen
+  // Render Splash
   if (isLoadingSession || sessionError) {
     return (
       <div className="App">
@@ -141,14 +129,12 @@ function App() {
     );
   }
 
-  // Offline error screen (but not on player)
+  // Offline screen
   if (!isOnline && hasInitializedSession.current && !isPlayerScreen()) {
     return (
       <div className="App">
         <div className="error-container">
-          <div className="error-icon">
-            <MdError />
-          </div>
+          <div className="error-icon"><MdError /></div>
           <div className="error-message">No Internet Connection</div>
         </div>
       </div>
