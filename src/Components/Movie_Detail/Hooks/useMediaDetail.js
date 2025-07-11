@@ -50,6 +50,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const hlsRef = useRef(null);
     const videoPlayerRef = useRef(null);
     const videoCleanupRef = useRef(() => {});
+    const isPlayingRef = useRef(null);
 
     const { isLoggedIn, userObjectId } = useUserContext();
 
@@ -121,18 +122,14 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             const timer = setTimeout(() => {
                 setDrawerContentReady(true);
             }, 500);
-            if (videoElement && isPlaying) {
-                videoElement.pause();
-            }
+            handleSetIsPlaying(false);
             return () => clearTimeout(timer);
         } else {
             setDrawerContentReady(false); // Reset when closing
             setTimeout(() => {
                 focusSelf();
             }, 50);
-            if (videoElement && isPlaying) {
-                videoElement.play();
-            }
+            handleSetIsPlaying(true);
         }
     }, [isDrawerOpen]);
 
@@ -340,22 +337,42 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         return dynamicTabs;
     }, [mediaDetail, webSeriesSeasons, RenderRelatedItems, RenderSeasonEpisodes]);
 
+     const handleSetIsPlaying = async (val) => {
+    let video = videoElement;
+    if (!video) return;
 
-    const handleVideoCanPlay = () => {
+    if (val === !!isPlayingRef.current) return;
+
+    try {
+      if (val && video.paused) {
+        await video.play();
+        isPlayingRef.current = true;
+        setIsPlaying(true);
+      } else if (!val && (!video.paused || video.ended)) {
+        await video.pause();
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+      }
+    } catch (error) {
+      console.error("Error in handleSetIsPlaying:", error);
+    }
+  };
+
+
+    const handleVideoCanPlay = useCallback(() => {
+        setIsVideoLoaded(true);
         if (!isDrawerOpen) {
-            setIsVideoLoaded(true);
-            videoElement.play().catch(error => {
-                console.error("Autoplay prevented:", error);
-            });
+            console.log('video playing');
+            handleSetIsPlaying(true);
         }
-    };
+    },[isDrawerOpen]);
 
     const handleVideoPlay = () => {
-        setIsPlaying(true);
+        handleSetIsPlaying(true);
     };
 
     const handleVideoEnd = () => {
-        setIsPlaying(false);
+        handleSetIsPlaying(false);
         setIsVideoLoaded(false);
     };
 
@@ -363,10 +380,9 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         if (!videoElement) return;
 
         if (document.hidden) {
-            videoElement.pause();
-            setIsPlaying(false);
+            handleSetIsPlaying(false);
         } else {
-            // videoElement.play().then(() => setIsPlaying(true)).catch(console.error);
+            handleSetIsPlaying(true);
         }
     };
 
@@ -396,7 +412,7 @@ useEffect(() => {
                 hlsRef.current = null;
             }
 
-            videoElement.pause();
+            handleSetIsPlaying(false);
             videoElement.src = "";
 
             // Add event listeners
@@ -444,7 +460,7 @@ useEffect(() => {
                 videoElement.removeEventListener("canplay", handleVideoCanPlay);
                 videoElement.removeEventListener("playing", handleVideoPlay);
                 videoElement.removeEventListener("ended", handleVideoEnd);
-                videoElement.pause();
+                handleSetIsPlaying(false);
                 videoElement.src = "";
                 window.removeEventListener('visibilitychange', handlePlayerVisibilityChange);
                 if (hls) hls.destroy();
@@ -452,7 +468,6 @@ useEffect(() => {
                     hlsRef.current.destroy();
                     hlsRef.current = null;
                 }
-                setIsPlaying(false);
                 setIsVideoLoaded(false);
             };
         };
