@@ -56,6 +56,11 @@ export default function BottomDrawer({ isOpen, onClose, children, focusKey }) {
               <FocusableButton
                 icon={<IoArrowBackCircleOutline />}
                 onEnterPress={onClose}
+                onArrowPress={(direction)=>{
+                  if(direction === 'up'){
+                    onClose();
+                  }
+                }}
               />
             </div>
             {children}

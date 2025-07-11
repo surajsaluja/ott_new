@@ -12,12 +12,14 @@ const FocusableButton = ({
     icon = '',
     focusClass = '',
     focusable = true,
+    onArrowPress = () =>{}
 }) => {
 
     const { ref, focused } = useFocusable({
         focusKey: focusKeyParam,
         focusable,
         onEnterPress,
+        onArrowPress,
         onFocus,
         trackChildren: true,
         saveLastFocusedChild: true
