@@ -12,12 +12,14 @@ import {
   SCREEN_KEYS
 } from "../../../../Utils/DataCache";
 import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
+import { useBackArrayContext } from "../../../../Context/backArrayContext";
 
 export const useRadioHomePage = (focusKey) => {
   const [radioHomePageData, setRadioHomePageData] = useState([]);
   const [radioBannersData, setRadioBannersData] = useState([]);
   const [isRadioDataLoading, setIsRadioDataLoading] = useState(false);
   const [isBannerLoaded, setIsBannerLoaded] = useState(false);
+  const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
 
   const { userObjectId, isLoggedIn } = useUserContext();
   const history = useHistory();
@@ -117,9 +119,21 @@ export const useRadioHomePage = (focusKey) => {
     ref.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  useOverrideBackHandler(()=>{
-    history.replace('/home');
-  })
+    useEffect(()=>{
+    setBackArray(SCREEN_KEYS.HOME.RADIO_HOME_PAGE, true);
+  },[]);
+
+  useEffect(() => {
+  if (backHandlerClicked) {
+    const backId = currentArrayStack[currentArrayStack.length - 1];
+
+    if (backId === SCREEN_KEYS.HOME.RADIO_HOME_PAGE) {
+      history.replace('/home');
+      popBackArray();
+      setBackHandlerClicked(false);
+    }
+  }
+}, [backHandlerClicked, currentArrayStack]);
 
   return {
     ref,
