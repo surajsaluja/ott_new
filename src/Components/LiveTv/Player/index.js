@@ -13,6 +13,7 @@ import { FaPause, FaPlay } from 'react-icons/fa6';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../Utils/DataCache';
 import { useUserContext } from '../../../Context/userContext';
 import { saveLiveTvChannelProgress } from '../../../Service/LiveTVService';
+import { useBackArrayContext } from '../../../Context/backArrayContext';
 
 const LIVE_TV_PLAYER_FOCUSKEY = 'LIVE_TV_FOCUSKEY'
 const VIDEO_OVERLAY_FOCUS_KEY = 'VIDEO_OVERLAY_FOCUSKEY'
@@ -42,6 +43,9 @@ function LiveTvPlayer() {
     const history = useHistory();
     const location = useLocation();
     const { src, title: movieTitle, channelId } = location.state || {};
+
+      const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
+    
 
 
     // SignalR
@@ -139,6 +143,12 @@ function LiveTvPlayer() {
         playIconTimeoutRef.current = setTimeout(() => setShowPlayIcon(false), 700);
     }, []);
 
+    const handleBackButtonPressed = () => {
+        history.goBack();
+        popBackArray();
+        setBackHandlerClicked(false);
+    }
+
     const handleBackPressed = useCallback(async() => {
         if (isSideBarOpenRef.current) {
             handleSidebarOpen(false);
@@ -149,18 +159,25 @@ function LiveTvPlayer() {
             return;
         } else {
            await handleSetIsPlaying(false);
-            history.goBack();
+            handleBackButtonPressed();
             return;
         }
     }, [isSideBarOpenRef, userActivityRef]);
 
-    const handleBackButtonPressed = () => {
-        history.goBack();
-    }
+     useEffect(() => {
+    setBackArray(SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE, true);
+  }, []);
 
-    useOverrideBackHandler(() => {
+  useEffect(() => {
+    if (backHandlerClicked) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+
+      if (backId === SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE) {
         handleBackPressed();
-    })
+        setBackHandlerClicked(false);
+      }
+    }
+  }, [backHandlerClicked, currentArrayStack]);
 
     
 

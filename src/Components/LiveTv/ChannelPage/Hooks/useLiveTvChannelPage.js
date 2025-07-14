@@ -6,18 +6,19 @@ import { useHistory, useLocation } from 'react-router-dom';
 import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
 import { getTokenisedTvMedia } from '../../../../Utils/MediaDetails';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
+import { useBackArrayContext } from '../../../../Context/backArrayContext';
 
 const useLiveTvChannelPage = (focusKey,) => {
 
   const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey });
-
+  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
   const [scheduledContentData, setScheduledContentData] = useState([]);
 
   const history = useHistory();
   const location = useLocation();
   const channelData = location.state || {};
 
-  const channelInfo  = {
+  const channelInfo = {
     channelImage: channelData.image,
     channelTitle: channelData.title,
     channelDescription: channelData.description,
@@ -98,26 +99,38 @@ const useLiveTvChannelPage = (focusKey,) => {
     loadProgrammesFromServer();
   }, []);
 
-  useOverrideBackHandler(()=>{
-    history.goBack();
-  });
+  useEffect(() => {
+    setBackArray(SCREEN_KEYS.DETAILS.LIVE_TV_DETAIL_PAGE, true);
+  }, []);
 
-  const onPlayLiveTvEnterPress = async () =>{
-    try{
+  useEffect(() => {
+    if (backHandlerClicked) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+
+      if (backId === SCREEN_KEYS.DETAILS.LIVE_TV_DETAIL_PAGE) {
+        history.goBack();
+        popBackArray();
+        setBackHandlerClicked(false);
+      }
+    }
+  }, [backHandlerClicked, currentArrayStack]);
+
+  const onPlayLiveTvEnterPress = async () => {
+    try {
       const response = await getTokenisedTvMedia(channelData.channelHandle);
-      if(response && response.isSuccess){
-        history.push('/livetvplayer',{
+      if (response && response.isSuccess) {
+        history.push('/livetvplayer', {
           src: response.data.tvUrl,
           title: channelData.name,
-          channelId : channelData.id
+          channelId: channelData.id
         })
-      }else{
-        showModal('Warning',response.message);
+      } else {
+        showModal('Warning', response.message);
       }
-    }catch(error){
+    } catch (error) {
       console.error('error playing Live Tv');
     }
-    
+
   }
 
 

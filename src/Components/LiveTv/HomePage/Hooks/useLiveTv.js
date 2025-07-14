@@ -13,6 +13,7 @@ import {
   SCREEN_KEYS,
 } from "../../../../Utils/DataCache";
 import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
+import { useBackArrayContext } from "../../../../Context/backArrayContext";
 
 export const useLiveTv = (focusKey) => {
   const [liveTvHomePageData, setLiveTvHomePageData] = useState([]);
@@ -20,6 +21,7 @@ export const useLiveTv = (focusKey) => {
   const [isTvDataLoading, setIsTvDataLoading] = useState(false);
   const [isBannerLoaded, setIsBannerLoaded] = useState(false);
   const history = useHistory();
+   const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
 
   const { focusKey: currentFocusKey, ref } = useFocusable({
     focusKey,
@@ -77,9 +79,21 @@ export const useLiveTv = (focusKey) => {
     }
   };
 
-  useOverrideBackHandler(() => {
-    history.replace('/home');
-  })
+  useEffect(()=>{
+    setBackArray(SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE, true);
+  },[]);
+
+useEffect(() => {
+  if (backHandlerClicked) {
+    const backId = currentArrayStack[currentArrayStack.length - 1];
+
+    if (backId === SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE) {
+      history.replace('/home');
+      popBackArray();
+      setBackHandlerClicked(false);
+    }
+  }
+}, [backHandlerClicked, currentArrayStack]);
 
   const onBannerEnterPress = async (selectedBanner) => {
     if (isLoggedIn && userObjectId) {
