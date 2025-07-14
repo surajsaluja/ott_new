@@ -1,4 +1,3 @@
-// hooks/useSignalR.js
 import { useState, useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { API_BASE_URL } from '../Api/constants';
@@ -16,19 +15,6 @@ export function useSignalR() {
 
   const baseUrl = API_BASE_URL;
   const deviceId = deviceInfo.deviceId;
-
-  const waitForDisconnected = (connection) => {
-  return new Promise((resolve) => {
-    const check = () => {
-      if (connection.state === signalR.HubConnectionState.Disconnected) {
-        resolve();
-      } else {
-        setTimeout(check, 100);
-      }
-    };
-    check();
-  });
-};
 
 
   useEffect(() => {
@@ -82,28 +68,16 @@ export function useSignalR() {
     }
   };
 
-const disconnectManually = async () => {
-  if(!connectionRef.current) return;
+  const disconnectManually = async () => {
     if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
-    try {
+      try {
         await connectionRef.current.invoke("DisconnectMannually", userId.toString(), deviceId);
        
-    } catch (err) {
-      console.error("Error invoking DisconnectMannually:", err);
+      } catch (err) {
+        console.error("Error invoking DisconnectMannually:", err);
+      }
     }
-  } else if (connectionRef.current.state === signalR.HubConnectionState.Connecting || connectionRef.current.state === signalR.HubConnectionState.Disconnecting) {
-    console.warn("Connection is not in a valid state to disconnect manually:", connectionRef.current.state);
-    // Optionally wait until fully disconnected
-    await waitForDisconnected(connectionRef.current);
-  }
-
-  try {
-    await connectionRef.current.stop();
-  } catch (err) {
-    console.error("Error stopping connection:", err);
-  }
-};
-
+  };
 
   return {
     isConnected,
