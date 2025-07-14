@@ -5,7 +5,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import Spinner from '../../Common/Spinner';
 import './index.css'
 import { MdArrowBack, MdOutlinePause, MdPlayArrow } from 'react-icons/md';
-import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../Utils/DataCache';
 import { useBackArrayContext } from '../../../Context/backArrayContext';
 
@@ -31,7 +30,7 @@ export default function RadioPlayer({ focusKey }) {
   },[]);
 
 useEffect(() => {
-  if (backHandlerClicked) {
+   if (backHandlerClicked && currentArrayStack.length > 0) {
     const backId = currentArrayStack[currentArrayStack.length - 1];
 
     if (backId === SCREEN_KEYS.PLAYER.RADIO_PLAYER_PAGE) {

@@ -6,7 +6,6 @@ import FocusableButton from '../Common/FocusableButton';
 import { kableOneLogo } from '../../assets';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../Utils/DataCache';
-import useOverrideBackHandler from '../../Hooks/useOverrideBackHandler';
 import { useBackArrayContext } from '../../Context/backArrayContext';
 
 function ProfileHomePage({ focusKey }) {

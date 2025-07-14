@@ -11,7 +11,6 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS
 } from "../../../../Utils/DataCache";
-import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
 import { useBackArrayContext } from "../../../../Context/backArrayContext";
 
 export const useRadioHomePage = (focusKey) => {
@@ -124,7 +123,7 @@ export const useRadioHomePage = (focusKey) => {
   },[]);
 
   useEffect(() => {
-  if (backHandlerClicked) {
+   if (backHandlerClicked && currentArrayStack.length > 0) {
     const backId = currentArrayStack[currentArrayStack.length - 1];
 
     if (backId === SCREEN_KEYS.HOME.RADIO_HOME_PAGE) {

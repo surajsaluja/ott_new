@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import FocusableButton from '../FocusableButton';
 import { useFocusable, setFocus, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 import './index.css';
-import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 import { useBackArrayContext } from '../../../Context/backArrayContext';
 
 const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {

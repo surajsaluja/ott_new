@@ -4,7 +4,6 @@ import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useHistory } from 'react-router-dom';
 import { getCategoryIdByCategoryName } from '../../../../Utils';
 import { useUserContext } from '../../../../Context/userContext';
-import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
 import { CACHE_KEYS, setCache, SCREEN_KEYS } from '../../../../Utils/DataCache';
 import { useBackArrayContext } from '../../../../Context/backArrayContext';
 

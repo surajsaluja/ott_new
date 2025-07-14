@@ -8,7 +8,6 @@ import { showModal, getCategoryIdByCategoryName } from '../../Utils';
 import { useUserContext } from '../../Context/userContext';
 import { getCache, setCache, CACHE_KEYS, SCREEN_KEYS } from '../../Utils/DataCache';
 import './index.css';
-import useOverrideBackHandler from '../../Hooks/useOverrideBackHandler';
 import { useBackArrayContext } from '../../Context/backArrayContext';
 
 const SEARCH_PAGE_SIZE = 10;

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { showModal } from "../../Utils";
-import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 
 import Menu_Home from "../Menu_Home";
 import ContentWithBanner from "../HomeContentWithBanner";
@@ -52,10 +51,6 @@ const MovieHomePage = () => {
       ]
     )
   }
-
-  // useOverrideBackHandler(()=>{
-  //   onBackPressHandler();
-  // })
 
   const catId = category ? categoryMap[category.toUpperCase()] || 5 : 5;
 

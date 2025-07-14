@@ -3,7 +3,6 @@ import { convertUTCDateToLocalDate, getTodayMidnightDate, showModal, timeformat 
 import { useEffect, useState } from 'react';
 import { fetchAllLiveTvSchedule } from '../../../../Service/LiveTVService';
 import { useHistory, useLocation } from 'react-router-dom';
-import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
 import { getTokenisedTvMedia } from '../../../../Utils/MediaDetails';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
 import { useBackArrayContext } from '../../../../Context/backArrayContext';
@@ -104,7 +103,7 @@ const useLiveTvChannelPage = (focusKey,) => {
   }, []);
 
   useEffect(() => {
-    if (backHandlerClicked) {
+    if (backHandlerClicked && currentArrayStack.length > 0){
       const backId = currentArrayStack[currentArrayStack.length - 1];
 
       if (backId === SCREEN_KEYS.DETAILS.LIVE_TV_DETAIL_PAGE) {

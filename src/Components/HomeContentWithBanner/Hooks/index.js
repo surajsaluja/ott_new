@@ -21,7 +21,6 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS
 } from "../../../Utils/DataCache";
-import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
 
 const CATEGORY_MAP = {

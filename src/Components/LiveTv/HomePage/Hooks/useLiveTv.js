@@ -12,7 +12,6 @@ import {
   CACHE_KEYS,
   SCREEN_KEYS,
 } from "../../../../Utils/DataCache";
-import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
 import { useBackArrayContext } from "../../../../Context/backArrayContext";
 
 export const useLiveTv = (focusKey) => {
@@ -84,7 +83,7 @@ export const useLiveTv = (focusKey) => {
   },[]);
 
 useEffect(() => {
-  if (backHandlerClicked) {
+  if (backHandlerClicked && currentArrayStack.length > 0) {
     const backId = currentArrayStack[currentArrayStack.length - 1];
 
     if (backId === SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE) {

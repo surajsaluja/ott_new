@@ -7,7 +7,6 @@ import StreamLimitModal from '../../VideoPlayer/StreamLimitError';
 import Popup from '../../VideoPlayer/Popup';
 import SideBar_Tab from '../../VideoPlayer/SideBar_Tab';
 import { useHistory, useLocation } from 'react-router-dom';
-import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
 import Spinner from '../../Common/Spinner';
 import { FaPause, FaPlay } from 'react-icons/fa6';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../Utils/DataCache';
@@ -169,7 +168,7 @@ function LiveTvPlayer() {
   }, []);
 
   useEffect(() => {
-    if (backHandlerClicked) {
+     if (backHandlerClicked && currentArrayStack.length > 0) {
       const backId = currentArrayStack[currentArrayStack.length - 1];
 
       if (backId === SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE) {
