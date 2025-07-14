@@ -4,11 +4,15 @@ import { getEclipsedTrimmedText } from '../../../Utils';
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import useBanner from './Hooks/useBanner';
 import './index.css';
+import { useMovieBannerContext } from '../../../Context/movieBannerContext';
 
 const SHOW_DETAIL_BTN_FOCUS_KEY = 'SHOW_DETAIL_BTN_FOCUS_KEY';
 const WATCH_MOVIE_BANNER_BTN_FOCUS_KEY = 'WATCH_MOVIE_BANNER_BTN_FOCUS_KEY'
 
-const Banner = ({ data: asset = null, banners = [] }) => {
+const Banner = () => {
+  const { focusedAssetDataContext : asset,
+        bannerDataContext: banners } = useMovieBannerContext();
+
   const {
     showBanner,
     videoRef,
@@ -26,7 +30,7 @@ const Banner = ({ data: asset = null, banners = [] }) => {
   const [displayAsset, setDisplayAsset] = useState(asset);
   const [displayBanners, setDisplayBanners] = useState(banners);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showPlayButton, setShowPlayButton] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(displayBanners[0]?.isPlayButton ?? false);
 
   const prevAsset = useRef(asset);
   const prevBanners = useRef(banners);
@@ -37,15 +41,13 @@ const Banner = ({ data: asset = null, banners = [] }) => {
     focusable: banners.length>0,
   // saveLastFocusedChild: true,
 // preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY, 
-onFocus:()=>{
- setTimeout(() => {
-    const targetFocusKey = showPlayButton
-      ? WATCH_MOVIE_BANNER_BTN_FOCUS_KEY
-      : SHOW_DETAIL_BTN_FOCUS_KEY;
-
-    setFocus(targetFocusKey);
-  }, 600);
-} });
+// onFocus:()=>{
+//  setTimeout(() => {
+//     const targetFocusKey =  SHOW_DETAIL_BTN_FOCUS_KEY;
+//     setFocus(targetFocusKey);
+//   }, 200);
+// } 
+});
 
   // Handle transitions between banners/assets
   useEffect(() => {
@@ -63,7 +65,7 @@ onFocus:()=>{
         setDisplayBanners(banners);
         setTransitionClass('fade-in');
         setIsTransitioning(false);
-      }, 300);
+      }, 0);
 
       return () => clearTimeout(timer);
     }
@@ -87,11 +89,11 @@ onFocus:()=>{
   }, [isTransitioning, asset, focusSelf]);
 
   // Determine when to show the play button
-  useEffect(() => {
-    if (!asset && displayBanners.length > 0) {
-      setShowPlayButton(displayBanners[0]?.isPlayButton ?? false);
-    }
-  }, [asset, displayBanners]);
+  // useEffect(() => {
+  //   if (!asset && displayBanners.length > 0) {
+  //     setShowPlayButton(displayBanners[0]?.isPlayButton ?? false);
+  //   }
+  // }, [asset, displayBanners]);
 
   // Compute current display source
   const showBannerOnly = !asset && displayBanners.length > 0;
@@ -210,31 +212,33 @@ onFocus:()=>{
     );
   };
 
-  const renderButtons = () => {
-    if (!showBannerOnly) return null;
+ const renderButtons = () => {
+  const banner = currentDisplayBanners[0];
+  // const buttonStyle = {
+  //   visibility: asset == null ? 'visible' : 'hidden'
+  // };
 
-    const banner = currentDisplayBanners[0];
-    return (
-      <>
-        {showPlayButton && (
-          <FocusableButton
-            className="banner-play-btn"
-            focusClass="play-btn-focus"
-            text="Watch Now"
-            focuskey={WATCH_MOVIE_BANNER_BTN_FOCUS_KEY}
-            onEnterPress={() => watchMediaVOD(false)}
-          />
-        )}
-        <FocusableButton
-          className="banner-play-btn"
-          focusClass="play-btn-focus"
-          text="Show Details"
-          focuskey={SHOW_DETAIL_BTN_FOCUS_KEY}
-          onEnterPress={showMediaDetail}
-        />
-      </>
-    );
-  };
+  return (
+    <>
+      <FocusableButton
+        className="banner-play-btn"
+        focusClass="play-btn-focus"
+        text="Watch Now"
+        focuskey={WATCH_MOVIE_BANNER_BTN_FOCUS_KEY}
+        onEnterPress={() => watchMediaVOD(false)}
+        style={{ display: showPlayButton ? 'block' : 'none' }}
+      />
+      <FocusableButton
+        className="banner-play-btn"
+        focusClass="play-btn-focus"
+        text="Show Details"
+        focuskey={SHOW_DETAIL_BTN_FOCUS_KEY}
+        onEnterPress={showMediaDetail}
+      />
+    </>
+  );
+};
+
 
   return (
     <FocusContext.Provider value={focusKey}>
@@ -249,7 +253,9 @@ onFocus:()=>{
             </div>
           )}
 
-          <div className="asset-buttons" ref={ref}>
+          <div className="asset-buttons" ref={ref} style={{
+  display: asset === null ? 'flex' : 'none'
+}}>
             {renderButtons()}
           </div>
         </div>
