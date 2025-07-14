@@ -7,17 +7,20 @@ import { UserProvider } from "./Context/userContext";
 import { ModalProvider } from "./Context/modalContext";
 import { BackHandlerProvider } from "./Context/BackHandlerContext";
 import { BrowserRouter as Router } from "react-router-dom";
+import { BackArrayProvider } from "./Context/backArrayContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Router>
       <BackHandlerProvider>
+        <BackArrayProvider>
         <UserProvider>
           <ModalProvider>
             <App />
           </ModalProvider>
         </UserProvider>
+        </BackArrayProvider>
       </BackHandlerProvider>
     </Router>
   </React.StrictMode>

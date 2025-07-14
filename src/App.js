@@ -10,6 +10,7 @@ import { getCache, CACHE_KEYS, SCREEN_KEYS } from './Utils/DataCache';
 import { useHistory } from 'react-router-dom';
 import { kableOneLogo } from './assets';
 import { MdError } from 'react-icons/md';
+import { useBackArrayContext } from './Context/backArrayContext';
 
 init({
   debug: false,
@@ -25,6 +26,7 @@ function App() {
   const screenSaverContentRef = useRef([]);
   const hasInitializedSession = useRef(false);
   const history = useHistory();
+  const {setBackHandlerClicked}=useBackArrayContext();
 
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
@@ -103,7 +105,9 @@ function App() {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation?.();
-        handleBackPress?.();
+        setBackHandlerClicked(true);
+        // ?handleBackPress?.();
+        
       }
     };
 
