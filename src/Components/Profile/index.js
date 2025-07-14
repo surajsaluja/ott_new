@@ -7,11 +7,13 @@ import { kableOneLogo } from '../../assets';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../Utils/DataCache';
 import useOverrideBackHandler from '../../Hooks/useOverrideBackHandler';
+import { useBackArrayContext } from '../../Context/backArrayContext';
 
 function ProfileHomePage({ focusKey }) {
     const { isLoggedIn, uid, profileInfo, logout } = useUserContext();
     const history = useHistory();
     const { ref,  focusKey : currentFocusKey, focusSelf } = useFocusable({ focusKey });
+    const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
     useEffect(()=>{
         focusSelf();
     },[focusSelf])
@@ -31,9 +33,21 @@ function ProfileHomePage({ focusKey }) {
         return formattedDate;
     }
 
-  useOverrideBackHandler(()=>{
-    history.replace('/home');
-  })
+ useEffect(()=>{
+    setBackArray(SCREEN_KEYS.HOME.PROFILE_HOME_PAGE, true);
+  },[]);
+
+useEffect(() => {
+  if (backHandlerClicked && currentArrayStack.length > 0) {
+    const backId = currentArrayStack[currentArrayStack.length - 1];
+
+    if (backId === SCREEN_KEYS.HOME.PROFILE_HOME_PAGE) {
+      history.replace('/home');
+      popBackArray();
+      setBackHandlerClicked(false);
+    }
+  }
+}, [backHandlerClicked, currentArrayStack]);
 
     const loginButtonEnterPressHandler = () =>{
         if(isLoggedIn){
