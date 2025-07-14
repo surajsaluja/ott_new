@@ -16,11 +16,11 @@ import { useUserContext } from "../../Context/userContext";
 import { sendVideoAnalytics } from "../../Service/MediaService";
 import { useSignalR } from "../../Hooks/useSignalR";
 import StreamLimitModal from "./StreamLimitError";
-import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 import Spinner from "../Common/Spinner";
 import { FaForward, FaPause, FaPlay } from "react-icons/fa6";
 import { getMediaDetailWithTokenisedMedia } from '../../Utils/MediaDetails'
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../Utils/DataCache";
+import { useBackArrayContext } from "../../Context/backArrayContext";
 
 const SEEKBAR_THUMBIAL_STRIP_FOCUSKEY = "PREVIEW_THUMBNAIL_STRIP";
 const THUMBNAIL_STRIP_FOCUSKEY = "STRIP_THUMBNAIL";
@@ -92,7 +92,7 @@ const VideoPlayer = () => {
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
   const watchTimeIntervalRef = useRef(null);
-
+  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
   // SignalR
   const { isConnected, playCapability, connectManuallyV2, disconnectManually } =
     useSignalR();
@@ -224,9 +224,20 @@ const VideoPlayer = () => {
     }
   };
 
-  useOverrideBackHandler(() => {
-    handleBackPressed();
-  });
+  useEffect(() => {
+    setBackArray(SCREEN_KEYS.PLAYER.MOVIES_PLAYER_PAGE, true);
+  }, []);
+
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+
+      if (backId === SCREEN_KEYS.PLAYER.MOVIES_PLAYER_PAGE) {
+        handleBackPressed();
+        setBackHandlerClicked(false);
+      }
+    }
+  }, [backHandlerClicked, currentArrayStack]);
 
 
   const handleBackPressed = useCallback(async () => {
@@ -245,13 +256,15 @@ const VideoPlayer = () => {
       return;
     } else {
       await handleSetIsPlaying(false);
-      history.goBack();
+      handleBackButtonPressed();
       return;
     }
   }, [isSideBarOpenRef, userActivityRef]);
 
   const handleBackButtonPressed = () => {
     history.goBack();
+    popBackArray();
+    setBackHandlerClicked(false);
   }
 
   const handleSetAnalyticsHistoryId = (historyId) => {
@@ -576,7 +589,7 @@ const VideoPlayer = () => {
         setIsLoading(true);
       };
       const handleEnded = () => {
-        if(nextEpisodeMediaId && !isTrailer){
+        if (nextEpisodeMediaId && !isTrailer) {
           handleWatchNextEpisode(nextEpisodeMediaId);
         }
         handleSetIsPlaying(false);
@@ -624,8 +637,8 @@ const VideoPlayer = () => {
           if (video.hls) {
             video.hls.destroy();
           }
-          if(isConnected){
-          disconnectManually();
+          if (isConnected) {
+            disconnectManually();
           }
           video.removeEventListener("waiting", handleWaiting);
           video.removeEventListener("canplay", handleCanPlay);
