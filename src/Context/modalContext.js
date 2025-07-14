@@ -12,31 +12,41 @@ import {
   getCurrentFocusKey,
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
+import { useBackArrayContext } from './backArrayContext';
 
 const ModalContext = createContext();
+const FOCUS_RESET_DELAY = 200;
 
 export const ModalProvider = ({ children }) => {
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const previousFocusKeyRef = useRef(null);
 
-  // Focus management
+  const {
+    setBackArray,
+    backHandlerClicked,
+    currentArrayStack,
+    setBackHandlerClicked,
+    popBackArray,
+  } = useBackArrayContext();
+
   const setFocusToPreviousElement = useCallback(() => {
     const previousKey = previousFocusKeyRef.current;
     if (previousKey) {
       setTimeout(() => {
         setFocus(previousKey);
         previousFocusKeyRef.current = null;
-      }, 0);
+      }, FOCUS_RESET_DELAY);
     } else {
       console.warn('No previous focus key available. Consider setting a fallback.');
-      // Optionally: setFocus('MAIN_CONTAINER');
     }
   }, []);
 
   const closeModal = useCallback(() => {
     setModalConfig({ isOpen: false });
     previousFocusKeyRef.current = null;
-  }, []);
+    setBackHandlerClicked(false);
+    popBackArray();
+  }, [setBackHandlerClicked, popBackArray]);
 
   const openModal = useCallback(({ title, description, buttons }) => {
     const currentFocusKey = getCurrentFocusKey();
@@ -61,12 +71,31 @@ export const ModalProvider = ({ children }) => {
         },
       ],
     });
-  }, [setFocusToPreviousElement]);
+  }, [setBackArray, setFocusToPreviousElement]);
 
-  // Register modal opener globally
   useEffect(() => {
     setModalOpener(openModal);
   }, [openModal]);
+
+  useEffect(() => {
+    if (!modalConfig.isOpen || !backHandlerClicked) return;
+
+    const backId = currentArrayStack[currentArrayStack.length - 1];
+    if (backId === 'MODAL') {
+      setFocusToPreviousElement();
+      closeModal();
+    }
+  }, [backHandlerClicked, modalConfig.isOpen, currentArrayStack, closeModal, setFocusToPreviousElement]);
+
+  const renderButtons = useCallback(() => {
+    return modalConfig.buttons?.map((btn) => ({
+      ...btn,
+      action: () => {
+        btn.action?.();
+        closeModal();
+      },
+    }));
+  }, [modalConfig.buttons, closeModal]);
 
   return (
     <ModalContext.Provider value={{ openModal, closeModal }}>
@@ -80,13 +109,7 @@ export const ModalProvider = ({ children }) => {
             setFocusToPreviousElement();
             closeModal();
           }}
-          buttons={modalConfig.buttons?.map((btn) => ({
-            ...btn,
-            action: () => {
-              btn.action?.();
-              closeModal();
-            },
-          }))}
+          buttons={renderButtons()}
         />
       )}
     </ModalContext.Provider>

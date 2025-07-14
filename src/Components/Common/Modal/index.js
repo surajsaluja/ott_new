@@ -4,17 +4,20 @@ import FocusableButton from '../FocusableButton';
 import { useFocusable, setFocus, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 import './index.css';
 import useOverrideBackHandler from '../../../Hooks/useOverrideBackHandler';
+import { useBackArrayContext } from '../../../Context/backArrayContext';
 
 const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
   const { ref, focusSelf, focusKey: currentFocusKey } = useFocusable({ focusKey: 'MODAL_BUTTONS' });
+  const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
 
   useEffect(() => {
       focusSelf();
-  }, [isOpen]);
+  }, [isOpen,focusSelf]);
 
-  useOverrideBackHandler(()=>{
-    onClose();
-  })
+
+  useEffect(()=>{
+    setBackArray('MODAL', false);
+  },[]);
 
   return createPortal(
     <FocusContext.Provider value={currentFocusKey}>
