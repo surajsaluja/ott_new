@@ -1,7 +1,6 @@
 import { FocusContext, setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
 import { MdSettings, MdArrowBack, MdOutlineSubtitles } from "react-icons/md";
-import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 import "./Popup.css";
 import { useEffect } from "react";
 
@@ -34,12 +33,6 @@ const Popup = ({
   // }
   // },[focusSelf, isVisible])
 
-  // Close the drawer instead of navigating back
-  useOverrideBackHandler(() => {
-    if(isVisible){
-    onBackPress();
-    }
-  });
 
   return (
     <FocusContext.Provider value={currentFocusKey}>

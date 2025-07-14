@@ -6,15 +6,9 @@ import {
 } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../FocusableButton";
 import { IoArrowBackCircleOutline } from "react-icons/io5";
-import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 
 export default function BottomDrawer({ isOpen, onClose, children, focusKey }) {
   const [hasMounted, setHasMounted] = useState(false);
-  
-  // Close the drawer instead of navigating back
-  useOverrideBackHandler(() => {
-    onClose(); 
-  });
   
   const {
     focusKey: currentFocusKey,

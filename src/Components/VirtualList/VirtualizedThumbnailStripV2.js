@@ -7,7 +7,6 @@ import {
 } from "@noriginmedia/norigin-spatial-navigation";
 import throttle from "lodash/throttle";
 import "./virtualList.css";
-import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
 
 const THUMBNAIL_WIDTH = 400;
 const THUMBNAIL_HEIGHT = 200;
@@ -275,13 +274,6 @@ useEffect(()=>{
       video.removeEventListener("timeupdate", handleTimeUpdate);
     };
   }, [videoRef]);
-
-  // Close the drawer instead of navigating back
-  useOverrideBackHandler(() => {
-    if(isThumbnailStripVisible){
-    onClose();
-    }
-  });
 
   const getCurrentThumbnailIndex = () => {
     if (videoRef?.current) {

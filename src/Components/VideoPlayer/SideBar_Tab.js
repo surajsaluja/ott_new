@@ -3,8 +3,6 @@ import "./SideBar.css"; // Ensure styling for sidebar animations
 import { FocusContext, setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../Common/FocusableButton";
 import { MdRadioButtonUnchecked, MdRadioButtonChecked, MdCheck } from "react-icons/md";
-import useOverrideBackHandler from "../../Hooks/useOverrideBackHandler";
-
 const Context = ({
     title,
     items,
@@ -105,13 +103,6 @@ const SideBar_Tab = ({
             setFocus('captions_con');
         }
     }, [isOpen]);
-
-      // Close the drawer instead of navigating back
-      useOverrideBackHandler(() => {
-        if(isOpen){
-             onClose();
-        }
-      });
 
     return (
         <div id='sideBar' className={`sidebar ${isOpen ? "open" : ""}`}>
