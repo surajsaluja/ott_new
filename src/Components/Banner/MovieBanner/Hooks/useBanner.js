@@ -7,7 +7,8 @@ import { getMediaDetailWithTokenisedMedia } from "../../../../Utils/MediaDetails
 
 const TRAILER_PLAY_DELAY = 1000;
 
-const useBanner = (asset, banners) => {
+const useBanner = (asset,banners) => {
+
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -23,70 +24,67 @@ const useBanner = (asset, banners) => {
 
   // Video playback logic
   useEffect(() => {
-    if (!asset?.trailerUrl || !videoEl) return;
+  if (!asset?.trailerUrl || !videoEl) return;
 
-    const el = videoEl;
-    let hls;
+  const el = videoEl;
+  let hls;
 
-    const playTrailer = () => {
+  const onCanPlay = () => {
+    setIsVideoLoaded(true);
+    el.play().catch(err => console.warn("Autoplay failed:", err));
+  };
+  const onPlay = () => setIsPlaying(true);
+  const onEnded = () => {
+    setIsPlaying(false);
+    setIsVideoLoaded(false);
+  };
+  const onVisibilityChange = () => {
+    if (document.hidden) {
       el.pause();
-      el.src = "";
-      setIsVideoLoaded(false);
+      setIsPlaying(false);
+    } else {
+      el.play().catch(() => { });
+      setIsPlaying(true);
+    }
+  };
 
-      const onCanPlay = () => {
-        setIsVideoLoaded(true);
-        el.play().catch(err => console.warn("Autoplay failed:", err));
-      };
-      const onPlay = () => setIsPlaying(true);
-      const onEnded = () => {
-        setIsPlaying(false);
-        setIsVideoLoaded(false);
-      };
-      const onVisibilityChange = () => {
-        if (document.hidden) {
-          el.pause();
-          setIsPlaying(false);
-        } else {
-          el.play().catch(() => { });
-          setIsPlaying(true);
-        }
-      };
+  const playTrailer = () => {
+    el.pause();
+    el.src = "";
+    setIsVideoLoaded(false);
 
-      el.addEventListener("canplay", onCanPlay);
-      el.addEventListener("playing", onPlay);
-      el.addEventListener("ended", onEnded);
-      window.addEventListener("visibilitychange", onVisibilityChange);
+    el.addEventListener("canplay", onCanPlay);
+    el.addEventListener("playing", onPlay);
+    el.addEventListener("ended", onEnded);
+    window.addEventListener("visibilitychange", onVisibilityChange);
 
-      if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(asset.trailerUrl);
-        hls.attachMedia(el);
-        hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {
-          Array.from(el.textTracks).forEach(track => (track.mode = "disabled"));
-        });
-        hlsRef.current = hls;
-      } else if (el.canPlayType("application/vnd.apple.mpegurl")) {
-        el.src = asset.trailerUrl;
-      }
+    if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(asset.trailerUrl);
+      hls.attachMedia(el);
+      hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {
+        Array.from(el.textTracks).forEach(track => (track.mode = "disabled"));
+      });
+      hlsRef.current = hls;
+    } else if (el.canPlayType("application/vnd.apple.mpegurl")) {
+      el.src = asset.trailerUrl;
+    }
+  };
 
-      return () => {
-        el.removeEventListener("canplay", onCanPlay);
-        el.removeEventListener("playing", onPlay);
-        el.removeEventListener("ended", onEnded);
-        window.removeEventListener("visibilitychange", onVisibilityChange);
-        if (hls) hls.destroy();
-      };
-    };
+  const timer = setTimeout(playTrailer, TRAILER_PLAY_DELAY);
 
-    const timer = setTimeout(playTrailer, TRAILER_PLAY_DELAY);
-    return () => {
-      clearTimeout(timer);
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-    };
-  }, [asset?.trailerUrl, videoEl]);
+  return () => {
+    clearTimeout(timer);
+    el.removeEventListener("canplay", onCanPlay);
+    el.removeEventListener("playing", onPlay);
+    el.removeEventListener("ended", onEnded);
+    window.removeEventListener("visibilitychange", onVisibilityChange);
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+  };
+}, [asset?.trailerUrl, videoEl]);
 
   // Cleanup on asset change
   useEffect(() => {
@@ -128,7 +126,7 @@ const useBanner = (asset, banners) => {
           onScreenInfo: res.data.onScreenInfo,
           skipInfo: res.data.skipInfo,
           isTrailer,
-          playDuration: 0,
+          playDuration: res.data.mediaDetail?.playDuration,
           nextEpisodeMediaId: res?.data?.currentEpisode?.nextEpisodeMediaId || null
         });
       } else {
