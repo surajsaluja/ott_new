@@ -17,14 +17,13 @@ const useAssetCard = (
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [cachedImage, setCachedImage] = useState(null);
-  
-  const imgUrl = dimensions && dimensions.displayImgType 
+  const [imageUrl, setImg] =useState(dimensions && dimensions.displayImgType 
     ? (dimensions.displayImgType === 'web' 
       ? assetData.webThumbnail 
       : assetData.mobileThumbnail) 
-    : assetData.webThumbnail;
+    : assetData.webThumbnail)
 
-  const { imgRef, shouldLoad, imageUrl } = useIntersectionImageLoader(imgUrl || null);
+    const shouldLoad = true;
 
   // Check cache when imageUrl changes
   useEffect(() => {
@@ -103,7 +102,7 @@ const useAssetCard = (
   };
 
   return {
-    imgRef,
+    // imgRef,
     shouldLoad,
     imageUrl,
     isLoaded,

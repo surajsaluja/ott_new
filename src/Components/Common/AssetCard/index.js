@@ -1,7 +1,7 @@
 import useAssetCard from "./hooks/useAssetCard";
 import FocusableButton from "../FocusableButton";
 import "./index.css";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 const gap = 40;
 const defaultDimensions = {
@@ -11,7 +11,8 @@ const defaultDimensions = {
   displayImgType: "web",
 };
 
-const AssetCard = React.memo(({
+const AssetCard = (props) => {
+  const {
   onEnterPress = () => {},
   onAssetFocus = () => {},
   assetData = {},
@@ -20,9 +21,9 @@ const AssetCard = React.memo(({
   dimensions = defaultDimensions,
   showTitle = false,
   isCircular = false,
-}) => {
+} = props
   const {
-    imgRef,
+    // imgRef,
     shouldLoad,
     imageUrl,
     isLoaded,
@@ -43,10 +44,10 @@ const AssetCard = React.memo(({
   }), [dimensions, showTitle]);
 
   const imageStyles = useMemo(() => ({
-    width: `${dimensions.itemWidth}px`,
-    height: `${dimensions.itemHeight}px`,
+    width: !isCircular ? `${dimensions.itemWidth}px` : 'auto',
+    height: !isCircular ? `${dimensions.itemHeight}px` : 'auto',
     objectFit: "cover",
-    display: isLoaded ? "block" : "none",
+    display: isLoaded ? "flex" : "none",
     borderRadius,
   }), [dimensions, isLoaded, borderRadius]);
 
@@ -58,6 +59,10 @@ const AssetCard = React.memo(({
 
   }), [borderRadius]);
 
+  const cardStyle  = useMemo(()=>({
+    borderRadius
+  }),[borderRadius])
+
   return (
     <div className="asset" style={containerStyles}>
       <div
@@ -65,7 +70,7 @@ const AssetCard = React.memo(({
         className={`asset-wrapper ${focused ? "focused" : ""}`}
         style={cardWrapperStyles}
       >
-        <div className={`card ${focused ? "focused" : ""}`}>
+        <div className={`card ${focused ? "focused" : ""}`} style={cardStyle}>
           {assetData.isSeeMore ? (
             <FocusableButton
               className="seeMore"
@@ -74,10 +79,12 @@ const AssetCard = React.memo(({
               onFocus={onAssetFocus}
             />
           ) : shouldLoad ? (
-            <div className="image-wrapper" style={{ width: dimensions.itemWidth, height: dimensions.itemHeight }}>
+            <div className="image-wrapper" style={{ 
+              width: isCircular ? dimensions.itemWidth : 'auto', 
+              height: isCircular ? dimensions.itemHeight : 'auto' }}>
               {!hasError && (
                 <img
-                  ref={imgRef}
+                  // ref={imgRef}
                   className={`card-image ${focused ? "focused" : ""}`}
                   src={cachedImage ? cachedImage.src : imageUrl}
                   alt={assetData.title}
@@ -117,7 +124,7 @@ const AssetCard = React.memo(({
               )}
             </div>
           ) : (
-            <div className="shimmer-placeholder" ref={imgRef} style={{ width: dimensions.itemWidth, height: dimensions.itemHeight }}>
+            <div className="shimmer-placeholder"  style={{ width: dimensions.itemWidth, height: dimensions.itemHeight }}>
               <span className="placeholder-text">Loading...</span>
             </div>
           )}
@@ -126,6 +133,6 @@ const AssetCard = React.memo(({
       {showTitle && <p className="assetTitle">{assetData.title}</p>}
     </div>
   );
-});
+};
 
 export default AssetCard;
