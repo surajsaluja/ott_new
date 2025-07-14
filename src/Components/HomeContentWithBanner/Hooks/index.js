@@ -22,8 +22,46 @@ import {
   SCREEN_KEYS
 } from "../../../Utils/DataCache";
 import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
+import { useBackArrayContext } from "../../../Context/backArrayContext";
+
+const CATEGORY_MAP = {
+  1: {
+    cache: CACHE_KEYS.MOVIE_PAGE,
+    screen: SCREEN_KEYS.HOME.MOVIES_HOME_PAGE,
+    route: '/movies'
+  },
+  2: {
+    cache: CACHE_KEYS.WEBSERIES_PAGE,
+    screen: SCREEN_KEYS.HOME.WEBSERIES_HOME_PAGE,
+    route: '/webseries'
+  },
+  5: {
+    cache: CACHE_KEYS.HOME_PAGE,
+    screen: SCREEN_KEYS.HOME.HOME_PAGE,
+    route: '/home'
+  }
+};
 
 export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
+  const { uid, isLoggedIn, userObjectId } = useUserContext();
+  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
+
+  const history = useHistory();
+
+  const [data, setData] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [focusedAssetData, setFocusedAssetData] = useState(null);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const didFocusSelfOnce = useRef(false);
+  const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
+  const [categoryState, setCategoryState] = useState(category);
+
+  const horizontalLimit = 10;
+  const settleTimerRef = useRef(null);
+  const isBannerLoadedRef = useRef(false);
+  const SETTLE_DELAY = 200;
+
   const {
     ref,
     focusKey: currentFocusKey,
@@ -34,129 +72,107 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     trackChildren: true,
     saveLastFocusedChild: false,
     onFocus,
-    preferredChildFocusKey: 'BANNER_FOCUS_KEY'
+    preferredChildFocusKey: banners.length > 0 ? 'BANNER_FOCUS_KEY' : 'CONTENT_FOCUS_KEY'
   });
 
-  const [focusedAssetData, setFocusedAssetData] = useState(null);
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
-  const [banners, setBanners] = useState([]);
-  const horizontalLimit = 10;
-  const [page, setPage] = useState(1);
-  const isBannerLoadedRef = useRef(false);
+  const categoryMeta = CATEGORY_MAP[category] || {};
 
-  const { uid, isLoggedIn, userObjectId } = useUserContext();
-  const history = useHistory();
-  const settleTimerRef = useRef(null);
-  const SETTLE_DELAY = 200;
+
 
   useEffect(() => {
-    loadInitialData();
-    return () => {
-      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
-    };
-  }, [category]);
+    setBackArray(categoryMeta.screen, true);
+  }, [category])
 
-//   useEffect(() => {
-//   if (banners && banners.length > 0 && focusedAssetData === null) {
-//     isBannerLoadedRef.current = true;
-//   }
-// }, [banners, focusedAssetData]);
-
-// useEffect(()=>{
-//   isBannerLoadedRef.current = hasFocusedChild;
-// },[hasFocusedChild])
-
-
-
-//   useEffect(() => {
-//     if (!isLoading) {
-//        setTimeout(() => {
-//       focusSelf();
-//     }, 0);
-//     }
-//   }, [focusSelf, banners, isLoading, isBannerLoadedRef.current])
-
-  const getCategoryKeys = () => {
-    switch (category) {
-      case 1: return CACHE_KEYS.MOVIE_PAGE;
-      case 2: return CACHE_KEYS.WEBSERIES_PAGE;
-      case 5: return CACHE_KEYS.HOME_PAGE;
-      default: return null;
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+      console.log(SCREEN_KEYS);
+      if (backId === SCREEN_KEYS.HOME.HOME_PAGE) {
+        showExitApplicationModal();
+        setBackHandlerClicked(false);
+        // popBackArray();
+      } else if (backId === SCREEN_KEYS.HOME.MOVIES_HOME_PAGE || backId === SCREEN_KEYS.HOME.WEBSERIES_HOME_PAGE) {
+        history.replace('/home');
+        setBackHandlerClicked(false);
+        popBackArray();
+      }
     }
-  };
+  }, [backHandlerClicked])
 
-  const getCurrentScreenKey = () => {
-    switch (category) {
-      case 1: return SCREEN_KEYS.HOME.MOVIES_HOME_PAGE;
-      case 2: return SCREEN_KEYS.HOME.WEBSERIES_HOME_PAGE;
-      case 5: return SCREEN_KEYS.HOME.HOME_PAGE;
-      default: return null;
-    }
-  };
 
-  const loadInitialData = async () => {
+
+  const loadInitialData = useCallback(async () => {
     setIsLoading(true);
     try {
-      let processed = [];
-      const cacheKeyGroup = getCategoryKeys();
-      setCache(CACHE_KEYS.CURRENT_SCREEN, getCurrentScreenKey());
+      let playlists = [];
 
-      if (cacheKeyGroup && hasCache(cacheKeyGroup.HOME_DATA) && hasCache(cacheKeyGroup.BANNERS_DATA)) {
-        processed = getCache(cacheKeyGroup.HOME_DATA);
-        setBanners(getCache(cacheKeyGroup.BANNERS_DATA));
+      setCache(CACHE_KEYS.CURRENT_SCREEN, categoryMeta.screen);
+
+      const { cache } = categoryMeta;
+      const hasCachedData = cache &&
+        hasCache(cache.HOME_DATA) &&
+        hasCache(cache.BANNERS_DATA);
+
+      if (hasCachedData) {
+        playlists = getCache(cache.HOME_DATA);
+        setBanners(getCache(cache.BANNERS_DATA));
       } else {
-        const bannerData = await fetchBannersBySection(category);
-        const playlistData = await fetchPlaylistPage(category, 1, uid, horizontalLimit);
-        const processedPlaylists = getProcessedPlaylists(playlistData, horizontalLimit);
-
-        if (cacheKeyGroup) {
-          setCache(cacheKeyGroup.HOME_DATA, processedPlaylists);
-          setCache(cacheKeyGroup.BANNERS_DATA, bannerData?.data || []);
-        }
-
+        const [bannerData, playlistRaw] = await Promise.all([
+          fetchBannersBySection(category),
+          fetchPlaylistPage(category, 1, uid, horizontalLimit)
+        ]);
+        const processed = getProcessedPlaylists(playlistRaw, horizontalLimit);
+        playlists = processed;
+        // setBanners([]);
         setBanners(bannerData?.data || []);
-        processed = processedPlaylists;
+
+        if (cache) {
+          setCache(cache.HOME_DATA, processed);
+          setCache(cache.BANNERS_DATA, bannerData?.data || []);
+        }
       }
 
-      //Remove stale continue-watching row if any
-      processed = processed.filter(row => !row?.isContinueWatching);
+      playlists = playlists.filter(row => !row?.isContinueWatching);
 
-      // Always fetch fresh continueWatching data if category === 5 (home page)
       if (isLoggedIn && uid && category === 5) {
-        const continueWatchlistData = await fetchContinueWatchingData(uid);
-        processed = getProcessedPlaylistsWithContinueWatch(processed, continueWatchlistData);
+        const continueData = await fetchContinueWatchingData(uid);
+        playlists = getProcessedPlaylistsWithContinueWatch(playlists, continueData);
       }
 
+      setData(playlists);
       setPage(1);
-      setData(processed);
-    } catch (e) {
-      console.error("Failed to load homepage", e);
+    } catch (error) {
+      console.error("Failed to load home data", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [category, uid, isLoggedIn, categoryMeta]);
 
-  const loadMoreRows = useThrottle(async () => {
+  const loadMoreRows = useCallback(async () => {
+    console.log('page changed');
     if (isLoading || isLoadingPagingRows) return;
     setIsLoadingPagingRows(true);
     try {
-      const raw = await fetchPlaylistPage(category, page + 1, uid);
+      const nextPage = page + 1;
+      const raw = await fetchPlaylistPage(category, nextPage, uid, horizontalLimit);
+      if (!raw || raw.length === 0) {
+        console.log("No more data to fetch.");
+        return;
+      }
       const processed = getProcessedPlaylists(raw, horizontalLimit);
       setData(prev => [...prev, ...processed]);
-      setPage(prev => prev + 1);
+      console.log('page', page);
+      setPage(nextPage);
     } catch (e) {
       console.error("Pagination error", e);
     } finally {
       setIsLoadingPagingRows(false);
     }
-  }, 1000);
+  }, [category, uid, page, isLoading, isLoadingPagingRows]);
+
 
   const handleAssetFocus = useCallback((asset) => {
-    if (settleTimerRef.current) {
-      clearTimeout(settleTimerRef.current);
-    }
+    if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     settleTimerRef.current = setTimeout(() => {
       setFocusedAssetData(asset);
       settleTimerRef.current = null;
@@ -167,31 +183,48 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     history.push('/login', { from: '/' });
   };
 
-  const onAssetPress = (item) => {
+  const onAssetPress = useCallback((item) => {
     if (isLoggedIn && userObjectId) {
-      if (item?.assetData?.isSeeMore === true) {
+      if (item?.assetData?.isSeeMore) {
         history.push('/seeAll', {
-          playListId: item?.assetData?.playListId,
+          playListId: item.assetData.playListId,
           playListName: ''
         });
       } else {
-        history.push(`/detail/${item?.assetData?.categoryID}/${item?.assetData?.mediaID}`);
+        history.push(`/detail/${item.assetData.categoryID}/${item.assetData.mediaID}`);
       }
     } else {
       showModal('Login', 'You are not logged in !!', [
         { label: 'Login', action: redirectToLogin, className: 'primary' }
       ]);
     }
-  };
+  }, [isLoggedIn, userObjectId, history]);
 
-  useOverrideBackHandler(()=>{
-    if(category === 5){
-       showExitApplicationModal();
-    }else{
-      history.push('/home');
-    }
-    // setFocus("Menu_Abc");
+  useEffect(() => {
+    console.log('home page re_render');
   })
+
+  useEffect(() => {
+    loadInitialData();
+    return () => {
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+    };
+  }, [loadInitialData]);
+
+  useEffect(() => {
+    if (
+      !didFocusSelfOnce.current &&
+      page === 1 &&
+      (banners.length > 0 || data.length > 0)
+    ) {
+      didFocusSelfOnce.current = true;
+      focusSelf();
+    }
+  }, [banners, data, page, focusSelf]);
+
+  useEffect(() => {
+    didFocusSelfOnce.current = false;
+  }, [category]);
 
   return {
     ref,
@@ -207,6 +240,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     banners,
     setFocusedAssetData,
     onAssetPress,
-    isBannerLoadedRef
+    isBannerLoadedRef,
+    categoryState
   };
 };
