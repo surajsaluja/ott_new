@@ -3,16 +3,18 @@ import { fetchScreenSaverContent } from "../../../Service/MediaService";
 import { sanitizeAndResizeImage, showModal } from "../../../Utils";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../Utils/imageCache";
-import { CACHE_KEYS, getCache } from "../../../Utils/DataCache";
+import { CACHE_KEYS, getCache, SCREEN_KEYS} from "../../../Utils/DataCache";
 import { getMediaDetailWithTokenisedMedia, getTokenisedMedia } from "../../../Utils/MediaDetails";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { useUserContext } from "../../../Context/userContext";
+import { useBackArrayContext } from "../../../Context/backArrayContext";
 
 const useScreenSaver = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [screensaverResources, setScreensaverResources] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+   const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
   const [cachedImage, setCachedImage] = useState(null);
   const { userObjectId, isLoggedIn } = useUserContext();
 
@@ -147,6 +149,22 @@ const useScreenSaver = () => {
           history.replace('/login',{from:`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}`});
         }
   };
+
+    useEffect(() => {
+      setBackArray(SCREEN_KEYS.SCREEN_SAVER, false);
+    }, []);
+  
+    useEffect(() => {
+      if (backHandlerClicked && currentArrayStack.length > 0){
+        const backId = currentArrayStack[currentArrayStack.length - 1];
+  
+        if (backId === SCREEN_KEYS.SCREEN_SAVER) {
+          history.goBack();
+          popBackArray();
+          setBackHandlerClicked(false);
+        }
+      }
+    }, [backHandlerClicked, currentArrayStack]);
 
   return {
     ref,

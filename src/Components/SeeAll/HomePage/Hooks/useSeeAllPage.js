@@ -6,6 +6,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
+import { useBackArrayContext } from '../../../../Context/backArrayContext';
 
 const PLAYLIST_PAGE_SIZE = 10;
 
@@ -21,6 +22,8 @@ const useSeeAllPage = (focusKey) => {
     const hasMoreRef = useRef(true);
     const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
     const SETTLE_DELAY = 200;
+
+    const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
     const history = useHistory();
     const location = useLocation();
@@ -92,6 +95,22 @@ const useSeeAllPage = (focusKey) => {
             settleTimerRef.current = null;
         }, SETTLE_DELAY);
     }, []);
+
+      useEffect(() => {
+    setBackArray(SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE, true);
+  }, []);
+
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0){
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+
+      if (backId === SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE) {
+        history.goBack();
+        popBackArray();
+        setBackHandlerClicked(false);
+      }
+    }
+  }, [backHandlerClicked, currentArrayStack]);
 
 
     const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({

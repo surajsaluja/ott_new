@@ -9,11 +9,11 @@ import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
 import { toast } from "react-toastify";
 import Season_EpisodeList from "../../Season_EpisodeList";
 import StarCastContainer from "../../StarCastContainer";
-import useOverrideBackHandler from "../../../Hooks/useOverrideBackHandler";
 import { useUserContext } from "../../../Context/userContext";
 import { showModal } from "../../../Utils";
 import { clearWebSeriesCache } from "../../../Utils/WebSeriesUtils";
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../../Utils/DataCache";
+import { useBackArrayContext } from "../../../Context/backArrayContext";
 
 const useMediaDetail = (mediaId, categoryId, focusKey) => {
     // References for Focusable
@@ -54,6 +54,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
     const isDrawerOpenRef = useRef(null);
 
     const { isLoggedIn, userObjectId } = useUserContext();
+
+    const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
     // Support Functions
     const history = useHistory();
@@ -96,12 +98,25 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
             return;
         } else {
             history.goBack();
+            popBackArray();
+            setBackHandlerClicked(false);
         }
     }
 
-    useOverrideBackHandler(() => {
-        handleBackPressed();
-    });
+    useEffect(() => {
+        setBackArray(SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE, true);
+    }, []);
+
+    useEffect(() => {
+        if (backHandlerClicked && currentArrayStack.length > 0) {
+            const backId = currentArrayStack[currentArrayStack.length - 1];
+
+            if (backId === SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE) {
+                handleBackPressed();
+                setBackHandlerClicked(false);
+            }
+        }
+    }, [backHandlerClicked, currentArrayStack]);
 
     // set Focus to Page when media Loads
     useEffect(() => {
@@ -257,7 +272,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 thumbnailBaseUrl: isTrailer ? mediaDetail.trailerBasePath : mediaDetail.trickyPlayBasePath,
                 title: mediaDetail.title,
                 mediaId: mediaDetail.mediaID,
-                onScreenInfo: isTrailer ?  {}  : mediaDetail.onScreenInfo,
+                onScreenInfo: isTrailer ? {} : mediaDetail.onScreenInfo,
                 skipInfo: isTrailer ? {} : mediaDetail.skipInfo,
                 isTrailer: isTrailer,
                 playDuration: isResume ? mediaDetail.playDuration : 0,
@@ -379,10 +394,10 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     };
 
-    const handleVideoCanPlay  = () =>{
+    const handleVideoCanPlay = () => {
         setIsVideoLoaded(true);
-        if(!isDrawerOpenRef.current){
-        handleSetIsPlaying(true);
+        if (!isDrawerOpenRef.current) {
+            handleSetIsPlaying(true);
         }
     }
 

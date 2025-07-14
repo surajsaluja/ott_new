@@ -4,6 +4,7 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useHistory, useLocation } from "react-router-dom";
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../../Utils/DataCache";
 import { getMediaDetailWithTokenisedMedia } from "../../../Utils/MediaDetails";
+import { useBackArrayContext } from "../../../Context/backArrayContext";
 
 const useLoginScreen = () => {
   const OTP_LENGTH = 6;
@@ -16,6 +17,8 @@ const useLoginScreen = () => {
   const { ref, focusSelf } = useFocusable({ focusKey: "LOGIN_KEYPAD" });
   const history = useHistory();
   const location = useLocation();
+
+  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
   const { from, props } = location.state || {
     from: { pathname: "/" },
@@ -33,6 +36,22 @@ const useLoginScreen = () => {
     setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.LOGIN);
     }
   }, []);
+
+    useEffect(() => {
+    setBackArray(SCREEN_KEYS.LOGIN, true);
+  }, []);
+
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0){
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+
+      if (backId === SCREEN_KEYS.LOGIN) {
+        history.goBack();
+        popBackArray();
+        setBackHandlerClicked(false);
+      }
+    }
+  }, [backHandlerClicked, currentArrayStack]);
 
   const handleDigitInput = (digit) => {
     setAlertMsg("");
