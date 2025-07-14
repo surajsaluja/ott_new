@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { useIntersectionImageLoader } from "./useIntersectionImageLoader";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
 
-const LEFT_RIGHT_DELAY = 100;
-const UP_DOWN_DELAY = 200;
+const LEFT_RIGHT_DELAY = 50;
+const UP_DOWN_DELAY = 50;
 
 const useAssetCard = (
   assetData,
