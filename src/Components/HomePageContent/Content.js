@@ -101,7 +101,9 @@ const Content = ({
   className: userClass = "",
   showTitle = false,
   isCircular = false,
-  parentScrollingRef = null 
+  parentScrollingRef = null,
+  isPagination = false,
+  hasMoreRows  = true,
 }) => {
   const {
     ref,
@@ -118,7 +120,9 @@ const Content = ({
     setIsLoading, 
     loadMoreRows, 
     handleAssetFocus, 
-    parentScrollingRef
+    parentScrollingRef,
+    isPagination,
+    hasMoreRows
   );
 
   const lastRowChangeRef = useRef(Date.now());

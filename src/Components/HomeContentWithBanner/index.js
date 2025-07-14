@@ -25,7 +25,8 @@ import { useMovieBannerContext } from "../../Context/movieBannerContext";
         loadMoreRows,
         onAssetPress,
         isBannerLoadedRef,
-        categoryState
+        categoryState,
+        hasMoreRows
       } = useContentWithBanner(onHeaderFocus,category,focusKey);
   
       if(isLoading)
@@ -51,6 +52,8 @@ import { useMovieBannerContext } from "../../Context/movieBannerContext";
           handleAssetFocus = {handleAssetFocus} 
           onAssetPress={onAssetPress}
           focusKey={'PLAYLIST_DATA_CONTENT_WITH_BANNER'}
+          isPagination = {true}
+          hasMoreRows = {hasMoreRows}
           />
         </div>
         </div>

@@ -58,6 +58,8 @@ function LiveTvChannelPage({ focusKey }) {
          <Content 
       data={scheduledContentData} 
       className = "liveTvChannelScheduleContent"
+      isPagination= {false}
+      hasMoreRows = {false}
       // onAssetPress={onPlayLiveTvEnterPress} 
       />}
         </div>

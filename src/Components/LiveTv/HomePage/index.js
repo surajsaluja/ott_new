@@ -48,6 +48,8 @@ function LiveTvHome({ focusKey }) {
             handleAssetFocus={() => { }}
             onAssetPress={onChannelEnterPress}
             parentScrollingRef={ref}
+            isPagination = {false}
+            hasMoreRows = {false}
           />
           </div>
         </div>

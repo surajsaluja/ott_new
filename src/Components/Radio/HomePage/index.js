@@ -49,6 +49,8 @@ function RadioHome({ focusKey }) {
           isCircular={true}
           showTitle={true}
           parentScrollingRef={ref}
+          isPagination = {false}
+          hasMoreRows = {false}
         />
         </div>
       </div>

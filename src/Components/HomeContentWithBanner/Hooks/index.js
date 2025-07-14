@@ -57,6 +57,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const didFocusSelfOnce = useRef(false);
   const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
   const [categoryState, setCategoryState] = useState(category);
+  const[hasMoreRows,setHasMoreRows] = useState();
 
   const horizontalLimit = 10;
   const settleTimerRef = useRef(null);
@@ -124,6 +125,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
         ]);
         const processed = getProcessedPlaylists(playlistRaw, horizontalLimit);
         playlists = processed;
+        setHasMoreRows(processed.length === horizontalLimit);
         // setBanners([]);
         setBannerDataContext(bannerData?.data || []);
 
@@ -149,27 +151,27 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     }
   }, [category, uid, isLoggedIn, categoryMeta]);
 
-  const loadMoreRows = useCallback(async () => {
-    console.log('page changed');
-    if (isLoading || isLoadingPagingRows) return;
-    setIsLoadingPagingRows(true);
-    try {
-      const nextPage = page + 1;
-      const raw = await fetchPlaylistPage(category, nextPage, uid, horizontalLimit);
-      if (!raw || raw.length === 0) {
-        console.log("No more data to fetch.");
-        return;
-      }
-      const processed = getProcessedPlaylists(raw, horizontalLimit);
-      setData(prev => [...prev, ...processed]);
-      console.log('page', page);
-      setPage(nextPage);
-    } catch (e) {
-      console.error("Pagination error", e);
-    } finally {
-      setIsLoadingPagingRows(false);
+const loadMoreRows = useCallback(async () => {
+  if (isLoading || isLoadingPagingRows || !hasMoreRows) return;
+  setIsLoadingPagingRows(true);
+  try {
+    const nextPage = page + 1;
+    const raw = await fetchPlaylistPage(category, nextPage, uid, horizontalLimit);
+    if (!raw || raw.length === 0) {
+      setHasMoreRows(false);
+      return;
     }
-  }, [category, uid, page, isLoading, isLoadingPagingRows]);
+    const processed = getProcessedPlaylists(raw, horizontalLimit);
+    setData(prev => [...prev, ...processed]);
+    setPage(nextPage);
+    setHasMoreRows(processed.length === horizontalLimit);
+  } catch (e) {
+    console.error("Pagination error", e);
+  } finally {
+    setIsLoadingPagingRows(false);
+  }
+}, [category, uid, page, isLoading, isLoadingPagingRows]);
+
 
 
   const handleAssetFocus = useCallback((asset) => {
@@ -219,9 +221,10 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
       (bannerDataContext.length > 0 || data.length > 0)
     ) {
       didFocusSelfOnce.current = true;
+      console.log('<<< home content focused');
       focusSelf();
     }
-  }, [data, page, focusSelf]);
+  }, [data, focusSelf]);
 
   useEffect(() => {
     didFocusSelfOnce.current = false;
@@ -242,6 +245,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     // setFocusedAssetData,
     isBannerLoadedRef,
     categoryState,
-    onAssetPress
+    onAssetPress,
+    hasMoreRows
   };
 };

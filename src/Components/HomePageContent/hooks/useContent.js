@@ -72,7 +72,10 @@ const useMovieHomePage = (
   setIsLoading,
   loadMoreRows,
   handleAssetFocus,
-  parentScrollingRef
+  parentScrollingRef,
+  isPagination,
+  hasMoreRows
+
 ) => {
   const scrollDebounceRef = useRef();
   const loadMoreRef = useRef(null);
@@ -102,24 +105,26 @@ const useMovieHomePage = (
   }, [ref]);
 
   useEffect(() => {
-    const node = loadMoreRef.current;
-    if (!node) return;
+  const node = loadMoreRef.current;
+  if (!node || !hasMoreRows || !isPagination) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isLoading) {
-          // loadMoreRows();
-        }
-      },
-      {
-        rootMargin: "600px",
-        threshold: 0.5,
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting && !isLoading) {
+        console.log("👀 Triggering loadMoreRows from intersection observer");
+        loadMoreRows();
       }
-    );
+    },
+    {
+      rootMargin: '0px 0px 50px 0px', // trigger before bottom,
+      threshold: 0.5,
+    }
+  );
 
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [data, loadMoreRows, isLoading]);
+  observer.observe(node);
+  return () => observer.disconnect();
+}, [data, loadMoreRows, isLoading, hasMoreRows, isPagination]);  // 👈 added hasMoreRows
+
 
   const onRowFocus = useCallback(
     (element) => {
