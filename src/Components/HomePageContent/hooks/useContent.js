@@ -108,7 +108,7 @@ const useMovieHomePage = (
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !isLoading) {
-          loadMoreRows();
+          // loadMoreRows();
         }
       },
       {

@@ -7,9 +7,10 @@ import "./Content.css";
 // import { useRef } from "react";
 import { calculateDimensions } from "../../Utils";
 import Spinner from "../Common/Spinner";
-import  React, { useCallback, useRef, useEffect, useMemo } from "react";
+import  React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
+import useScreenSaver from "../ScreenSaver/Hooks/useScreenSaver";
 
-const ContentRow = React.memo(({ 
+const ContentRow = ({ 
   title, 
   onAssetPress, 
   onFocus, 
@@ -21,12 +22,16 @@ const ContentRow = React.memo(({
   showTitle, 
   isCircular 
 }) => {
-  const rowDimensions = useMemo(() => 
-    data.length > 0 && playListDimensions
-      ? calculateDimensions(playListDimensions.height, playListDimensions.width, showTitle)
-      : calculateDimensions(null, null, showTitle),
-    [data.length, playListDimensions, showTitle]
-  );
+
+  const [rowDimensions, setRowDimensions] = useState({});
+
+  useEffect(()=>{
+    const dim = data.length > 0 && playListDimensions ?
+    calculateDimensions(playListDimensions.height, playListDimensions.width, showTitle)
+      : calculateDimensions(null, null, showTitle);
+
+      setRowDimensions(dim);
+  },[])
 
   const lastAssetChangeRef = useRef(Date.now());
   
@@ -81,9 +86,9 @@ const ContentRow = React.memo(({
       </div>
     </FocusContext.Provider>
   );
-});
+};
 
-const Content = React.memo(({
+const Content = ({
   focusKey: focusKeyParam,
   onAssetFocus = () => {},
   data = [],
@@ -154,6 +159,6 @@ const Content = React.memo(({
       </div>
     </FocusContext.Provider>
   );
-});
+};
 
 export default Content;

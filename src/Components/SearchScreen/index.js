@@ -138,8 +138,10 @@ function SearchScreen({ focusKey }) {
     <FocusContext.Provider value={currentFocusKey}>
       <div className='search-page' ref={ref}>
         <div className='keyboard-container'>
-          <div className='search-input' style={{ color: inputQuery ? 'white' : '#797474' }}>
+          <div className='search-input'>
+            <div className='search-input-text' style={{ color: inputQuery ? 'white' : '#797474' }}>
             {inputQuery || 'SEARCH'}
+            </div>
           </div>
           <SearchKeyboard onKeyPress={onKeyPress} focusKey={'KEYBOARD_FOCUS_KEY'} />
         </div>

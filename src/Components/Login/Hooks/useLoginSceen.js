@@ -113,7 +113,8 @@ const useLoginScreen = () => {
                 onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
                 skipInfo: tokenisedResponse?.data?.skipInfo,
                 isTrailer: false,
-                playDuration: 0
+                playDuration: 0,
+                nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
               });
             }else{
               history.replace(`/detail/${props.categoryID}/${props.mediaID}`)

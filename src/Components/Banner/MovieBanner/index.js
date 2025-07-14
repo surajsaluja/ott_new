@@ -44,7 +44,7 @@ onFocus:()=>{
       : SHOW_DETAIL_BTN_FOCUS_KEY;
 
     setFocus(targetFocusKey);
-  }, 10);
+  }, 600);
 } });
 
   // Handle transitions between banners/assets
@@ -76,7 +76,7 @@ onFocus:()=>{
 
   // Auto-focus logic
   useEffect(() => {
-    if (!isTransitioning && !hasAutoFocused.current && asset == null) {
+    if (!isTransitioning && !hasAutoFocused.current && asset == null && displayBanners.length > 0) {
       const timer = setTimeout(() => {
         focusSelf();
         hasAutoFocused.current = true;
@@ -165,11 +165,11 @@ onFocus:()=>{
     let isShowDetailButton = false;
 
     if (displayBanners && displayBanners.length > 0) {
-      // title = displayBanners[0].mediaTitle;
-      // mediaTitle = displayBanners[0].mediaTitle;
+      title = displayBanners[0].mediaTitle;
+      mediaTitle = displayBanners[0].mediaTitle;
       // releasedYear = displayBanners[0].releasedYear;
       // ageRangeId = displayBanners[0].ageRangeId;
-      // shortDescription = displayBanners[0].shortDescription;
+      shortDescription = displayBanners[0].shortDescription;
       // duration = displayBanners[0].duration;
       // genre = displayBanners[0].genre;
       // rating = displayBanners[0].rating;

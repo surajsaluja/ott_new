@@ -47,7 +47,7 @@ const useBanner = (asset, banners) => {
           el.pause();
           setIsPlaying(false);
         } else {
-          el.play().catch(() => {});
+          el.play().catch(() => { });
           setIsPlaying(true);
         }
       };
@@ -97,7 +97,7 @@ const useBanner = (asset, banners) => {
     setIsVideoLoaded(false);
   }, [asset, videoEl]);
 
-  const redirectToLogin = () => history.replace('/login', { from: '/' });
+  const redirectToLogin = () => history.push('/login', { from: '/' });
 
   const showMediaDetail = () => {
     if (isLoggedIn && userObjectId) {
@@ -114,7 +114,7 @@ const useBanner = (asset, banners) => {
     if (isLoggedIn && userObjectId) {
       const res = await getMediaDetailWithTokenisedMedia(
         banners[0].mediaID,
-        banners[0].subCategory,
+        banners[0].categoryId,
         isTrailer
       );
       if (res?.isSuccess) {
@@ -128,7 +128,8 @@ const useBanner = (asset, banners) => {
           onScreenInfo: res.data.onScreenInfo,
           skipInfo: res.data.skipInfo,
           isTrailer,
-          playDuration: 0
+          playDuration: 0,
+          nextEpisodeMediaId: res?.data?.currentEpisode?.nextEpisodeMediaId || null
         });
       } else {
         console.error(res.message);

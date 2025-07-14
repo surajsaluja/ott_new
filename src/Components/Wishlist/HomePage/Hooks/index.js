@@ -4,13 +4,6 @@ import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useHistory } from 'react-router-dom';
 import { getCategoryIdByCategoryName } from '../../../../Utils';
 import { useUserContext } from '../../../../Context/userContext';
-import {
-  getCache,
-  setCache,
-  hasCache,
-  CACHE_KEYS,
-  SCREEN_KEYS
-} from '../../../../Utils/DataCache';
 import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
 
 const WISHLIST_PAGE_SIZE = 10;
@@ -26,34 +19,28 @@ const useWishList = (focusKey) => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const FAV_KEY = `${CACHE_KEYS.FAVOURITES.FAVOURITE_DATA}_${uid}`;
-
   const loadFavouriteData = async (page = 1) => {
-    if (page === 1 && hasCache(FAV_KEY)) {
-      const cached = getCache(FAV_KEY);
-      setWishlistData(cached);
-      hasMoreRef.current = cached.length === WISHLIST_PAGE_SIZE;
-      setPageNum(1);
-      return;
+    if (page === 1) {
+      setWishlistData([]);
+      setIsError(false);
+      setErrorMessage(null);
     }
 
-    if (page === 1) setWishlistData([]);
     setIsLoading(true);
 
     try {
-      if (!isLoggedIn) throw new Error('Please login to view the wishlist items !!');
+      if (!isLoggedIn) {
+        throw new Error('Please login to view the wishlist items !!');
+      }
 
       const response = await fetchUserWishlistItems(page, WISHLIST_PAGE_SIZE);
+
       if (response?.isSuccess) {
         const newData = response.data;
         const mergedData = page === 1 ? newData : [...wishlistData, ...newData];
         setWishlistData(mergedData);
         hasMoreRef.current = newData.length === WISHLIST_PAGE_SIZE;
         setPageNum(page);
-
-        if (page === 1) {
-          setCache(FAV_KEY, newData);
-        }
       } else {
         throw new Error(response?.message);
       }
@@ -67,7 +54,6 @@ const useWishList = (focusKey) => {
   };
 
   useEffect(() => {
-    setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.FAVORITES_HOME_PAGE);
     loadFavouriteData(1);
   }, []);
 
@@ -85,7 +71,6 @@ const useWishList = (focusKey) => {
 
   const reloadWishList = () => {
     if (isLoggedIn) {
-      setCache(FAV_KEY, null); // Clear old cache
       loadFavouriteData(1);
     }
   };
@@ -101,9 +86,9 @@ const useWishList = (focusKey) => {
     }
   }, [focusSelf, isLoading]);
 
-  useOverrideBackHandler(()=>{
+  useOverrideBackHandler(() => {
     history.replace('/home');
-  })
+  });
 
   return {
     ref,

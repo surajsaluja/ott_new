@@ -160,10 +160,10 @@ export const getMediaDetails = async (
         ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
       };
 
-      mediaDetail.onScreenInfo = onScreenInfo;
-      mediaDetail.skipInfo = skipInfo;
+      mediaDetail.onScreenInfo = isTrailer ? {} : onScreenInfo;
+      mediaDetail.skipInfo = isTrailer ? {} : skipInfo;
 
-      if (isWebSeries) {
+      if (isWebSeries && !isTrailer) {
         webSeriesId = mediaDetail.webSeriesId;
         currentEpisode = await findSeasonByMediaId(mediaId, webSeriesId, mediaDetail.seasons);
         if (currentEpisode) {

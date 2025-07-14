@@ -31,7 +31,7 @@ export const API = {
         GET_CONTINUE_WATCH: (userId) =>
             `Content/GetContinueWatchRail?section=Home&userId=${userId ?? DEFAULTS.USER_ID}`,
         GET_BANNER_DATA:(section,languageCode,userId) =>
-            `Content/GetPromotionItems/Banner/${section ?? DEFAULTS.SECTION}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userId ?? DEFAULTS.USER_ID}/tv4`
+            `Content/GetPromotionItems/Banner/${section ?? DEFAULTS.SECTION}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userId ?? DEFAULTS.USER_ID}/tv`
     },
     MEDIA: {
         GET_MOVIE_DETAILS: (mediaId, userObjectId) =>

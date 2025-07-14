@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchLiveTvHomePageData } from "../../../../Service/LiveTVService";
+import { fetchLiveTvHomePageData, fetchLiveTvScheduleWithDetail } from "../../../../Service/LiveTVService";
 import { processLiveTvCategoriesToPlaylist } from "../../../../Utils";
 import { useHistory } from "react-router-dom";
 import { useUserContext } from "../../../../Context/userContext";
@@ -11,14 +11,14 @@ import {
   hasCache,
   CACHE_KEYS,
   SCREEN_KEYS,
-} from "../../../../Utils/DataCache"; 
+} from "../../../../Utils/DataCache";
 import useOverrideBackHandler from "../../../../Hooks/useOverrideBackHandler";
 
 export const useLiveTv = (focusKey) => {
   const [liveTvHomePageData, setLiveTvHomePageData] = useState([]);
   const [liveTvBannersData, setLiveTvBannersData] = useState([]);
   const [isTvDataLoading, setIsTvDataLoading] = useState(false);
-  const [isBannerLoaded,setIsBannerLoaded] = useState(false);
+  const [isBannerLoaded, setIsBannerLoaded] = useState(false);
   const history = useHistory();
 
   const { focusKey: currentFocusKey, ref } = useFocusable({
@@ -33,7 +33,7 @@ export const useLiveTv = (focusKey) => {
     const HOME_KEY = CACHE_KEYS.LIVE_TV_PAGE.HOME_DATA;
     const BANNERS_KEY = CACHE_KEYS.LIVE_TV_PAGE.BANNERS_DATA;
 
-    setCache(CACHE_KEYS.CURRENT_SCREEN,SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE);
+    setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE);
 
     if (hasCache(HOME_KEY) && hasCache(BANNERS_KEY)) {
       setLiveTvHomePageData(getCache(HOME_KEY));
@@ -64,7 +64,7 @@ export const useLiveTv = (focusKey) => {
   }, []);
 
   const redirectToLogin = () => {
-    history.replace("/login", { from: "/" });
+    history.push("/login", { from: "/" });
   };
 
   const onChannelEnterPress = ({ assetData }) => {
@@ -77,12 +77,30 @@ export const useLiveTv = (focusKey) => {
     }
   };
 
-  useOverrideBackHandler(()=>{
+  useOverrideBackHandler(() => {
     history.replace('/home');
   })
 
-  const onBannerEnterPress = (selectedBanner) => {
-    debugger;
+  const onBannerEnterPress = async (selectedBanner) => {
+    if (isLoggedIn && userObjectId) {
+    const tvDataRes = await fetchLiveTvScheduleWithDetail(selectedBanner.channelHandle);
+    if (tvDataRes && tvDataRes.isSuccess) {
+      history.push("/livetvschedule", {
+        image: tvDataRes?.data?.tvChannelImage,
+        title: tvDataRes?.data?.tvChannelName,
+        description: tvDataRes?.data?.description,
+        channelId: tvDataRes?.data?.tvChannelId,
+        channelHandle: selectedBanner?.channelHandle,
+        id: tvDataRes?.data?.tvChannelId,
+        name: tvDataRes?.data?.tvChannelName
+      });
+    }
+  }else{
+     showModal("Login", "You are not logged in !!", [
+        { label: "Login", action: redirectToLogin, className: "primary" },
+      ]);
+  }
+
     console.log("selected Banner Index", selectedBanner);
   };
 

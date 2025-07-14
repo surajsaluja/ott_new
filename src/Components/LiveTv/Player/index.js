@@ -139,7 +139,7 @@ function LiveTvPlayer() {
         playIconTimeoutRef.current = setTimeout(() => setShowPlayIcon(false), 700);
     }, []);
 
-    const handleBackPressed = useCallback(() => {
+    const handleBackPressed = useCallback(async() => {
         if (isSideBarOpenRef.current) {
             handleSidebarOpen(false);
             handleSetIsUserActive(false);
@@ -148,6 +148,7 @@ function LiveTvPlayer() {
             handleSetIsUserActive(false);
             return;
         } else {
+           await handleSetIsPlaying(false);
             history.goBack();
             return;
         }

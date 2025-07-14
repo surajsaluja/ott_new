@@ -13,14 +13,6 @@ import {
 import { RiMovie2Line, RiMovie2Fill } from "react-icons/ri";
 import { useHistory } from "react-router-dom";
 import { CACHE_KEYS, getCache } from "../../../Utils/DataCache";
-
-const useMenu = (activeTabId, focusKey) => {
-  const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedMenu, setSelectedMenu] = useState(1);
-  const [menuFocusMap, setMenuFocusMap] = useState({});
-  const history = useHistory();
-
   const menu = [
     {
       id: 'HOME',
@@ -95,6 +87,14 @@ const useMenu = (activeTabId, focusKey) => {
       categoryId: 8,
     },
   ];
+
+const useMenu = (activeTabId, focusKey) => {
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedMenu, setSelectedMenu] = useState(1);
+  const [menuFocusMap, setMenuFocusMap] = useState({});
+  const history = useHistory();
+
 
   const {
     ref,

@@ -125,7 +125,7 @@ function Movie_Detail() {
                                         icon={<FaPlay />}
                                         className="detail-play-button"
                                         focusClass="detail-play-button-focus"
-                                        text={showResumeBtn ? `Resume Movie` : `Watch Movie`}
+                                        text={showResumeBtn ? `Resume` : `Watch Now`}
                                         onEnterPress={() => { watchMovie(false, showResumeBtn) }}
                                     />}
                                     {isMediaPublished && showResumeBtn && <FocusableButtonIconTooltip

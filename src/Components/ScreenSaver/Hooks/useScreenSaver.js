@@ -121,7 +121,8 @@ const useScreenSaver = () => {
           onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
           skipInfo: tokenisedResponse?.data?.skipInfo,
           isTrailer: false,
-          playDuration: 0
+          playDuration: 0,
+          nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
         });
       } else {
         showModal('Error','Error Playing Content');

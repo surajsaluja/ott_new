@@ -92,7 +92,7 @@ export const useRadioHomePage = (focusKey) => {
   }, []);
 
   const redirectToLogin = () => {
-    history.replace('/login', { from: '/' });
+    history.push('/login', { from: '/' });
   };
 
   const onRadioChannelEnterPress = ({ assetData }) => {
