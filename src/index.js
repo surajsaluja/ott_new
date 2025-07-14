@@ -8,6 +8,7 @@ import { ModalProvider } from "./Context/modalContext";
 import { BackHandlerProvider } from "./Context/BackHandlerContext";
 import { BrowserRouter as Router } from "react-router-dom";
 import { BackArrayProvider } from "./Context/backArrayContext";
+import { MovieBannerContext } from "./Context/movieBannerContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -16,9 +17,11 @@ root.render(
       <BackHandlerProvider>
         <BackArrayProvider>
         <UserProvider>
+          <MovieBannerContext>
           <ModalProvider>
             <App />
           </ModalProvider>
+          </MovieBannerContext>
         </UserProvider>
         </BackArrayProvider>
       </BackHandlerProvider>

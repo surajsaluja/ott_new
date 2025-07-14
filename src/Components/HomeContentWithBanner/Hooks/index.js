@@ -22,6 +22,7 @@ import {
   SCREEN_KEYS
 } from "../../../Utils/DataCache";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
+import { useMovieBannerContext } from "../../../Context/movieBannerContext";
 
 const CATEGORY_MAP = {
   1: {
@@ -44,12 +45,13 @@ const CATEGORY_MAP = {
 export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const { uid, isLoggedIn, userObjectId } = useUserContext();
   const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
+  const { setFocusedAssetDataContext,
+    bannerDataContext,
+    setBannerDataContext } = useMovieBannerContext();
 
   const history = useHistory();
 
   const [data, setData] = useState([]);
-  const [banners, setBanners] = useState([]);
-  const [focusedAssetData, setFocusedAssetData] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const didFocusSelfOnce = useRef(false);
@@ -71,7 +73,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     trackChildren: true,
     saveLastFocusedChild: false,
     onFocus,
-    preferredChildFocusKey: banners.length > 0 ? 'BANNER_FOCUS_KEY' : 'CONTENT_FOCUS_KEY'
+    preferredChildFocusKey: 'BANNER_FOCUS_KEY'
   });
 
   const categoryMeta = CATEGORY_MAP[category] || {};
@@ -114,7 +116,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
 
       if (hasCachedData) {
         playlists = getCache(cache.HOME_DATA);
-        setBanners(getCache(cache.BANNERS_DATA));
+        setBannerDataContext(getCache(cache.BANNERS_DATA));
       } else {
         const [bannerData, playlistRaw] = await Promise.all([
           fetchBannersBySection(category),
@@ -123,7 +125,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
         const processed = getProcessedPlaylists(playlistRaw, horizontalLimit);
         playlists = processed;
         // setBanners([]);
-        setBanners(bannerData?.data || []);
+        setBannerDataContext(bannerData?.data || []);
 
         if (cache) {
           setCache(cache.HOME_DATA, processed);
@@ -173,7 +175,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const handleAssetFocus = useCallback((asset) => {
     if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     settleTimerRef.current = setTimeout(() => {
-      setFocusedAssetData(asset);
+      setFocusedAssetDataContext(asset);
       settleTimerRef.current = null;
     }, SETTLE_DELAY);
   }, []);
@@ -214,12 +216,12 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     if (
       !didFocusSelfOnce.current &&
       page === 1 &&
-      (banners.length > 0 || data.length > 0)
+      (bannerDataContext.length > 0 || data.length > 0)
     ) {
       didFocusSelfOnce.current = true;
       focusSelf();
     }
-  }, [banners, data, page, focusSelf]);
+  }, [data, page, focusSelf]);
 
   useEffect(() => {
     didFocusSelfOnce.current = false;
@@ -229,17 +231,17 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     ref,
     currentFocusKey,
     hasFocusedChild,
-    focusedAssetData,
+    // focusedAssetData,
     handleAssetFocus,
     loadMoreRows,
     data,
     setData,
     isLoading,
     setIsLoading,
-    banners,
-    setFocusedAssetData,
-    onAssetPress,
+    // banners,
+    // setFocusedAssetData,
     isBannerLoadedRef,
-    categoryState
+    categoryState,
+    onAssetPress
   };
 };
