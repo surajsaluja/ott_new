@@ -9,6 +9,7 @@ import { useUserContext } from '../../Context/userContext';
 import { getCache, setCache, CACHE_KEYS, SCREEN_KEYS } from '../../Utils/DataCache';
 import './index.css';
 import useOverrideBackHandler from '../../Hooks/useOverrideBackHandler';
+import { useBackArrayContext } from '../../Context/backArrayContext';
 
 const SEARCH_PAGE_SIZE = 10;
 
@@ -18,6 +19,7 @@ function SearchScreen({ focusKey }) {
   const [inputQuery, setInputQuery] = useState('');
   const [pageNum, setPageNum] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+     const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
 
   const history = useHistory();
   const { isLoggedIn, userObjectId } = useUserContext();
@@ -119,9 +121,21 @@ function SearchScreen({ focusKey }) {
     history.push('/login', { from: '/' });
   };
 
-  useOverrideBackHandler(()=>{
-    history.replace('/home');
-  })
+useEffect(()=>{
+    setBackArray(SCREEN_KEYS.HOME.SEARCH_HOME_PAGE, true);
+  },[]);
+
+useEffect(() => {
+  if (backHandlerClicked && currentArrayStack.length > 0) {
+    const backId = currentArrayStack[currentArrayStack.length - 1];
+
+    if (backId === SCREEN_KEYS.HOME.SEARCH_HOME_PAGE) {
+      history.replace('/home');
+      popBackArray();
+      setBackHandlerClicked(false);
+    }
+  }
+}, [backHandlerClicked, currentArrayStack]);
 
   const onAssetPress = useCallback((assetData) => {
     if (isLoggedIn && userObjectId) {

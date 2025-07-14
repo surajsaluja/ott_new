@@ -5,11 +5,15 @@ import { useHistory } from 'react-router-dom';
 import { getCategoryIdByCategoryName } from '../../../../Utils';
 import { useUserContext } from '../../../../Context/userContext';
 import useOverrideBackHandler from '../../../../Hooks/useOverrideBackHandler';
+import { CACHE_KEYS, setCache, SCREEN_KEYS } from '../../../../Utils/DataCache';
+import { useBackArrayContext } from '../../../../Context/backArrayContext';
 
 const WISHLIST_PAGE_SIZE = 10;
 
 const useWishList = (focusKey) => {
   const history = useHistory();
+   const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
+
   const { uid, isLoggedIn } = useUserContext();
 
   const [wishlistData, setWishlistData] = useState([]);
@@ -55,6 +59,7 @@ const useWishList = (focusKey) => {
 
   useEffect(() => {
     loadFavouriteData(1);
+      setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.FAVORITES_HOME_PAGE);
   }, []);
 
   const loadMoreRows = useCallback(async () => {
@@ -86,9 +91,21 @@ const useWishList = (focusKey) => {
     }
   }, [focusSelf, isLoading]);
 
-  useOverrideBackHandler(() => {
-    history.replace('/home');
-  });
+  useEffect(()=>{
+      setBackArray(SCREEN_KEYS.HOME.FAVORITES_HOME_PAGE, true);
+    },[]);
+  
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+  
+      if (backId === SCREEN_KEYS.HOME.WISHLIST_PAGE_SIZE) {
+        history.replace('/home');
+        popBackArray();
+        setBackHandlerClicked(false);
+      }
+    }
+  }, [backHandlerClicked, currentArrayStack]);
 
   return {
     ref,
