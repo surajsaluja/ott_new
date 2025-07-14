@@ -60,7 +60,7 @@ const ContentRow = ({
         className={`contentRowWrapper ${hasFocusedChild ? "RowFocused" : ""}`}
         style={{ height: containerHeight }}
       >
-        <div className="ContentRowTitle">{title}</div>
+        {rowDimensions && Object.keys(rowDimensions).length > 0 && <><div className="ContentRowTitle">{title}</div>
         <div 
           className="ContentRowScrollingWrapper"
           ref={scrollingRowRef}
@@ -82,7 +82,7 @@ const ContentRow = ({
               />
             ))}
           </div>
-        </div>
+        </div></>}
       </div>
     </FocusContext.Provider>
   );
