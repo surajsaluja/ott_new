@@ -39,6 +39,7 @@ function Season_EpisodeList({ webSeriesId, focusKey, onEpisodeEnterPress, setIsS
               const episodesRes = await getEpisodes(webSeriesId,seasonId);
                 if(episodesRes && episodesRes.isSuccess){
                       setEpisodes(episodesRes.data);
+                      setSeasonSelected(seasonId);
                   }else{
                       throw new Error(episodesRes.message);
                   }
