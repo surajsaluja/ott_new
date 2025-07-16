@@ -132,7 +132,7 @@ const useLoginScreen = () => {
                 onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
                 skipInfo: tokenisedResponse?.data?.skipInfo,
                 isTrailer: false,
-                playDuration: 0,
+                playDuration: tokenisedResponse?.data?.mediaDetail?.playDuration,
                 nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
               });
             }else{

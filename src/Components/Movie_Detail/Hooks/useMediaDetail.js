@@ -158,7 +158,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         try {
             setCache(CACHE_KEYS.CURRENT_SCREEN, categoryId == 1 ? SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE : SCREEN_KEYS.DETAILS.WEBSERIES_DETAIL_PAGE);
             setIsLoading(true);
-            const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId);
+            const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId, false);
             if (mediaDetailsResponse.isSuccess) {
                 let mediaDet = mediaDetailsResponse.data.mediaDetail;
                 setMediaDetail(mediaDet);
@@ -309,7 +309,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
                 onScreenInfo: tokenisedResponse.data.onScreenInfo,
                 skipInfo: tokenisedResponse.data.skipInfo,
                 isTrailer: false,
-                playDuration: 0,
+                playDuration: tokenisedResponse?.data?.mediaDetail?.playDuration,
                 nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId
             });
         } else {
@@ -490,7 +490,6 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
                 // Set video cleanup
                 videoCleanupRef.current = () => {
-                    console.log('Video cleanup running');
                     videoElement.removeEventListener("canplay", handleVideoCanPlay);
                     videoElement.removeEventListener("playing", handleVideoPlay);
                     videoElement.removeEventListener("ended", handleVideoEnd);
