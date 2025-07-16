@@ -82,8 +82,8 @@ function LiveTvPlayer() {
             id: 3,
             label: "Full HD",
             resolution: "1920x1080",
-            minBandwidth: 3000001,
-            maxBandwidth: 5000000,
+            minBandwidth: 3900000,
+            maxBandwidth: 20000000,
         },
     ];
 
@@ -92,13 +92,12 @@ function LiveTvPlayer() {
             const channelPlayEndTime  = new Date();
             const res = await saveLiveTvChannelProgress(channelPlayStartTimeRef.current, channelPlayEndTime, channelId);
             if(res && res.isSuccess){
-                console.log('Session Saved Suucessfully');
             }
             else{
                 throw new Error(res.message || res);
             }
         }catch(err){
-            console.log(err.message || err);
+            console.warn('error saving live tv analytics',err.message || err);
         }
     }
 
@@ -294,13 +293,10 @@ function LiveTvPlayer() {
             }
 
             const handlePlayerVisibilityChange = () => {
-                console.log(document.hidden);
                 if (document.hidden) {
                     handleSetIsPlaying(false);
-                    console.log('video paused');
                 } else {
                     handleSetIsPlaying(true);
-                    console.log('video played');
                 }
             }
 
