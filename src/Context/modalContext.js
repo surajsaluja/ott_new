@@ -53,7 +53,6 @@ export const ModalProvider = ({ children }) => {
 
     if (!previousFocusKeyRef.current && currentFocusKey) {
       previousFocusKeyRef.current = currentFocusKey;
-      console.log('Saved current focus key:', currentFocusKey);
     } else if (!currentFocusKey) {
       console.warn('Could not save focus key — no active focus.');
     }

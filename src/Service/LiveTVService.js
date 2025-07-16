@@ -85,7 +85,6 @@ export const saveLiveTvChannelProgress = async (startTime, endTime, channelId, o
 
         const response = await postData(API.LIVETV.SAVE_CHANNEL_PROGRESS, data, options);
         if (response && response.status) {
-            console.log('Live Tv App Session Saved');
             return {
                 isSuccess: true,
                 message: response.message

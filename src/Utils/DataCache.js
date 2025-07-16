@@ -74,9 +74,6 @@ export const setCache = (key, data) => {
     data,
     timestamp: Date.now(),
   };
-  if(key === CACHE_KEYS.CURRENT_SCREEN){
-    console.log(`current screen : ${data}`);
-  }
 };
 
 export const getCache = (key) => {

@@ -20,7 +20,7 @@ export const useLiveTv = (focusKey) => {
   const [isTvDataLoading, setIsTvDataLoading] = useState(false);
   const [isBannerLoaded, setIsBannerLoaded] = useState(false);
   const history = useHistory();
-   const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
+  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
   const { focusKey: currentFocusKey, ref } = useFocusable({
     focusKey,
@@ -78,43 +78,41 @@ export const useLiveTv = (focusKey) => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     setBackArray(SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE, true);
-  },[]);
+  }, []);
 
-useEffect(() => {
-  if (backHandlerClicked && currentArrayStack.length > 0) {
-    const backId = currentArrayStack[currentArrayStack.length - 1];
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
 
-    if (backId === SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE) {
-      history.replace('/home');
-      popBackArray();
-      setBackHandlerClicked(false);
+      if (backId === SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE) {
+        history.replace('/home');
+        popBackArray();
+        setBackHandlerClicked(false);
+      }
     }
-  }
-}, [backHandlerClicked, currentArrayStack]);
+  }, [backHandlerClicked, currentArrayStack]);
 
   const onBannerEnterPress = async (selectedBanner) => {
     if (isLoggedIn && userObjectId) {
-    const tvDataRes = await fetchLiveTvScheduleWithDetail(selectedBanner.channelHandle);
-    if (tvDataRes && tvDataRes.isSuccess) {
-      history.push("/livetvschedule", {
-        image: tvDataRes?.data?.tvChannelImage,
-        title: tvDataRes?.data?.tvChannelName,
-        description: tvDataRes?.data?.description,
-        channelId: tvDataRes?.data?.tvChannelId,
-        channelHandle: selectedBanner?.channelHandle,
-        id: tvDataRes?.data?.tvChannelId,
-        name: tvDataRes?.data?.tvChannelName
-      });
-    }
-  }else{
-     showModal("Login", "You are not logged in !!", [
+      const tvDataRes = await fetchLiveTvScheduleWithDetail(selectedBanner.channelHandle);
+      if (tvDataRes && tvDataRes.isSuccess) {
+        history.push("/livetvschedule", {
+          image: tvDataRes?.data?.tvChannelImage,
+          title: tvDataRes?.data?.tvChannelName,
+          description: tvDataRes?.data?.description,
+          channelId: tvDataRes?.data?.tvChannelId,
+          channelHandle: selectedBanner?.channelHandle,
+          id: tvDataRes?.data?.tvChannelId,
+          name: tvDataRes?.data?.tvChannelName
+        });
+      }
+    } else {
+      showModal("Login", "You are not logged in !!", [
         { label: "Login", action: redirectToLogin, className: "primary" },
       ]);
-  }
-
-    console.log("selected Banner Index", selectedBanner);
+    }
   };
 
   const onBannerFocus = () => {

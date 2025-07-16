@@ -103,13 +103,10 @@ useEffect(() => {
         }
 
         const handlePlayerVisibilityChange = () => {
-            console.log(document.hidden);
             if (document.hidden) {
                 handleSetIsPlaying(false);
-                console.log('video paused');
             } else {
                 handleSetIsPlaying(true);
-                console.log('video played');
             }
         }
 

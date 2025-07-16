@@ -9,12 +9,10 @@ export function BackArrayProvider({ children }) {
   const setBackArray = (id, resetPrevious) => {
   if (resetPrevious) {
     setCurrentArray([id]);
-    console.log('Updated back stack:', [id]);
   } else {
     setCurrentArray((prev) => {
       if (prev[prev.length - 1] !== id) {
         const updated = [...prev, id];
-        console.log('Updated back stack:', updated);
         return updated;
       }
       return prev;
@@ -28,7 +26,6 @@ export function BackArrayProvider({ children }) {
     setCurrentArray((prev) => {
       const newStack = [...prev];
       newStack.pop();
-      console.log('popBackArray : ', newStack);
       return newStack;
     });
   };

@@ -15,7 +15,6 @@ const ThrowError = (functionName, error) => {
 export const fetchApiKeyandAppFeatures = async () => {
   try {
     const response = await fetchData(API.AUTH.GET_APIKEY, { requireApiKey: false });
-    console.log('response for api', response);
 
     if (response && response?.isSuccess) {
       const {
