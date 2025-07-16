@@ -7,6 +7,7 @@ import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
 import { useBackArrayContext } from '../../../../Context/backArrayContext';
+import { useMovieBannerContext } from '../../../../Context/movieBannerContext';
 
 const PLAYLIST_PAGE_SIZE = 10;
 
@@ -22,6 +23,8 @@ const useSeeAllPage = (focusKey) => {
     const hasMoreRef = useRef(true);
     const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
     const SETTLE_DELAY = 200;
+    const {setFocusedAssetDataContext,
+        setBannerDataContext} = useMovieBannerContext();
 
     const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
@@ -56,6 +59,7 @@ const useSeeAllPage = (focusKey) => {
 
     useEffect(() => {
         setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE);
+        setBannerDataContext([]);
         loadPlayListData(1);
     }, []);
 
@@ -91,7 +95,7 @@ const useSeeAllPage = (focusKey) => {
 
         // Fire a new timer
         settleTimerRef.current = setTimeout(() => {
-            setFocusedAssetData(asset);
+            setFocusedAssetDataContext(asset);
             settleTimerRef.current = null;
         }, SETTLE_DELAY);
     }, []);

@@ -22,7 +22,7 @@ function SeeAllPlaylistContentHomePage({ focusKey }) {
     return (
         <FocusContext.Provider value={currentFocusKey}>
             <div className='seeAll-content-wrapper' ref={ref} >
-               {focusedAssetData && <Banner focusKey={'SEE_ALL_PAGE_BANNER'} data={focusedAssetData} /> }
+                <Banner focusKey={'SEE_ALL_PAGE_BANNER'} />
                 <div className='asset-container-wrapper'
                 >
                     <FullPageAssetContainer
