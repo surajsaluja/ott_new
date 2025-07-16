@@ -111,12 +111,11 @@ const useMovieHomePage = (
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting && !isLoading) {
-        console.log("👀 Triggering loadMoreRows from intersection observer");
         loadMoreRows();
       }
     },
     {
-      rootMargin: '0px 0px 50px 0px', // trigger before bottom,
+      rootMargin: '300px 0px 300px 0px', // trigger before bottom,
       threshold: 0.5,
     }
   );
