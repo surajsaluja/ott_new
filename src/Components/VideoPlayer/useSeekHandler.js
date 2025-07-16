@@ -26,7 +26,7 @@ export default function useSeekHandler(
   isSeekingRef,
   handleFocusVideoOverlay,
   showSkipButtonsRef,
-  streamLimitError
+  streamLimitErrorRef
 ) {
   const seekMultiplierRef = useRef(1);
   const seekIntervalRef = useRef(null);
@@ -103,7 +103,7 @@ export default function useSeekHandler(
   const isThumbnailStripVisible = isThumbnailStripVisibleRef.current === true;
   const isSeeking = isSeekingRef.current === true;
 
-  if (isThumbnailStripVisible || streamLimitError) return;
+  if (isThumbnailStripVisible || streamLimitErrorRef.current) return;
 
   if (userActivityRef.current) {
     handleSetIsUserActive(true);

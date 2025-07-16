@@ -46,6 +46,7 @@ const VideoPlayer = () => {
     playDuration,
     nextEpisodeMediaId,
   } = location.state || {};
+  console.log("video player ",location.state);
   const deviceInfo = getDeviceInfo();
   const { userObjectId } = useUserContext();
   const videoRef = useRef(null);
@@ -88,6 +89,7 @@ const VideoPlayer = () => {
   const activeTabsRef = useRef(null);
   const isPlayingRef = useRef(null);
   const virtualSeekTimeRef = useRef(null);
+  const streamLimitErrorRef  = useRef(null);
 
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
@@ -128,8 +130,8 @@ const VideoPlayer = () => {
       id: 3,
       label: "Full HD",
       resolution: "1920x1080",
-      minBandwidth: 3000001,
-      maxBandwidth: 5000000,
+      minBandwidth: 3900000,
+      maxBandwidth: 20000000,
     },
   ];
 
@@ -485,7 +487,7 @@ const VideoPlayer = () => {
     isSeekingRef,
     handleFocusVideoOverlay,
     showSkipButtonsRef,
-    streamLimitError
+    streamLimitErrorRef
   );
 
   useEffect(() => {
@@ -620,10 +622,12 @@ const VideoPlayer = () => {
       window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
 
       if (playCapability == true) {
+        streamLimitErrorRef.current = false;
         setStreamLimitError(false);
         watchTimeRef.current = 0;
         initializePlayer();
       } else if (playCapability == false) {
+        streamLimitErrorRef.current = true;
         setStreamLimitError(true);
       }
 
@@ -766,7 +770,7 @@ const VideoPlayer = () => {
       <div ref={ref} className="video-container">
         <video ref={videoRef} className="video-player" controls={false} />
 
-        <Popup
+       {!streamLimitError && <Popup
           onVideoSettingsPressed={onVideoSettingsPressed}
           onAudioSubtitlesSettingsPressed={onAudioSubtitlesSettingsPressed}
           onBackPress={handleBackPressed}
@@ -778,9 +782,9 @@ const VideoPlayer = () => {
           handleBackButtonPressed={handleBackButtonPressed}
           isAudioSubtitlesSettingsAvailable={true}
           isVideoSettingsAvailable={true}
-        />
+        />}
 
-        <VirtualThumbnailStripWithSeekBar
+        {!streamLimitError && <VirtualThumbnailStripWithSeekBar
           videoRef={videoRef}
           setIsSeeking={handleSetIsSeeking}
           focusKey={SEEKBAR_THUMBIAL_STRIP_FOCUSKEY}
@@ -800,9 +804,9 @@ const VideoPlayer = () => {
           skipButtonText={skipButtonText}
           skipButtonEnterPress={skipButtonEnterPress}
           skipButtonFocusKey={SKIP_BTN_FOCUS_KEY}
-        />
+        />}
 
-        {showSeekIcon && (
+        {showSeekIcon && !streamLimitError && (
           <div className="seek-icon">
             {seekDirection === "forward" && (
               <div className="forward animate-slide-right">
@@ -817,13 +821,13 @@ const VideoPlayer = () => {
           </div>
         )}
 
-        {showPlayIcon && (
+        {showPlayIcon && !streamLimitError &&(
           <div className={`playPauseRipple ${showPlayIcon ? "show" : ""}`}>
             {isPlaying ? <FaPlay /> : <FaPause />}
           </div>
         )}
 
-        {sidebarOpen && (
+        {sidebarOpen && !streamLimitError && (
           <SideBar_Tab
             isOpen={isSideBarOpenRef.current}
             onClose={() => handleSidebarOpen(false)}
@@ -841,7 +845,7 @@ const VideoPlayer = () => {
         )}
 
 
-        {isLoading && !isSeeking && (
+        {isLoading && !isSeeking && !streamLimitError && (
           <div className="video-loader">
             <Spinner />
           </div>
