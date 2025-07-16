@@ -163,7 +163,7 @@ export const getMediaDetails = async (
       mediaDetail.onScreenInfo = isTrailer ? {} : onScreenInfo;
       mediaDetail.skipInfo = isTrailer ? {} : skipInfo;
 
-      if (isWebSeries && !isTrailer) {
+      if (isWebSeries) {
         webSeriesId = mediaDetail.webSeriesId;
         currentEpisode = await findSeasonByMediaId(mediaId, webSeriesId, mediaDetail.seasons);
         if (currentEpisode) {
