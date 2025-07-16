@@ -27,6 +27,7 @@ function App() {
   const hasInitializedSession = useRef(false);
   const history = useHistory();
   const {setBackHandlerClicked}=useBackArrayContext();
+  const debounceRef = useRef(null);
 
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
@@ -97,19 +98,25 @@ function App() {
   }, [isPlayerScreen]);
 
   useEffect(() => {
-    const onKeyDown = (e) => {
-      resetIdleTimer();
+  const onKeyDown = (e) => {
+    resetIdleTimer();
 
-      const isBackKey = ['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009;
-      if (isBackKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation?.();
-        setBackHandlerClicked(true);
-        // ?handleBackPress?.();
-        
-      }
-    };
+    const isBackKey = ['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009;
+    if (!isBackKey) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation?.();
+
+    if (debounceRef.current) return; // Ignore if still in debounce window
+
+    setBackHandlerClicked(true);
+
+    // Block further presses for 600ms
+    debounceRef.current = setTimeout(() => {
+      debounceRef.current = null;
+    }, 600);
+  };
 
     window.addEventListener('keydown', onKeyDown, true);
     resetIdleTimer();
