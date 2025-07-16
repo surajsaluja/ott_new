@@ -28,6 +28,7 @@ const FocusableButton = ({
     return (
         <div ref={ref}
             className={`${styleClass} ${focused ? (focusClass ? focusClass : 'defaultFocusClass') : ''}`}
+            style={{ ...customStyles }}
         >
             {icon && <span className={'focusableButton_icon'}>{icon}</span>}
 
