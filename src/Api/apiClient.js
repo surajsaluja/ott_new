@@ -1,6 +1,12 @@
 import axios from 'axios';
 import { API_BASE_URL } from './constants';
 
+let setIsDeviceOfflineExternal = () => {};
+
+export const setNetworkSetter = (setter) => {
+  setIsDeviceOfflineExternal = setter;
+};
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -9,59 +15,32 @@ const apiClient = axios.create({
   },
 });
 
-// Cached ping status (10s window)
-let lastCheck = 0;
-let lastStatus = true;
-
-const isOnline = async () => {
-  if (!navigator.onLine) return false;
-
-  const now = Date.now();
-  if (now - lastCheck < 10000) {
-    return lastStatus;
-  }
-
-  try {
-    const res = await fetch(API_BASE_URL + 'User/GetUserActiveIndicator', {
-      method: 'GET',
-      cache: 'no-store',
-    });
-    lastCheck = now;
-    lastStatus = res.ok;
-    return res.ok;
-  } catch {
-    lastCheck = now;
-    lastStatus = false;
-    return false;
-  }
-};
-
 apiClient.interceptors.request.use(
   async (config) => {
     if (!config?.requireApiKey) {
-      const online = await isOnline();
-      if (!online) {
-        return Promise.reject(new Error('No Internet Connection'));
-      }
-
       const apiKey = localStorage.getItem('apiKey');
       if (!apiKey) {
         console.error('apiKey not Set');
       }
       config.headers.ApiKey = apiKey;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    setIsDeviceOfflineExternal(false); // Response succeeded
+    return response;
+  },
   (error) => {
-    console.error('API Error:', error.response || error.message);
-    return Promise.reject(error);
+    if (!error.response) {
+      console.warn('No API response - setting device offline');
+      setIsDeviceOfflineExternal(true);
+    }
+    console.error('API Error:', error.message || error.response);
+    return Promise.reject('No Internet Connection');
   }
 );
 

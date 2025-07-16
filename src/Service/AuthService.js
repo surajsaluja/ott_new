@@ -130,3 +130,11 @@ export const fetchAppFeatures = async () => {
     return ThrowError("fetchAppFeatures", error);
   }
 };
+
+export const checkIsUserOnline = async ()=>{
+  try{
+    return await fetchData(API.AUTH.GET_USERACTIVE_INDICATOR);
+  }catch(error){
+    return ThrowError('checkUserActiveIndicator',error.message || error);
+  }
+}

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { getDeviceOS, getDeviceId, getDeviceName } from './deviceInfo'
+import { checkIsUserOnline } from "../Service/AuthService";
 
 let modalOpener = null;
 
@@ -319,7 +320,7 @@ export function getCategoryIdByCategoryName(categoryName){
   return catId;
 }
 
-const exitApplication = () =>{
+export const exitApplication = () =>{
     let tizen  = window.tizen;
     try{
      if (typeof tizen !== 'undefined' && tizen.application) {
@@ -339,4 +340,19 @@ const exitApplication = () =>{
         {label: 'Yes', action: exitApplication, className: 'primary'}
       ]
     )
+  }
+
+  export const checkUserNetWorkConnection = async () =>{
+    try{
+      const res = await checkIsUserOnline();
+      if(res){
+        return true;
+      }
+      else{
+        throw new Error(res.message);
+      }
+    }
+     catch(error){
+      return false;
+     }
   }

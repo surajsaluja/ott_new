@@ -9,22 +9,25 @@ import { BackHandlerProvider } from "./Context/BackHandlerContext";
 import { BrowserRouter as Router } from "react-router-dom";
 import { BackArrayProvider } from "./Context/backArrayContext";
 import { MovieBannerContext } from "./Context/movieBannerContext";
+import { NetworkProvider } from "./Context/NetworkContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Router>
-      <BackHandlerProvider>
-        <BackArrayProvider>
-        <UserProvider>
-          <MovieBannerContext>
-          <ModalProvider>
-            <App />
-          </ModalProvider>
-          </MovieBannerContext>
-        </UserProvider>
-        </BackArrayProvider>
-      </BackHandlerProvider>
+      <NetworkProvider>
+        <BackHandlerProvider>
+          <BackArrayProvider>
+            <UserProvider>
+              <MovieBannerContext>
+                <ModalProvider>
+                  <App />
+                </ModalProvider>
+              </MovieBannerContext>
+            </UserProvider>
+          </BackArrayProvider>
+        </BackHandlerProvider>
+      </NetworkProvider>
     </Router>
   </React.StrictMode>
 );

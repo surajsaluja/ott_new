@@ -90,6 +90,26 @@
 .App-link {
   color: #61dafb;
 }
+.app-network-btn-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.netowrk_error_button{
+ display: flex;
+    color: white;
+    border: 0.1em solid white;
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin: 15px;
+    font-size: 1.3vw;
+}
+
+.netowrk_error_button_focus{
+  background-color: var(--THEME-RED);
+}
 
 @keyframes App-logo-spin {
   from {
