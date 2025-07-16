@@ -9,7 +9,6 @@ import {
 
 const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress}) => {
   const { ref, focused } = useFocusable({ onFocus: onEpisodeFocus, onEnterPress: onEpisodeEnterPress,extraProps: episode });
-
   return (
     <div
       ref={ref}
@@ -25,6 +24,12 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
       <div className="episode-meta">
         <div className="episode-title">{getEclipsedTrimmedText(episode.title,55)}</div>
         <div className="episode-info">
+          {episode.smiSubtitleUrl && (
+            <span>
+            <span className="episode-list-bullet-seprator"></span>
+            <span>{episode.smiSubtitleUrl}</span>
+            </span>
+          )}
           {episode?.duration && (
             <span>
               <i><MdOutlineTimer /></i>

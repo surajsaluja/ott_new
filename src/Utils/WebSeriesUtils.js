@@ -3,24 +3,26 @@ import { fetchWebSeriesEpisodeBySeasonId } from "../Service/MediaService";
 const episodeCache = {};
 const seasonCache = {};
 const current = {
-    season : null,
+    season: null,
     episode: null,
-    webSeriesId : null
+    webSeriesId: null
 }
 
 // Fetch and cache episodes
 export const getEpisodes = async (webSeriesId, seasonId) => {
     if (episodeCache[webSeriesId]?.[seasonId]) {
-        return {isSuccess: true,
-                message: 'success',
-                data : episodeCache[webSeriesId][seasonId]}
+        return {
+            isSuccess: true,
+            message: 'success',
+            data: episodeCache[webSeriesId][seasonId]
+        }
     }
 
     try {
         const episodesRes = await fetchWebSeriesEpisodeBySeasonId(webSeriesId, seasonId);
         if (episodesRes && episodesRes.isSuccess) {
             if (!episodeCache[webSeriesId]) episodeCache[webSeriesId] = {};
-            let episodesProcessed = episodesRes?.data ? episodesRes?.data?.map((episode, index)=> ({
+            let episodesProcessed = episodesRes?.data ? episodesRes?.data?.map((episode, index) => ({
                 title: episode.title,
                 mediaID: episode.mediaID,
                 seasonId: episode.seasonId,
@@ -31,12 +33,15 @@ export const getEpisodes = async (webSeriesId, seasonId) => {
                 isAddedByUser: episode.isAddedByUser,
                 duration: episode.duration,
                 webSeriesId: episode.webSeriesId,
-                 episodeNumber: String(index + 1).padStart(2, '0')
+                smiSubtitleUrl: episode.smiSubtitleUrl,
+                episodeNumber: String(index + 1).padStart(2, '0')
             })) : [];
             episodeCache[webSeriesId][seasonId] = episodesProcessed;
-            return {isSuccess: true,
+            return {
+                isSuccess: true,
                 message: 'success',
-                data : episodesProcessed}
+                data: episodesProcessed
+            }
         } else {
             throw new Error(episodesRes.message);
         }
@@ -54,7 +59,7 @@ export const findSeasonByMediaId = async (mediaId, webSeriesId, seasonsData = nu
     let seasons = seasonCache[webSeriesId] || seasonsData;
     if (!seasonCache[webSeriesId]) {
         setSeasonCache(webSeriesId, seasons);
-        seasons  = getSeasonsCache(webSeriesId);
+        seasons = getSeasonsCache(webSeriesId);
     }
     if (!seasons) return null;
 
@@ -64,9 +69,9 @@ export const findSeasonByMediaId = async (mediaId, webSeriesId, seasonsData = nu
         if (!episodes) {
             try {
                 const episodesRes = await getEpisodes(webSeriesId, season.id);
-                if(episodesRes && episodesRes.isSuccess){
+                if (episodesRes && episodesRes.isSuccess) {
                     episodes = episodesRes.data;
-                }else{
+                } else {
                     throw new Error(episodesRes.message);
                 }
             } catch (err) {
@@ -78,8 +83,9 @@ export const findSeasonByMediaId = async (mediaId, webSeriesId, seasonsData = nu
         const episode = episodes.find((ep) => ep.mediaID === mediaId);
         if (episode) {
             current.episode = episode;
-            current.season = {...season,
-                webSeriesId : webSeriesId
+            current.season = {
+                ...season,
+                webSeriesId: webSeriesId
             };
             return {
                 currentSeason: season,
@@ -106,13 +112,14 @@ export const setSeasonCache = (webSeriesId, seasons) => {
     seasonCache[webSeriesId] = updatedSeasons;
 };
 
-export const setCurrentSeason = (webseriesId,seasonId) =>{
+export const setCurrentSeason = (webseriesId, seasonId) => {
     const season = seasonCache[webseriesId].find((season) => season.id === seasonId);
-    if(season){
-    current.season = {...season,
-        webseriesId
-    };
-    } else{
+    if (season) {
+        current.season = {
+            ...season,
+            webseriesId
+        };
+    } else {
         current.season = null;
     }
 }
@@ -121,11 +128,11 @@ export const getSeasonsCache = (webSeriesId) => {
     return (seasonCache && seasonCache[webSeriesId]) || null;
 }
 
-export const getCurrentSeason = () =>{
+export const getCurrentSeason = () => {
     return current.season;
 }
 
-export const getCurrentEpisode = () =>{
+export const getCurrentEpisode = () => {
     return current.episode;
 }
 

@@ -96,13 +96,10 @@ function Movie_Detail() {
                                 <>
                                     {mediaDetail.webSeriesName && <h1 className="title-detail">{mediaDetail.webSeriesName}</h1>}
                                     <div className="details-episodedata">
-                                        {(mediaDetail?.currentseasonNumber || mediaDetail.currentEpisodeNumber) &&
                                         <div className="seriesNumber-detail">
                                         <span className="episode-detail-seprator"></span>
-                                        {mediaDetail.currentseasonNumber && <span className="">S{mediaDetail.currentseasonNumber}</span>}
-                                        <span className="episode-detail-seprator"></span>
-                                        {mediaDetail.currentEpisodeNumber && <span className="">E{mediaDetail.currentEpisodeNumber}</span>}
-                                        </div>}
+                                        {mediaDetail.smiSubtitleUrl && <span className="">{mediaDetail.smiSubtitleUrl}</span>}
+                                        </div>
                                         <span className="episode-detail-seprator"></span>
                                         {mediaDetail.title && <span className="seriesName-detail">{mediaDetail.title}</span>}
                                     </div>
