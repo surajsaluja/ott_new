@@ -2,6 +2,7 @@
   display: inline-flex;
   flex-direction: column;
   margin-right: 10px;
+align-items: "center",
 }
 
 .assetTitle{

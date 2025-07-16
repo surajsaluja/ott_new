@@ -11,7 +11,8 @@ const useAssetCard = (
   onAssetFocus, 
   lastAssetChangeRef, 
   lastRowChangeRef,
-  onEnterPress
+  onEnterPress,
+  focusKey
 ) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -48,6 +49,7 @@ const useAssetCard = (
   }, [imageUrl, shouldLoad]);
 
   const { ref, focused } = useFocusable({
+    focusKey,
     onEnterPress,
     onFocus: () => {
       onAssetFocus?.(ref.current, assetData);

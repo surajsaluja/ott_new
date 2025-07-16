@@ -1,29 +1,29 @@
 import useAssetCard from "./hooks/useAssetCard";
 import FocusableButton from "../FocusableButton";
 import "./index.css";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 
-const gap = 40;
 const defaultDimensions = {
   itemWidth: 300,
   itemHeight: 200,
-  containerHeight: 200 + gap,
+  containerHeight: 240,
   displayImgType: "web",
 };
 
 const AssetCard = (props) => {
   const {
-  onEnterPress = () => {},
-  onAssetFocus = () => {},
-  assetData = {},
-  lastAssetChangeRef = { current: 0 },
-  lastRowChangeRef = { current: 0 },
-  dimensions = defaultDimensions,
-  showTitle = false,
-  isCircular = false,
-} = props
+    onEnterPress = () => {},
+    onAssetFocus = () => {},
+    assetData = {},
+    lastAssetChangeRef = { current: 0 },
+    lastRowChangeRef = { current: 0 },
+    dimensions = defaultDimensions,
+    showTitle = false,
+    focusKey,
+    isCircular = false,
+  } = props;
+
   const {
-    // imgRef,
     shouldLoad,
     imageUrl,
     isLoaded,
@@ -33,35 +33,44 @@ const AssetCard = (props) => {
     ref,
     focused,
     cachedImage,
-  } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress);
+  } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress, focusKey);
 
   const borderRadius = isCircular ? "50%" : "0.5em";
 
   const containerStyles = useMemo(() => ({
     width: `${dimensions.itemWidth}px`,
-    maxWidth: `${dimensions.itemWidth}px`,
-    height: `${dimensions.itemHeight + (showTitle ? 70 : 0)}px`,
-  }), [dimensions, showTitle]);
+    height: `${dimensions.containerHeight}px`,
+  }), [dimensions]);
+
+  const imageWrapperStyle = useMemo(() => ({
+    width: `${dimensions.itemWidth}px`,
+    height: `${dimensions.itemHeight}px`,
+    // position: "relative",
+    overflow: "hidden",
+    borderRadius,
+  }), [dimensions, borderRadius]);
+
+    const seeMoreStyles = useMemo(() => ({
+    width: `${dimensions.itemWidth}px`,
+    height: `${dimensions.itemHeight}px`,
+    // position: "relative",
+    overflow: "hidden",
+    // borderRadius,
+  }), [dimensions, borderRadius]);
 
   const imageStyles = useMemo(() => ({
-    width: !isCircular ? `${dimensions.itemWidth}px` : 'auto',
-    height: !isCircular ? `${dimensions.itemHeight}px` : 'auto',
+    width: "100%",
+    height: "100%",
     objectFit: "cover",
-    display: isLoaded ? "flex" : "none",
+    display: isLoaded ? "block" : "none",
     borderRadius,
-  }), [dimensions, isLoaded, borderRadius]);
+  }), [isLoaded, borderRadius]);
 
   const cardWrapperStyles = useMemo(() => ({
     padding: "0.2em",
     borderRadius,
-    width : assetData.isSeeMore ? '100%' : 'auto',
-    height: assetData.isSeeMore ? '100%' : 'auto'
-
+    width: "100%",
   }), [borderRadius]);
-
-  const cardStyle  = useMemo(()=>({
-    borderRadius
-  }),[borderRadius])
 
   return (
     <div className="asset" style={containerStyles}>
@@ -70,21 +79,19 @@ const AssetCard = (props) => {
         className={`asset-wrapper ${focused ? "focused" : ""}`}
         style={cardWrapperStyles}
       >
-        <div className={`card ${focused ? "focused" : ""}`} style={cardStyle}>
+        <div className={`card ${focused ? "focused" : ""}`} style={{ borderRadius }}>
           {assetData.isSeeMore ? (
             <FocusableButton
               className="seeMore"
               text="See More"
               onEnterPress={onEnterPress}
               onFocus={onAssetFocus}
+              customStyles={seeMoreStyles}
             />
           ) : shouldLoad ? (
-            <div className="image-wrapper" style={{ 
-              width: isCircular ? dimensions.itemWidth : 'auto', 
-              height: isCircular ? dimensions.itemHeight : 'auto' }}>
+            <div className="image-wrapper" style={imageWrapperStyle}>
               {!hasError && (
                 <img
-                  // ref={imgRef}
                   className={`card-image ${focused ? "focused" : ""}`}
                   src={cachedImage ? cachedImage.src : imageUrl}
                   alt={assetData.title}
@@ -96,7 +103,7 @@ const AssetCard = (props) => {
               )}
 
               {(!isLoaded || hasError) && (
-                <div className="shimmer-placeholder" style={{ width: dimensions.itemWidth, height: dimensions.itemHeight }}>
+                <div className="shimmer-placeholder" style={imageWrapperStyle}>
                   <span className="placeholder-text">
                     {hasError ? "No Image available" : assetData.title}
                   </span>
@@ -124,7 +131,7 @@ const AssetCard = (props) => {
               )}
             </div>
           ) : (
-            <div className="shimmer-placeholder"  style={{ width: dimensions.itemWidth, height: dimensions.itemHeight }}>
+            <div className="shimmer-placeholder" style={imageWrapperStyle}>
               <span className="placeholder-text">Loading...</span>
             </div>
           )}
