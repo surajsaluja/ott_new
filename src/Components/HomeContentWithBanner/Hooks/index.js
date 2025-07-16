@@ -57,7 +57,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const didFocusSelfOnce = useRef(false);
   const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
   const [categoryState, setCategoryState] = useState(category);
-  const[hasMoreRows,setHasMoreRows] = useState();
+  const[hasMoreRows,setHasMoreRows] = useState(true);
 
   const horizontalLimit = 10;
   const settleTimerRef = useRef(null);
@@ -88,7 +88,6 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   useEffect(() => {
     if (backHandlerClicked && currentArrayStack.length > 0) {
       const backId = currentArrayStack[currentArrayStack.length - 1];
-      console.log(SCREEN_KEYS);
       if (backId === SCREEN_KEYS.HOME.HOME_PAGE) {
         showExitApplicationModal();
         setBackHandlerClicked(false);
@@ -170,7 +169,7 @@ const loadMoreRows = useCallback(async () => {
   } finally {
     setIsLoadingPagingRows(false);
   }
-}, [category, uid, page, isLoading, isLoadingPagingRows]);
+}, [category, uid, page, isLoading, isLoadingPagingRows, hasMoreRows]);
 
 
 
@@ -204,11 +203,8 @@ const loadMoreRows = useCallback(async () => {
   }, [isLoggedIn, userObjectId, history]);
 
   useEffect(() => {
-    console.log('home page re_render');
-  })
-
-  useEffect(() => {
     loadInitialData();
+    setHasMoreRows(true);
     return () => {
       if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     };
@@ -221,7 +217,6 @@ const loadMoreRows = useCallback(async () => {
       (bannerDataContext.length > 0 || data.length > 0)
     ) {
       didFocusSelfOnce.current = true;
-      console.log('<<< home content focused');
       focusSelf();
     }
   }, [data, focusSelf]);
