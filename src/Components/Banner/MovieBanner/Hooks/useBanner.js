@@ -131,6 +131,7 @@ const useBanner = (asset,banners) => {
         });
       } else {
         console.error(res.message);
+        showModal("Warning",res.message,[]);
       }
     } else {
       showModal("Login", "You are not logged in !!", [

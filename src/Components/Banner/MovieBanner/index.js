@@ -86,7 +86,7 @@ const Banner = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [isTransitioning, asset, focusSelf]);
+  }, [focusSelf]);
 
   // Determine when to show the play button
   // useEffect(() => {
