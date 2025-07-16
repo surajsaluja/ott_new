@@ -98,7 +98,7 @@ const useWishList = (focusKey) => {
     if (backHandlerClicked && currentArrayStack.length > 0) {
       const backId = currentArrayStack[currentArrayStack.length - 1];
   
-      if (backId === SCREEN_KEYS.HOME.WISHLIST_PAGE_SIZE) {
+      if (backId === SCREEN_KEYS.HOME.FAVORITES_HOME_PAGE) {
         history.replace('/home');
         popBackArray();
         setBackHandlerClicked(false);
