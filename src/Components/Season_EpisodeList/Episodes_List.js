@@ -25,15 +25,18 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
         <div className="episode-title">{getEclipsedTrimmedText(episode.title,55)}</div>
         <div className="episode-info">
           {episode.smiSubtitleUrl && (
-            <span>
-            <span className="episode-list-bullet-seprator"></span>
             <span>{episode.smiSubtitleUrl}</span>
-            </span>
           )}
-          {episode?.duration && (
+          {episode.releaseYear && (
             <span>
-              <i><MdOutlineTimer /></i>
-              {formatTime(episode.duration)}
+           <span className="episode-list-bullet-seprator"></span> 
+           <span>{episode.releaseYear}</span>
+           </span>
+          )}
+          {episode?.duration && formatTime(episode.duration) && (
+            <span>
+              <span className="episode-list-bullet-seprator"></span> 
+              <span>{formatTime(episode.duration)}</span>
             </span>
           )}
           {/* {episode?.rating && (

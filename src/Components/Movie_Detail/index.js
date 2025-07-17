@@ -97,7 +97,6 @@ function Movie_Detail() {
                                     {mediaDetail.webSeriesName && <h1 className="title-detail">{mediaDetail.webSeriesName}</h1>}
                                     <div className="details-episodedata">
                                         <div className="seriesNumber-detail">
-                                        <span className="episode-detail-seprator"></span>
                                         {mediaDetail.smiSubtitleUrl && <span className="">{mediaDetail.smiSubtitleUrl}</span>}
                                         </div>
                                         <span className="episode-detail-seprator"></span>

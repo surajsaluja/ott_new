@@ -1,46 +1,36 @@
 import axios from 'axios';
 import { API_BASE_URL } from './constants';
 
-let setIsDeviceOfflineExternal = () => {};
-
-export const setNetworkSetter = (setter) => {
-  setIsDeviceOfflineExternal = setter;
-};
-
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 35000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Request Interceptor
 apiClient.interceptors.request.use(
-  async (config) => {
+  (config) => {
     if (!config?.requireApiKey) {
-      const apiKey = localStorage.getItem('apiKey');
-      if (!apiKey) {
-        console.error('apiKey not Set');
+      const storedApiKey = localStorage.getItem('apiKey');
+      if (storedApiKey) {
+        config.headers.ApiKey = storedApiKey;
+      } else {
+        console.warn('apiKey not set in localStorage');
       }
-      config.headers.ApiKey = apiKey;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+// Response Interceptor
 apiClient.interceptors.response.use(
-  (response) => {
-    setIsDeviceOfflineExternal(false); // Response succeeded
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (!error.response) {
-      console.warn('No API response - setting device offline');
-      setIsDeviceOfflineExternal(true);
-    }
-    console.error('API Error:', error.message || error.response);
-    return Promise.reject('No Internet Connection');
+    console.error('API Error:', error.response || error.message);
+    return Promise.reject(error);
   }
 );
 

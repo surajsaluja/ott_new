@@ -23,6 +23,8 @@ import {
 } from "../../../Utils/DataCache";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
 import { useMovieBannerContext } from "../../../Context/movieBannerContext";
+import { toast } from "react-toastify";
+import { useModal } from "../../../Context/modalContext";
 
 const CATEGORY_MAP = {
   1: {
@@ -58,6 +60,8 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
   const [categoryState, setCategoryState] = useState(category);
   const[hasMoreRows,setHasMoreRows] = useState(true);
+
+  const {closeModal} = useModal();
 
   const horizontalLimit = 10;
   const settleTimerRef = useRef(null);
@@ -100,7 +104,10 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     }
   }, [backHandlerClicked])
 
-
+  const showConnectionOutModal = ()=>{
+    closeModal();
+    loadInitialData();
+  }
 
   const loadInitialData = useCallback(async () => {
     setIsLoading(true);
@@ -144,11 +151,20 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
       setData(playlists);
       setPage(1);
     } catch (error) {
+      setData([]);
+      setBannerDataContext([]);
       console.error("Failed to load home data", error);
+      showModal('Warning !', 'Seems you are facing connection issue, please try again after some time',
+        [{ label: "Retry", action: showConnectionOutModal, className: "primary" }]
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [category, uid, isLoggedIn, categoryMeta]);
+  }, [category]);
+
+  useEffect(()=>{
+    console.log('<<category changed');
+  },[category]);
 
 const loadMoreRows = useCallback(async () => {
   if (isLoading || isLoadingPagingRows || !hasMoreRows) return;

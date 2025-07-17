@@ -12,22 +12,26 @@ const easeInOutQuad = (t) =>
 const linear = (t) => t;
 
 
-  export const formatTime = (time) => {
-    const [h = 0, m = 0, s = 0] = time?.split(":").map(Number);
-    const styles = {
-      grey: { color: "grey" },
-      white: { color: "white" },
-    };
-    const pad = (num) => String(num).padStart(2, "0");
-
-    return (
-      <label>
-        <label style={h > 0 ? styles.white : styles.grey}>{pad(h)}:</label>
-        <label style={h > 0 || m > 0 ? styles.white : styles.grey}>{pad(m)}:</label>
-        <label style={h > 0 || m > 0 || s > 0 ? styles.white : styles.grey}>{pad(s)}</label>
-      </label>
-    );
+export const formatTime = (time) => {
+  const [h = 0, m = 0, s = 0] = time?.split(":").map(Number);
+  if(h == 0 && m == 0 && s==0) return null;
+  const styles = {
+    grey: { color: "grey" },
+    white: { color: "white" },
   };
+  const pad = (num) => String(num).padStart(2, "0");
+
+  return (
+    <label>
+      {h > 0 && <label style={styles.white}>{pad(h)}h </label>}
+      {(h > 0 || m > 0) && <label style={styles.white}>{pad(m)}m </label>}
+      {s > 0 && (
+        <label style={styles.white}>{pad(s)}s</label>
+      )}
+    </label>
+  );
+};
+
 
 export const getEclipsedTrimmedText = (text = '', maxLength = 0) => {
   if (!text || typeof text !== 'string') return '';

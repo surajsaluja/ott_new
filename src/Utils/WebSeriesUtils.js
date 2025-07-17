@@ -34,6 +34,7 @@ export const getEpisodes = async (webSeriesId, seasonId) => {
                 duration: episode.duration,
                 webSeriesId: episode.webSeriesId,
                 smiSubtitleUrl: episode.smiSubtitleUrl,
+                releaseYear: episode.releasedYear,
                 episodeNumber: String(index + 1).padStart(2, '0')
             })) : [];
             episodeCache[webSeriesId][seasonId] = episodesProcessed;

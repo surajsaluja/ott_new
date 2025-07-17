@@ -1,0 +1,5 @@
+.network-error-overlay{
+    display: flex;
+    height: 100vh;
+    background-color: var(--BLACK-BG);
+}

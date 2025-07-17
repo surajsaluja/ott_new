@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import './App.css';
-import { FocusContext, init, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { init } from '@noriginmedia/norigin-spatial-navigation';
 import useAuth from './Hooks/useAuth';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,10 +11,6 @@ import { useHistory } from 'react-router-dom';
 import { kableOneLogo } from './assets';
 import { MdError } from 'react-icons/md';
 import { useBackArrayContext } from './Context/backArrayContext';
-import { useNetworkContext } from './Context/NetworkContext';
-import { setNetworkSetter } from './Api/apiClient';
-import { exitApplication, checkUserNetWorkConnection } from './Utils';
-import FocusableButton from './Components/Common/FocusableButton';
 
 init({
   debug: false,
@@ -23,27 +19,15 @@ init({
 });
 
 function App() {
-  // const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [sessionError, setSessionError] = useState(null);
   const idleTimer = useRef(null);
   const idleTimeoutRef = useRef(null);
   const screenSaverContentRef = useRef([]);
   const hasInitializedSession = useRef(false);
   const history = useHistory();
-  const { setBackHandlerClicked, setBackArray, backHandlerClicked, currentArrayStack, popBackArray } = useBackArrayContext();
+  const {setBackHandlerClicked}=useBackArrayContext();
   const debounceRef = useRef(null);
-  const { isDeviceOffline, setIsDeviceOffline } = useNetworkContext();
-
-  useEffect(() => {
-    console.log('<< is device offline', setIsDeviceOffline);
-    setNetworkSetter(setIsDeviceOffline); // Inject into apiClient
-  }, [setIsDeviceOffline]);
-
-    const {ref, focusKey: currentFocusKey} = useFocusable({
-    focusKey: 'NETWORK_CONTAINER',
-    focusable: isDeviceOffline
-  })
-
 
   const { fetchApiKeyAndSetSession, isLoadingSession } = useAuth();
   const { handleBackPress } = useBackHandler();
@@ -63,11 +47,11 @@ function App() {
 
     clearTimeout(idleTimer.current);
     idleTimer.current = setTimeout(() => {
-      if (!isPlayerScreen() && !isScreensaverScreen() && !isDeviceOffline) {
+      if (!isPlayerScreen() && !isScreensaverScreen() && isOnline) {
         history.push('/screenSaver');
       }
     }, idleTimeoutRef.current);
-  }, [history, isDeviceOffline, isPlayerScreen, isScreensaverScreen]);
+  }, [history, isOnline, isPlayerScreen, isScreensaverScreen]);
 
   const initialiseSession = useCallback(async () => {
     try {
@@ -89,26 +73,19 @@ function App() {
   }, [fetchApiKeyAndSetSession, resetIdleTimer]);
 
   useEffect(() => {
-    if (!isDeviceOffline && !hasInitializedSession.current) {
+    if (isOnline && !hasInitializedSession.current) {
       hasInitializedSession.current = true;
       initialiseSession();
     }
-  }, [initialiseSession]);
-
-  useEffect(()=>{
-    if(isDeviceOffline){
-      setFocus('RETRY_BTN_FOCUS_KEY_NETWORK_ERROR');
-      setBackArray('APP', false);
-    }
-  },[isDeviceOffline]);
+  }, [isOnline]);
 
   useEffect(() => {
     const handleOnline = () => {
-      setIsDeviceOffline(false);
+      setIsOnline(true);
+      if (!isPlayerScreen()) toast.success('You are online !!');
     };
     const handleOffline = () => {
-      // setIsOnline(false);
-      setIsDeviceOffline(true);
+      setIsOnline(false);
       if (!isPlayerScreen()) toast.warn('No Internet Connection');
     };
 
@@ -121,40 +98,25 @@ function App() {
   }, [isPlayerScreen]);
 
   useEffect(() => {
-    setBackArray('APP', false);
-  }, [])
+  const onKeyDown = (e) => {
+    resetIdleTimer();
 
-  useEffect(() => {
-    if (backHandlerClicked && currentArrayStack.length > 0){
-      const backId = currentArrayStack[currentArrayStack.length - 1];
+    const isBackKey = ['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009;
+    if (!isBackKey) return;
 
-      if (backId === 'APP') {
-        exitApplication();
-        popBackArray();
-        setBackHandlerClicked(false);
-      }
-    }
-  }, [backHandlerClicked, currentArrayStack]);
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation?.();
 
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      resetIdleTimer();
+    if (debounceRef.current) return; // Ignore if still in debounce window
 
-      const isBackKey = ['Backspace', 'Escape'].includes(e.key) || e.keyCode === 10009;
-      if (!isBackKey) return;
+    setBackHandlerClicked(true);
 
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation?.();
-
-      if (debounceRef.current) return; // Ignore if still in debounce window
-      setBackHandlerClicked(true);
-
-      // Block further presses for 600ms
-      debounceRef.current = setTimeout(() => {
-        debounceRef.current = null;
-      }, 600);
-    };
+    // Block further presses for 600ms
+    debounceRef.current = setTimeout(() => {
+      debounceRef.current = null;
+    }, 600);
+  };
 
     window.addEventListener('keydown', onKeyDown, true);
     resetIdleTimer();
@@ -165,14 +127,8 @@ function App() {
     };
   }, [handleBackPress, resetIdleTimer]);
 
-  const hadleRetryClicked = async () =>{
-    const isOnline  = await checkUserNetWorkConnection();
-    console.log('is USer Online ', isOnline);
-    setIsDeviceOffline(!isOnline);
-  }
-
   // Render Splash
-  if (isLoadingSession || sessionError && !isDeviceOffline) {
+  if (isLoadingSession || sessionError) {
     return (
       <div className="App">
         <div className="loading-splash-screen">
@@ -185,31 +141,14 @@ function App() {
   }
 
   // Offline screen
-  if (isDeviceOffline && !isPlayerScreen()) {
+  if (!isOnline && hasInitializedSession.current && !isPlayerScreen()) {
     return (
-      <FocusContext.Provider value={currentFocusKey}>
       <div className="App">
         <div className="error-container">
           <div className="error-icon"><MdError /></div>
           <div className="error-message">No Internet Connection</div>
-          <div className='app-network-btn-container' ref={ref}>
-            <FocusableButton 
-            text="RETRY" 
-            className='netowrk_error_button' 
-            focusClass='netowrk_error_button_focus'
-            focuskey={'RETRY_BTN_FOCUS_KEY_NETWORK_ERROR'}
-            onEnterPress={hadleRetryClicked}
-            />
-            <FocusableButton
-             text='EXIT APPLICATION' 
-             className='netowrk_error_button' 
-             focusClass='netowrk_error_button_focus'
-             focuskey={'EXIT_BTN_FOCUS_KEY_NETWORK_ERROR'}
-             onEnterPress={exitApplication}/>
-          </div>
         </div>
       </div>
-      </FocusContext.Provider>
     );
   }
 
