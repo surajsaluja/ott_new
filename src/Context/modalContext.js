@@ -48,7 +48,7 @@ export const ModalProvider = ({ children }) => {
     popBackArray();
   }, [setBackHandlerClicked, popBackArray]);
 
-  const openModal = useCallback(({ title, description, buttons }) => {
+  const openModal = useCallback(({ title, description, buttons , showCloseButton = true}) => {
     const currentFocusKey = getCurrentFocusKey();
 
     if (!previousFocusKeyRef.current && currentFocusKey) {
@@ -57,18 +57,22 @@ export const ModalProvider = ({ children }) => {
       console.warn('Could not save focus key — no active focus.');
     }
 
-    setModalConfig({
-      isOpen: true,
-      title,
-      content: description,
-      buttons: [
+    const updatedButtons = showCloseButton
+    ? [
         ...buttons,
         {
           label: 'Close',
           className: 'secondary',
           action: setFocusToPreviousElement,
         },
-      ],
+      ]
+    : [...buttons];
+
+    setModalConfig({
+      isOpen: true,
+      title,
+      content: description,
+      buttons:updatedButtons
     });
   }, [setBackArray, setFocusToPreviousElement]);
 

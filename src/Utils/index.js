@@ -258,9 +258,9 @@ export const setModalOpener = (fn) => {
   modalOpener = fn;
 };
 
-export const showModal = (title = 'Title', description = 'Short description', buttons = []) => {
+export const showModal = (title = 'Title', description = 'Short description', buttons = [], showCloseButton=true) => {
   if (modalOpener) {
-    modalOpener({ title, description, buttons });
+    modalOpener({ title, description, buttons, showCloseButton });
   } else {
     console.warn('Modal opener not set yet.');
   }

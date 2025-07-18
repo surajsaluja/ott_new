@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { fetchLiveTvHomePageData, fetchLiveTvScheduleWithDetail } from "../../../../Service/LiveTVService";
+import {
+  fetchLiveTvHomePageData,
+  fetchLiveTvScheduleWithDetail,
+} from "../../../../Service/LiveTVService";
 import { processLiveTvCategoriesToPlaylist } from "../../../../Utils";
 import { useHistory } from "react-router-dom";
 import { useUserContext } from "../../../../Context/userContext";
@@ -13,6 +16,7 @@ import {
   SCREEN_KEYS,
 } from "../../../../Utils/DataCache";
 import { useBackArrayContext } from "../../../../Context/backArrayContext";
+import { useRetryModal } from "../../../../Context/RetryModalContext";
 
 export const useLiveTv = (focusKey) => {
   const [liveTvHomePageData, setLiveTvHomePageData] = useState([]);
@@ -20,7 +24,20 @@ export const useLiveTv = (focusKey) => {
   const [isTvDataLoading, setIsTvDataLoading] = useState(false);
   const [isBannerLoaded, setIsBannerLoaded] = useState(false);
   const history = useHistory();
-  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
+  const {
+    setBackArray,
+    backHandlerClicked,
+    currentArrayStack,
+    setBackHandlerClicked,
+    popBackArray,
+  } = useBackArrayContext();
+  const {
+    openRetryModal,
+    closeRetryModal,
+    markRetryComplete,
+    retrying,
+    callerId,
+  } = useRetryModal();
 
   const { focusKey: currentFocusKey, ref } = useFocusable({
     focusKey,
@@ -45,7 +62,9 @@ export const useLiveTv = (focusKey) => {
     setIsTvDataLoading(true);
     try {
       const liveTvResponse = await fetchLiveTvHomePageData();
-      const processed = processLiveTvCategoriesToPlaylist(liveTvResponse.categories);
+      const processed = processLiveTvCategoriesToPlaylist(
+        liveTvResponse.categories
+      );
 
       setLiveTvHomePageData(processed);
       setLiveTvBannersData(liveTvResponse.banners);
@@ -55,10 +74,21 @@ export const useLiveTv = (focusKey) => {
       setCache(BANNERS_KEY, liveTvResponse.banners);
     } catch (e) {
       console.error("Failed to load homepage", e);
+      openRetryModal({
+        id: "LIVE_TV_HOME",
+        title: "Oops!",
+        description: "Failed to fetch. Try again.",
+      });
     } finally {
       setIsTvDataLoading(false);
     }
   };
+
+   useEffect(() => {
+    if (retrying == true && callerId == "LIVE_TV_HOME") {
+      loadInitialData();
+    }
+  }, [retrying]);
 
   useEffect(() => {
     loadInitialData();
@@ -87,7 +117,7 @@ export const useLiveTv = (focusKey) => {
       const backId = currentArrayStack[currentArrayStack.length - 1];
 
       if (backId === SCREEN_KEYS.HOME.LIVE_TV_HOME_PAGE) {
-        history.replace('/home');
+        history.replace("/home");
         popBackArray();
         setBackHandlerClicked(false);
       }
@@ -96,7 +126,9 @@ export const useLiveTv = (focusKey) => {
 
   const onBannerEnterPress = async (selectedBanner) => {
     if (isLoggedIn && userObjectId) {
-      const tvDataRes = await fetchLiveTvScheduleWithDetail(selectedBanner.channelHandle);
+      const tvDataRes = await fetchLiveTvScheduleWithDetail(
+        selectedBanner.channelHandle
+      );
       if (tvDataRes && tvDataRes.isSuccess) {
         history.push("/livetvschedule", {
           image: tvDataRes?.data?.tvChannelImage,
@@ -105,7 +137,7 @@ export const useLiveTv = (focusKey) => {
           channelId: tvDataRes?.data?.tvChannelId,
           channelHandle: selectedBanner?.channelHandle,
           id: tvDataRes?.data?.tvChannelId,
-          name: tvDataRes?.data?.tvChannelName
+          name: tvDataRes?.data?.tvChannelName,
         });
       }
     } else {
@@ -129,6 +161,6 @@ export const useLiveTv = (focusKey) => {
     onChannelEnterPress,
     onBannerEnterPress,
     onBannerFocus,
-    setIsBannerLoaded
+    setIsBannerLoaded,
   };
 };

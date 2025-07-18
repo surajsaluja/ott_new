@@ -25,6 +25,7 @@ import { useBackArrayContext } from "../../../Context/backArrayContext";
 import { useMovieBannerContext } from "../../../Context/movieBannerContext";
 import { toast } from "react-toastify";
 import { useModal } from "../../../Context/modalContext";
+import { useRetryModal } from "../../../Context/RetryModalContext";
 
 const CATEGORY_MAP = {
   1: {
@@ -46,10 +47,18 @@ const CATEGORY_MAP = {
 
 export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const { uid, isLoggedIn, userObjectId } = useUserContext();
-  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
-  const { setFocusedAssetDataContext,
+  const {
+    setBackArray,
+    backHandlerClicked,
+    currentArrayStack,
+    setBackHandlerClicked,
+    popBackArray,
+  } = useBackArrayContext();
+  const {
+    setFocusedAssetDataContext,
     bannerDataContext,
-    setBannerDataContext } = useMovieBannerContext();
+    setBannerDataContext,
+  } = useMovieBannerContext();
 
   const history = useHistory();
 
@@ -61,7 +70,13 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
   const [categoryState, setCategoryState] = useState(category);
   const[hasMoreRows,setHasMoreRows] = useState(true);
 
-  const {closeModal} = useModal();
+  const {
+    openRetryModal,
+    closeRetryModal,
+    markRetryComplete,
+    retrying,
+    callerId,
+  } = useRetryModal();
 
   const horizontalLimit = 10;
   const settleTimerRef = useRef(null);
@@ -104,11 +119,6 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     }
   }, [backHandlerClicked])
 
-  const showConnectionOutModal = ()=>{
-    closeModal();
-    loadInitialData();
-  }
-
   const loadInitialData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -124,6 +134,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
       if (hasCachedData) {
         playlists = getCache(cache.HOME_DATA);
         setBannerDataContext(getCache(cache.BANNERS_DATA));
+        setHasMoreRows(true);
       } else {
         const [bannerData, playlistRaw] = await Promise.all([
           fetchBannersBySection(category),
@@ -141,7 +152,7 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
         }
       }
 
-      playlists = playlists.filter(row => !row?.isContinueWatching);
+      playlists = playlists.filter((row) => !row?.isContinueWatching);
 
       if (isLoggedIn && uid && category === 5) {
         const continueData = await fetchContinueWatchingData(uid);
@@ -150,21 +161,28 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
 
       setData(playlists);
       setPage(1);
+      closeRetryModal();
     } catch (error) {
       setData([]);
       setBannerDataContext([]);
+      setHasMoreRows(false);
       console.error("Failed to load home data", error);
-      showModal('Warning !', 'Seems you are facing connection issue, please try again after some time',
-        [{ label: "Retry", action: showConnectionOutModal, className: "primary" }]
-      );
+      openRetryModal({
+        id: "HOME",
+        title: "Oops!",
+        description: "Failed to fetch. Try again.",
+      });
     } finally {
       setIsLoading(false);
+      markRetryComplete();
     }
   }, [category]);
 
-  useEffect(()=>{
-    console.log('<<category changed');
-  },[category]);
+  useEffect(() => {
+    if (retrying == true && callerId == "HOME") {
+      loadInitialData();
+    }
+  }, [retrying]);
 
 const loadMoreRows = useCallback(async () => {
   if (isLoading || isLoadingPagingRows || !hasMoreRows) return;

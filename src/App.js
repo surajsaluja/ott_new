@@ -58,6 +58,7 @@ function App() {
       const sessionRes = await fetchApiKeyAndSetSession();
       if (sessionRes?.isSuccess) {
         setSessionError(null);
+        hasInitializedSession.current = true;
         idleTimeoutRef.current = getCache(CACHE_KEYS.API_KEY.APP_IDLE_TIME) || 300000; // 5 mins fallback
         screenSaverContentRef.current = getCache(CACHE_KEYS.SCREENSAVER_CONTENT.SCREENSAVER_DATA) || [];
         resetIdleTimer();
@@ -74,7 +75,6 @@ function App() {
 
   useEffect(() => {
     if (isOnline && !hasInitializedSession.current) {
-      hasInitializedSession.current = true;
       initialiseSession();
     }
   }, [isOnline]);

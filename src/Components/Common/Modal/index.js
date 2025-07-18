@@ -63,6 +63,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
                 onEnterPress={action}
                 className={'modal-button primary'}
                 focusClass="madal-button-focused"
+                focuskey={`MODAL_${label}_${index}`}
               />
             ))}
           </div>

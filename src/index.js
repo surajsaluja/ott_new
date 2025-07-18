@@ -10,6 +10,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { BackArrayProvider } from "./Context/backArrayContext";
 import { MovieBannerContext } from "./Context/movieBannerContext";
 import { NetworkProvider } from "./Context/NetworkContext";
+import { RetryModalProvider } from "./Context/RetryModalContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -21,7 +22,9 @@ root.render(
             <UserProvider>
               <MovieBannerContext>
                 <ModalProvider>
+                  <RetryModalProvider>
                   <App />
+                  </RetryModalProvider>
                 </ModalProvider>
               </MovieBannerContext>
             </UserProvider>
