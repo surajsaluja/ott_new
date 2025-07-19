@@ -3,6 +3,7 @@ import './index.css';
 import useScreenSaver from './Hooks/useScreenSaver';
 import FocusableButton from '../Common/FocusableButton';
 import React, { memo } from 'react';
+import { FaPlay } from 'react-icons/fa6';
 
 const ScreenSaverContent = memo(({ resource }) => {
   if (!resource) return null;
@@ -45,14 +46,15 @@ const Screensaver = () => {
           <FocusableButton
             className='screen-saver-button'
             focusClass='screen-saver-button-focused'
-            text='Watch Now'
+            icon={<FaPlay/>}
+            text='Watch'
             focusKey='SCREEN_SAVER_WATCH_BUTTON'
             onEnterPress={onWatchClipSS}
           />
           <FocusableButton
             className='screen-saver-button'
             focusClass='screen-saver-button-focused'
-            text='More Info'
+            text='More Details'
             focusKey='SCREEN_SAVER_DETAIL_BUTTON'
             onEnterPress={onMoreInfoItemClickSS}
           />

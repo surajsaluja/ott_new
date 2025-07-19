@@ -103,15 +103,25 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         }
     }
 
-    useEffect(() => {
-        setBackArray(SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE, true);
+   useEffect(() => {
+    const screenNameWithTimestamp = `${SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE}_${Date.now()}`;
+
+    const newStack = [...currentArrayStack];
+
+    const lastItem = newStack[newStack.length - 1];
+    if (lastItem?.includes(SCREEN_KEYS.SCREEN_SAVER)) {
+        popBackArray();
+    }
+
+    setBackArray(screenNameWithTimestamp,false);
+
     }, []);
 
     useEffect(() => {
         if (backHandlerClicked && currentArrayStack.length > 0) {
             const backId = currentArrayStack[currentArrayStack.length - 1];
 
-            if (backId === SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE) {
+            if (backId.startsWith(SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE)) {
                 handleBackPressed();
                 setBackHandlerClicked(false);
             }

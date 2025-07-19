@@ -106,6 +106,13 @@
     border-radius: 20px;
     font-size: 1.3em;
     font-weight: 700;
+    width: 10vw;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen-saver-button span{
+  margin-right: 8px;
 }
 
 .screen-saver-button-focused{

@@ -7,6 +7,7 @@ import {
 import FocusableButton from "../FocusableButton";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
 import "./index.css";
+import { exitApplication } from "../../../Utils";
 
 const AUTO_CLOSE_TIMEOUT = 30000;
 
@@ -21,6 +22,7 @@ const RetryPopup = ({
 }) => {
   const { ref, focusSelf, focusKey } = useFocusable({
     focusKey: "RETRY_POPUP",
+    focusable: isOpen
   });
   const { setBackArray } = useBackArrayContext();
   const timerRef = useRef(null);
@@ -52,8 +54,8 @@ const RetryPopup = ({
               focuskey="RETRY_BTN_MODAL"
             />
             <FocusableButton
-              text="Close"
-              onEnterPress={onClose}
+              text="Exit"
+              onEnterPress={exitApplication}
               className={"modal-button primary"}
               focusClass="madal-button-focused"
               focuskey="CLOSE_BTN_RETRY_MODAL"

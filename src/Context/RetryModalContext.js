@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import {
+  doesFocusableExist,
   getCurrentFocusKey,
   setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
@@ -27,6 +28,7 @@ export const RetryModalProvider = ({ children }) => {
 
   const setFocusToPreviousElement = useCallback(() => {
     const previousKey = previousFocusKeyRef.current;
+    console.log(`$ does focus exist ${doesFocusableExist(previousFocusKeyRef)}`);
     if (previousKey) {
       setTimeout(() => {
         setFocus(previousKey);

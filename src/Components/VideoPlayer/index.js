@@ -579,15 +579,19 @@ const VideoPlayer = () => {
       const video = videoRef.current;
 
       const handleWaiting = () => {
+        // handleSetIsPlaying(false);
         setIsLoading(true);
       };
       const handleCanPlay = () => {
+        handleSetIsPlaying(true);
         setIsLoading(false);
       };
       const handlePlaying = () => {
+        handleSetIsPlaying(true);
         setIsLoading(false);
       };
       const handleStalled = () => {
+        handleSetIsPlaying(false);
         setIsLoading(true);
       };
       const handleEnded = () => {

@@ -245,10 +245,12 @@ export const getTokenisedMedia = async (
       isMediaPublished = response.isMediaPublished;
       isFree = getIsContentFree(response.isPaid);
 
-      if (isMediaPublished) {
-        if (isUserSubscribed || isFree || isTrailer) {
-          mediaUrl = isTrailer ? response.trailerUrl : response.mediaUrl;
-          mediaUrl = DecryptAESString(mediaUrl);
+      if(isTrailer && response.trailerUrl){
+        mediaUrl = DecryptAESString(response.trailerUrl);
+        success = true;
+      }else if (isMediaPublished && !isTrailer) {
+        if ((isUserSubscribed || isFree ) && response.mediaUrl) {
+          mediaUrl = DecryptAESString(response.mediaUrl);
           success = true;
           message = "Media Tokenised SuccessFully";
         } else {
@@ -257,6 +259,7 @@ export const getTokenisedMedia = async (
       } else {
         throw new Error('Media Not Published');
       }
+
     } else {
       throw new Error(response?.message || "Invalid response for Tokenised Media");
     }

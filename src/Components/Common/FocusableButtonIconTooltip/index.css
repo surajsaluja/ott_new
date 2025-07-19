@@ -27,6 +27,13 @@
     color: white;
 }
 
+.focusableButton_icon span{
+    margin-right: 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Tooltip-style text shown only when focused */
 .focusableButton_tooltip {
     position: absolute;

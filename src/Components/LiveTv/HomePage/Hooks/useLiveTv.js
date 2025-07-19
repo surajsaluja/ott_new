@@ -68,6 +68,7 @@ export const useLiveTv = (focusKey) => {
 
       setLiveTvHomePageData(processed);
       setLiveTvBannersData(liveTvResponse.banners);
+      closeRetryModal();
 
       // Cache both processed and banner data
       setCache(HOME_KEY, processed);
@@ -81,6 +82,7 @@ export const useLiveTv = (focusKey) => {
       });
     } finally {
       setIsTvDataLoading(false);
+      markRetryComplete();
     }
   };
 

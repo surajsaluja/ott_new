@@ -6,7 +6,7 @@ export function BackArrayProvider({ children }) {
   const [currentArrayStack, setCurrentArray] = useState([]);
   const [backHandlerClicked, setBackHandlerClicked] = useState(false);
 
-  const setBackArray = (id, resetPrevious) => {
+  const setBackArray = (id, resetPrevious = true) => {
   if (resetPrevious) {
     setCurrentArray([id]);
   } else {
@@ -18,14 +18,17 @@ export function BackArrayProvider({ children }) {
       return prev;
     });
   }
+   console.log('<<back array set', currentArrayStack);
 };
 
 
 
   const popBackArray = () => {
+    
     setCurrentArray((prev) => {
       const newStack = [...prev];
       newStack.pop();
+      console.log('<<pop array set', currentArrayStack);
       return newStack;
     });
   };

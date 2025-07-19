@@ -130,7 +130,7 @@ function Movie_Detail() {
                                         onEnterPress={() => { watchMovie(false, false) }}
                                         className="round-focusable-button"
                                     />}
-                                    {isMediaPublished ? (<FocusableButtonIconTooltip
+                                    {mediaDetail.trailerUrl && (isMediaPublished ? (<FocusableButtonIconTooltip
                                         icon={<MdMovie />}
                                         text={'Watch Trailer'}
                                         onEnterPress={() => { watchMovie(true, false) }}
@@ -142,7 +142,7 @@ function Movie_Detail() {
                                         focusClass="detail-play-button-focus"
                                         text={'Watch Trailer'}
                                         onEnterPress={() => { watchMovie(true, false) }}
-                                    />)}
+                                    />))}
                                     <FocusableButtonIconTooltip
                                         icon={isMediaFavourite ? <IoHeartSharp /> : <MdAdd />}
                                         text={isMediaFavourite ? 'Remove From Wishlist' : 'Add To Wishlist'}

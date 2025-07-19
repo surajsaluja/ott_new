@@ -143,6 +143,7 @@ const Content = ({
             lastRowChangeRef={lastRowChangeRef}
             showTitle={showTitle}
             isCircular={isCircular}
+            focusKey={`CONTENT_ROW_${item.playListId}_${index}`}
             playListDimensions={{
               height: item.height ?? null,
               width: item.width ?? null

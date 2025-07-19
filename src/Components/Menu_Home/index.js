@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { FocusContext } from '@noriginmedia/norigin-spatial-navigation'
+import { FocusContext, setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import FocusableButton from '../Common/FocusableButton'
 import useMenu from './Hooks/useMenu';
 import './index.css';
@@ -24,6 +24,12 @@ function Menu_Home({ activeTab, focusKey, setIsSideBarOpen }) {
     useEffect(() => {
         setIsSideBarOpen(hasFocusedChild);
     }, [hasFocusedChild])
+
+    useEffect(()=>{
+        if(!loading){
+        setFocus(`MENU_ITEM_${selectedMenu}`)
+        }
+    },[focusSelf,loading])
 
     return (
         <FocusContext.Provider value={currentFocusKey}>

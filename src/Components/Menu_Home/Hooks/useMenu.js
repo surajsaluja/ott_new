@@ -105,7 +105,7 @@ const useMenu = (activeTabId, focusKey) => {
     focusable: true,
     trackChildren: true,
     focusKey,
-    saveLastFocusedChild: false,
+    saveLastFocusedChild: true,
   });
 
   const menuScrollingRef = useRef(null);
@@ -187,11 +187,11 @@ const useMenu = (activeTabId, focusKey) => {
         setMenuFocusMap(newFocusMap);
     }, []);
 
-    useEffect(() => {
-  if (!loading && menuFocusMap[selectedMenu] && hasFocusedChild) {
-    setFocus(menuFocusMap[selectedMenu]);
-  }
-}, [loading, selectedMenu, menuFocusMap, hasFocusedChild]);
+//     useEffect(() => {
+//   if (!loading && menuFocusMap[selectedMenu] && hasFocusedChild) {
+//     setFocus(menuFocusMap[selectedMenu]);
+//   }
+// }, [loading, selectedMenu, menuFocusMap, hasFocusedChild]);
 
   return {
     menuItems,

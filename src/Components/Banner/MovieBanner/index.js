@@ -5,6 +5,7 @@ import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spat
 import useBanner from './Hooks/useBanner';
 import './index.css';
 import { useMovieBannerContext } from '../../../Context/movieBannerContext';
+import { FaPlay } from 'react-icons/fa6';
 
 const SHOW_DETAIL_BTN_FOCUS_KEY = 'SHOW_DETAIL_BTN_FOCUS_KEY';
 const WATCH_MOVIE_BANNER_BTN_FOCUS_KEY = 'WATCH_MOVIE_BANNER_BTN_FOCUS_KEY'
@@ -30,7 +31,7 @@ const Banner = () => {
   const [displayAsset, setDisplayAsset] = useState(asset);
   const [displayBanners, setDisplayBanners] = useState(banners);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showPlayButton, setShowPlayButton] = useState(displayBanners[0]?.isPlayButton ?? false);
+  const [showPlayButton, setShowPlayButton] = useState(banners[0]?.isPlayButton === true);
 
   const prevAsset = useRef(asset);
   const prevBanners = useRef(banners);
@@ -40,7 +41,7 @@ const Banner = () => {
     focusKey: 'MOVIE_BANNER', 
     focusable: banners.length>0,
   // saveLastFocusedChild: true,
-// preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY, 
+preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY, 
 // onFocus:()=>{
 //  setTimeout(() => {
 //     const targetFocusKey =  SHOW_DETAIL_BTN_FOCUS_KEY;
@@ -86,7 +87,7 @@ const Banner = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [focusSelf]);
+  }, [focusSelf, isTransitioning]);
 
   // Determine when to show the play button
   // useEffect(() => {
@@ -220,18 +221,19 @@ const Banner = () => {
 
   return (
     <>
-      <FocusableButton
+      {banner && banner.isPlayButton && <FocusableButton
         className="banner-play-btn"
         focusClass="play-btn-focus"
-        text="Watch Now"
+        icon={<FaPlay />}
+        text="Watch"
         focuskey={WATCH_MOVIE_BANNER_BTN_FOCUS_KEY}
         onEnterPress={() => watchMediaVOD(false)}
-        style={{ display: showPlayButton ? 'block' : 'none' }}
-      />
+        customStyles={{ display: banner.isPlayButton === true ? 'flex' : 'none' }}
+      />}
       <FocusableButton
         className="banner-play-btn"
         focusClass="play-btn-focus"
-        text="Show Details"
+        text="More Details"
         focuskey={SHOW_DETAIL_BTN_FOCUS_KEY}
         onEnterPress={showMediaDetail}
       />

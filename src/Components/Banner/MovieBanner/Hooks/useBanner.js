@@ -84,7 +84,7 @@ const useBanner = (asset,banners) => {
       hlsRef.current = null;
     }
   };
-}, [asset?.trailerUrl, videoEl]);
+}, [asset?.mediaID, videoEl]);
 
   // Cleanup on asset change
   useEffect(() => {

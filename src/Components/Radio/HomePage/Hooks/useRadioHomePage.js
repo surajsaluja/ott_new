@@ -12,6 +12,7 @@ import {
   SCREEN_KEYS
 } from "../../../../Utils/DataCache";
 import { useBackArrayContext } from "../../../../Context/backArrayContext";
+import { useRetryModal } from "../../../../Context/RetryModalContext";
 
 export const useRadioHomePage = (focusKey) => {
   const [radioHomePageData, setRadioHomePageData] = useState([]);
@@ -22,6 +23,13 @@ export const useRadioHomePage = (focusKey) => {
 
   const { userObjectId, isLoggedIn } = useUserContext();
   const history = useHistory();
+   const {
+      openRetryModal,
+      closeRetryModal,
+      markRetryComplete,
+      retrying,
+      callerId,
+    } = useRetryModal();
 
   const {
     focusKey: currentFocusKey,
@@ -32,6 +40,7 @@ export const useRadioHomePage = (focusKey) => {
     preferredChildFocusKey: 'RADIO_BANNER_FOCUS_KEY',
     saveLastFocusedChild: false
   });
+
 
   // useEffect(() => {
   //   if(isBannerLoaded && !isRadioDataLoading){
@@ -81,12 +90,26 @@ export const useRadioHomePage = (focusKey) => {
 
       setRadioHomePageData(playlist);
       setRadioBannersData(banners);
+      closeRetryModal();
     } catch (error) {
       console.error("Failed to load radio homepage", error);
+      openRetryModal({
+        id: "RADIO_HOME",
+        title: "Oops!",
+        description: "Failed to fetch. Try again.",
+      });
     } finally {
       setIsRadioDataLoading(false);
+       markRetryComplete();
     }
   };
+
+  
+   useEffect(() => {
+    if (retrying == true && callerId == "RADIO_HOME") {
+      loadInitialData();
+    }
+  }, [retrying]);
 
   useEffect(() => {
     loadInitialData();

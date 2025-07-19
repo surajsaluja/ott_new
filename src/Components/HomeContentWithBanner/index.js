@@ -29,7 +29,7 @@ import { useMovieBannerContext } from "../../Context/movieBannerContext";
         hasMoreRows
       } = useContentWithBanner(onHeaderFocus,category,focusKey);
   
-      if(isLoading)
+      if(isLoading || data.length == 0)
       {
         return (
           <LoadingSkeleton />

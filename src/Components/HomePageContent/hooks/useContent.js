@@ -13,7 +13,7 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
   } = useFocusable({
     focusKey,
     trackChildren: true,
-    saveLastFocusedChild: true,
+    saveLastFocusedChild: false,
     onFocus,
   });
 
@@ -80,10 +80,11 @@ const useMovieHomePage = (
   const scrollDebounceRef = useRef();
   const loadMoreRef = useRef(null);
 
-  const { ref, focusKey, hasFocusedChild } = useFocusable({
+  const { ref, focusKey, hasFocusedChild, focusSelf } = useFocusable({
     focusKey: focusKeyParam,
     trackChildren: true,
     saveLastFocusedChild: true,
+    focusable: data && data.length > 0,
   });
 
   useEffect(() => {
