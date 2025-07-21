@@ -14,6 +14,7 @@ export default function RadioPlayer({ focusKey }) {
     const isPlayingRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const isPlayerOnlineRef = useRef(true);
     const history = useHistory();
     const location = useLocation();
     const { audioName, audioImage, audioplayUrl } = location.state || {};
@@ -48,8 +49,9 @@ useEffect(() => {
     }, [isLoading])
 
     const handleSetIsPlaying = async (val) => {
+
         let audio = audioRef.current;
-        if (!audio) return;
+        if (!audio || isPlayerOnlineRef.current === false) return;
 
         if (val === !!isPlayingRef.current) return;
 
@@ -95,11 +97,13 @@ useEffect(() => {
         };
 
         const handlePlayerOnline = () => {
+            isPlayerOnlineRef.current = true;
             handleSetIsPlaying(true);
         }
 
         const handlePlayerOffline = () => {
             handleSetIsPlaying(false);
+            isPlayerOnlineRef.current = false;
         }
 
         const handlePlayerVisibilityChange = () => {
@@ -163,7 +167,7 @@ useEffect(() => {
                                 focusClass={'radio-play-pause-focused'}
                                 focuskey={'RADIO_PLAY_PAUSE_BUTTON_FOCUS_KEY'}
                                 icon={isPlaying ? <MdOutlinePause /> : <MdPlayArrow />}
-                                onEnterPress={togglePlayPause}
+                                onEnterPress={isPlayerOnlineRef.current === true ? togglePlayPause : ()=>{}}
                             />
                         </div>
                     </div>
