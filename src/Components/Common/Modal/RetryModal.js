@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import {
   useFocusable,
   FocusContext,
+  setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
 import FocusableButton from "../FocusableButton";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
@@ -31,7 +32,9 @@ const RetryPopup = ({
   // Focus on popup open
   useEffect(() => {
     if (isOpen) {
-      focusSelf();
+      setTimeout(()=>{
+      setFocus('RETRY_BTN_MODAL');
+      },250);
       setBackArray("MODAL_RETRY");
     }
 
