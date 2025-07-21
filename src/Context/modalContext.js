@@ -45,7 +45,10 @@ export const ModalProvider = ({ children }) => {
     setModalConfig({ isOpen: false });
     previousFocusKeyRef.current = null;
     setBackHandlerClicked(false);
-    popBackArray();
+    const backId = currentArrayStack[currentArrayStack.length - 1];
+    if (backId === 'MODAL') {
+      popBackArray();
+    }
   }, [setBackHandlerClicked, popBackArray]);
 
   const openModal = useCallback(({ title, description, buttons , showCloseButton = true}) => {
@@ -88,7 +91,7 @@ export const ModalProvider = ({ children }) => {
       setFocusToPreviousElement();
       closeModal();
     }
-  }, [backHandlerClicked, modalConfig.isOpen, currentArrayStack, closeModal, setFocusToPreviousElement]);
+  }, [backHandlerClicked, currentArrayStack]);
 
   const renderButtons = useCallback(() => {
     return modalConfig.buttons?.map((btn) => ({
