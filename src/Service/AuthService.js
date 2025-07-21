@@ -26,7 +26,9 @@ export const fetchApiKeyandAppFeatures = async () => {
         isVODEnabled,
         isMovieEnabled,
         isWebseriesEnabled,
-        isGoogleCastEnabled
+        isGoogleCastEnabled,
+        showInternetMessage,
+        showInternetMessageText
       } = response.data;
 
       return {
@@ -34,6 +36,8 @@ export const fetchApiKeyandAppFeatures = async () => {
         data:{
         apiKey,
         appIdleTime,
+        showInternetMessage,
+        showInternetMessageText,
         menu: {
           isTVEnabled,
           isRadioEnabled,

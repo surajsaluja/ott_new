@@ -33,6 +33,15 @@ const useAuth = () => {
                 if (apikeyRes && apikeyRes.menu) {
                     setCache(CACHE_KEYS.MENU.MENU_DATA, apikeyRes.menu);
                 }
+                if(apikeyRes && apikeyRes.showInternetMessage){
+                    if(apikeyRes.showInternetMessage.toLowerCase() === "true" || apikeyRes.showInternetMessage.toLowerCase === true){
+                        setCache(CACHE_KEYS.SHOW_NO_INTERNET_MESSAGE, true);
+                        setCache(CACHE_KEYS.NO_INTERNET_SERVER_MESSAGE, apikeyRes.showInternetMessageText ?? null);
+                    }else{
+                        setCache(CACHE_KEYS.SHOW_NO_INTERNET_MESSAGE, false);
+                        setCache(CACHE_KEYS.NO_INTERNET_SERVER_MESSAGE, null);
+                    }
+                }
 
                 const screenSaverContentRes = await fetchScreenSaverContent();
                 if (screenSaverContentRes && screenSaverContentRes?.isSuccess && screenSaverContentRes?.data) {

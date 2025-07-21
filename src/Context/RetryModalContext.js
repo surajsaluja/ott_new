@@ -11,6 +11,7 @@ import {
   setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
 import RetryPopup from "../Components/Common/Modal/RetryModal";
+import { CACHE_KEYS, getCache } from "../Utils/DataCache";
 
 const RetryModalContext = createContext();
 const FOCUS_RESET_DELAY = 200;
@@ -44,6 +45,9 @@ export const RetryModalProvider = ({ children }) => {
   // Open modal with caller ID and content
   const openRetryModal = useCallback(
     ({ title, description, id }) => {
+
+      if (getCache(CACHE_KEYS.SHOW_NO_INTERNET_MESSAGE) === false) return;
+
       const currentFocusKey = getCurrentFocusKey();
 
       if (!previousFocusKeyRef.current && currentFocusKey) {
@@ -53,7 +57,7 @@ export const RetryModalProvider = ({ children }) => {
       }
 
       setTitle(title);
-      setDescription(description);
+      setDescription(getCache(CACHE_KEYS.NO_INTERNET_SERVER_MESSAGE));
       setRetrying(false);
       setRetryCount(0);
       setCallerId(id);
@@ -64,6 +68,7 @@ export const RetryModalProvider = ({ children }) => {
 
   // Close modal and cleanup
   const closeRetryModal = () => {
+    if (getCache(CACHE_KEYS.SHOW_NO_INTERNET_MESSAGE) === false) return;
     setFocusToPreviousElement();
     setIsOpen(false);
     setCallerId(null);
@@ -72,7 +77,7 @@ export const RetryModalProvider = ({ children }) => {
 
   // Called when Retry button is clicked
   const handleRetry = async () => {
-    if (!callerId) return;
+    if (!callerId || getCache(CACHE_KEYS.SHOW_NO_INTERNET_MESSAGE) === false) return;
 
     setRetrying(true);
     setRetryCount((prev) => prev + 1);
@@ -80,6 +85,7 @@ export const RetryModalProvider = ({ children }) => {
 
   // Called by the caller once its retry logic is done
   const markRetryComplete = () => {
+          if(getCache(CACHE_KEYS.SHOW_NO_INTERNET_MESSAGE) === false) return;
     setRetrying(false);
   };
 
