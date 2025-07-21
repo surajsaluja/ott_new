@@ -9,9 +9,7 @@ const autoCloseTimeout = 30000;
 const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
   const { ref, focusSelf, focusKey: currentFocusKey } = useFocusable({ 
     focusKey: 'MODAL_BUTTONS' ,
-    onArrowPress:(direction)=>{
-      return false;
-    }
+    isFocusBoundary: true
   });
   const { setBackArray } = useBackArrayContext();
   const inactivityTimerRef = useRef(null);
@@ -56,11 +54,11 @@ const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
 
   return createPortal(
     <FocusContext.Provider value={currentFocusKey}>
-      <div className="modal-overlay">
+      <div className="modal-overlay" ref={ref}>
         <div className="modal-box">
           {title && <h2 className="modal-title">{title}</h2>}
           <div className="modal-content">{content}</div>
-          <div className="modal-buttons" ref={ref}>
+          <div className="modal-buttons">
             {buttons.map(({ label, action, className = '' }, index) => (
               <FocusableButton
                 key={`${label}_${index}`}

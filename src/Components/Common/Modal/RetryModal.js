@@ -22,7 +22,8 @@ const RetryPopup = ({
 }) => {
   const { ref, focusSelf, focusKey } = useFocusable({
     focusKey: "RETRY_POPUP",
-    focusable: isOpen
+    focusable: isOpen,
+    isFocusBoundary: true
   });
   const { setBackArray } = useBackArrayContext();
   const timerRef = useRef(null);
