@@ -100,6 +100,12 @@ function SearchScreen({ focusKey }) {
     await loadSearchData(nextPage);
   };
 
+  function truncateStart(text, maxLength) {
+  return text.length > maxLength
+    ? '…' + text.slice(-maxLength)
+    : text;
+}
+
   const onKeyPress = (key) => {
     switch (key) {
       case 'delete':
@@ -153,7 +159,7 @@ useEffect(() => {
         <div className='keyboard-container'>
           <div className='search-input'>
             <div className='search-input-text' style={{ color: inputQuery ? 'white' : '#797474' }}>
-            {inputQuery || 'SEARCH'}
+            {truncateStart(inputQuery,20) || 'SEARCH'}
             </div>
           </div>
           <SearchKeyboard onKeyPress={onKeyPress} focusKey={'KEYBOARD_FOCUS_KEY'} />
