@@ -65,20 +65,28 @@ export const fetchContinueWatchingData = async (userId = null) => {
     }
 };
 
-export const fetchMediaDetailById = async (mediaId, isWebSeries, userObjectId, options = {}) => {
+export const fetchMediaDetailById = async (mediaId, isWebSeries,openWebSeries = false , webSeriesId = 0,userObjectId = null, options = {}) => {
     try {
         const token = getSanitizedToken();
         if (!token) throw new Error("User Token Not Found");
 
         const headers = { Authorization: token };
-        const url = isWebSeries ? API.MEDIA.GET_WEBSERIES_DETAILS : API.MEDIA.GET_MOVIE_DETAILS;
+        // const url = isWebSeries ? API.MEDIA.GET_WEBSERIES_DETAILS : API.MEDIA.GET_MOVIE_DETAILS;
 
-        const response = await fetchData(url(mediaId, userObjectId ?? getUserObjectId()), {
-            ...options,
-            headers,
-        });
+        if(isWebSeries){
+            const WebSeriesResponse = await fetchData(API.MEDIA.GET_RECENT_WEBSEREIES_DETAILS(mediaId,userObjectId ?? getUserObjectId(),openWebSeries, webSeriesId ),{
+                ...options,
+                headers
+            })
+            return WebSeriesResponse;
+        } else{
+            const mediaDetailResponse = await fetchData(API.MEDIA.GET_MOVIE_DETAILS(mediaId, userObjectId ?? getUserObjectId()),{
+                ...options,
+                ...headers
+            });
+            return mediaDetailResponse
+        }
 
-        return response;
     } catch (error) {
         return ThrowError("loadMediaDetailById", error);
     }

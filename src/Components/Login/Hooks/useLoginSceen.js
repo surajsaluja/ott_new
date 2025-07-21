@@ -136,7 +136,7 @@ const useLoginScreen = () => {
                 nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
               });
             }else{
-              history.replace(`/detail/${props.categoryID}/${props.mediaID}`)
+              history.replace(`/detail/${props.categoryID}/${props.mediaID}/${props.webSeriesId ?? 0}/${props.openWebSeries}`)
             }
     }else{
     history.replace(from, props);

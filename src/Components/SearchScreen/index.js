@@ -145,7 +145,8 @@ useEffect(() => {
   const onAssetPress = useCallback((assetData) => {
     if (isLoggedIn && userObjectId) {
       const categoryId = getCategoryIdByCategoryName(assetData?.category);
-      history.push(`/detail/${categoryId}/${assetData?.mediaID}`);
+      let openWebSeries = assetData.openWebSeries.toString().toLowerCase() == 'true' ? 1 : 0;
+      history.push(`/detail/${categoryId}/${assetData?.mediaID}/${assetData.webSeriesID ?? 0}/${openWebSeries}`);
     } else {
       showModal('Login', 'You are not logged in !!', [
         { label: 'Login', action: redirectToLogin, className: 'primary' },

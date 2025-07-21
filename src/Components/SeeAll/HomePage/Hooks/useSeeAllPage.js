@@ -23,18 +23,18 @@ const useSeeAllPage = (focusKey) => {
     const hasMoreRef = useRef(true);
     const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
     const SETTLE_DELAY = 200;
-    const {setFocusedAssetDataContext,
-        setBannerDataContext} = useMovieBannerContext();
+    const { setFocusedAssetDataContext,
+        setBannerDataContext } = useMovieBannerContext();
 
     const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
     const history = useHistory();
     const location = useLocation();
 
-    const {playListId, playListName} = location.state || {};
+    const { playListId, playListName } = location.state || {};
 
     const loadPlayListData = async (page = 1) => {
-        if(!playListId) return;
+        if (!playListId) return;
         if (page === 1) setPlayListData([]);
         setIsLoading(true);
         try {
@@ -75,7 +75,8 @@ const useSeeAllPage = (focusKey) => {
     const onCardPress = useCallback((assetData) => {
         if (isLoggedIn && userObjectId) {
             const categoryId = getCategoryIdByCategoryName(assetData?.category);
-            history.push(`/detail/${categoryId}/${assetData?.mediaID}`);
+            let openWebSeries = assetData.openWebSeries.toLowerCase() == 'true' ? 1 : 0;
+            history.push(`/detail/${categoryId}/${assetData?.mediaID}/${assetData.webSeriesID ?? 0}/${openWebSeries}`);
         }
         else {
             showModal('Login',
@@ -100,21 +101,21 @@ const useSeeAllPage = (focusKey) => {
         }, SETTLE_DELAY);
     }, []);
 
-      useEffect(() => {
-    setBackArray(SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE, true);
-  }, []);
+    useEffect(() => {
+        setBackArray(SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE, true);
+    }, []);
 
-  useEffect(() => {
-    if (backHandlerClicked && currentArrayStack.length > 0){
-      const backId = currentArrayStack[currentArrayStack.length - 1];
+    useEffect(() => {
+        if (backHandlerClicked && currentArrayStack.length > 0) {
+            const backId = currentArrayStack[currentArrayStack.length - 1];
 
-      if (backId === SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE) {
-        history.goBack();
-        popBackArray();
-        setBackHandlerClicked(false);
-      }
-    }
-  }, [backHandlerClicked, currentArrayStack]);
+            if (backId === SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE) {
+                history.goBack();
+                popBackArray();
+                setBackHandlerClicked(false);
+            }
+        }
+    }, [backHandlerClicked, currentArrayStack]);
 
 
     const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({

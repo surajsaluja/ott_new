@@ -42,6 +42,8 @@ export const API = {
             `Media/GetTokanizedMediaUrlV2/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
         GET_WEBSERIES_DETAILS: (mediaId, userObjectId) =>
             `Media/WebSeriesDetailsV3/${mediaId ?? DEFAULTS.MEDIA_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
+        GET_RECENT_WEBSEREIES_DETAILS: (mediaId, userObjectId,openWebSeries,webSeriesId)=>
+            `Media/GetRecentWebSeriesDetail/?MediaId=${mediaId}&userId=${userObjectId}&OpenWebSeries=${openWebSeries}&WebSeriesId=${webSeriesId}`,
         GET_WEBSERIES_EPISODES:(webSeriesId,seasonId,languageCode,userObjectId,page,pageSize) =>
             `Media/GetEpisodeItemsV2/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${seasonId ?? DEFAULTS.SEASON_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
         GET_WEBSERIES_DETAILS_WITH_EPISODES:(webSeriesId,userObjectId) =>

@@ -100,7 +100,7 @@ const useBanner = (asset,banners) => {
   const showMediaDetail = () => {
     if (isLoggedIn && userObjectId) {
       const categoryId = getCategoryIdByCategoryName(banners[0].subCategory);
-      history.push(`/detail/${categoryId}/${banners[0].mediaID}`);
+      history.push(`/detail/${categoryId}/${banners[0].mediaID}/0/1`);
     } else {
       showModal("Login", "You are not logged in !!", [
         { label: "Login", action: redirectToLogin, className: "primary" }
@@ -113,7 +113,9 @@ const useBanner = (asset,banners) => {
       const res = await getMediaDetailWithTokenisedMedia(
         banners[0].mediaID,
         banners[0].categoryId,
-        isTrailer
+        isTrailer,
+        false,
+        0,
       );
       if (res?.isSuccess) {
         history.push("/play", {

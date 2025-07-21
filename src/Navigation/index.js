@@ -22,7 +22,7 @@ const AppNavigation = () => {
         <Route path="/screensaver" component={Screensaver}/>
 
         {/* Dynamic route for details page */}
-        <PrivateRoute path="/detail/:categoryId/:mediaId" component={Movie_Detail} />
+        <PrivateRoute path="/detail/:categoryId/:mediaId/:webSeriesId/:openWebSeries" component={Movie_Detail} />
         <PrivateRoute path = "/livetvschedule" component={LiveTvChannelPage} />
 
         <PrivateRoute path="/play" component={VideoPlayer} />

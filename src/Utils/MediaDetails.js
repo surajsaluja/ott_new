@@ -72,8 +72,10 @@ const groupStarCasts = (starCastArray = []) => {
 export const getMediaDetails = async (
   mediaId = null,
   categoryId = 1,
+  itemWebSeriesId = 0,
+  openWebSeries = false,
   isTrailer = true,
-  userObjectId = null
+  userObjectId = null,
 ) => {
 
   const userObjId = localStorage.getItem("userObjectId");
@@ -113,7 +115,9 @@ export const getMediaDetails = async (
     let response = await fetchMediaDetailById(
       mediaId,
       isWebSeries,
-      userObjectId ?? userObjId
+      openWebSeries,
+      itemWebSeriesId,
+      userObjectId ?? userObjId,
     );
 
     if (response && response.isSuccess) {
@@ -286,7 +290,9 @@ export const getMediaDetailWithTokenisedMedia = async (
   mediaId = null,
   categoryId = null,
   isTrailer = true,
-  userObjectId = null
+  openWebSeries = false,
+  webSeriesId = 0,
+  userObjectId = null,
 ) => {
   let success = false;
   let mediaDetailReponse = null;

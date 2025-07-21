@@ -15,7 +15,7 @@ import { clearWebSeriesCache } from "../../../Utils/WebSeriesUtils";
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../../Utils/DataCache";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
 
-const useMediaDetail = (mediaId, categoryId, focusKey) => {
+const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, focusKey) => {
     // References for Focusable
     const { ref, focusKey: btnControlsFocusKey, hasFocusedChild, focusSelf } = useFocusable({
         focusable: true,
@@ -168,7 +168,7 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
         try {
             setCache(CACHE_KEYS.CURRENT_SCREEN, categoryId == 1 ? SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE : SCREEN_KEYS.DETAILS.WEBSERIES_DETAIL_PAGE);
             setIsLoading(true);
-            const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId, false);
+            const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId,itemWebSeriesId ,showWebSeries == 0 ? true : false, false);
             if (mediaDetailsResponse.isSuccess) {
                 let mediaDet = mediaDetailsResponse.data.mediaDetail;
                 setMediaDetail(mediaDet);
@@ -223,7 +223,8 @@ const useMediaDetail = (mediaId, categoryId, focusKey) => {
 
     const onRelatedItemEnterPress = (assetData) => {
         if (isLoggedIn && userObjectId) {
-            history.replace(`/detail/${assetData?.categoryID}/${assetData?.mediaID}`);
+            let openWebSeries = assetData.openWebSeries.toString().toLowerCase() == 'true' ? 1 : 0;
+            history.replace(`/detail/${assetData?.categoryID}/${assetData?.mediaID}/${assetData.webSeriesID ?? 0}/${openWebSeries}`);
         }
         else {
             showModal('Login',

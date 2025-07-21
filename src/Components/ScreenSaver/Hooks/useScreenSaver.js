@@ -127,13 +127,15 @@ const useScreenSaver = () => {
           nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
         });
       } else {
-         history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}`);
+         history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`);
       }
     } else {
       history.replace('/login', {
         from: '/play', props: {
           mediaID: currentMedia.mediaID,
           categoryID: currentMedia.categoryID,
+          webSeriesId : currentMedia.webSeriesId ?? 0,
+          openWebSeries : 1,
           isTrailer: false
         }
       });
@@ -143,10 +145,10 @@ const useScreenSaver = () => {
   const onMoreInfoItemClickSS = () => {
     const currentMedia = screensaverResources[currentIndex];
     if (isLoggedIn && userObjectId) {
-          history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}`);
+          history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`);
     
         } else {
-          history.replace('/login',{from:`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}`});
+          history.replace('/login',{from:`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`});
         }
   };
 
