@@ -405,6 +405,11 @@
   font-size: 1em;
 }
 
+.genres {
+  display: flex;
+  align-items: center;
+}
+
 .episode-detail-seprator{
   width: 0.4em;
   height: 0.4em;

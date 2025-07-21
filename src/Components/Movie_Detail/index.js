@@ -97,7 +97,7 @@ function Movie_Detail() {
                                     {mediaDetail.webSeriesName && <h1 className="title-detail">{mediaDetail.webSeriesName}</h1>}
                                     <div className="details-episodedata">
                                         <div className="seriesNumber-detail">
-                                        {mediaDetail.smiSubtitleUrl && <span className="">{mediaDetail.smiSubtitleUrl}</span>}
+                                            {mediaDetail.smiSubtitleUrl && <span className="">{mediaDetail.smiSubtitleUrl}</span>}
                                         </div>
                                         <span className="episode-detail-seprator"></span>
                                         {mediaDetail.title && <span className="seriesName-detail">{mediaDetail.title}</span>}
@@ -113,6 +113,16 @@ function Movie_Detail() {
                                 {mediaDetail?.ageRangeId && <span><i><GiVibratingShield /></i>{`${mediaDetail?.ageRangeId}+`}</span>}
                                 {mediaDetail?.cultures && <span>{mediaDetail?.cultures}</span>}
                             </div>}
+                            {!isVideoLoaded && mediaDetail.genre && (
+                                <div className="genres">
+                                    {mediaDetail.genre.split(',').map((gen, idx) => (
+                                        <>
+                                            {idx > 0 && <span className="episode-detail-seprator" />}
+                                            <span>{gen.trim()}</span>
+                                        </>
+                                    ))}
+                                </div>
+                            )}
                             {!isVideoLoaded && <p className="description-detail">{mediaDetail.description}</p>}
                             {mediaDetail &&
                                 <div className="buttons-detail">
