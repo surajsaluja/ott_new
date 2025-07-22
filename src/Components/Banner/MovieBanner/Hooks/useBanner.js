@@ -3,7 +3,8 @@ import Hls from "hls.js";
 import { useUserContext } from "../../../../Context/userContext";
 import { useHistory } from "react-router-dom";
 import { getCategoryIdByCategoryName, showModal } from "../../../../Utils";
-import { getMediaDetailWithTokenisedMedia } from "../../../../Utils/MediaDetails";
+import { getBannerPlayData, getMediaDetailWithTokenisedMedia } from "../../../../Utils/MediaDetails";
+import { fetchBannerWatchMediaDetails } from "../../../../Service/MediaService";
 
 const TRAILER_PLAY_DELAY = 1000;
 
@@ -110,13 +111,18 @@ const useBanner = (asset,banners) => {
 
   const watchMediaVOD = async (isTrailer = false) => {
     if (isLoggedIn && userObjectId) {
-      const res = await getMediaDetailWithTokenisedMedia(
-        banners[0].mediaID,
-        banners[0].categoryId,
-        isTrailer,
-        false,
-        0,
-      );
+      // const res = await getMediaDetailWithTokenisedMedia(
+      //   banners[0].mediaID,
+      //   banners[0].categoryId,
+      //   isTrailer,
+      //   false,
+      //   0,
+      // );
+      const category  = getCategoryIdByCategoryName(banners[0].subCategory);
+      const openWebSeries = category === 2 ? true : false;
+      const itemWebSeriesId = 0;
+      const res  = await getBannerPlayData(banners[0].mediaID,category,itemWebSeriesId,openWebSeries,false,null);
+      debugger;
       if (res?.isSuccess) {
         history.push("/play", {
           src: res.data.mediaUrl,
@@ -129,7 +135,8 @@ const useBanner = (asset,banners) => {
           skipInfo: res.data.skipInfo,
           isTrailer,
           playDuration: res.data.mediaDetail?.playDuration,
-          nextEpisodeMediaId: res?.data?.currentEpisode?.nextEpisodeMediaId || null
+          nextEpisodeMediaId: res?.data?.currentEpisode?.nextEpisodeMediaId || null,
+          webSeriesId: res.data.mediaDetail.webSeriesID
         });
       } else {
         console.error(res.message);

@@ -99,6 +99,38 @@ export const findSeasonByMediaId = async (mediaId, webSeriesId, seasonsData = nu
     return null;
 };
 
+export const findEpisodesBySeasonId = async (webSeriesId, seasonId, mediaId) => {
+    let episodes = episodeCache[webSeriesId]?.[seasonId];
+
+    if (!episodes) {
+        try {
+            const episodesRes = await getEpisodes(webSeriesId, seasonId);
+            if (episodesRes && episodesRes.isSuccess) {
+                episodes = episodesRes.data;
+            } else {
+                throw new Error(episodesRes.message);
+            }
+        } catch (err) {
+
+        }
+
+        const episode = episodes.find((ep) => ep.mediaID === mediaId);
+        if (episode) {
+            current.episode = episode;
+            // current.season = {
+            //     ...season,
+            //     webSeriesId: webSeriesId
+            // };
+            return {
+                currentSeason: seasonId,
+                currentEpisode: episode,
+                nextEpisodeMediaId: getNextEpisodeMediaId(episodes, episode.mediaID),
+            };
+        }
+
+    }
+}
+
 const getNextEpisodeMediaId = (episodes, mediaId) => {
     const index = episodes.findIndex((ep) => ep.mediaID === mediaId);
     return index >= 0 && index + 1 < episodes.length ? episodes[index + 1].mediaID : null;

@@ -5,11 +5,12 @@ import {
   fetchMediaRelatedItem,
   fetchWebSeriesEpisodeBySeasonId,
   fetchWebSeriesAllSeasonsWithEpisodes,
+  fetchBannerWatchMediaDetails,
 } from "../Service/MediaService";
 import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
 import { getTokanizedLiveTVUrl } from "../Service/LiveTVService";
 import { useWebSeries } from "../Context/WebSeriesContext";
-import { findSeasonByMediaId, setSeasonCache, } from "./WebSeriesUtils";
+import { findEpisodesBySeasonId, findSeasonByMediaId, setSeasonCache, } from "./WebSeriesUtils";
 
 // const seasonCache = {};
 
@@ -477,3 +478,133 @@ export const getTokenisedTvMedia = async (channelHandle) => {
   };
 
 }
+
+export const getBannerPlayData = async (
+  mediaId = null,
+  categoryId = 1,
+  itemWebSeriesId = 0,
+  openWebSeries = false,
+  isTrailer = false,
+  userObjectId = null,
+) => {
+
+  const userObjId = localStorage.getItem("userObjectId");
+
+  if (!mediaId) {
+    return {
+      isSuccess: false,
+      message: "Media Id is required field",
+    };
+  }
+
+  if (userObjectId == null && userObjId == null) {
+    return {
+      isSuccess: false,
+      message: "UserObjectId not found",
+    };
+  }
+
+  let mediaDetail = null;
+  let skipInfo = null;
+  let onScreenInfo = null;
+  let mediaUrl = null;
+  let currentEpisode = null;
+  let isFree = false;
+  let isMediaPublished = false;
+  let userCurrentPlayTime = null;
+  let success = false;
+  let message = null;
+  let webThumbnailUrl = null;
+  let fullPageBannerUrl = null;
+  let groupedStarCasts = null;
+  let webSeriesId = null;
+  let seasons = null;
+
+  try {
+    const isWebSeries = categoryId == 2;
+    let response = await fetchBannerWatchMediaDetails(
+      mediaId,
+      openWebSeries,
+      itemWebSeriesId,
+      userObjectId ?? userObjId,
+    );
+
+    if (response && response.isSuccess) {
+      response = response.data;
+      mediaDetail = response.detail;
+
+      if (!mediaDetail) {
+        throw new Error("Media Details Not Found");
+      }
+
+      let isPaid = mediaDetail.isPaid;
+      isFree = getIsContentFree(isPaid);
+      userCurrentPlayTime = mediaDetail.playDuration;
+      isMediaPublished = mediaDetail.isMediaPublished;
+      mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
+
+      mediaDetail.seasons = isWebSeries ? response.seasons : null;
+
+      skipInfo = {
+        skipIntroST: parseInt(mediaDetail.skipIntroST),
+        skipIntroET: parseInt(mediaDetail.skipIntroET),
+        skipRecapST: parseInt(mediaDetail.skipRecapST),
+        skipRecapET: parseInt(mediaDetail.skipRecapET),
+        nextEpisodeST: isWebSeries ? parseInt(mediaDetail.nextEpisodeST) : null,
+      };
+
+      onScreenInfo = {
+        onScreenDescription: mediaDetail.onScreenDescription,
+        onScreenDescription2: mediaDetail.onScreenDescription2,
+        onScreenDescriptionST: parseInt(mediaDetail.onScreenDescriptionST),
+        onScreenDescriptionET: parseInt(mediaDetail.onScreenDescriptionET),
+        onScreenDescription2ST: parseInt(mediaDetail.onScreenDescription2ST),
+        onScreenDescription2ET: parseInt(mediaDetail.onScreenDescription2ET),
+        ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
+      };
+
+      mediaDetail.onScreenInfo = isTrailer ? {} : onScreenInfo;
+      mediaDetail.skipInfo = isTrailer ? {} : skipInfo;
+
+      if (isWebSeries) {
+        webSeriesId = mediaDetail.webSeriesID;
+        currentEpisode = await findEpisodesBySeasonId(webSeriesId, mediaDetail.seasonId, mediaDetail.mediaID);
+        if (currentEpisode) {
+          mediaDetail.currentEpisode = currentEpisode.currentEpisode?.mediaID || null;
+          mediaDetail.currentSeason = currentEpisode.currentSeason || null;
+          mediaDetail.nextEpisodeMediaId = currentEpisode.nextEpisodeMediaId || null;
+          mediaDetail.currentEpisodeNumber = currentEpisode.currentEpisode?.episodeNumber;
+        }
+
+      }
+
+      mediaUrl = mediaUrl ? DecryptAESString(mediaUrl) : mediaUrl;
+      success = true;
+      message = "Data Retrived SuccessFully";
+    } else {
+      throw new Error(response?.message || "Invalid response for media detail");
+    }
+  } catch (error) {
+    success = false;
+    return {
+      isSuccess: success,
+      message: error.message || "Something went wrong",
+    };
+  }
+
+  return {
+    isSuccess: success,
+    message: message,
+    data: {
+      mediaDetail,
+      skipInfo,
+      onScreenInfo,
+      currentEpisode,
+      userCurrentPlayTime,
+      webThumbnailUrl,
+      fullPageBannerUrl,
+      groupedStarCasts,
+      mediaUrl,
+    },
+  };
+};

@@ -48,6 +48,8 @@ export const API = {
             `Media/GetEpisodeItemsV2/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${seasonId ?? DEFAULTS.SEASON_ID}/${languageCode ?? DEFAULTS.LANGUAGE_CODE}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}/${page ?? DEFAULTS.PAGE}/${pageSize ?? DEFAULTS.PAGE_SIZE}`,
         GET_WEBSERIES_DETAILS_WITH_EPISODES:(webSeriesId,userObjectId) =>
             `Media/WebSeriesDetailsV4/${webSeriesId ?? DEFAULTS.WEBSERIES_ID}/${userObjectId ?? DEFAULTS.USER_OBJECT_ID}`,
+        GET_WATCH_BANNER_MEDIA_DETAILS:(mediaId, openWebSeries, webSeriesId, userObjectId)=>
+            `Media/GetWebSeriesDetailFromId/?MediaId=${mediaId}&userId=${userObjectId}&OpenWebSeries=${openWebSeries}&WebSeriesId=${webSeriesId}`,
         POST_FAVOURITE_MEDIA_ITEM:`User/AddToMylist`,
         POST_PLAY_HISTORY:'Subscription/PlayHistoryNew'
     },

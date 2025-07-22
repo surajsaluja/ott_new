@@ -294,3 +294,13 @@ export const fetchScreenSaverContent = async () => {
         return ThrowError("fetchScreenSaverContent", error);
     }
 };
+
+
+export const fetchBannerWatchMediaDetails = async(mediaId, openWebSeries = false, webSeriesId = 0, userObjectId = null)=>{
+    try{
+        const response = await fetchData(API.MEDIA.GET_WATCH_BANNER_MEDIA_DETAILS(mediaId, openWebSeries, webSeriesId, userObjectId ?? getUserObjectId()));
+        return response;
+    } catch(error){
+        return ThrowError('fetchBannerWatchMediaDetails', error);
+    }
+}
