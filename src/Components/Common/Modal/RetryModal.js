@@ -35,7 +35,7 @@ const RetryPopup = ({
       setTimeout(()=>{
       setFocus('RETRY_BTN_MODAL');
       },250);
-      setBackArray("MODAL_RETRY");
+      setBackArray("MODAL_RETRY", false);
     }
 
     return () => {};

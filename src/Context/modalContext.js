@@ -41,7 +41,7 @@ export const ModalProvider = ({ children }) => {
     }
   }, []);
 
-  const closeModal = useCallback(() => {
+  const closeModal = () => {
     setModalConfig({ isOpen: false });
     previousFocusKeyRef.current = null;
     setBackHandlerClicked(false);
@@ -49,7 +49,7 @@ export const ModalProvider = ({ children }) => {
     if (backId === 'MODAL') {
       popBackArray();
     }
-  }, [setBackHandlerClicked, popBackArray]);
+  };
 
   const openModal = useCallback(({ title, description, buttons , showCloseButton = true}) => {
     const currentFocusKey = getCurrentFocusKey();
@@ -101,7 +101,7 @@ export const ModalProvider = ({ children }) => {
         closeModal();
       },
     }));
-  }, [modalConfig.buttons, closeModal]);
+  }, [modalConfig.buttons]);
 
   return (
     <ModalContext.Provider value={{ openModal, closeModal }}>

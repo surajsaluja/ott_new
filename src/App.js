@@ -58,7 +58,7 @@ function App() {
         history.push('/screenSaver');
       }
     }, idleTimeoutRef.current);
-  }, [history, isOnline, isPlayerScreen, isScreensaverScreen]);
+  }, [history, isPlayerScreen, isScreensaverScreen]);
 
   const initialiseSession = useCallback(async () => {
     try {
@@ -85,10 +85,10 @@ function App() {
     if (isOnline && !hasInitializedSession.current) {
       initialiseSession();
     }
-  }, [isOnline]);
+  }, []);
 
    useEffect(()=>{
-      setBackArray('SPLASH');
+      setBackArray('SPLASH',true);
     },[])
 
     useEffect(() => {
@@ -101,12 +101,14 @@ function App() {
         setBackHandlerClicked(false);
       }
     }
-  }, [backHandlerClicked, currentArrayStack]);
+  }, [backHandlerClicked]);
 
   useEffect(() => {
     const handleOnline = () => {
-      closeModal();
       setIsOnline(true);
+      debugger;
+      setBackArray(getCache(CACHE_KEYS.CURRENT_SCREEN),true);
+      closeModal();
       // if (!isPlayerScreen()) toast.success('You are online !!');
     };
     const handleOffline = () => {
@@ -121,7 +123,7 @@ function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [isPlayerScreen]);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -151,7 +153,7 @@ function App() {
       window.removeEventListener('keydown', onKeyDown, true);
       clearTimeout(idleTimer.current);
     };
-  }, [handleBackPress, resetIdleTimer]);
+  }, []);
 
   // Render Splash
   if (isLoadingSession || sessionError) {
