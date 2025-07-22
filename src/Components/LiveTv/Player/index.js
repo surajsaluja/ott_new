@@ -34,8 +34,10 @@ function LiveTvPlayer() {
     const [showPlayIcon, setShowPlayIcon] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isUserActive, setIsUserActive] = useState(false);
+    const [playCapability, setPlayCapability] = useState(true);
     const [selectedQuality, setSelectedQuality] = useState(-1);
-    const channelPlayStartTimeRef =  useRef(null);
+    const channelPlayStartTimeRef = useRef(null);
+    const streamLimitErrorRef = useRef(null);
 
     let inactivityDelay = 5000;
 
@@ -43,12 +45,12 @@ function LiveTvPlayer() {
     const location = useLocation();
     const { src, title: movieTitle, channelId } = location.state || {};
 
-      const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
-    
+    const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
+
 
 
     // SignalR
-    const { isConnected, playCapability, connectManuallyV2, disconnectManually } =
+    const { isConnected, connectManuallyV2, disconnectManually, isConnectedRef } =
         useSignalR();
 
     const { ref, focusKey: currentFocusKey } = useFocusable({
@@ -87,17 +89,17 @@ function LiveTvPlayer() {
         },
     ];
 
-    const saveChannelProgress = async() =>{
-        try{
-            const channelPlayEndTime  = new Date();
+    const saveChannelProgress = async () => {
+        try {
+            const channelPlayEndTime = new Date();
             const res = await saveLiveTvChannelProgress(channelPlayStartTimeRef.current, channelPlayEndTime, channelId);
-            if(res && res.isSuccess){
+            if (res && res.isSuccess) {
             }
-            else{
+            else {
                 throw new Error(res.message || res);
             }
-        }catch(err){
-            console.warn('error saving live tv analytics',err.message || err);
+        } catch (err) {
+            console.warn('error saving live tv analytics', err.message || err);
         }
     }
 
@@ -147,7 +149,7 @@ function LiveTvPlayer() {
         setBackHandlerClicked(false);
     }
 
-    const handleBackPressed = useCallback(async() => {
+    const handleBackPressed = useCallback(async () => {
         if (isSideBarOpenRef.current) {
             handleSidebarOpen(false);
             handleSetIsUserActive(false);
@@ -156,28 +158,28 @@ function LiveTvPlayer() {
             handleSetIsUserActive(false);
             return;
         } else {
-           await handleSetIsPlaying(false);
+            await handleSetIsPlaying(false);
             handleBackButtonPressed();
             return;
         }
     }, [isSideBarOpenRef, userActivityRef]);
 
-     useEffect(() => {
-    setBackArray(SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE, true);
-  }, []);
+    useEffect(() => {
+        setBackArray(SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE, true);
+    }, []);
 
-  useEffect(() => {
-     if (backHandlerClicked && currentArrayStack.length > 0) {
-      const backId = currentArrayStack[currentArrayStack.length - 1];
+    useEffect(() => {
+        if (backHandlerClicked && currentArrayStack.length > 0) {
+            const backId = currentArrayStack[currentArrayStack.length - 1];
 
-      if (backId === SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE) {
-        handleBackPressed();
-        setBackHandlerClicked(false);
-      }
-    }
-  }, [backHandlerClicked, currentArrayStack]);
+            if (backId === SCREEN_KEYS.PLAYER.LIVE_TV_PLAYER_PAGE) {
+                handleBackPressed();
+                setBackHandlerClicked(false);
+            }
+        }
+    }, [backHandlerClicked, currentArrayStack]);
 
-    
+
 
     const handleQualityChange = (quality) => {
         if (videoRef.current.hls) {
@@ -256,13 +258,17 @@ function LiveTvPlayer() {
             hls.attachMedia(video);
 
             // sendAnalyticsForMedia();
-            handleSetIsPlaying(true);
+            if (!streamLimitErrorRef.current) {
+                handleSetIsPlaying(true);
+            }
 
             video.hls = hls;
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
             video.src = src;
             // video.play();
-            handleSetIsPlaying(true);
+            if (!streamLimitErrorRef.current) {
+                handleSetIsPlaying(true);
+            }
         }
     }, [src]);
 
@@ -308,13 +314,7 @@ function LiveTvPlayer() {
             window.addEventListener('offline', handlePlayerOffline);
             window.addEventListener('visibilitychange', handlePlayerVisibilityChange)
 
-            if (playCapability == true) {
-                setStreamLimitError(false);
-                // watchTimeRef.current = 0;
-                initializePlayer();
-            } else if (playCapability == false) {
-                setStreamLimitError(true);
-            }
+            initializePlayer();
 
             return () => {
                 video?.hls?.destroy();
@@ -322,6 +322,10 @@ function LiveTvPlayer() {
                 clearTimeout(inactivityTimeoutRef.current);
                 // clearInterval(watchTimeIntervalRef.current);
                 // analyticsHistoryIdRef.current = null;
+                if (isConnectedRef.current) {
+                    console.log('disconnecting manually');
+                    disconnectManually();
+                }
 
                 video.removeEventListener("waiting", handleWaiting);
                 video.removeEventListener("canplay", handleCanPlay);
@@ -333,31 +337,45 @@ function LiveTvPlayer() {
 
             };
         }
-    }, [initializePlayer, videoRef, playCapability]);
+    }, [initializePlayer, videoRef]);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        if (playCapability === false) {
+            // Pause the video and show error
+            video.pause();
+            handleSetIsPlaying(false);
+            streamLimitErrorRef.current = true;
+            setStreamLimitError(true);
+        } else if (playCapability === true) {
+            streamLimitErrorRef.current = false;
+            setStreamLimitError(false);
+        }
+    }, [playCapability]);
+
 
     useEffect(() => {
         const setup = async () => {
             try {
                 const response = await connectManuallyV2();
-                if (response?.streamCapability) {
-                    // setIsReadyToPlay(true);
+                if (response?.streamCapability !== undefined) {
+                    // You can update `setPlayCapability` here based on result
+                    setPlayCapability(response.streamCapability);
                 }
             } catch (err) {
                 console.error("Failed to connect manually:", err);
             }
         };
 
-        if (isConnected) {
+        if (isConnectedRef.current) {
             setup();
         }
-
-        return () => {
-            disconnectManually();
-        };
     }, [isConnected]);
 
     const handleKeyDown = (e) => {
-        if (isSideBarOpenRef.current) {
+        if (isSideBarOpenRef.current || streamLimitErrorRef.current) {
             return;
         }
 

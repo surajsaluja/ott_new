@@ -45,6 +45,7 @@ const VideoPlayer = () => {
     skipInfo,
     playDuration,
     nextEpisodeMediaId,
+    webSeriesId = 0,
   } = location.state || {};
   console.log("video player ",location.state);
   const deviceInfo = getDeviceInfo();
@@ -72,6 +73,7 @@ const VideoPlayer = () => {
   const [audioTracks, setAudioTracks] = useState([]);
   const [selectedAudio, setSelectedAudio] = useState(null);
   const [selectedQuality, setSelectedQuality] = useState(-1);
+  const [playCapability, setPlayCapability] = useState(true);
 
   const [showSkipButtons, setShowSkipButtons] = useState(false);
   const [skipButtonText, setSkipButtonText] = useState("");
@@ -96,7 +98,7 @@ const VideoPlayer = () => {
   const watchTimeIntervalRef = useRef(null);
   const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
   // SignalR
-  const { isConnected, playCapability, connectManuallyV2, disconnectManually } =
+  const { isConnected, connectManuallyV2, disconnectManually, isConnectedRef } =
     useSignalR();
 
   const { ref, focusKey: currentFocusKey } = useFocusable({
@@ -327,6 +329,7 @@ const VideoPlayer = () => {
           DeviceType: 5,
           DeviceName: deviceInfo.deviceName,
           IsTrailer: isTrailer,
+          webSeriesId: webSeriesId
         };
       } else {
         analyticsData = {
@@ -341,6 +344,7 @@ const VideoPlayer = () => {
           DeviceType: 5,
           DeviceName: deviceInfo.deviceName,
           IsTrailer: isTrailer,
+          webSeriesId: webSeriesId
         };
       }
 
@@ -555,7 +559,9 @@ const VideoPlayer = () => {
           video.currentTime = playDuration;
         }
         sendAnalyticsForMedia();
+        if(!streamLimitErrorRef.current){
         handleSetIsPlaying(true);
+        }
       });
 
       hls.on(Hls.Events.SUBTITLE_TRACK_SWITCH, (event, data) => {
@@ -570,7 +576,9 @@ const VideoPlayer = () => {
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       // video.play();
+      if(!streamLimitErrorRef.current){
       handleSetIsPlaying(true);
+      }
     }
   }, [src]);
 
@@ -625,17 +633,8 @@ const VideoPlayer = () => {
       window.addEventListener('offline', handlePlayerOffline);
       window.addEventListener('visibilitychange', handlePlayerVisibilityChange);
 
-      if (playCapability == true) {
-        streamLimitErrorRef.current = false;
-        setStreamLimitError(false);
-        watchTimeRef.current = 0;
-        initializePlayer();
-      } else if (playCapability == false) {
-        streamLimitErrorRef.current = true;
-        setStreamLimitError(true);
-      }
-
       setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.PLAYER.MOVIES_PLAYER_PAGE);
+      initializePlayer();
 
       // Cleanup function
       return () => {
@@ -645,7 +644,9 @@ const VideoPlayer = () => {
           if (video.hls) {
             video.hls.destroy();
           }
-          if (isConnected) {
+          console.log('<< cleanup', isConnectedRef.current);
+          if (isConnectedRef.current) {
+            console.log('disconnecting manually');
             disconnectManually();
           }
           video.removeEventListener("waiting", handleWaiting);
@@ -670,28 +671,42 @@ const VideoPlayer = () => {
         sendAnalyticsForMedia();
       };
     }
-  }, [initializePlayer, videoRef, playCapability]);
+  }, [initializePlayer, videoRef]);
 
-  useEffect(() => {
-    const setup = async () => {
-      try {
-        const response = await connectManuallyV2();
-        if (response?.streamCapability) {
-          // setIsReadyToPlay(true);
-        }
-      } catch (err) {
-        console.error("Failed to connect manually:", err);
+useEffect(() => {
+  const video = videoRef.current;
+  if (!video) return;
+
+  if (playCapability === false) {
+    // Pause the video and show error
+    video.pause();
+    handleSetIsPlaying(false);
+    streamLimitErrorRef.current = true;
+    setStreamLimitError(true);
+  } else if (playCapability === true) {
+    streamLimitErrorRef.current = false;
+    setStreamLimitError(false);
+  }
+}, [playCapability]);
+
+
+useEffect(() => {
+  const setup = async () => {
+    try {
+      const response = await connectManuallyV2();
+      if (response?.streamCapability !== undefined) {
+        // You can update `setPlayCapability` here based on result
+        setPlayCapability(response.streamCapability);
       }
-    };
-
-    if (isConnected) {
-      setup();
+    } catch (err) {
+      console.error("Failed to connect manually:", err);
     }
+  };
 
-    // return () => {
-    //   disconnectManually();
-    // };
-  }, [isConnected]);
+  if (isConnectedRef.current) {
+    setup();
+  }
+}, [isConnected]);
 
   useEffect(() => {
     let frameId;

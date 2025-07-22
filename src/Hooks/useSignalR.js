@@ -8,6 +8,7 @@ export function useSignalR() {
   const connectionRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const [playCapability, setPlayCapability] = useState(null);
+  const isConnectedRef = useRef(false);
 
   const deviceInfo  = getDeviceInfo();
   const {uid: userId} = useUserContext();
@@ -32,6 +33,7 @@ export function useSignalR() {
 
         connection.onclose(() => {
           setIsConnected(false);
+          isConnectedRef.current = false;
         });
 
         connection.on("notifyStreamingCapability", (data) => {
@@ -39,7 +41,9 @@ export function useSignalR() {
         });
 
         await connection.start();
+        console.log('<< connection established');
         setIsConnected(true);
+        isConnectedRef.current = true;
         connectionRef.current = connection;
       } catch (err) {
         console.error("Error starting SignalR connection:", err);
@@ -49,9 +53,9 @@ export function useSignalR() {
     connect();
 
     return () => {
-      if (connectionRef.current) {
-        connectionRef.current.stop();
-      }
+      // if (connectionRef.current) {
+      //   connectionRef.current.stop();
+      // }
     };
   }, [baseUrl, userId, deviceId]);
 
@@ -69,8 +73,10 @@ export function useSignalR() {
   };
 
   const disconnectManually = async () => {
+    console.log('<< connection mannually disconnect called');
     if (connectionRef.current && connectionRef.current.state === signalR.HubConnectionState.Connected) {
       try {
+        console.log(' connection disconnected');
         await connectionRef.current.invoke("DisconnectMannually", userId.toString(), deviceId);
        
       } catch (err) {
@@ -83,6 +89,7 @@ export function useSignalR() {
     isConnected,
     playCapability,
     connectManuallyV2,
-    disconnectManually
+    disconnectManually,
+    isConnectedRef
   };
 }

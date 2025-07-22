@@ -106,7 +106,6 @@ function App() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      debugger;
       setBackArray(getCache(CACHE_KEYS.CURRENT_SCREEN),true);
       closeModal();
       // if (!isPlayerScreen()) toast.success('You are online !!');
