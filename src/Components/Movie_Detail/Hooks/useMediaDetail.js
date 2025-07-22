@@ -166,7 +166,7 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
 
     const fetchMediaDetail = async (mediaId) => {
         try {
-            setCache(CACHE_KEYS.CURRENT_SCREEN, categoryId == 1 ? SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE : SCREEN_KEYS.DETAILS.WEBSERIES_DETAIL_PAGE);
+            setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE);
             setIsLoading(true);
             const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId,itemWebSeriesId ,showWebSeries == 0 ? true : false, false);
             if (mediaDetailsResponse.isSuccess) {
@@ -223,7 +223,7 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
 
     const onRelatedItemEnterPress = (assetData) => {
         if (isLoggedIn && userObjectId) {
-            let openWebSeries = assetData.openWebSeries.toString().toLowerCase() == 'true' ? 1 : 0;
+            let openWebSeries = assetData.openWebSeries === true ? 1 : 0;
             history.replace(`/detail/${assetData?.categoryID}/${assetData?.mediaID}/${assetData.webSeriesID ?? 0}/${openWebSeries}`);
         }
         else {

@@ -75,7 +75,7 @@ const useSeeAllPage = (focusKey) => {
     const onCardPress = useCallback((assetData) => {
         if (isLoggedIn && userObjectId) {
             const categoryId = getCategoryIdByCategoryName(assetData?.category);
-            let openWebSeries = assetData.openWebSeries.toLowerCase() == 'true' ? 1 : 0;
+            let openWebSeries = assetData.openWebSeries === true ? 1 : 0;
             history.push(`/detail/${categoryId}/${assetData?.mediaID}/${assetData.webSeriesID ?? 0}/${openWebSeries}`);
         }
         else {

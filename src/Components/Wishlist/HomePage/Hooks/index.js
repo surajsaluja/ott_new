@@ -68,7 +68,7 @@ const useWishList = (focusKey) => {
 
   const onCardPress = useCallback(
     (assetData) => {
-       let openWebSeries = assetData.openWebSeries.toString().toLowerCase() == 'true' ? 1 : 0;
+       let openWebSeries = assetData.openWebSeries === true ? 1 : 0;
       history.push(`/detail/${getCategoryIdByCategoryName(assetData?.category)}/${assetData?.mediaID}/${assetData.webSeriesID ?? 0}/${openWebSeries}`);
     },
     [history]

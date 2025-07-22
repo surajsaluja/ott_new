@@ -227,7 +227,7 @@ const loadMoreRows = useCallback(async () => {
           playListName: ''
         });
       } else {
-        let openWebSeries = item.assetData.openWebSeries.toString().toLowerCase() == 'true' ? 1 : 0;
+        let openWebSeries = item.assetData.openWebSeries === true ? 1 : 0;
         history.push(`/detail/${item.assetData.categoryID}/${item.assetData.mediaID}/${item.assetData.webSeriesID ?? 0}/${openWebSeries}`);
       }
     } else {
