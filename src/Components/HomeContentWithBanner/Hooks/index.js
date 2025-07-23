@@ -250,6 +250,7 @@ const loadMoreRows = useCallback(async () => {
       !didFocusSelfOnce.current &&
       page === 1 &&
       (bannerDataContext.length > 0 || data.length > 0)
+      && bannerDataContext[0].bannerType != 'DoNothing'
     ) {
       setTimeout(()=>{
       didFocusSelfOnce.current = true;

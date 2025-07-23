@@ -3,7 +3,7 @@ import Hls from "hls.js";
 import { useUserContext } from "../../../../Context/userContext";
 import { useHistory } from "react-router-dom";
 import { getCategoryIdByCategoryName, showModal } from "../../../../Utils";
-import { getBannerPlayData, getMediaDetailWithTokenisedMedia } from "../../../../Utils/MediaDetails";
+import { getBannerPlayData } from "../../../../Utils/MediaDetails";
 import { fetchBannerWatchMediaDetails } from "../../../../Service/MediaService";
 
 const TRAILER_PLAY_DELAY = 1000;
@@ -111,32 +111,24 @@ const useBanner = (asset,banners) => {
 
   const watchMediaVOD = async (isTrailer = false) => {
     if (isLoggedIn && userObjectId) {
-      // const res = await getMediaDetailWithTokenisedMedia(
-      //   banners[0].mediaID,
-      //   banners[0].categoryId,
-      //   isTrailer,
-      //   false,
-      //   0,
-      // );
       const category  = getCategoryIdByCategoryName(banners[0].subCategory);
       const openWebSeries = category === 2 ? true : false;
       const itemWebSeriesId = 0;
       const res  = await getBannerPlayData(banners[0].mediaID,category,itemWebSeriesId,openWebSeries,false,null);
-      debugger;
       if (res?.isSuccess) {
         history.push("/play", {
-          src: res.data.mediaUrl,
+          src: res.data.mediaDetail.mediaUrl,
           thumbnailBaseUrl: isTrailer
             ? res.data.mediaDetail?.trailerBasePath
             : res.data.mediaDetail?.trickyPlayBasePath,
           title: res.data.mediaDetail?.title,
-          mediaId: banners[0].mediaID,
-          onScreenInfo: res.data.onScreenInfo,
-          skipInfo: res.data.skipInfo,
+          mediaId: res.data.mediaDetail.mediaID,
+          onScreenInfo: res.data.mediaDetail.onScreenInfo,
+          skipInfo: res.data.mediaDetail.skipInfo,
           isTrailer,
           playDuration: res.data.mediaDetail?.playDuration,
-          nextEpisodeMediaId: res?.data?.currentEpisode?.nextEpisodeMediaId || null,
-          webSeriesId: res.data.mediaDetail.webSeriesID
+          webSeriesId: res.data.mediaDetail.webSeriesId,
+          episodes: res.data.mediaDetail.episodes
         });
       } else {
         console.error(res.message);

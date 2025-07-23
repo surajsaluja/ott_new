@@ -2,7 +2,7 @@ import { setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import Hls from "hls.js";
-import { getMediaDetails, getMediaDetailWithTokenisedMedia, getMediaRelatedItemDetails, getTokenisedMedia, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
+import { getBannerPlayData, getMediaDetails, getMediaDetailWithTokenisedMedia, getMediaRelatedItemDetails, getTokenisedMedia, getWebSeriesEpisodesBySeason } from "../../../Utils/MediaDetails";
 import { getMediaRelatedItem, updateMediaItemToWishlist } from "../../../Service/MediaService";
 import { getProcessedPlaylists } from "../../../Utils";
 import FullPageAssetContainer from "../../Common/FullPageAssetContainer";
@@ -103,17 +103,17 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
         }
     }
 
-   useEffect(() => {
-    const screenNameWithTimestamp = `${SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE}_${Date.now()}`;
+    useEffect(() => {
+        const screenNameWithTimestamp = `${SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE}_${Date.now()}`;
 
-    const newStack = [...currentArrayStack];
+        const newStack = [...currentArrayStack];
 
-    const lastItem = newStack[newStack.length - 1];
-    if (lastItem?.includes(SCREEN_KEYS.SCREEN_SAVER)) {
-        popBackArray();
-    }
+        const lastItem = newStack[newStack.length - 1];
+        if (lastItem?.includes(SCREEN_KEYS.SCREEN_SAVER)) {
+            popBackArray();
+        }
 
-    setBackArray(screenNameWithTimestamp,false);
+        setBackArray(screenNameWithTimestamp, false);
 
     }, []);
 
@@ -168,7 +168,7 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
         try {
             setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.DETAILS.MOVIES_DETAIL_PAGE);
             setIsLoading(true);
-            const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId,itemWebSeriesId ,showWebSeries == 0 ? true : false, false);
+            const mediaDetailsResponse = await getMediaDetails(mediaId, categoryId, itemWebSeriesId, showWebSeries == 0 ? false : true, false);
             if (mediaDetailsResponse.isSuccess) {
                 let mediaDet = mediaDetailsResponse.data.mediaDetail;
                 setMediaDetail(mediaDet);
@@ -287,7 +287,9 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
                 skipInfo: isTrailer ? {} : mediaDetail.skipInfo,
                 isTrailer: isTrailer,
                 playDuration: isResume ? mediaDetail.playDuration : 0,
-                nextEpisodeMediaId: isTrailer ? null : webSeriesNextEpisodeMediaId.current
+                nextEpisodeMediaId: isTrailer ? null : webSeriesNextEpisodeMediaId.current,
+                episodes: mediaDetail?.episodes ?? null,
+                webSeriesId: mediaDetail.webSeriesId
             });
         } else {
             showModal('Warning',
@@ -309,25 +311,41 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
     }, [isRelatedItemsLoading, relatedItems]);
 
     const onEpisodeEnterPress = async (episode) => {
-        const tokenisedResponse = await getMediaDetailWithTokenisedMedia(episode?.mediaID, episode?.categoryID, false);
-        if (tokenisedResponse.isSuccess) {
+        const mediaDetailRes = await getBannerPlayData(episode?.mediaID, episode?.categoryID, episode.webSeriesId, false, false);
+        if (mediaDetailRes && mediaDetailRes.isSuccess) {
             history.push('/play', {
-
-                src: tokenisedResponse.data.mediaUrl,
-                thumbnailBaseUrl: tokenisedResponse.data.mediaDetail?.trickyPlayBasePath,
-                title: tokenisedResponse.data.mediaDetail?.title,
-                mediaId: episode?.mediaID,
-                onScreenInfo: tokenisedResponse.data.onScreenInfo,
-                skipInfo: tokenisedResponse.data.skipInfo,
+                src: mediaDetailRes.data.mediaDetail.mediaUrl,
+                thumbnailBaseUrl: mediaDetailRes.data.mediaDetail?.trickyPlayBasePath,
+                title: mediaDetailRes.data.mediaDetail?.title,
+                mediaId: mediaDetailRes.data.mediaDetail.mediaID,
+                onScreenInfo: mediaDetailRes.data.mediaDetail.onScreenInfo,
+                skipInfo: mediaDetailRes.data.mediaDetail.skipInfo,
                 isTrailer: false,
-                playDuration: tokenisedResponse?.data?.mediaDetail?.playDuration,
-                nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId
-            });
-        } else {
-            showModal('Warning',
-                tokenisedResponse.message,
-            );
+                playDuration: mediaDetailRes.data.mediaDetail?.playDuration,
+                webSeriesId: mediaDetailRes.data.mediaDetail.webSeriesId,
+                episodes: mediaDetailRes.data.mediaDetail?.episodes || []
+            })
+        }else{
+           showModal("Warning",mediaDetailRes.message,[]);
         }
+        // if (tokenisedResponse.isSuccess) {
+        //     history.push('/play', {
+
+        //         src: tokenisedResponse.data.mediaUrl,
+        //         thumbnailBaseUrl: tokenisedResponse.data.mediaDetail?.trickyPlayBasePath,
+        //         title: tokenisedResponse.data.mediaDetail?.title,
+        //         mediaId: episode?.mediaID,
+        //         onScreenInfo: tokenisedResponse.data.onScreenInfo,
+        //         skipInfo: tokenisedResponse.data.skipInfo,
+        //         isTrailer: false,
+        //         playDuration: tokenisedResponse?.data?.mediaDetail?.playDuration,
+        //         nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId
+        //     });
+        // } else {
+        //     showModal('Warning',
+        //         tokenisedResponse.message,
+        //     );
+        // }
     }
 
     const RenderSeasonEpisodes = useCallback(() => {
@@ -338,7 +356,8 @@ const useMediaDetail = (mediaId, categoryId, itemWebSeriesId, showWebSeries, foc
             onEpisodeEnterPress={onEpisodeEnterPress}
             setIsSeasonsLoading={setIsSeasonsLoading}
             isSeasonsLoading={isSeasonsLoading}
-            webSeriesId={webSeriesId} />
+            webSeriesId={webSeriesId}
+            currentSeasonId={mediaDetail.seasonId} />
     }, [webSeriesId]);
 
     const RenderCastData = useCallback(() => {

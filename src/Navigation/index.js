@@ -13,6 +13,8 @@ import LiveTvPlayer from "../Components/LiveTv/Player";
 import RadioPlayer from "../Components/Radio/Player";
 import SeeAllPlaylistContentHomePage from "../Components/SeeAll/HomePage";
 import Screensaver from "../Components/ScreenSaver";
+import { streamLimitError } from "../assets";
+import StreamLimitModal from "../Components/VideoPlayer/StreamLimitError";
 
 const AppNavigation = () => {
   return (
@@ -29,6 +31,7 @@ const AppNavigation = () => {
         <PrivateRoute path = "/livetvplayer" component={LiveTvPlayer}/>
         <PrivateRoute path = "/playRadio" component={RadioPlayer} />
         <PrivateRoute path = '/seeAll' component={SeeAllPlaylistContentHomePage} />
+        <Route exact path = "/streamLimitError" component={StreamLimitModal}/>
 
         {/* Default landing route */}
         <Route exact path="/">

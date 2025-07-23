@@ -45,7 +45,7 @@ function Seasons_Tab({
                 key={season.id}
                 text={<div className="season-button-text"><p className="season-name">{season.seasonName}</p><p className="episodes-length">{`${episodesLength} Episodes`}</p></div>}
                 className={`tab_season ${
-                  selectedSeason === season.id  ? "tab_season_selected" : ""
+                  selectedSeason == season.id  ? "tab_season_selected" : ""
                 }`}
                 focusClass="tab_season_focused tab_season_selected "
                 onFocus={(el) => {

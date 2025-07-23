@@ -346,9 +346,15 @@ function LiveTvPlayer() {
         if (playCapability === false) {
             // Pause the video and show error
             video.pause();
+            video.src = null;
+            if (video.hls) {
+                video.hls.destroy();
+            }
+            videoRef.current = null;
             handleSetIsPlaying(false);
             streamLimitErrorRef.current = true;
             setStreamLimitError(true);
+             history.replace('/streamLimitError');
         } else if (playCapability === true) {
             streamLimitErrorRef.current = false;
             setStreamLimitError(false);
@@ -402,9 +408,6 @@ function LiveTvPlayer() {
 
     return (
         <FocusContext.Provider value={currentFocusKey}>
-            {streamLimitError && (
-                <StreamLimitModal isOpen={true} onClose={handleBackPressed} />
-            )}
 
             <div ref={ref} className="video-container">
                 <video ref={videoRef} className="video-player" controls={false} />

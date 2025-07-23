@@ -44,10 +44,10 @@ export const ModalProvider = ({ children }) => {
   const closeModal = () => {
     setModalConfig({ isOpen: false });
     previousFocusKeyRef.current = null;
-    setBackHandlerClicked(false);
     const backId = currentArrayStack[currentArrayStack.length - 1];
     if (backId === 'MODAL') {
       popBackArray();
+      setBackHandlerClicked(false);
     }
   };
 
@@ -71,6 +71,7 @@ export const ModalProvider = ({ children }) => {
       ]
     : [...buttons];
 
+    setBackArray('MODAL', false);
     setModalConfig({
       isOpen: true,
       title,

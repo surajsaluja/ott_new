@@ -13,12 +13,12 @@ import VirtualThumbnailStripWithSeekBar from "../VirtualList/VirtualThumbnailStr
 import useSeekHandler from "./useSeekHandler";
 import { getCategoryIdByCategoryName, getDeviceInfo } from "../../Utils";
 import { useUserContext } from "../../Context/userContext";
-import { sendVideoAnalytics } from "../../Service/MediaService";
+import { fetchTokanizedMediaUrl, sendVideoAnalytics } from "../../Service/MediaService";
 import { useSignalR } from "../../Hooks/useSignalR";
 import StreamLimitModal from "./StreamLimitError";
 import Spinner from "../Common/Spinner";
 import { FaForward, FaPause, FaPlay } from "react-icons/fa6";
-import { getMediaDetailWithTokenisedMedia } from '../../Utils/MediaDetails'
+import { getTokenisedMedia } from '../../Utils/MediaDetails'
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../Utils/DataCache";
 import { useBackArrayContext } from "../../Context/backArrayContext";
 
@@ -44,10 +44,10 @@ const VideoPlayer = () => {
     onScreenInfo,
     skipInfo,
     playDuration,
-    nextEpisodeMediaId,
     webSeriesId = 0,
+    episodes = []
   } = location.state || {};
-  console.log("video player ",location.state);
+  console.log("video player ", location.state);
   const deviceInfo = getDeviceInfo();
   const { userObjectId } = useUserContext();
   const videoRef = useRef(null);
@@ -91,7 +91,8 @@ const VideoPlayer = () => {
   const activeTabsRef = useRef(null);
   const isPlayingRef = useRef(null);
   const virtualSeekTimeRef = useRef(null);
-  const streamLimitErrorRef  = useRef(null);
+  const streamLimitErrorRef = useRef(null);
+  const doesNextEpisodeExistRef = useRef(false);
 
   // REFS TO MANTAIN PLAY TIME FOR ANALYTICS
   const watchTimeRef = useRef(0); // Total watch time in seconds
@@ -329,7 +330,7 @@ const VideoPlayer = () => {
           DeviceType: 5,
           DeviceName: deviceInfo.deviceName,
           IsTrailer: isTrailer,
-          webSeriesId: webSeriesId
+          webSeriesId: parseInt(webSeriesId)
         };
       } else {
         analyticsData = {
@@ -344,7 +345,7 @@ const VideoPlayer = () => {
           DeviceType: 5,
           DeviceName: deviceInfo.deviceName,
           IsTrailer: isTrailer,
-          webSeriesId: webSeriesId
+          webSeriesId: parseInt(webSeriesId)
         };
       }
 
@@ -410,27 +411,48 @@ const VideoPlayer = () => {
     }
   };
 
-  const handleWatchNextEpisode = async (mediaId) => {
-    if (!mediaId) return;
-    const tokenisedResponse = await getMediaDetailWithTokenisedMedia(mediaId, getCategoryIdByCategoryName('web series'), false);
-    if (tokenisedResponse && tokenisedResponse.isSuccess) {
-      handleSetIsPlaying(false);
-      history.replace('/play', {
-        src: tokenisedResponse.data.mediaUrl,
-        thumbnailBaseUrl: isTrailer ? tokenisedResponse?.data?.mediaDetail?.trailerBasePath : tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
-        title: tokenisedResponse?.data?.mediaDetail?.title,
-        mediaId: mediaId,
-        onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
-        skipInfo: tokenisedResponse?.data?.skipInfo,
-        isTrailer: isTrailer,
-        playDuration: 0,
-        nextEpisodeMediaId: tokenisedResponse?.data?.mediaDetail?.nextEpisodeMediaId
-        // playDuration: isResume ? mediaDetail.playDuration : 0
-      });
+  const doesNextEpisodeExist = useCallback(() => {
+    if (episodes && episodes.length > 0) {
+      const index = episodes.findIndex((ep) => ep.mediaID == mediaId);
+      doesNextEpisodeExistRef.current = index >= 0 && (index + 1 < episodes.length);
     } else {
-      // history.replace(`/detail/${getCategoryIdByCategoryName('WEB SERIES')}/${mediaId}`);
-      history.goBack();
-      console.error(tokenisedResponse.message);
+      return false;
+    }
+  }, [episodes, mediaId]);
+
+  const getNextEpisodeMedia = useCallback(() => {
+    if (episodes && episodes.length > 0) {
+      const index = episodes.findIndex((ep) => ep.mediaID == mediaId);
+      return index >= 0 && index + 1 < episodes.length ? episodes[index + 1] : null;
+    } else {
+      return null;
+    }
+  }, [episodes, mediaId]);
+
+  const handleWatchNextEpisode = async () => {
+    if (!mediaId || !episodes || episodes.length === 0) return;
+    const nextEpisode = getNextEpisodeMedia();
+    if (nextEpisode) {
+      const tokenisedResponse = await getTokenisedMedia(nextEpisode.mediaID, false);
+      if (tokenisedResponse.isSuccess) {
+        handleSetIsPlaying(false);
+        history.replace('/play', {
+          src: tokenisedResponse.data.mediaUrl,
+          thumbnailBaseUrl: nextEpisode.trickyPlayBasePath,
+          title: nextEpisode.title,
+          mediaId: nextEpisode.mediaID,
+          onScreenInfo: nextEpisode.onScreenInfo,
+          skipInfo: nextEpisode.skipInfo,
+          isTrailer: false,
+          playDuration: 0,
+          episodes: episodes,
+          webSeriesId: nextEpisode.webSeriesId
+        });
+      } else {
+        history.replace(`/detail/${getCategoryIdByCategoryName('WEB SERIES')}/${nextEpisode.mediaID}/${webSeriesId}/0`);
+        // history.goBack();
+        console.error(tokenisedResponse.message);
+      }
     }
   }
 
@@ -455,8 +477,8 @@ const VideoPlayer = () => {
         return;
     }
 
-    if (handleNextEpisode && nextEpisodeMediaId != null) {
-      handleWatchNextEpisode(nextEpisodeMediaId);
+    if (handleNextEpisode && doesNextEpisodeExistRef.current) {
+      handleWatchNextEpisode();
     }
 
     if (endTime !== null && !isNaN(endTime) && Number(endTime) > 0) {
@@ -559,8 +581,9 @@ const VideoPlayer = () => {
           video.currentTime = playDuration;
         }
         sendAnalyticsForMedia();
-        if(!streamLimitErrorRef.current){
-        handleSetIsPlaying(true);
+        doesNextEpisodeExist();
+        if (!streamLimitErrorRef.current) {
+          handleSetIsPlaying(true);
         }
       });
 
@@ -576,8 +599,8 @@ const VideoPlayer = () => {
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       // video.play();
-      if(!streamLimitErrorRef.current){
-      handleSetIsPlaying(true);
+      if (!streamLimitErrorRef.current) {
+        handleSetIsPlaying(true);
       }
     }
   }, [src]);
@@ -591,11 +614,11 @@ const VideoPlayer = () => {
         setIsLoading(true);
       };
       const handleCanPlay = () => {
-        handleSetIsPlaying(true);
+        // handleSetIsPlaying(true);
         setIsLoading(false);
       };
       const handlePlaying = () => {
-        handleSetIsPlaying(true);
+        // handleSetIsPlaying(true);
         setIsLoading(false);
       };
       const handleStalled = () => {
@@ -603,8 +626,8 @@ const VideoPlayer = () => {
         setIsLoading(true);
       };
       const handleEnded = () => {
-        if (nextEpisodeMediaId && !isTrailer) {
-          handleWatchNextEpisode(nextEpisodeMediaId);
+        if (doesNextEpisodeExistRef.current && !isTrailer) {
+          handleWatchNextEpisode();
         }
         handleSetIsPlaying(false);
         video.currentTime = 0;
@@ -673,40 +696,46 @@ const VideoPlayer = () => {
     }
   }, [initializePlayer, videoRef]);
 
-useEffect(() => {
-  const video = videoRef.current;
-  if (!video) return;
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
 
-  if (playCapability === false) {
-    // Pause the video and show error
-    video.pause();
-    handleSetIsPlaying(false);
-    streamLimitErrorRef.current = true;
-    setStreamLimitError(true);
-  } else if (playCapability === true) {
-    streamLimitErrorRef.current = false;
-    setStreamLimitError(false);
-  }
-}, [playCapability]);
-
-
-useEffect(() => {
-  const setup = async () => {
-    try {
-      const response = await connectManuallyV2();
-      if (response?.streamCapability !== undefined) {
-        // You can update `setPlayCapability` here based on result
-        setPlayCapability(response.streamCapability);
+    if (playCapability === false) {
+      // Pause the video and show error
+      video.pause();
+      video.src = null;
+      if (video.hls) {
+        video.hls.destroy();
       }
-    } catch (err) {
-      console.error("Failed to connect manually:", err);
+      videoRef.current = null;
+      handleSetIsPlaying(false);
+      streamLimitErrorRef.current = true;
+      setStreamLimitError(true);
+      history.replace('/streamLimitError');
+    } else if (playCapability === true) {
+      streamLimitErrorRef.current = false;
+      setStreamLimitError(false);
     }
-  };
+  }, [playCapability]);
 
-  if (isConnectedRef.current) {
-    setup();
-  }
-}, [isConnected]);
+
+  useEffect(() => {
+    const setup = async () => {
+      try {
+        const response = await connectManuallyV2();
+        if (response?.streamCapability !== undefined) {
+          // You can update `setPlayCapability` here based on result
+          setPlayCapability(response.streamCapability);
+        }
+      } catch (err) {
+        console.error("Failed to connect manually:", err);
+      }
+    };
+
+    if (isConnectedRef.current) {
+      setup();
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     let frameId;
@@ -737,8 +766,7 @@ useEffect(() => {
           } else if (
             skipInfo?.nextEpisodeST &&
             currentTime >= skipInfo?.nextEpisodeST &&
-            nextEpisodeMediaId &&
-            nextEpisodeMediaId != null
+            doesNextEpisodeExistRef.current
           ) {
             newShowSkipButtons = true;
             newSkipButtonText = "Next Episode";
@@ -782,14 +810,11 @@ useEffect(() => {
 
   return (
     <FocusContext.Provider value={currentFocusKey}>
-      {streamLimitError && (
-        <StreamLimitModal isOpen={true} onClose={handleBackPressed} />
-      )}
 
       <div ref={ref} className="video-container">
         <video ref={videoRef} className="video-player" controls={false} />
 
-       {!streamLimitError && <Popup
+        {!streamLimitError && <Popup
           onVideoSettingsPressed={onVideoSettingsPressed}
           onAudioSubtitlesSettingsPressed={onAudioSubtitlesSettingsPressed}
           onBackPress={handleBackPressed}
@@ -840,7 +865,7 @@ useEffect(() => {
           </div>
         )}
 
-        {showPlayIcon && !streamLimitError &&(
+        {showPlayIcon && !streamLimitError && (
           <div className={`playPauseRipple ${showPlayIcon ? "show" : ""}`}>
             {isPlaying ? <FaPlay /> : <FaPause />}
           </div>

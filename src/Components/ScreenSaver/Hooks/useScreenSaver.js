@@ -3,8 +3,8 @@ import { fetchScreenSaverContent } from "../../../Service/MediaService";
 import { sanitizeAndResizeImage, showModal } from "../../../Utils";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../Utils/imageCache";
-import { CACHE_KEYS, getCache, SCREEN_KEYS} from "../../../Utils/DataCache";
-import { getMediaDetailWithTokenisedMedia, getTokenisedMedia } from "../../../Utils/MediaDetails";
+import { CACHE_KEYS, getCache, SCREEN_KEYS } from "../../../Utils/DataCache";
+import { getBannerPlayData, getTokenisedMedia } from "../../../Utils/MediaDetails";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { useUserContext } from "../../../Context/userContext";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
@@ -14,7 +14,7 @@ const useScreenSaver = () => {
   const [screensaverResources, setScreensaverResources] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-   const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
+  const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
   const [cachedImage, setCachedImage] = useState(null);
   const { userObjectId, isLoggedIn } = useUserContext();
 
@@ -113,29 +113,32 @@ const useScreenSaver = () => {
   const onWatchClipSS = async () => {
     const currentMedia = screensaverResources[currentIndex];
     if (isLoggedIn && userObjectId) {
-      const tokenisedResponse = await getMediaDetailWithTokenisedMedia(currentMedia.mediaID, currentMedia.categoryID, false);
-      if (tokenisedResponse.isSuccess) {
-        history.replace('/play', {
-          src: tokenisedResponse.data.mediaUrl,
-          thumbnailBaseUrl: tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
-          title: tokenisedResponse?.data?.mediaDetail?.title,
-          mediaId: screensaverResources[currentIndex].mediaID,
-          onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
-          skipInfo: tokenisedResponse?.data?.skipInfo,
+      const openWebSeries = currentMedia.categoryID === 2 ? true : false;
+      const itemWebSeriesId = 0;
+      const res = await getBannerPlayData(currentMedia.mediaID, currentMedia.categoryID, itemWebSeriesId, openWebSeries, false, null);
+      if (res?.isSuccess) {
+        history.push("/play", {
+          src: res.data.mediaDetail.mediaUrl,
+          thumbnailBaseUrl: res.data.mediaDetail?.trickyPlayBasePath,
+          title: res.data.mediaDetail?.title,
+          mediaId: res.data.mediaDetail.mediaID,
+          onScreenInfo: res.data.mediaDetail.onScreenInfo,
+          skipInfo: res.data.mediaDetail.skipInfo,
           isTrailer: false,
-          playDuration: tokenisedResponse?.data?.mediaDetail?.playDuration,
-          nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
+          playDuration: res.data.mediaDetail?.playDuration,
+          webSeriesId: res.data.mediaDetail.webSeriesId,
+          episodes: res.data.mediaDetail?.episodes || []
         });
       } else {
-         history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`);
+        history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`);
       }
     } else {
       history.replace('/login', {
         from: '/play', props: {
           mediaID: currentMedia.mediaID,
           categoryID: currentMedia.categoryID,
-          webSeriesId : currentMedia.webSeriesId ?? 0,
-          openWebSeries : 1,
+          webSeriesId: currentMedia.webSeriesId ?? 0,
+          openWebSeries: 1,
           isTrailer: false
         }
       });
@@ -145,28 +148,28 @@ const useScreenSaver = () => {
   const onMoreInfoItemClickSS = () => {
     const currentMedia = screensaverResources[currentIndex];
     if (isLoggedIn && userObjectId) {
-          history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`);
-    
-        } else {
-          history.replace('/login',{from:`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`});
-        }
+      history.replace(`/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1`);
+
+    } else {
+      history.replace('/login', { from: `/detail/${currentMedia.categoryID}/${currentMedia.mediaID}/${currentMedia.webSeriesId ?? 0}/1` });
+    }
   };
 
-    useEffect(() => {
-      setBackArray(SCREEN_KEYS.SCREEN_SAVER, false);
-    }, []);
-  
-    useEffect(() => {
-      if (backHandlerClicked && currentArrayStack.length > 0){
-        const backId = currentArrayStack[currentArrayStack.length - 1];
-  
-        if (backId === SCREEN_KEYS.SCREEN_SAVER) {
-          history.goBack();
-          popBackArray();
-          setBackHandlerClicked(false);
-        }
+  useEffect(() => {
+    setBackArray(SCREEN_KEYS.SCREEN_SAVER, false);
+  }, []);
+
+  useEffect(() => {
+    if (backHandlerClicked && currentArrayStack.length > 0) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+
+      if (backId === SCREEN_KEYS.SCREEN_SAVER) {
+        history.goBack();
+        popBackArray();
+        setBackHandlerClicked(false);
       }
-    }, [backHandlerClicked, currentArrayStack]);
+    }
+  }, [backHandlerClicked, currentArrayStack]);
 
   return {
     ref,

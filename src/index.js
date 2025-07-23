@@ -18,17 +18,17 @@ root.render(
     <Router>
       <NetworkProvider>
         <BackHandlerProvider>
-          <UserProvider>
-            <MovieBannerContext>
-              <BackArrayProvider>
-              <ModalProvider>
-                <RetryModalProvider>
-                    <App />
-                </RetryModalProvider>
-              </ModalProvider>
-              </BackArrayProvider>
-            </MovieBannerContext>
-          </UserProvider>
+          <BackArrayProvider>
+            <UserProvider>
+              <MovieBannerContext>
+                <ModalProvider>
+                  <RetryModalProvider>
+                  <App />
+                  </RetryModalProvider>
+                </ModalProvider>
+              </MovieBannerContext>
+            </UserProvider>
+          </BackArrayProvider>
         </BackHandlerProvider>
       </NetworkProvider>
     </Router>

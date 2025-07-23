@@ -157,6 +157,7 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
    const renderDetails = () => {
     let mediaTitle = '';
     let title = '';
+    let episodeName = null;
     let releasedYear = '';
     let ageRangeId = '';
     let shortDescription = '';
@@ -169,7 +170,7 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
 
     if (displayBanners && displayBanners.length > 0) {
       title = displayBanners[0].mediaTitle;
-      mediaTitle = displayBanners[0].mediaTitle;
+      episodeName = null;
       // releasedYear = displayBanners[0].releasedYear;
       // ageRangeId = displayBanners[0].ageRangeId;
       shortDescription = displayBanners[0].shortDescription;
@@ -181,8 +182,8 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
     }
 
     if (displayAsset) {
-      title = displayAsset.title;
-      mediaTitle = displayAsset.mediaTitle;
+      title = displayAsset.categoryID == 2 ? displayAsset.webSeriesName : displayAsset.title;
+      episodeName = displayAsset.categoryID == 2 && displayAsset.webSeriesName && displayAsset.openWebSeries === false ? displayAsset.title : null;
       releasedYear = displayAsset.releasedYear;
       ageRangeId = displayAsset.ageRangeId;
       shortDescription = displayAsset.shortDescription;
@@ -197,6 +198,7 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
     return (
       <div className={`asset-info ${transitionClass}`}>
         <h1 className="asset-title">{title}</h1>
+        <p className='banner-episode-name'>{episodeName}</p>
         <div className="asset-tags">
           {/* {releasedYear && <span><i><MdOutlineDateRange /></i>{releasedYear}</span>} */}
           {/* {rating && <span><i><MdStarRate /></i>{rating}</span>} */}
@@ -233,9 +235,9 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
       <FocusableButton
         className="banner-play-btn"
         focusClass="play-btn-focus"
-        text="More Details"
+        text={banner.bannerType == 'DoNothing' ? banner?.buttonTitle ?? '' : "More Details"}
         focuskey={SHOW_DETAIL_BTN_FOCUS_KEY}
-        onEnterPress={showMediaDetail}
+        onEnterPress={banner.bannerType == 'DoNothing' ? () =>{} : showMediaDetail}
       />
     </>
   );

@@ -22,26 +22,39 @@ export const getEpisodes = async (webSeriesId, seasonId) => {
         const episodesRes = await fetchWebSeriesEpisodeBySeasonId(webSeriesId, seasonId);
         if (episodesRes && episodesRes.isSuccess) {
             if (!episodeCache[webSeriesId]) episodeCache[webSeriesId] = {};
-            let episodesProcessed = episodesRes?.data ? episodesRes?.data?.map((episode, index) => ({
-                title: episode.title,
-                mediaID: episode.mediaID,
-                seasonId: episode.seasonId,
-                shortDescription: episode.shortDescription,
-                categoryID: episode.categoryID,
-                seasonName: episode.seasonName,
-                webThumbnail: episode.webThumbnail,
-                isAddedByUser: episode.isAddedByUser,
-                duration: episode.duration,
-                webSeriesId: episode.webSeriesId,
-                smiSubtitleUrl: episode.smiSubtitleUrl,
-                releaseYear: episode.releasedYear,
-                episodeNumber: String(index + 1).padStart(2, '0')
-            })) : [];
+            let episodesProcessed = episodesRes?.data
+                ? episodesRes.data.map((episode, index) => {
+                    let skipInfo = {
+                        skipIntroST: parseInt(episode.skipIntroST),
+                        skipIntroET: parseInt(episode.skipIntroET),
+                        skipRecapST: parseInt(episode.skipRecapST),
+                        skipRecapET: parseInt(episode.skipRecapET),
+                        nextEpisodeST: parseInt(episode.nextEpisodeST),
+                    };
+
+                    let onScreenInfo = {
+                        onScreenDescription: episode.onScreenDescription,
+                        onScreenDescription2: episode.onScreenDescription2,
+                        onScreenDescriptionST: parseInt(episode.onScreenDescriptionST),
+                        onScreenDescriptionET: parseInt(episode.onScreenDescriptionET),
+                        onScreenDescription2ST: parseInt(episode.onScreenDescription2ST),
+                        onScreenDescription2ET: parseInt(episode.onScreenDescription2ET),
+                        ageRatedText: `RATED ${episode.ageRangeId}+`,
+                    };
+
+                    return {
+                        ...episode,
+                        skipInfo,
+                        onScreenInfo,
+                    };
+                })
+                : [];
+
             episodeCache[webSeriesId][seasonId] = episodesProcessed;
             return {
                 isSuccess: true,
                 message: 'success',
-                data: episodesProcessed
+                data: episodeCache[webSeriesId][seasonId]
             }
         } else {
             throw new Error(episodesRes.message);
@@ -114,16 +127,12 @@ export const findEpisodesBySeasonId = async (webSeriesId, seasonId, mediaId) => 
 
         }
 
-        const episode = episodes.find((ep) => ep.mediaID === mediaId);
+        const episode = episodes.find((ep) => ep.mediaID == mediaId);
         if (episode) {
             current.episode = episode;
-            // current.season = {
-            //     ...season,
-            //     webSeriesId: webSeriesId
-            // };
+            setCurrentSeason(webSeriesId, seasonId);
             return {
-                currentSeason: seasonId,
-                currentEpisode: episode,
+                episodes: episodes,
                 nextEpisodeMediaId: getNextEpisodeMediaId(episodes, episode.mediaID),
             };
         }
@@ -132,7 +141,7 @@ export const findEpisodesBySeasonId = async (webSeriesId, seasonId, mediaId) => 
 }
 
 const getNextEpisodeMediaId = (episodes, mediaId) => {
-    const index = episodes.findIndex((ep) => ep.mediaID === mediaId);
+    const index = episodes.findIndex((ep) => ep.mediaID == mediaId);
     return index >= 0 && index + 1 < episodes.length ? episodes[index + 1].mediaID : null;
 };
 
@@ -146,7 +155,7 @@ export const setSeasonCache = (webSeriesId, seasons) => {
 };
 
 export const setCurrentSeason = (webseriesId, seasonId) => {
-    const season = seasonCache[webseriesId].find((season) => season.id === seasonId);
+    const season = seasonCache[webseriesId].find((season) => season.id == seasonId);
     if (season) {
         current.season = {
             ...season,

@@ -14,7 +14,7 @@ import { IoHeartSharp } from "react-icons/io5";
 import { FaPlay } from "react-icons/fa6";
 
 function Movie_Detail() {
-    const { categoryId, mediaId,webSeriesId = 0 ,showWebSeries = 0,  } = useParams();
+    const { categoryId, mediaId,webSeriesId = 0 ,openWebSeries = 0,  } = useParams();
     const {
         ref,
         btnControlsFocusKey,
@@ -37,7 +37,7 @@ function Movie_Detail() {
         isPlaying,
         videoPlayerRef,
         videoRef
-    } = useMediaDetail(mediaId, categoryId, webSeriesId, showWebSeries, 'MOVIE_DETAIL_PAGE');
+    } = useMediaDetail(mediaId, categoryId, webSeriesId, openWebSeries, 'MOVIE_DETAIL_PAGE');
 
 
     return (<FocusContext.Provider value={btnControlsFocusKey}>

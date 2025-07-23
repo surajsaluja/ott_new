@@ -5,7 +5,7 @@ import Episodes_List from './Episodes_List';
 import './index.css'
 import { getCurrentSeason, getEpisodes, getSeasonsCache } from '../../Utils/WebSeriesUtils';
 
-function Season_EpisodeList({ webSeriesId, focusKey, onEpisodeEnterPress, setIsSeasonsLoading, isSeasonsLoading }) {
+function Season_EpisodeList({ webSeriesId, focusKey, onEpisodeEnterPress, setIsSeasonsLoading, currentSeasonId }) {
 
   const SEASON_TABS_FOCUS_KEY = "SEASON_TABS";
   const EPISODES_LIST_FOCUS_KEY = "EPISODES_LIST";
@@ -15,11 +15,10 @@ function Season_EpisodeList({ webSeriesId, focusKey, onEpisodeEnterPress, setIsS
  const [seasons,setSeasons] = useState([]);
 
  useEffect(()=>{
-  let currentSeason = getCurrentSeason();
   const seasonsData = getSeasonsCache(webSeriesId);
-  setSeasonSelected(currentSeason.id);
+  setSeasonSelected(currentSeasonId);
   setSeasons(seasonsData);
-  loadEpisodes(currentSeason.id);
+  loadEpisodes(currentSeasonId);
  },[webSeriesId])
 
   const { ref, focusKey: currentFocusKey } = useFocusable({

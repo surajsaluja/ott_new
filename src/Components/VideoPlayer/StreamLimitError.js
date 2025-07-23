@@ -1,25 +1,46 @@
 import React, { useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useFocusable, FocusContext, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import './StreamLimitModal.css'; // We'll create this CSS file
-import { streamLimitError } from '../../assets';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import FocusableButton from '../Common/FocusableButton';
+import { streamLimitError } from '../../assets';
+import './StreamLimitModal.css';
+import { SCREEN_KEYS } from '../../Utils/DataCache';
+import { useBackArrayContext } from '../../Context/backArrayContext';
 
-const StreamLimitModal = ({ isOpen, onClose }) => {
-  const { ref, focusKey } = useFocusable({
+const StreamLimitModal = () => {
+  const history = useHistory();
+  const {setBackArray, backHandlerClicked,currentArrayStack, setBackHandlerClicked, popBackArray} = useBackArrayContext();
+
+  const onClose = () => {
+    history.goBack();
+  };
+
+  const { ref, focusKey, focusSelf } = useFocusable({
     focusKey: 'StreamLimitModal',
-    onEnterPress: onClose,
+    isFocusBoundary: true,
   });
 
   useEffect(() => {
-    if (isOpen) {
-      setFocus('Close_Btn');
+   focusSelf();
+  }, [focusSelf]);
+
+  useEffect(()=>{
+      setBackArray(SCREEN_KEYS.STREAMLIMIT_SCREEN, true);
+    },[]);
+  
+    useEffect(() => {
+     if (backHandlerClicked && currentArrayStack.length > 0) {
+      const backId = currentArrayStack[currentArrayStack.length - 1];
+  
+      if (backId === SCREEN_KEYS.STREAMLIMIT_SCREEN) {
+        history.goBack();
+        popBackArray();
+        setBackHandlerClicked(false);
+      }
     }
-  }, [isOpen, focusKey]);
+  }, [backHandlerClicked, currentArrayStack]);
 
-  if (!isOpen) return null;
-
-  return createPortal(
+  return (
     <div className="stream-modal-overlay">
       <FocusContext.Provider value={focusKey}>
         <div ref={ref} className="stream-modal-content">
@@ -29,21 +50,20 @@ const StreamLimitModal = ({ isOpen, onClose }) => {
           </div>
           <p className="stream-modal-text large">You Have Reached Streaming Capacity</p>
           <p className="stream-modal-text small">
-            To start watching here, please stop streaming on another device signed in to your account
+            To start watching here, please stop streaming on another device signed in to your account.
           </p>
           <div className="stream-modal-button-wrapper">
             <FocusableButton
               className="stream-modal-button"
-              focusClass='stream-modal-button-focused'
-              text='OK'
+              focusClass="stream-modal-button-focused"
+              text="OK"
               onEnterPress={onClose}
-              focuskey={'Close_Btn'}
+              focusKey="Close_Btn"
             />
           </div>
         </div>
       </FocusContext.Provider>
-    </div>,
-    document.body
+    </div>
   );
 };
 

@@ -18,7 +18,9 @@ const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
   // Focus modal on open
   useEffect(() => {
     if (isOpen && buttons.length > 0) {
+      setTimeout(()=>{
       focusSelf();
+      },50);
       startInactivityTimer();
       window.addEventListener('keydown', resetInactivityTimer);
     }
@@ -28,9 +30,6 @@ const Modal = ({ isOpen, onClose, title, content, buttons = [] }) => {
     };
   }, [isOpen, focusSelf]);
 
-  useEffect(() => {
-    setBackArray('MODAL', false);
-  }, []);
 
   // Timer logic
   const startInactivityTimer = () => {

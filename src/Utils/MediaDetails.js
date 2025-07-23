@@ -10,7 +10,7 @@ import {
 import { sanitizeAndResizeImage, getResizedOptimizedImage } from "./index";
 import { getTokanizedLiveTVUrl } from "../Service/LiveTVService";
 import { useWebSeries } from "../Context/WebSeriesContext";
-import { findEpisodesBySeasonId, findSeasonByMediaId, setSeasonCache, } from "./WebSeriesUtils";
+import { findEpisodesBySeasonId, findSeasonByMediaId, getEpisodes, setSeasonCache, } from "./WebSeriesUtils";
 
 // const seasonCache = {};
 
@@ -96,20 +96,11 @@ export const getMediaDetails = async (
   }
 
   let mediaDetail = null;
-  let skipInfo = null;
-  let onScreenInfo = null;
   let mediaUrl = null;
   let currentEpisode = null;
-  let isFree = false;
-  let isMediaPublished = false;
-  let userCurrentPlayTime = null;
   let success = false;
   let message = null;
-  let webThumbnailUrl = null;
-  let fullPageBannerUrl = null;
-  let groupedStarCasts = null;
   let webSeriesId = null;
-  let seasons = null;
 
   try {
     const isWebSeries = categoryId == 2;
@@ -123,65 +114,37 @@ export const getMediaDetails = async (
 
     if (response && response.isSuccess) {
       response = response.data;
-      mediaDetail = response.detail;
 
-      if (!mediaDetail) {
+      if (!response.detail) {
         throw new Error("Media Details Not Found");
       }
 
-      let isPaid = mediaDetail.isPaid;
-      isFree = getIsContentFree(isPaid);
-      userCurrentPlayTime = mediaDetail.playDuration;
-      isMediaPublished = mediaDetail.isMediaPublished;
+      mediaDetail = parseMediaDetails(response.detail);
+
+      mediaDetail.onScreenInfo = isTrailer ? {} : mediaDetail.onScreenInfo;
+      mediaDetail.skipInfo = isTrailer ? {} : mediaDetail.skipInfo;
       mediaDetail.trailerPlayUrl = mediaDetail?.trailerUrl ? DecryptAESString(mediaDetail.trailerUrl) : null;
-      mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
-      webThumbnailUrl = sanitizeAndResizeImage(
+      mediaDetail.webThumbnailUrl = sanitizeAndResizeImage(
         mediaDetail.webThumbnailUrl,
         450
       );
-      fullPageBannerUrl = getResizedOptimizedImage(
+      mediaDetail.fullPageBanner = getResizedOptimizedImage(
         mediaDetail.fullPageBanner,
         1920
       );
-      groupedStarCasts = groupStarCasts(isWebSeries ? response.starcastList : response.starcasts);
-      mediaDetail.groupedStarCasts = groupedStarCasts;
-      mediaDetail.seasons = isWebSeries ? response.seasons : null;
-
-      skipInfo = {
-        skipIntroST: parseInt(mediaDetail.skipIntroST),
-        skipIntroET: parseInt(mediaDetail.skipIntroET),
-        skipRecapST: parseInt(mediaDetail.skipRecapST),
-        skipRecapET: parseInt(mediaDetail.skipRecapET),
-        nextEpisodeST: isWebSeries ? parseInt(mediaDetail.nextEpisodeST) : null,
-      };
-
-      onScreenInfo = {
-        onScreenDescription: mediaDetail.onScreenDescription,
-        onScreenDescription2: mediaDetail.onScreenDescription2,
-        onScreenDescriptionST: parseInt(mediaDetail.onScreenDescriptionST),
-        onScreenDescriptionET: parseInt(mediaDetail.onScreenDescriptionET),
-        onScreenDescription2ST: parseInt(mediaDetail.onScreenDescription2ST),
-        onScreenDescription2ET: parseInt(mediaDetail.onScreenDescription2ET),
-        ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
-      };
-
-      mediaDetail.onScreenInfo = isTrailer ? {} : onScreenInfo;
-      mediaDetail.skipInfo = isTrailer ? {} : skipInfo;
+      mediaDetail.groupedStarCasts = groupStarCasts(isWebSeries ? response.starcastList : response.starcasts);
 
       if (isWebSeries) {
-        webSeriesId = mediaDetail.webSeriesId;
-        currentEpisode = await findSeasonByMediaId(mediaId, webSeriesId, mediaDetail.seasons);
-        if (currentEpisode) {
-          mediaDetail.currentEpisode = currentEpisode.currentEpisode?.mediaID || null;
-          mediaDetail.currentSeason = currentEpisode.currentSeason?.id || null;
-          mediaDetail.nextEpisodeMediaId = currentEpisode.nextEpisodeMediaId || null;
-          mediaDetail.currentEpisodeNumber = currentEpisode.currentEpisode?.episodeNumber;
-          mediaDetail.currentseasonNumber = currentEpisode.currentSeason?.seasonNumber;
+        mediaDetail.seasons = response.seasons;
+        setSeasonCache(mediaDetail.webSeriesId, response.seasons);
+        currentEpisode = await getEpisodes(mediaDetail.webSeriesId, mediaDetail.seasonId);
+        // currentEpisode = await findEpisodesBySeasonId(mediaDetail.webSeriesID, mediaDetail.seasonId, mediaDetail.mediaID);
+        if (currentEpisode && currentEpisode.data.length > 0) {
+          mediaDetail.episodes = currentEpisode.data;
         }
 
       }
 
-      mediaUrl = mediaUrl ? DecryptAESString(mediaUrl) : mediaUrl;
       success = true;
       message = "Data Retrived SuccessFully";
     } else {
@@ -200,13 +163,6 @@ export const getMediaDetails = async (
     message: message,
     data: {
       mediaDetail,
-      skipInfo,
-      onScreenInfo,
-      currentEpisode,
-      userCurrentPlayTime,
-      webThumbnailUrl,
-      fullPageBannerUrl,
-      groupedStarCasts,
     },
   };
 };
@@ -250,11 +206,11 @@ export const getTokenisedMedia = async (
       isMediaPublished = response.isMediaPublished;
       isFree = getIsContentFree(response.isPaid);
 
-      if(isTrailer && response.trailerUrl){
+      if (isTrailer && response.trailerUrl) {
         mediaUrl = DecryptAESString(response.trailerUrl);
         success = true;
-      }else if (isMediaPublished && !isTrailer) {
-        if ((isUserSubscribed || isFree ) && response.mediaUrl) {
+      } else if (isMediaPublished && !isTrailer) {
+        if ((isUserSubscribed || isFree) && response.mediaUrl) {
           mediaUrl = DecryptAESString(response.mediaUrl);
           success = true;
           message = "Media Tokenised SuccessFully";
@@ -531,54 +487,45 @@ export const getBannerPlayData = async (
 
     if (response && response.isSuccess) {
       response = response.data;
-      mediaDetail = response.detail;
 
-      if (!mediaDetail) {
+      if (!response.detail) {
         throw new Error("Media Details Not Found");
       }
 
-      let isPaid = mediaDetail.isPaid;
-      isFree = getIsContentFree(isPaid);
-      userCurrentPlayTime = mediaDetail.playDuration;
-      isMediaPublished = mediaDetail.isMediaPublished;
-      mediaUrl = isTrailer ? mediaDetail.trailerUrl : mediaDetail.mediaUrl;
+      mediaDetail = parseMediaDetails(response.detail);
 
-      mediaDetail.seasons = isWebSeries ? response.seasons : null;
+      mediaDetail.onScreenInfo = isTrailer ? {} : mediaDetail.onScreenInfo;
+      mediaDetail.skipInfo = isTrailer ? {} : mediaDetail.skipInfo;
+      mediaDetail.trailerPlayUrl = mediaDetail?.trailerUrl ? DecryptAESString(mediaDetail.trailerUrl) : null;
+      mediaDetail.webThumbnailUrl = sanitizeAndResizeImage(
+        mediaDetail.webThumbnailUrl,
+        450
+      );
+      mediaDetail.fullPageBanner = getResizedOptimizedImage(
+        mediaDetail.fullPageBanner,
+        1920
+      );
+      mediaDetail.groupedStarCasts = groupStarCasts(isWebSeries ? response.starcastList : response.starcasts);
 
-      skipInfo = {
-        skipIntroST: parseInt(mediaDetail.skipIntroST),
-        skipIntroET: parseInt(mediaDetail.skipIntroET),
-        skipRecapST: parseInt(mediaDetail.skipRecapST),
-        skipRecapET: parseInt(mediaDetail.skipRecapET),
-        nextEpisodeST: isWebSeries ? parseInt(mediaDetail.nextEpisodeST) : null,
-      };
-
-      onScreenInfo = {
-        onScreenDescription: mediaDetail.onScreenDescription,
-        onScreenDescription2: mediaDetail.onScreenDescription2,
-        onScreenDescriptionST: parseInt(mediaDetail.onScreenDescriptionST),
-        onScreenDescriptionET: parseInt(mediaDetail.onScreenDescriptionET),
-        onScreenDescription2ST: parseInt(mediaDetail.onScreenDescription2ST),
-        onScreenDescription2ET: parseInt(mediaDetail.onScreenDescription2ET),
-        ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
-      };
-
-      mediaDetail.onScreenInfo = isTrailer ? {} : onScreenInfo;
-      mediaDetail.skipInfo = isTrailer ? {} : skipInfo;
-
-      if (isWebSeries) {
-        webSeriesId = mediaDetail.webSeriesID;
-        currentEpisode = await findEpisodesBySeasonId(webSeriesId, mediaDetail.seasonId, mediaDetail.mediaID);
-        if (currentEpisode) {
-          mediaDetail.currentEpisode = currentEpisode.currentEpisode?.mediaID || null;
-          mediaDetail.currentSeason = currentEpisode.currentSeason || null;
-          mediaDetail.nextEpisodeMediaId = currentEpisode.nextEpisodeMediaId || null;
-          mediaDetail.currentEpisodeNumber = currentEpisode.currentEpisode?.episodeNumber;
+      if (mediaDetail.isMediaPublished) {
+        if ((mediaDetail.isUserSubscribed || mediaDetail.isFree) && mediaDetail.mediaUrl) {
+          mediaDetail.mediaUrl = DecryptAESString(mediaDetail.mediaUrl);
+        } else {
+          throw new Error('You are not subscibed user to watch this content!!');
         }
-
+      } else {
+        throw new Error('Media Not Published');
       }
 
-      mediaUrl = mediaUrl ? DecryptAESString(mediaUrl) : mediaUrl;
+
+      if (isWebSeries) {
+        currentEpisode = await getEpisodes(mediaDetail.webSeriesId, mediaDetail.seasonId);
+        // currentEpisode = await findEpisodesBySeasonId(mediaDetail.webSeriesID, mediaDetail.seasonId, mediaDetail.mediaID);
+        if (currentEpisode && currentEpisode.data.length > 0) {
+          mediaDetail.episodes = currentEpisode.data;
+        }
+      }
+
       success = true;
       message = "Data Retrived SuccessFully";
     } else {
@@ -591,20 +538,56 @@ export const getBannerPlayData = async (
       message: error.message || "Something went wrong",
     };
   }
-
   return {
     isSuccess: success,
     message: message,
     data: {
       mediaDetail,
-      skipInfo,
-      onScreenInfo,
-      currentEpisode,
-      userCurrentPlayTime,
-      webThumbnailUrl,
-      fullPageBannerUrl,
-      groupedStarCasts,
-      mediaUrl,
     },
   };
 };
+
+export const parseMediaDetails = (mediaDet) => {
+  let mediaDetail = null;
+  let skipInfo = null;
+  let onScreenInfo = null;
+  let mediaUrl = null;
+  let currentEpisode = null;
+  let isFree = false;
+  let isMediaPublished = false;
+  let userCurrentPlayTime = null;
+  let success = false;
+  let message = null;
+  let webThumbnailUrl = null;
+  let fullPageBannerUrl = null;
+  let groupedStarCasts = null;
+  let webSeriesId = null;
+  let seasons = null;
+
+  mediaDetail = mediaDet;
+
+  let isPaid = mediaDetail.isPaid;
+  mediaDetail.isFree = getIsContentFree(isPaid);
+  // userCurrentPlayTime = mediaDetail.playDuration;
+  isMediaPublished = mediaDetail.isMediaPublished;
+
+  mediaDetail.skipInfo = {
+    skipIntroST: parseInt(mediaDetail.skipIntroST),
+    skipIntroET: parseInt(mediaDetail.skipIntroET),
+    skipRecapST: parseInt(mediaDetail.skipRecapST),
+    skipRecapET: parseInt(mediaDetail.skipRecapET),
+    nextEpisodeST: parseInt(mediaDetail.nextEpisodeST),
+  };
+
+  mediaDetail.onScreenInfo = {
+    onScreenDescription: mediaDetail.onScreenDescription,
+    onScreenDescription2: mediaDetail.onScreenDescription2,
+    onScreenDescriptionST: parseInt(mediaDetail.onScreenDescriptionST),
+    onScreenDescriptionET: parseInt(mediaDetail.onScreenDescriptionET),
+    onScreenDescription2ST: parseInt(mediaDetail.onScreenDescription2ST),
+    onScreenDescription2ET: parseInt(mediaDetail.onScreenDescription2ET),
+    ageRatedText: `RATED ${mediaDetail.ageRangeId}+`,
+  };
+
+  return mediaDetail
+}

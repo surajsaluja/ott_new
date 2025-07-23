@@ -3,7 +3,7 @@ import { useUserContext } from "../../../Context/userContext";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useHistory, useLocation } from "react-router-dom";
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from "../../../Utils/DataCache";
-import { getMediaDetailWithTokenisedMedia } from "../../../Utils/MediaDetails";
+import { getBannerPlayData } from "../../../Utils/MediaDetails";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
 
 const useLoginScreen = () => {
@@ -122,22 +122,24 @@ const useLoginScreen = () => {
 
   const redirectToTargetPage  = async () =>{
     if(from === '/play' && props.mediaID && props.categoryID){
-       const tokenisedResponse = await getMediaDetailWithTokenisedMedia(props.mediaID, props.categoryID, props.isTrailer || false);
-            if (tokenisedResponse.isSuccess) {
-              history.replace('/play', {
-                src: tokenisedResponse.data.mediaUrl,
-                thumbnailBaseUrl: tokenisedResponse?.data?.mediaDetail?.trickyPlayBasePath,
-                title: tokenisedResponse?.data?.mediaDetail?.title,
-                mediaId: props.mediaID,
-                onScreenInfo: tokenisedResponse?.data?.onScreenInfo,
-                skipInfo: tokenisedResponse?.data?.skipInfo,
-                isTrailer: false,
-                playDuration: tokenisedResponse?.data?.mediaDetail?.playDuration,
-                nextEpisodeMediaId: tokenisedResponse?.data?.currentEpisode?.nextEpisodeMediaId || null
-              });
-            }else{
-              history.replace(`/detail/${props.categoryID}/${props.mediaID}/${props.webSeriesId ?? 0}/${props.openWebSeries}`)
-            }
+       const openWebSeries = props.categoryID === 2 ? true : false;
+             const res = await getBannerPlayData(props.mediaID, props.categoryID,props.webSeriesId, openWebSeries,props.isTrailer, null);
+             if (res?.isSuccess) {
+               history.push("/play", {
+                 src: res.data.mediaDetail.mediaUrl,
+                 thumbnailBaseUrl: res.data.mediaDetail?.trickyPlayBasePath,
+                 title: res.data.mediaDetail?.title,
+                 mediaId: res.data.mediaDetail.mediaID,
+                 onScreenInfo: res.data.mediaDetail.onScreenInfo,
+                 skipInfo: res.data.mediaDetail.skipInfo,
+                 isTrailer: false,
+                 playDuration: res.data.mediaDetail?.playDuration,
+                 webSeriesId: res.data.mediaDetail.webSeriesId,
+                 episodes: res.data.mediaDetail?.episodes || []
+               });
+             } else {
+               history.replace(`/detail/${props.categoryID}/${props.mediaID}/${props.webSeriesId ?? 0}/1`);
+             }
     }else{
     history.replace(from, props);
     }
