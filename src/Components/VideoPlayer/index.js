@@ -47,7 +47,6 @@ const VideoPlayer = () => {
     webSeriesId = 0,
     episodes = []
   } = location.state || {};
-  console.log("video player ", location.state);
   const deviceInfo = getDeviceInfo();
   const { userObjectId } = useUserContext();
   const videoRef = useRef(null);
@@ -77,8 +76,12 @@ const VideoPlayer = () => {
 
   const [showSkipButtons, setShowSkipButtons] = useState(false);
   const [skipButtonText, setSkipButtonText] = useState("");
+  const [showDescriptionDialogue,setShowDescriptionDialogue] = useState(false);
+  const [showdescriptionDialoguetext,setShowDescriptionDialogueText] = useState("");
   const showSkipButtonsRef = useRef(false);
   const skipButtonTextRef = useRef("");
+  const showDescriptionDialogueRef= useRef(false);
+  const showDescriptionDialogueTextRef  = useRef("");
 
   const userActivityRef = useRef(null);
   const isSeekingRef = useRef(null);
@@ -667,7 +670,6 @@ const VideoPlayer = () => {
           if (video.hls) {
             video.hls.destroy();
           }
-          console.log('<< cleanup', isConnectedRef.current);
           if (isConnectedRef.current) {
             console.log('disconnecting manually');
             disconnectManually();
@@ -747,6 +749,8 @@ const VideoPlayer = () => {
         const currentTime = videoRef.current?.currentTime || 0;
         let newShowSkipButtons = false;
         let newSkipButtonText = "";
+        let newShowDescriptionDialogueText = "";
+        let newShowDescriptionDialogue  = false;
 
         if (isSeeking == null || isSeeking === false) {
           if (
@@ -775,6 +779,35 @@ const VideoPlayer = () => {
           newShowSkipButtons = false;
         }
 
+        if (
+            onScreenInfo?.onScreenDescription &&
+            currentTime >= onScreenInfo?.onScreenDescriptionST &&
+            currentTime <= onScreenInfo?.onScreenDescriptionET
+          ) {
+             newShowDescriptionDialogue= true;
+            newShowDescriptionDialogueText = onScreenInfo.onScreenDescription;
+          } else if (
+            onScreenInfo?.onScreenDescription2 &&
+            currentTime >= onScreenInfo?.onScreenDescription2ST &&
+            currentTime <= onScreenInfo?.onScreenDescription2ET
+          ) {
+             newShowDescriptionDialogue= true;
+            newShowDescriptionDialogueText = onScreenInfo.onScreenDescription2;
+          }else{
+            newShowDescriptionDialogue = false;
+            newShowDescriptionDialogueText = ""
+          }
+
+          if(newShowDescriptionDialogue !== showDescriptionDialogueRef.current){
+            setShowDescriptionDialogue(newShowDescriptionDialogue);
+            showDescriptionDialogueRef.current = newShowDescriptionDialogue;
+          }
+
+           if(newShowDescriptionDialogueText !== showDescriptionDialogueTextRef.current){
+            setShowDescriptionDialogueText(newShowDescriptionDialogueText);
+            showDescriptionDialogueTextRef.current = newShowDescriptionDialogueText;
+          }
+
         if (newShowSkipButtons !== showSkipButtonsRef.current) {
           setShowSkipButtons(newShowSkipButtons);
           showSkipButtonsRef.current = newShowSkipButtons;
@@ -787,6 +820,7 @@ const VideoPlayer = () => {
           setSkipButtonText(newSkipButtonText);
           skipButtonTextRef.current = newSkipButtonText;
         }
+
 
         lastCheck = timestamp;
       }
@@ -813,6 +847,11 @@ const VideoPlayer = () => {
 
       <div ref={ref} className="video-container">
         <video ref={videoRef} className="video-player" controls={false} />
+
+        {showDescriptionDialogue && <div className="movie-description-box">
+          <div style={{fontWeight: '700'}}>{onScreenInfo.ageRatedText}</div>
+          <div>{showdescriptionDialoguetext}</div>
+        </div>}
 
         {!streamLimitError && <Popup
           onVideoSettingsPressed={onVideoSettingsPressed}

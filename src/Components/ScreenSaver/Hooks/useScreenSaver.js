@@ -8,6 +8,7 @@ import { getBannerPlayData, getTokenisedMedia } from "../../../Utils/MediaDetail
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { useUserContext } from "../../../Context/userContext";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
+import { useRetryModal } from "../../../Context/RetryModalContext";
 
 const useScreenSaver = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,6 +25,8 @@ const useScreenSaver = () => {
   const history = useHistory();
 
   const { ref, focusKey: currentFocusKey, focusSelf } = useFocusable({ focusKey: "SCREENSAVER" });
+
+  const {closeRetryModal} = useRetryModal();
 
   const loadScreenSaverData = async () => {
     try {
@@ -49,6 +52,7 @@ const useScreenSaver = () => {
 
   useEffect(() => {
     if (isScreenSaverLoadedRef.current) return;
+    closeRetryModal();
     loadScreenSaverData();
   }, []);
 
@@ -117,7 +121,7 @@ const useScreenSaver = () => {
       const itemWebSeriesId = 0;
       const res = await getBannerPlayData(currentMedia.mediaID, currentMedia.categoryID, itemWebSeriesId, openWebSeries, false, null);
       if (res?.isSuccess) {
-        history.push("/play", {
+        history.replace("/play", {
           src: res.data.mediaDetail.mediaUrl,
           thumbnailBaseUrl: res.data.mediaDetail?.trickyPlayBasePath,
           title: res.data.mediaDetail?.title,

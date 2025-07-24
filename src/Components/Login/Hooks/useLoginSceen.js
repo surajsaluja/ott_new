@@ -125,7 +125,7 @@ const useLoginScreen = () => {
        const openWebSeries = props.categoryID === 2 ? true : false;
              const res = await getBannerPlayData(props.mediaID, props.categoryID,props.webSeriesId, openWebSeries,props.isTrailer, null);
              if (res?.isSuccess) {
-               history.push("/play", {
+               history.replace("/play", {
                  src: res.data.mediaDetail.mediaUrl,
                  thumbnailBaseUrl: res.data.mediaDetail?.trickyPlayBasePath,
                  title: res.data.mediaDetail?.title,

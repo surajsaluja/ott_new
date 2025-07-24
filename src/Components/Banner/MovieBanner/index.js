@@ -230,14 +230,14 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
         text="Watch"
         focuskey={WATCH_MOVIE_BANNER_BTN_FOCUS_KEY}
         onEnterPress={() => watchMediaVOD(false)}
-        customStyles={{ display: banner.isPlayButton === true ? 'flex' : 'none' }}
+        customStyles={{ display: banner && banner.isPlayButton === true ? 'flex' : 'none' }}
       />}
       <FocusableButton
         className="banner-play-btn"
         focusClass="play-btn-focus"
-        text={banner.bannerType == 'DoNothing' ? banner?.buttonTitle ?? '' : "More Details"}
+        text={banner && banner.bannerType == 'DoNothing' ? banner?.buttonTitle ?? '' : "More Details"}
         focuskey={SHOW_DETAIL_BTN_FOCUS_KEY}
-        onEnterPress={banner.bannerType == 'DoNothing' ? () =>{} : showMediaDetail}
+        onEnterPress={banner && banner.bannerType == 'DoNothing' ? () =>{} : showMediaDetail}
       />
     </>
   );

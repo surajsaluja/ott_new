@@ -8,6 +8,8 @@ const KEY_DOWN = 40;
 const KEY_ENTER = 13;
 const KEY_BACK = 10009;
 const KEY_ESC = 8;
+const KEY_YELLOW_INFO = 405;
+const KEY_INFO= 457;
 const MULTIPLIER_RESET_DELAY = 1000; // threshold to maintain multiplier
 const SEEK_MULTIPLIER_CHANGE_TIME = 500; // time to increase seek multiplier on hold
 
@@ -142,7 +144,7 @@ export default function useSeekHandler(
     handlePlayPause();
   }
 
-  if (e.keyCode === KEY_DOWN || e.keyCode === KEY_UP) {
+  if (e.keyCode === KEY_DOWN || e.keyCode === KEY_UP || e.keyCode === KEY_INFO || e.keyCode === KEY_YELLOW_INFO) {
     if (e.repeat) return;
     handleFocusSeekBar();
   }

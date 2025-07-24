@@ -215,7 +215,7 @@ export const getTokenisedMedia = async (
           success = true;
           message = "Media Tokenised SuccessFully";
         } else {
-          throw new Error("You are not a subscribed user to watch this movie!");
+          throw new Error("You don't have an active subscription. Please purchase a subscription through the mobile app.");
         }
       } else {
         throw new Error('Media Not Published');
@@ -410,7 +410,7 @@ export const getTokenisedTvMedia = async (channelHandle) => {
         success = true;
         message = "Media Tokenised SuccessFully";
       } else {
-        throw new Error("You are not a subscribed user to watch this Content!");
+        throw new Error("You don't have an active subscription. Please purchase a subscription through the mobile app.");
       }
     } else {
       throw new Error(response?.message || "Invalid response for Tokenised Media");
@@ -511,7 +511,7 @@ export const getBannerPlayData = async (
         if ((mediaDetail.isUserSubscribed || mediaDetail.isFree) && mediaDetail.mediaUrl) {
           mediaDetail.mediaUrl = DecryptAESString(mediaDetail.mediaUrl);
         } else {
-          throw new Error('You are not subscibed user to watch this content!!');
+          throw new Error("You don't have an active subscription. Please purchase a subscription through the mobile app.");
         }
       } else {
         throw new Error('Media Not Published');

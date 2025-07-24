@@ -33,6 +33,7 @@ const useLiveTvChannelPage = (focusKey,) => {
 
     const todayItems = [];
     const nextDayItems = [];
+    let i = 0;
 
     scheduledPrograms.forEach(item => {
       const fromDate = convertUTCDateToLocalDate(item.fromDate);
@@ -50,6 +51,8 @@ const useLiveTvChannelPage = (focusKey,) => {
           isNowPlaying,
           webThumbnail: item.url,
           category: "LiveTvSchedule",
+          playListId: fromDate < midnightDate ? 1 : 2,
+          mediaID: i++
         };
 
         if (fromDate < midnightDate) {

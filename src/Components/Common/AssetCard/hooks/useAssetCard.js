@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
 
-const LEFT_RIGHT_DELAY = 50;
-const UP_DOWN_DELAY = 50;
+const LEFT_RIGHT_DELAY = 400;
+const UP_DOWN_DELAY = 400;
 
 const useAssetCard = (
   assetData,

@@ -131,7 +131,6 @@ const useAuth = () => {
             throw new Error(apiKeySetRes.message);
         }
         } catch (error) {
-            console.log('error at fetch and set api', error);
             return{ 
                 isSuccess: false,
                 message: error.message || error,

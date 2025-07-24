@@ -30,7 +30,8 @@ export const RetryModalProvider = ({ children }) => {
   const setFocusToPreviousElement = useCallback(() => {
     const previousKey = previousFocusKeyRef.current;
     console.log(`$ does focus exist ${doesFocusableExist(previousFocusKeyRef)}`);
-    if (previousKey) {
+    let isPreviousFocusExist = doesFocusableExist(previousFocusKeyRef);
+    if (previousKey && isPreviousFocusExist) {
       setTimeout(() => {
         setFocus(previousKey);
         previousFocusKeyRef.current = null;

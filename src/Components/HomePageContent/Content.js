@@ -57,7 +57,7 @@ const ContentRow = ({
     <FocusContext.Provider value={currentFocusKey}>
       <div
         ref={ref}
-        className={`contentRowWrapper ${hasFocusedChild ? "RowFocused" : ""}`}
+        className={`contentRowWrapper`}
         style={{ height: containerHeight }}
       >
         {rowDimensions && Object.keys(rowDimensions).length > 0 && <><div className="ContentRowTitle">{title}</div>

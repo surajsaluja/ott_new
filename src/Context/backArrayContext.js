@@ -19,23 +19,17 @@ export function BackArrayProvider({ children }) {
         return prev;
       });
     }
-    console.log('<<back array set', currentArrayStack);
   };
 
 
 
   const popBackArray = () => {
     // debugger;
-    console.log('<<pop array start', currentArrayStack)
     setCurrentArray((prev) => {
-      console.log(prev);
       const newStack = [...prev];
-      console.log('new stack 1 ', newStack);
       newStack.pop();
-      console.log('<<pop array set', newStack);
       return newStack;
     });
-    console.log('<<pop array stop', currentArrayStack);
   };
 
   return (

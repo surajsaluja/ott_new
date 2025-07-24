@@ -10,7 +10,7 @@ const DEFAULTS = {
     USER_OBJECT_ID: 0,
     DEFAULT_CHANNEL_HANDLE_NAME: ''
 }
-export const API_BASE_URL = 'https://testapi.kableone.com/api/';
+export const API_BASE_URL = 'https://liveapi.kableone.com/api/';
 
 export const API = {
     AUTH: {

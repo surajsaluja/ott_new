@@ -66,13 +66,14 @@ export const useRadioHomePage = (focusKey) => {
       const radioResponse = await fetchRadioHomePageData();
       const banners = radioResponse.data.radioBanner;
 
-      const modifiedItems = radioResponse.data.radioData.map((item) => ({
+      const modifiedItems = radioResponse.data.radioData.map((item,idx) => ({
         ...item,
         webThumbnail: sanitizeAndResizeImage(item.imagePath, 250),
         mobileThumbnail: sanitizeAndResizeImage(item.imagePath, 250),
         playListId: 1,
         mediaID: item.id,
         category: 'Radio',
+        mediaID: idx
       }));
 
       const playlist = [{

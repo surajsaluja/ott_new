@@ -27,10 +27,10 @@ const EpisodeItem = ({ episode, onFocus : onEpisodeFocus , onEpisodeEnterPress})
           {episode.smiSubtitleUrl && (
             <span>{episode.smiSubtitleUrl}</span>
           )}
-          {episode.releaseYear && (
+          {episode.releasedYear && (
             <span>
            <span className="episode-list-bullet-seprator"></span> 
-           <span>{episode.releaseYear}</span>
+           <span>{episode.releasedYear}</span>
            </span>
           )}
           {episode?.duration && formatTime(episode.duration) && (

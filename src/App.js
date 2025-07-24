@@ -15,7 +15,7 @@ import { exitApplication, showExitApplicationModal, showModal } from './Utils';
 import { useModal } from './Context/modalContext';
 
 init({
-  debug: true,
+  debug: false,
   visualDebug: false,
   distanceCalculationMethod: 'center',
 });
