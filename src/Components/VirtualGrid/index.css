@@ -1,0 +1,7 @@
+.row-horizontal{
+ margin-top: 50px;   
+}
+
+.row-horizontal div{
+    overflow: hidden !important;
+}
