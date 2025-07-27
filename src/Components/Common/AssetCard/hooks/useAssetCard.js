@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
+import { useMovieBannerContext } from "../../../../Context/movieBannerContext";
 
 const LEFT_RIGHT_DELAY = 400;
 const UP_DOWN_DELAY = 400;
@@ -12,11 +13,13 @@ const useAssetCard = (
   lastAssetChangeRef, 
   lastRowChangeRef,
   onEnterPress,
-  focusKey
+  focusKey,
+  changeBanner
 ) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [cachedImage, setCachedImage] = useState(null);
+  const {setFocusedAssetDataContext} = useMovieBannerContext();
   const [imageUrl, setImg] =useState(dimensions && dimensions.displayImgType 
     ? (dimensions.displayImgType === 'web' 
       ? assetData.webThumbnail 
@@ -52,7 +55,18 @@ const useAssetCard = (
     focusKey,
     onEnterPress,
     onFocus: () => {
-      onAssetFocus?.(ref.current, assetData);
+      // onAssetFocus?.(ref.current, assetData);
+      if (ref.current) {
+        ref.current.scrollIntoView({
+          behavior: "smooth", // or "auto"
+          block: "nearest",   // avoids big jumps
+          inline: "nearest"
+        });
+      }
+
+        setFocusedAssetDataContext(assetData);
+      
+
     },
     onArrowPress: (direction) => {
       if (!focused) return false;
@@ -89,6 +103,10 @@ const useAssetCard = (
     }
     return true; // allow move
   }
+
+  useEffect(()=>{
+    console.log('<<< asset rendered');
+  })
 
   const handleLoad = () => {
     if (!cachedImage) {

@@ -45,7 +45,7 @@ const CATEGORY_MAP = {
   }
 };
 
-export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
+export const useContentWithBanner = (category = 5, focusKey) => {
   const { uid, isLoggedIn, userObjectId } = useUserContext();
   const {
     setBackArray,
@@ -55,7 +55,6 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     popBackArray,
   } = useBackArrayContext();
   const {
-    setFocusedAssetDataContext,
     bannerDataContext,
     setBannerDataContext,
   } = useMovieBannerContext();
@@ -90,9 +89,9 @@ export const useContentWithBanner = (onFocus, category = 5, focusKey) => {
     focusSelf
   } = useFocusable({
     focusKey,
-    trackChildren: true,
+    // trackChildren: true,
     saveLastFocusedChild: false,
-    onFocus,
+    // onFocus,
     preferredChildFocusKey: 'BANNER_FOCUS_KEY'
   });
 
@@ -210,7 +209,6 @@ const loadMoreRows = useCallback(async () => {
   const handleAssetFocus = useCallback((asset) => {
     if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     settleTimerRef.current = setTimeout(() => {
-      setFocusedAssetDataContext(asset);
       settleTimerRef.current = null;
     }, SETTLE_DELAY);
   }, []);

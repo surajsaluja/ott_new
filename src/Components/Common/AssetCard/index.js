@@ -21,6 +21,7 @@ const AssetCard = (props) => {
     showTitle = false,
     focusKey,
     isCircular = false,
+    changeBanner  = false
   } = props;
 
   const {
@@ -33,7 +34,7 @@ const AssetCard = (props) => {
     ref,
     focused,
     cachedImage,
-  } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress, focusKey);
+  } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress, focusKey, changeBanner);
 
   const borderRadius = isCircular ? "50%" : "0.5em";
 

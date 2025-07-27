@@ -72,8 +72,8 @@ if (homeContentWrapper && homeContentWrapper.offsetHeight > 0.45 * viewportHeigh
   maxHeight = maxHeight - (showTitle ? 70 : 0);
 
   const defaultDimensions = {
-    itemWidth: 360,
-    itemHeight: 200,
+    itemHeight: 180,
+    itemWidth : 180 * 1.8,
     containerHeight: 200 + gap,
     displayImgType: 'web',
     aspectRatio : 360/200,

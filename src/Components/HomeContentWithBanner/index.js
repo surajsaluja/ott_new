@@ -4,12 +4,14 @@
     import Banner from "../Banner/MovieBanner";
     import Content from "../HomePageContent/Content";
 import { useMovieBannerContext } from "../../Context/movieBannerContext";
+import { useEffect } from "react";
 
     const ContentWithBanner = ({category,focusKey}) =>{
 
-    const onHeaderFocus = () =>{};
-
-    const {focusedAssetDataContext} = useMovieBannerContext();
+    // const onHeaderFocus = () =>{};
+    useEffect(()=>{
+      console.log('content page rendered');
+    })
     
       const {
         ref,
@@ -27,7 +29,7 @@ import { useMovieBannerContext } from "../../Context/movieBannerContext";
         isBannerLoadedRef,
         categoryState,
         hasMoreRows
-      } = useContentWithBanner(onHeaderFocus,category,focusKey);
+      } = useContentWithBanner(category,focusKey);
   
       if(isLoading || data.length == 0)
       {
@@ -41,9 +43,8 @@ import { useMovieBannerContext } from "../../Context/movieBannerContext";
       <div ref = {ref} className="content-with-banner" style={{position:'relative', width: '100%', height: '100%'}}>
 
         <Banner focusKey={'BANNER_FOCUS_KEY'} isBannerLoadedRef={isBannerLoadedRef} />
-        <div className="assetContent" style={{position: 'absolute', height: `${focusedAssetDataContext == null ? '40vh' : '55vh'}`, bottom: 0, width: '100%'}}>
+        <div className="assetContent" style={{position: 'absolute', height: `55vh`, bottom: 0, width: '100%'}}>
         <Content 
-          onAssetFocus={handleAssetFocus} 
           data={data} 
           setData={setData} 
           isLoading={isLoading} 
@@ -54,6 +55,7 @@ import { useMovieBannerContext } from "../../Context/movieBannerContext";
           focusKey={'PLAYLIST_DATA_CONTENT_WITH_BANNER'}
           isPagination = {true}
           hasMoreRows = {hasMoreRows}
+          // changeBanner = {true}
           />
         </div>
         </div>

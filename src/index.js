@@ -20,13 +20,13 @@ root.render(
         <BackHandlerProvider>
           <BackArrayProvider>
             <UserProvider>
-              <MovieBannerContext>
                 <ModalProvider>
                   <RetryModalProvider>
+                    <MovieBannerContext>
                   <App />
+                  </MovieBannerContext>
                   </RetryModalProvider>
                 </ModalProvider>
-              </MovieBannerContext>
             </UserProvider>
           </BackArrayProvider>
         </BackHandlerProvider>

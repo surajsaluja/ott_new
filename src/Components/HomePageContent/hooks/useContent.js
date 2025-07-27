@@ -12,112 +12,65 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
     hasFocusedChild,
   } = useFocusable({
     focusKey,
-    trackChildren: true,
+    // trackChildren: true,
     saveLastFocusedChild: false,
-    onFocus,
   });
 
   const scrollingRowRef = useRef(null);
   const rafRef = useRef(null);
 
-  const scrollToElement = useCallback((element) => {
-    if (!element || !scrollingRowRef.current) return;
-
-    cancelAnimationFrame(rafRef.current);
-
-    rafRef.current = requestAnimationFrame(() => {
-      const parentRect = scrollingRowRef.current.getBoundingClientRect();
-      const elementRect = element.getBoundingClientRect();
-
-      const scrollLeft =
-        scrollingRowRef.current.scrollLeft +
-        (elementRect.left - parentRect.left - parentRect.x);
-
-      smoothScroll(scrollingRowRef.current, scrollLeft, 150);
-    });
-  }, []);
-
-  const debouncedScroll = useMemo(() => 
-    debounce((element) => scrollToElement(element), 100),
-    [scrollToElement]
-  );
-
-  const onAssetFocus = useCallback(
-    (element, data) => {
-      handleAssetFocus(data);
-      debouncedScroll(element);
-    },
-    [handleAssetFocus, debouncedScroll]
-  );
-
-  useEffect(() => () => {
-    debouncedScroll.cancel();
-    cancelAnimationFrame(rafRef.current);
-  }, [debouncedScroll]);
+  useEffect(()=>{
+    console.log('<<< content row rendered');
+  })
 
   return {
     ref,
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-    onAssetFocus
   };
 };
 
 const useMovieHomePage = (
   focusKeyParam,
   data,
-  setData,
   isLoading,
-  setIsLoading,
   loadMoreRows,
-  handleAssetFocus,
-  parentScrollingRef,
   isPagination,
   hasMoreRows
 
 ) => {
-  const scrollDebounceRef = useRef();
   const loadMoreRef = useRef(null);
 
-  const { ref, focusKey, hasFocusedChild, focusSelf } = useFocusable({
+  const { ref, focusKey} = useFocusable({
     focusKey: focusKeyParam,
-    trackChildren: true,
-    saveLastFocusedChild: true,
-    focusable: data && data.length > 0,
   });
 
-  useEffect(() => {
-    if (!hasFocusedChild) {
-      handleAssetFocus(null);
-    }
-  }, [hasFocusedChild, handleAssetFocus]);
-
-  useEffect(() => {
-    scrollDebounceRef.current = debounce((scrollTop) => {
-      if (ref.current) {
-        ref.current.scrollTo({ top: scrollTop, behavior: "smooth" });
-      }
-    }, 50);
-
-    return () => {
-      scrollDebounceRef.current?.cancel?.();
-    };
-  }, [ref]);
+  useEffect(()=>{
+    console.log('content container re rendered');
+  })
 
   useEffect(() => {
   const node = loadMoreRef.current;
+  console.log('load more useEffect',{
+    node: node,
+    hasMoreRows,
+    isPagination,
+    loadMoreRows
+
+  });
   if (!node || !hasMoreRows || !isPagination) return;
 
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting && !isLoading) {
+        console.log('>> load more rows called');
         loadMoreRows();
       }
     },
     {
-      rootMargin: '300px 0px 300px 0px', // trigger before bottom,
-      threshold: 0.5,
+      rootMargin: '450px', // trigger before bottom,
+      threshold: 0,
     }
   );
 
@@ -125,30 +78,9 @@ const useMovieHomePage = (
   return () => observer.disconnect();
 }, [data, loadMoreRows, isLoading, hasMoreRows, isPagination]);  // 👈 added hasMoreRows
 
-
-  const onRowFocus = useCallback(
-    (element) => {
-      const scroller = parentScrollingRef?.current ?? ref.current;
-      if (!element || !scroller) return;
-
-      const containerRect = scroller.getBoundingClientRect();
-      const scrollTop = element.top - containerRect.top;
-
-      if (parentScrollingRef) {
-        const containerHeight = containerRect.height;
-        const centerOffset = scrollTop - containerHeight / 2 + (element.height ?? 0) / 2;
-        scroller.scrollTo({ top: centerOffset, behavior: "smooth" });
-      } else {
-        scrollDebounceRef.current?.(scrollTop - 15);
-      }
-    },
-    [ref, parentScrollingRef]
-  );
-
   return {
     ref,
     focusKey,
-    onRowFocus,
     data,
     loadMoreRef,
     isLoading,

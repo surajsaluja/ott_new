@@ -8,7 +8,6 @@ import "./Content.css";
 import { calculateDimensions } from "../../Utils";
 import Spinner from "../Common/Spinner";
 import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
-import useScreenSaver from "../ScreenSaver/Hooks/useScreenSaver";
 
 const ContentRow = ({
   title,
@@ -20,7 +19,8 @@ const ContentRow = ({
   lastRowChangeRef,
   playListDimensions,
   showTitle,
-  isCircular
+  isCircular,
+  changeBanner
 }) => {
 
   const [rowDimensions, setRowDimensions] = useState({});
@@ -40,8 +40,7 @@ const ContentRow = ({
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-    onAssetFocus,
-  } = useContentRow(focusKey, onFocus, handleAssetFocus);
+  } = useContentRow(focusKey);
 
   const containerHeight = useMemo(() =>
     `${rowDimensions.containerHeight + (showTitle ? 70 : 0)}px`,
@@ -74,12 +73,13 @@ const ContentRow = ({
                   focusKey={`${item.categoryID}_${item.playListId}_${item.mediaID}_${index}`}
                   assetData={item}
                   onEnterPress={onAssetPress}
-                  onAssetFocus={onAssetFocus}
+                  // onAssetFocus={onAssetFocus}
                   lastAssetChangeRef={lastAssetChangeRef}
                   lastRowChangeRef={lastRowChangeRef}
                   dimensions={rowDimensions}
                   showTitle={showTitle}
                   isCircular={isCircular}
+                  // changeBanner = {changeBanner}
                 />
               ))}
             </div>
@@ -91,20 +91,17 @@ const ContentRow = ({
 
 const Content = ({
   focusKey: focusKeyParam,
-  onAssetFocus = () => { },
   data = [],
-  setData = () => { },
   isLoading = false,
   onAssetPress = () => { },
-  setIsLoading = () => { },
   loadMoreRows = () => { },
-  handleAssetFocus = () => { },
   className: userClass = "",
   showTitle = false,
   isCircular = false,
   parentScrollingRef = null,
   isPagination = false,
   hasMoreRows = true,
+  // changeBanner  = false,
 }) => {
   const {
     ref,
@@ -116,12 +113,8 @@ const Content = ({
   } = useMovieHomePage(
     focusKeyParam,
     data,
-    setData,
     isLoading,
-    setIsLoading,
     loadMoreRows,
-    handleAssetFocus,
-    parentScrollingRef,
     isPagination,
     hasMoreRows
   );
@@ -138,8 +131,8 @@ const Content = ({
             onFocus={onRowFocus}
             data={item.playlistItems}
             onAssetPress={onAssetPress}
-            onAssetFocus={onAssetFocus}
-            handleAssetFocus={handleAssetFocus}
+            // onAssetFocus={onAssetFocus}
+            // handleAssetFocus={handleAssetFocus}
             lastRowChangeRef={lastRowChangeRef}
             showTitle={showTitle}
             isCircular={isCircular}
@@ -148,12 +141,13 @@ const Content = ({
               height: item.height ?? null,
               width: item.width ?? null
             }}
+            // changeBanner = {changeBanner}
           />
         )}
       </div>
     </>
     );
-  }, [movieRowsData?.length, onRowFocus, onAssetPress, onAssetFocus, handleAssetFocus, showTitle, isCircular]);
+  }, [movieRowsData?.length, onRowFocus, onAssetPress, showTitle, isCircular]);
 
   return (
     <FocusContext.Provider value={focusKey}>
@@ -161,7 +155,7 @@ const Content = ({
         <div className="ContentRow" ref={ref}>
           {movieRowsData?.map(renderRow)}
           {isPagination && hasMoreRows && (
-            <div ref={loadMoreRef} style={{ height: '1px' }} />
+            <div ref={loadMoreRef} style={{ height: '25px' }} />
           )}
           {loadingSpinner && <Spinner />}
         </div>
