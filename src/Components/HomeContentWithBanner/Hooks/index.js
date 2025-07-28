@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useContext } from "react";
 import { useUserContext } from "../../../Context/userContext";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import {
@@ -22,7 +22,7 @@ import {
   SCREEN_KEYS
 } from "../../../Utils/DataCache";
 import { useBackArrayContext } from "../../../Context/backArrayContext";
-import { useMovieBannerContext } from "../../../Context/movieBannerContext";
+import { BannerUpdateContext, FocusedAssetUpdateContext, useMovieBannerContext } from "../../../Context/movieBannerContext";
 import { toast } from "react-toastify";
 import { useModal } from "../../../Context/modalContext";
 import { useRetryModal } from "../../../Context/RetryModalContext";
@@ -54,16 +54,15 @@ export const useContentWithBanner = (category = 5, focusKey) => {
     setBackHandlerClicked,
     popBackArray,
   } = useBackArrayContext();
-  const {
-    bannerDataContext,
-    setBannerDataContext,
-  } = useMovieBannerContext();
+const updateBannerContextValue = useContext(BannerUpdateContext);
+
 
   const history = useHistory();
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [bannerData,setBannerData]  = useState([]);
   const didFocusSelfOnce = useRef(false);
   const [isLoadingPagingRows, setIsLoadingPagingRows] = useState(false);
   const [categoryState, setCategoryState] = useState(category);
@@ -132,7 +131,8 @@ export const useContentWithBanner = (category = 5, focusKey) => {
 
       if (hasCachedData) {
         playlists = getCache(cache.HOME_DATA);
-        setBannerDataContext(getCache(cache.BANNERS_DATA));
+        updateBannerContextValue(getCache(cache.BANNERS_DATA));
+        setBannerData(getCache(cache.BANNERS_DATA));
         setHasMoreRows(true);
       } else {
         const [bannerData, playlistRaw] = await Promise.all([
@@ -143,7 +143,8 @@ export const useContentWithBanner = (category = 5, focusKey) => {
         playlists = processed;
         setHasMoreRows(processed.length === horizontalLimit);
         // setBanners([]);
-        setBannerDataContext(bannerData?.data || []);
+        updateBannerContextValue(bannerData?.data || []);
+        setBannerData(bannerData?.data || []);
 
         if (cache) {
           setCache(cache.HOME_DATA, processed);
@@ -163,7 +164,8 @@ export const useContentWithBanner = (category = 5, focusKey) => {
       closeRetryModal();
     } catch (error) {
       setData([]);
-      setBannerDataContext([]);
+      updateBannerContextValue([]);
+      setBannerData([]);
       setHasMoreRows(false);
       console.error("Failed to load home data", error);
       openRetryModal({
@@ -247,8 +249,8 @@ const loadMoreRows = useCallback(async () => {
     if (
       !didFocusSelfOnce.current &&
       page === 1 &&
-      (bannerDataContext.length > 0 || data.length > 0)
-      && bannerDataContext[0].bannerType != 'DoNothing'
+      (bannerData.length > 0 || data.length > 0)
+      && bannerData[0].bannerType != 'DoNothing'
     ) {
       setTimeout(()=>{
       didFocusSelfOnce.current = true;

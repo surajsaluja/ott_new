@@ -1,18 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import FocusableButton from '../../Common/FocusableButton';
 import { getEclipsedTrimmedText } from '../../../Utils';
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import useBanner from './Hooks/useBanner';
 import './index.css';
-import { useMovieBannerContext } from '../../../Context/movieBannerContext';
 import { FaPlay } from 'react-icons/fa6';
+import { BannerDataContext, FocusedAssetDataContext } from '../../../Context/movieBannerContext';
 
 const SHOW_DETAIL_BTN_FOCUS_KEY = 'SHOW_DETAIL_BTN_FOCUS_KEY';
 const WATCH_MOVIE_BANNER_BTN_FOCUS_KEY = 'WATCH_MOVIE_BANNER_BTN_FOCUS_KEY'
 
 const Banner = () => {
-  const { focusedAssetDataContext : asset,
-        bannerDataContext: banners } = useMovieBannerContext();
+
+const focusedAssetData = useContext(FocusedAssetDataContext);
+const bannerData = useContext(BannerDataContext);
+
+const asset = focusedAssetData;
+const banners = bannerData;
 
   const {
     showBanner,

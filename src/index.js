@@ -8,7 +8,7 @@ import { ModalProvider } from "./Context/modalContext";
 import { BackHandlerProvider } from "./Context/BackHandlerContext";
 import { BrowserRouter as Router } from "react-router-dom";
 import { BackArrayProvider } from "./Context/backArrayContext";
-import { MovieBannerContext } from "./Context/movieBannerContext";
+import BannerContextProvider, { MovieBannerContext } from "./Context/movieBannerContext";
 import { NetworkProvider } from "./Context/NetworkContext";
 import { RetryModalProvider } from "./Context/RetryModalContext";
 
@@ -22,9 +22,9 @@ root.render(
             <UserProvider>
                 <ModalProvider>
                   <RetryModalProvider>
-                    <MovieBannerContext>
+                    <BannerContextProvider>
                   <App />
-                  </MovieBannerContext>
+                  </BannerContextProvider>
                   </RetryModalProvider>
                 </ModalProvider>
             </UserProvider>

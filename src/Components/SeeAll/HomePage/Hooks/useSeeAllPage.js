@@ -2,12 +2,12 @@ import { fetchPlayListContent } from '../../../../Service/MediaService';
 import { getCategoryIdByCategoryName } from '../../../../Utils';
 import { useUserContext } from '../../../../Context/userContext';
 import { showModal } from '../../../../Utils';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CACHE_KEYS, SCREEN_KEYS, setCache } from '../../../../Utils/DataCache';
 import { useBackArrayContext } from '../../../../Context/backArrayContext';
-import { useMovieBannerContext } from '../../../../Context/movieBannerContext';
+import { BannerDataContext, BannerUpdateContext, FocusedAssetUpdateContext, useMovieBannerContext } from '../../../../Context/movieBannerContext';
 
 const PLAYLIST_PAGE_SIZE = 10;
 
@@ -15,7 +15,6 @@ const useSeeAllPage = (focusKey) => {
 
     const { isLoggedIn, userObjectId } = useUserContext();
 
-    const [focusedAssetData, setFocusedAssetData] = useState(null);
     const [playListData, setPlayListData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [pageNum, setPageNum] = useState(1);
@@ -23,8 +22,8 @@ const useSeeAllPage = (focusKey) => {
     const hasMoreRef = useRef(true);
     const settleTimerRef = useRef(null); // used to update the banner data after settle delay time
     const SETTLE_DELAY = 200;
-    const { setFocusedAssetDataContext,
-        setBannerDataContext } = useMovieBannerContext();
+   const updateBannerContextValue = useContext(BannerUpdateContext);
+    const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext)
 
     const { setBackArray, backHandlerClicked, currentArrayStack, setBackHandlerClicked, popBackArray } = useBackArrayContext();
 
@@ -59,7 +58,7 @@ const useSeeAllPage = (focusKey) => {
 
     useEffect(() => {
         setCache(CACHE_KEYS.CURRENT_SCREEN, SCREEN_KEYS.HOME.SEE_ALL_HOME_PAGE);
-        setBannerDataContext([]);
+        updateBannerContextValue([]);
         loadPlayListData(1);
     }, []);
 
@@ -96,7 +95,7 @@ const useSeeAllPage = (focusKey) => {
 
         // Fire a new timer
         settleTimerRef.current = setTimeout(() => {
-            setFocusedAssetDataContext(asset);
+            updateFocusedAssetContextValue(asset);
             settleTimerRef.current = null;
         }, SETTLE_DELAY);
     }, []);
@@ -132,7 +131,6 @@ const useSeeAllPage = (focusKey) => {
     return {
         ref,
         currentFocusKey,
-        focusedAssetData,
         playListData,
         isLoading,
         hasMore: hasMoreRef.current,

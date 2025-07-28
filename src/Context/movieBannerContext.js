@@ -1,24 +1,46 @@
-import React, { createContext, useContext, useState } from 'react';
+// BannerContext.js
+import { createContext, useState, useCallback, useMemo } from "react";
 
-const movieBannerContext = createContext();
+export const BannerDataContext = createContext();
+export const BannerUpdateContext = createContext();
+export const FocusedAssetDataContext = createContext();
+export const FocusedAssetUpdateContext = createContext();
 
-export function MovieBannerContext({ children }) {
+export default function BannerContextProvider({ children }) {
+  const [bannerData, setBannerData] = useState([]);
+  const [focusedAssetData, setFocusedAssetData] = useState(null);
 
-  const [focusedAssetDataContext, setFocusedAssetDataContext] = useState(null);
-  const [bannerDataContext, setBannerDataContext] = useState([]);
+  const updateBannerData = useCallback((data) => {
+    console.log("banner data new", data);
+    setBannerData(data);
+  }, []);
+
+  const updateFocusedAssetData = useCallback((data) => {
+    console.log("focused asset data new", data);
+    setFocusedAssetData(data);
+  }, []);
+
+  const updateBannerContextValue = useMemo(
+    () => updateBannerData,
+    [updateBannerData]
+  );
+
+  const updateFocusedAssetContextValue = useMemo(
+    () => updateFocusedAssetData,
+    [updateFocusedAssetData]
+  );
 
   return (
-    <movieBannerContext.Provider
-      value={{
-        focusedAssetDataContext,
-        bannerDataContext,
-        setFocusedAssetDataContext,
-        setBannerDataContext
-      }}
-    >
-      {children}
-    </movieBannerContext.Provider>
+    <BannerUpdateContext.Provider value={updateBannerContextValue}>
+      <BannerDataContext.Provider value={bannerData}>
+        <FocusedAssetUpdateContext.Provider
+          value={updateFocusedAssetContextValue}
+        >
+          <FocusedAssetDataContext.Provider value={focusedAssetData}>
+            {children}
+          </FocusedAssetDataContext.Provider>
+        </FocusedAssetUpdateContext.Provider>
+      </BannerDataContext.Provider>
+    </BannerUpdateContext.Provider>
   );
 }
-
-export const useMovieBannerContext = () => useContext(movieBannerContext);

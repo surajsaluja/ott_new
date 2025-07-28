@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
-import { useMovieBannerContext } from "../../../../Context/movieBannerContext";
+import { FocusedAssetUpdateContext } from "../../../../Context/movieBannerContext";
 
 const LEFT_RIGHT_DELAY = 400;
 const UP_DOWN_DELAY = 400;
@@ -19,7 +19,6 @@ const useAssetCard = (
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [cachedImage, setCachedImage] = useState(null);
-  const {setFocusedAssetDataContext} = useMovieBannerContext();
   const [imageUrl, setImg] =useState(dimensions && dimensions.displayImgType 
     ? (dimensions.displayImgType === 'web' 
       ? assetData.webThumbnail 
@@ -27,6 +26,8 @@ const useAssetCard = (
     : assetData.webThumbnail)
 
     const shouldLoad = true;
+
+    const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
 
   // Check cache when imageUrl changes
   useEffect(() => {
@@ -64,7 +65,7 @@ const useAssetCard = (
         });
       }
 
-        setFocusedAssetDataContext(assetData);
+        updateFocusedAssetContextValue(assetData);
       
 
     },
