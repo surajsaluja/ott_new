@@ -67,13 +67,14 @@ export const calculateDimensions = (height, width, showTitle = false) => {
 let maxHeight = 320;
 
 if (homeContentWrapper && homeContentWrapper.offsetHeight > 0.45 * viewportHeight) {
+  console.log('max hieght set');
   maxHeight = homeContentWrapper.offsetHeight - 70;
 }
   maxHeight = maxHeight - (showTitle ? 70 : 0);
 
   const defaultDimensions = {
-    itemHeight: 180,
-    itemWidth : 180 * 1.8,
+    itemHeight: 200,
+    itemWidth : 200 * 1.8,
     containerHeight: 200 + gap,
     displayImgType: 'web',
     aspectRatio : 360/200,

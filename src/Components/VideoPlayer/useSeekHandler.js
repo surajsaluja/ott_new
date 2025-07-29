@@ -113,30 +113,31 @@ export default function useSeekHandler(
   } else if (isSidebarOpen || isSeeking) return;
 
   if (e.keyCode === KEY_LEFT || e.keyCode === KEY_RIGHT) {
-    const now = Date.now();
-    const direction = e.keyCode === KEY_RIGHT ? "forward" : "backward";
+    // const now = Date.now();
+    // const direction = e.keyCode === KEY_RIGHT ? "forward" : "backward";
 
-    // Reset everything if direction changes
-    if (lastDirectionRef.current && lastDirectionRef.current !== direction) {
-      clearSeek();
-      resetMultiplier();
-      clearTimeout(multiplierResetTimeout.current);
-    }
+    // // Reset everything if direction changes
+    // if (lastDirectionRef.current && lastDirectionRef.current !== direction) {
+    //   clearSeek();
+    //   resetMultiplier();
+    //   clearTimeout(multiplierResetTimeout.current);
+    // }
 
-    if (now - lastKeyPressTimeRef.current < MULTIPLIER_RESET_DELAY &&
-        direction === lastDirectionRef.current && 
-        !isHoldingRef.current) {
-      increaseMultiplier();
-    }
+    // if (now - lastKeyPressTimeRef.current < MULTIPLIER_RESET_DELAY &&
+    //     direction === lastDirectionRef.current && 
+    //     !isHoldingRef.current) {
+    //   increaseMultiplier();
+    // }
 
-    // Update direction references
-    lastDirectionRef.current = direction;
-    directionRef.current = direction;
-    setSeekDirection(direction);
-    lastKeyPressTimeRef.current = now;
+    // // Update direction references
+    // lastDirectionRef.current = direction;
+    // directionRef.current = direction;
+    // setSeekDirection(direction);
+    // lastKeyPressTimeRef.current = now;
 
-    // Start seeking
-    startSeekInterval(direction);
+    // // Start seeking
+    // startSeekInterval(direction);
+    handleFocusSeekBar();
   }
 
   if (e.keyCode === KEY_ENTER && !userActivityRef.current) {

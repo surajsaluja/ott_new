@@ -21,7 +21,8 @@ const AssetCard = (props) => {
     showTitle = false,
     focusKey,
     isCircular = false,
-    changeBanner  = false
+    changeBanner  = false,
+    parentScrollingRef = null
   } = props;
 
   const {
@@ -34,7 +35,7 @@ const AssetCard = (props) => {
     ref,
     focused,
     cachedImage,
-  } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress, focusKey, changeBanner);
+  } = useAssetCard(assetData, dimensions, onAssetFocus, lastAssetChangeRef, lastRowChangeRef, onEnterPress, focusKey, changeBanner, parentScrollingRef);
 
   const borderRadius = isCircular ? "50%" : "0.5em";
 

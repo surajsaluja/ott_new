@@ -4,7 +4,7 @@ import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
 import { FocusedAssetUpdateContext } from "../../../../Context/movieBannerContext";
 
 const LEFT_RIGHT_DELAY = 100;
-const UP_DOWN_DELAY = 400;
+const UP_DOWN_DELAY = 150;
 
 const useAssetCard = (
   assetData,
@@ -14,7 +14,8 @@ const useAssetCard = (
   lastRowChangeRef,
   onEnterPress,
   focusKey,
-  changeBanner
+  changeBanner,
+  parentScrollingRef
 ) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -61,7 +62,7 @@ const useAssetCard = (
     const horizontalContainer = el.offsetParent;
 
     // Fallback to grandparent for vertical scroll
-    const verticalContainer = document.getElementById("contentRowWrapper");
+    const verticalContainer = parentScrollingRef == null ? document.getElementById("contentRowWrapper") : parentScrollingRef.current;
 
     const itemRect = el.getBoundingClientRect();
 
@@ -84,7 +85,6 @@ const useAssetCard = (
         horizontalContainer.scrollLeft = offsetLeft + itemWidth - containerWidth + scrollPadding;
       }
     }
-  
 
 
     // --- Vertical scroll ---

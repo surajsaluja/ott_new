@@ -20,7 +20,8 @@ const ContentRow = ({
   playListDimensions,
   showTitle,
   isCircular,
-  changeBanner
+  changeBanner,
+  parentScrollingRef
 }) => {
 
   const [rowDimensions, setRowDimensions] = useState({});
@@ -79,6 +80,7 @@ const ContentRow = ({
                   dimensions={rowDimensions}
                   showTitle={showTitle}
                   isCircular={isCircular}
+                  parentScrollingRef = {parentScrollingRef}
                   // changeBanner = {changeBanner}
                 />
               ))}
@@ -130,6 +132,7 @@ const Content = ({
             title={item.playlistName}
             onFocus={onRowFocus}
             data={item.playlistItems}
+            parentScrollingRef = {parentScrollingRef}
             onAssetPress={onAssetPress}
             // onAssetFocus={onAssetFocus}
             // handleAssetFocus={handleAssetFocus}

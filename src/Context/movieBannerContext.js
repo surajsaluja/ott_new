@@ -5,6 +5,7 @@ export const BannerDataContext = createContext();
 export const BannerUpdateContext = createContext();
 export const FocusedAssetDataContext = createContext();
 export const FocusedAssetUpdateContext = createContext();
+export const IsFocusedAssetEmptyContext = createContext();
 
 export default function BannerContextProvider({ children }) {
   const [bannerData, setBannerData] = useState([]);
@@ -35,6 +36,15 @@ export default function BannerContextProvider({ children }) {
     [updateFocusedAssetData]
   );
 
+    const isFocusedAssetEmpty = useMemo(() => {
+    return (
+      !focusedAssetData ||
+      (typeof focusedAssetData === "object" &&
+        Object.keys(focusedAssetData).length === 0)
+    );
+  }, [focusedAssetData]);
+
+
   return (
     <BannerUpdateContext.Provider value={updateBannerContextValue}>
       <BannerDataContext.Provider value={bannerData}>
@@ -42,7 +52,9 @@ export default function BannerContextProvider({ children }) {
           value={updateFocusedAssetContextValue}
         >
           <FocusedAssetDataContext.Provider value={focusedAssetData}>
+            <IsFocusedAssetEmptyContext.Provider value={isFocusedAssetEmpty}>
             {children}
+            </IsFocusedAssetEmptyContext.Provider>
           </FocusedAssetDataContext.Provider>
         </FocusedAssetUpdateContext.Provider>
       </BannerDataContext.Provider>
