@@ -57,7 +57,6 @@ const useAssetCard = (
   const el = ref.current;
   if (el) {
     console.log('<<< focused');
-     const direction = lastNavDirectionRef.current;
     // Horizontal scroll container
     const horizontalContainer = el.offsetParent;
 
