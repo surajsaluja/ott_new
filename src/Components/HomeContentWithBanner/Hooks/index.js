@@ -87,7 +87,7 @@ const updateBannerContextValue = useContext(BannerUpdateContext);
     hasFocusedChild,
     focusSelf
   } = useFocusable({
-    focusKey,
+    focusKey:'HOME_CONTENT_WITH_BANNER',
     // trackChildren: true,
     saveLastFocusedChild: false,
     // onFocus,

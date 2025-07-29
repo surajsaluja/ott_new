@@ -6,7 +6,7 @@ import { getCategoryIdByCategoryName, showModal } from "../../../../Utils";
 import { getBannerPlayData } from "../../../../Utils/MediaDetails";
 import { fetchBannerWatchMediaDetails } from "../../../../Service/MediaService";
 
-const TRAILER_PLAY_DELAY = 1000;
+const TRAILER_PLAY_DELAY = 2500;
 
 const useBanner = (asset,banners) => {
 
@@ -60,7 +60,19 @@ const useBanner = (asset,banners) => {
     window.addEventListener("visibilitychange", onVisibilityChange);
 
     if (Hls.isSupported()) {
-      hls = new Hls();
+      hls = new Hls({
+        startLevel: 2, // start from lowest quality
+          capLevelToPlayerSize: false, // do not upscale
+          autoStartLoad: true,
+          maxBufferLength: 10, // only buffer 10s of video
+          maxMaxBufferLength: 15,
+          maxBufferSize: 6 * 1024 * 1024, // ~1MB max buffer
+          liveSyncDuration: 3,
+          liveMaxLatencyDuration: 5,
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 0 // do not keep old buffer
+      });
       hls.loadSource(asset.trailerUrl);
       hls.attachMedia(el);
       hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, () => {

@@ -152,7 +152,7 @@ const Content = ({
   return (
     <FocusContext.Provider value={focusKey}>
       <div className={`ContentWrapper ${userClass ?? ''}`} id='homeContentWrapper'>
-        <div className="ContentRow" ref={ref}>
+        <div className="ContentRow" id="contentRowWrapper" ref={ref}>
           {movieRowsData?.map(renderRow)}
           {isPagination && hasMoreRows && (
             <div ref={loadMoreRef} style={{ height: '25px' }} />

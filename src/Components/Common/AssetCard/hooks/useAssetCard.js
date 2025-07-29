@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { getCachedImage, preloadImage } from "../../../../Utils/imageCache";
 import { FocusedAssetUpdateContext } from "../../../../Context/movieBannerContext";
 
-const LEFT_RIGHT_DELAY = 400;
+const LEFT_RIGHT_DELAY = 100;
 const UP_DOWN_DELAY = 400;
 
 const useAssetCard = (
@@ -25,12 +25,11 @@ const useAssetCard = (
       : assetData.mobileThumbnail) 
     : assetData.webThumbnail)
 
-    const shouldLoad = true;
+  const shouldLoad = true;
 
-    const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
+  const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
 
-  // Check cache when imageUrl changes
-  useEffect(() => {
+  useEffect(()=>{
     if (!imageUrl) return;
     
     const cached = getCachedImage(imageUrl);
@@ -38,7 +37,6 @@ const useAssetCard = (
       setCachedImage(cached);
       setIsLoaded(true);
     } else if (shouldLoad) {
-      // Preload image when it should be loaded
       preloadImage(imageUrl)
         .then(img => {
           setCachedImage(img);
@@ -50,25 +48,65 @@ const useAssetCard = (
           setIsLoaded(true);
         });
     }
-  }, [imageUrl, shouldLoad]);
+  }, [imageUrl]);
 
   const { ref, focused } = useFocusable({
     focusKey,
     onEnterPress,
     onFocus: () => {
-      // onAssetFocus?.(ref.current, assetData);
-      if (ref.current) {
-        ref.current.scrollIntoView({
-          behavior: "smooth", // or "auto"
-          block: "nearest",   // avoids big jumps
-          inline: "nearest"
-        });
+  const el = ref.current;
+  if (el) {
+    console.log('<<< focused');
+     const direction = lastNavDirectionRef.current;
+    // Horizontal scroll container
+    const horizontalContainer = el.offsetParent;
+
+    // Fallback to grandparent for vertical scroll
+    const verticalContainer = document.getElementById("contentRowWrapper");
+
+    const itemRect = el.getBoundingClientRect();
+
+    // Scroll padding
+    const scrollPadding = 40;
+
+    // --- Horizontal scroll ---
+    if (horizontalContainer) {
+      const containerRect = horizontalContainer.getBoundingClientRect();
+      const containerWidth = horizontalContainer.clientWidth;
+      const scrollLeft = horizontalContainer.scrollLeft;
+      const offsetLeft = el.offsetLeft;
+      const itemWidth = itemRect.width;
+
+      console.log('<<scrolled');
+
+      if (offsetLeft < scrollLeft + scrollPadding) {
+        horizontalContainer.scrollLeft = offsetLeft - scrollPadding;
+      } else if (offsetLeft + itemWidth > scrollLeft + containerWidth - scrollPadding) {
+        horizontalContainer.scrollLeft = offsetLeft + itemWidth - containerWidth + scrollPadding;
       }
+    }
+  
 
-        updateFocusedAssetContextValue(assetData);
-      
 
-    },
+    // --- Vertical scroll ---
+    if (verticalContainer) {
+      const containerRect = verticalContainer.getBoundingClientRect();
+      const containerHeight = verticalContainer.clientHeight;
+      const scrollTop = verticalContainer.scrollTop;
+      const offsetTop = horizontalContainer.offsetTop; // relative to vertical container
+      const itemHeight = itemRect.height;
+
+      if (offsetTop < scrollTop + scrollPadding) {
+        verticalContainer.scrollTop = offsetTop - scrollPadding;
+      } else if (offsetTop + itemHeight > scrollTop + containerHeight - scrollPadding) {
+        verticalContainer.scrollTop = offsetTop + itemHeight - containerHeight + scrollPadding;
+      }
+    }
+
+    
+    updateFocusedAssetContextValue(assetData);
+  }
+},
     onArrowPress: (direction) => {
       if (!focused) return false;
       if (direction === "left" || direction === "right") {
@@ -122,16 +160,15 @@ const useAssetCard = (
   };
 
   return {
-    // imgRef,
+    ref,
     shouldLoad,
     imageUrl,
     isLoaded,
     hasError,
     handleLoad,
     handleError,
-    ref,
     focused,
-    cachedImage // Return the cached image if available
+    cachedImage
   };
 };
 

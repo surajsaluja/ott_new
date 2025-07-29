@@ -1,8 +1,9 @@
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useContext } from "react";
 import { smoothScroll } from "../../../Utils";
 import { debounce } from "lodash"
 import { useMemo } from "react";
+import { FocusedAssetUpdateContext } from "../../../Context/movieBannerContext";
 const SCROLL_OFFSET = 80;
 
 const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
@@ -42,13 +43,23 @@ const useMovieHomePage = (
 ) => {
   const loadMoreRef = useRef(null);
 
-  const { ref, focusKey} = useFocusable({
+  const { ref, focusKey, hasFocusedChild} = useFocusable({
     focusKey: focusKeyParam,
+    trackChildren: true
   });
+
+  const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
 
   useEffect(()=>{
     console.log('content container re rendered');
   })
+
+   useEffect(() => {
+    // console.log('>> has focused child', hasFocusedChild);
+    if (!hasFocusedChild) {
+     updateFocusedAssetContextValue(null);
+    }
+  }, [hasFocusedChild]);
 
   useEffect(() => {
   const node = loadMoreRef.current;
@@ -59,6 +70,7 @@ const useMovieHomePage = (
     loadMoreRows
 
   });
+
   if (!node || !hasMoreRows || !isPagination) return;
 
   const observer = new IntersectionObserver(
