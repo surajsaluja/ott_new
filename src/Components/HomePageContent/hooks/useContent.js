@@ -45,21 +45,21 @@ const useMovieHomePage = (
 
   const { ref, focusKey, hasFocusedChild} = useFocusable({
     focusKey: focusKeyParam,
-    trackChildren: true
+    trackChildren: false
   });
 
-  const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
+  // const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
 
   useEffect(()=>{
     console.log('content container re rendered');
   })
 
-   useEffect(() => {
-    // console.log('>> has focused child', hasFocusedChild);
-    if (!hasFocusedChild) {
-     updateFocusedAssetContextValue(null);
-    }
-  }, [hasFocusedChild]);
+  //  useEffect(() => {
+  //   // console.log('>> has focused child', hasFocusedChild);
+  //   if (!hasFocusedChild) {
+  //   //  updateFocusedAssetContextValue(null);
+  //   }
+  // }, [hasFocusedChild]);
 
   useEffect(() => {
   const node = loadMoreRef.current;

@@ -5,7 +5,7 @@ import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spat
 import useBanner from './Hooks/useBanner';
 import './index.css';
 import { FaPlay } from 'react-icons/fa6';
-import { BannerDataContext, FocusedAssetDataContext } from '../../../Context/movieBannerContext';
+import { BannerDataContext, FocusedAssetDataContext, FocusedAssetUpdateContext } from '../../../Context/movieBannerContext';
 
 const SHOW_DETAIL_BTN_FOCUS_KEY = 'SHOW_DETAIL_BTN_FOCUS_KEY';
 const WATCH_MOVIE_BANNER_BTN_FOCUS_KEY = 'WATCH_MOVIE_BANNER_BTN_FOCUS_KEY'
@@ -40,6 +40,7 @@ const banners = bannerData;
   const prevAsset = useRef(asset);
   const prevBanners = useRef(banners);
   const hasAutoFocused = useRef(false);
+  const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
 
     const { ref, focusSelf, focusKey } = useFocusable({ 
     focusKey: 'MOVIE_BANNER', 
@@ -51,7 +52,10 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
 //     const targetFocusKey =  SHOW_DETAIL_BTN_FOCUS_KEY;
 //     setFocus(targetFocusKey);
 //   }, 200);
-// } 
+// }
+onFocus:()=>{
+updateFocusedAssetContextValue(null, true);
+}
 });
 
   // Handle transitions between banners/assets
@@ -262,7 +266,7 @@ preferredChildFocusKey: SHOW_DETAIL_BTN_FOCUS_KEY,
           )}
 
           <div className="asset-buttons" ref={ref} style={{
-  display: asset === null ? 'flex' : 'none'
+  visibility: asset === null ? 'visible' : 'hidden'
 }}>
             {renderButtons()}
           </div>

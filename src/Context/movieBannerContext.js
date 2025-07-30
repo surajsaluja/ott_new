@@ -16,14 +16,17 @@ export default function BannerContextProvider({ children }) {
     setBannerData(data);
   }, []);
 
-  const updateFocusedAssetData = useCallback((data) => {
+  const updateFocusedAssetData = useCallback((data, updateImmidiate = false) => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
-
-   debounceTimer.current = setTimeout(() => {
+    if (updateImmidiate) {
       setFocusedAssetData(data);
-    }, 1000); 
+    } else {
+      debounceTimer.current = setTimeout(() => {
+        setFocusedAssetData(data);
+      }, 1000);
+    }
   }, []);
 
   const updateBannerContextValue = useMemo(
@@ -36,7 +39,7 @@ export default function BannerContextProvider({ children }) {
     [updateFocusedAssetData]
   );
 
-    const isFocusedAssetEmpty = useMemo(() => {
+  const isFocusedAssetEmpty = useMemo(() => {
     return (
       !focusedAssetData ||
       (typeof focusedAssetData === "object" &&
@@ -53,7 +56,7 @@ export default function BannerContextProvider({ children }) {
         >
           <FocusedAssetDataContext.Provider value={focusedAssetData}>
             <IsFocusedAssetEmptyContext.Provider value={isFocusedAssetEmpty}>
-            {children}
+              {children}
             </IsFocusedAssetEmptyContext.Provider>
           </FocusedAssetDataContext.Provider>
         </FocusedAssetUpdateContext.Provider>

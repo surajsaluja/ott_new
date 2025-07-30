@@ -16,8 +16,8 @@ const FocusableButtonIconTooltip = ({
         focusKey: focusKeyParam,
         onEnterPress,
         onFocus,
-        trackChildren: true,
-        saveLastFocusedChild: true
+        trackChildren: false,
+        saveLastFocusedChild: false
     });
 
     return (

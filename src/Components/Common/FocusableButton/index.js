@@ -21,8 +21,8 @@ const FocusableButton = ({
         onEnterPress,
         onArrowPress,
         onFocus,
-        trackChildren: true,
-        saveLastFocusedChild: true
+        trackChildren: false,
+        saveLastFocusedChild: false
     });
 
     return (
