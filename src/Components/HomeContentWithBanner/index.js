@@ -58,7 +58,7 @@ import { useContext, useEffect } from "react";
           focusKey={'PLAYLIST_DATA_CONTENT_WITH_BANNER'}
           isPagination = {true}
           hasMoreRows = {hasMoreRows}
-          // changeBanner = {true}
+          changeBanner = {true}
           />
         </div>
         </div>

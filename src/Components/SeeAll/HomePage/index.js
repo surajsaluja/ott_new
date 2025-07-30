@@ -9,7 +9,6 @@ function SeeAllPlaylistContentHomePage({ focusKey }) {
     const {
         ref,
         currentFocusKey,
-        focusedAssetData,
         playListData,
         isLoading,
         hasMore,
@@ -36,6 +35,7 @@ function SeeAllPlaylistContentHomePage({ focusKey }) {
                         loadMoreRows={loadMoreRows}
                         onAssetPress={onCardPress}
                         handleAssetFocus={handleAssetFocus}
+                        changeBanner = {true}
                     />
                 </div>
             </div>

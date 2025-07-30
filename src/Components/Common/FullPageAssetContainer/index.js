@@ -17,7 +17,8 @@ function FullPageAssetContainer({
   loadMoreRows = () =>{},
   hasMore = false,
   isPagination = false,
-  handleAssetFocus = ()=>{}
+  handleAssetFocus = ()=>{},
+  changeBanner = false
 }) {
   const { ref, focusKey: currentFocusKey } = useFocusable({
     focusable: assets.length > 0 && !isLoading,
@@ -124,7 +125,7 @@ const debouncedLoadMore = useCallback(() => {
         <FocusContext.Provider value={currentFocusKey}>
           <div ref={ref} className="asset-container">
             {title && <p className="asset-container-title">{title}</p>}
-            <div className={"asset-scrolling-wrapper"} ref={assetScrollingRef}>
+            <div className={"asset-scrolling-wrapper"} id="full-page-asset-scroll-container" ref={assetScrollingRef}>
               {
                 (assets.length > 0) ? (
                 assets.map((asset, idx) => (
@@ -134,9 +135,11 @@ const debouncedLoadMore = useCallback(() => {
                     assetData={asset}
                     index={idx}
                     onEnterPress={() => onAssetPress(asset)}
-                    onAssetFocus={onAssetFocus}
+                    onAssetFocus={null}
                     dimensions={dimensions}
                     showTitle={true}
+                    changeBanner = {changeBanner}
+                    parentScrollingRef = {assetScrollingRef}
                   />
                 ))
               ): (

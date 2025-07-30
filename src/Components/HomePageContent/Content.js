@@ -82,6 +82,7 @@ const ContentRow = ({
                   isCircular={isCircular}
                   parentScrollingRef = {parentScrollingRef}
                   // changeBanner = {changeBanner}
+                  changeBanner  = {changeBanner}
                 />
               ))}
             </div>
@@ -103,7 +104,7 @@ const Content = ({
   parentScrollingRef = null,
   isPagination = false,
   hasMoreRows = true,
-  // changeBanner  = false,
+  changeBanner  = false,
 }) => {
   const {
     ref,
@@ -140,6 +141,7 @@ const Content = ({
             showTitle={showTitle}
             isCircular={isCircular}
             focusKey={`CONTENT_ROW_${item.playListId}_${index}`}
+            changeBanner={changeBanner}
             playListDimensions={{
               height: item.height ?? null,
               width: item.width ?? null
