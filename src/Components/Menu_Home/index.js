@@ -5,7 +5,7 @@ import useMenu from './Hooks/useMenu';
 import './index.css';
 import { kableOneLogo } from '../../assets';
 
-function Menu_Home({ activeTab, focusKey, setIsSideBarOpen }) {
+function Menu_Home({ activeTab, focusKey, setIsSideBarOpen = () =>{} }) {
 
     const {
         menuItems,
@@ -21,9 +21,9 @@ function Menu_Home({ activeTab, focusKey, setIsSideBarOpen }) {
         getIconComponent,
     } = useMenu(activeTab, focusKey);
 
-    useEffect(() => {
-        setIsSideBarOpen(hasFocusedChild);
-    }, [hasFocusedChild])
+    // useEffect(() => {
+    //     setIsSideBarOpen(hasFocusedChild);
+    // }, [hasFocusedChild])
 
     useEffect(()=>{
         if(!loading){

@@ -7,6 +7,7 @@
     /* background-color: rgb(15, 2, 51); */
     background-color: var(--BLACK-BG);
     /* background-color: #25395a8f; */
+    /* transition: all 0.5ms ease-in-out; */
 }
 
 .menuScrollingWrapper {

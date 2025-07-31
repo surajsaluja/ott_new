@@ -5,12 +5,13 @@ export const BannerDataContext = createContext();
 export const BannerUpdateContext = createContext();
 export const FocusedAssetDataContext = createContext();
 export const FocusedAssetUpdateContext = createContext();
-export const IsFocusedAssetEmptyContext = createContext();
+// export const IsFocusedAssetEmptyContext = createContext();
 
 export default function BannerContextProvider({ children }) {
   const [bannerData, setBannerData] = useState([]);
   const [focusedAssetData, setFocusedAssetData] = useState(null);
   const debounceTimer = useRef(null);
+  const prevAssetFocusDataRef = useRef(null);
 
   const updateBannerData = useCallback((data) => {
     setBannerData(data);
@@ -20,11 +21,13 @@ export default function BannerContextProvider({ children }) {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
-    if (updateImmidiate) {
+    if (updateImmidiate || prevAssetFocusDataRef.current === null) {
       setFocusedAssetData(data);
+      prevAssetFocusDataRef.current = data;
     } else {
       debounceTimer.current = setTimeout(() => {
         setFocusedAssetData(data);
+        prevAssetFocusDataRef.current = data;
       }, 1000);
     }
   }, []);
@@ -39,13 +42,13 @@ export default function BannerContextProvider({ children }) {
     [updateFocusedAssetData]
   );
 
-  const isFocusedAssetEmpty = useMemo(() => {
-    return (
-      !focusedAssetData ||
-      (typeof focusedAssetData === "object" &&
-        Object.keys(focusedAssetData).length === 0)
-    );
-  }, [focusedAssetData]);
+  // const isFocusedAssetEmpty = useMemo(() => {
+  //   return (
+  //     !focusedAssetData ||
+  //     (typeof focusedAssetData === "object" &&
+  //       Object.keys(focusedAssetData).length === 0)
+  //   );
+  // }, [focusedAssetData]);
 
 
   return (
@@ -55,9 +58,9 @@ export default function BannerContextProvider({ children }) {
           value={updateFocusedAssetContextValue}
         >
           <FocusedAssetDataContext.Provider value={focusedAssetData}>
-            <IsFocusedAssetEmptyContext.Provider value={isFocusedAssetEmpty}>
-              {children}
-            </IsFocusedAssetEmptyContext.Provider>
+            {/* <IsFocusedAssetEmptyContext.Provider value={isFocusedAssetEmpty}> */}
+            {children}
+            {/* </IsFocusedAssetEmptyContext.Provider> */}
           </FocusedAssetDataContext.Provider>
         </FocusedAssetUpdateContext.Provider>
       </BannerDataContext.Provider>

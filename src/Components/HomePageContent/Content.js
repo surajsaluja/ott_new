@@ -21,7 +21,8 @@ const ContentRow = ({
   showTitle,
   isCircular,
   changeBanner,
-  parentScrollingRef
+  parentScrollingRef,
+  isPlayListForTopContent = false
 }) => {
 
   const [rowDimensions, setRowDimensions] = useState({});
@@ -68,22 +69,25 @@ const ContentRow = ({
           >
             <div className="ContentRowScrollingContent">
               {data.map((item, index) => (
-                <AssetCard
-                  index={index}
-                  key={`${item.playListId}_${item.mediaID}_${index}`}
-                  focusKey={`${item.categoryID}_${item.playListId}_${item.mediaID}_${index}`}
-                  assetData={item}
-                  onEnterPress={onAssetPress}
-                  // onAssetFocus={onAssetFocus}
-                  lastAssetChangeRef={lastAssetChangeRef}
-                  lastRowChangeRef={lastRowChangeRef}
-                  dimensions={rowDimensions}
-                  showTitle={showTitle}
-                  isCircular={isCircular}
-                  parentScrollingRef = {parentScrollingRef}
-                  // changeBanner = {changeBanner}
-                  changeBanner  = {changeBanner}
-                />
+                
+                  <AssetCard
+                    index={index}
+                    key={`${item.playListId}_${item.mediaID}_${index}`}
+                    focusKey={`${item.categoryID}_${item.playListId}_${item.mediaID}_${index}`}
+                    assetData={item}
+                    onEnterPress={onAssetPress}
+                    // onAssetFocus={onAssetFocus}
+                    lastAssetChangeRef={lastAssetChangeRef}
+                    lastRowChangeRef={lastRowChangeRef}
+                    dimensions={rowDimensions}
+                    showTitle={showTitle}
+                    isCircular={isCircular}
+                    parentScrollingRef={parentScrollingRef}
+                    // changeBanner = {changeBanner}
+                    changeBanner={changeBanner}
+                    isPlayListForTopContent={isPlayListForTopContent}
+                  />
+               
               ))}
             </div>
           </div></>}
@@ -104,7 +108,7 @@ const Content = ({
   parentScrollingRef = null,
   isPagination = false,
   hasMoreRows = true,
-  changeBanner  = false,
+  changeBanner = false,
 }) => {
   const {
     ref,
@@ -133,20 +137,21 @@ const Content = ({
             title={item.playlistName}
             onFocus={onRowFocus}
             data={item.playlistItems}
-            parentScrollingRef = {parentScrollingRef}
+            parentScrollingRef={parentScrollingRef}
             onAssetPress={onAssetPress}
             // onAssetFocus={onAssetFocus}
             // handleAssetFocus={handleAssetFocus}
             lastRowChangeRef={lastRowChangeRef}
             showTitle={showTitle}
             isCircular={isCircular}
+            isPlayListForTopContent={item.isPlayListForTopContent}
             focusKey={`CONTENT_ROW_${item.playListId}_${index}`}
             changeBanner={changeBanner}
             playListDimensions={{
               height: item.height ?? null,
               width: item.width ?? null
             }}
-            // changeBanner = {changeBanner}
+          // changeBanner = {changeBanner}
           />
         )}
       </div>

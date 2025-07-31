@@ -17,7 +17,7 @@ import Error404 from "../Error404";
 const MovieHomePage = () => {
   const { category } = useParams();
 
-  const [isSidebarOpen, setIsSideBarOpen] = useState(false);
+  // const [isSidebarOpen, setIsSideBarOpen] = useState(false);
 
   const categoryMap = {
     HOME: 5,
@@ -80,9 +80,8 @@ const MovieHomePage = () => {
     <div style={{ display: "flex", flexDirection: "row", width: "100%", height: "100%", color: 'white' }}>
       <Menu_Home 
       activeTab={catId} 
-      focusKey="Menu_Abc"
-      setIsSideBarOpen={setIsSideBarOpen} />
-      <div className={`content-area ${isSidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
+      focusKey="Menu_Abc" />
+      <div className={`content-area `}>
         {renderContent()}
       </div>
     </div>

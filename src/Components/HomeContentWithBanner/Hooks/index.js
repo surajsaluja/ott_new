@@ -55,6 +55,7 @@ export const useContentWithBanner = (category = 5, focusKey) => {
     popBackArray,
   } = useBackArrayContext();
 const updateBannerContextValue = useContext(BannerUpdateContext);
+const updateFocusedAssetContextValue = useContext(FocusedAssetUpdateContext);
 
 
   const history = useHistory();
@@ -100,6 +101,8 @@ const updateBannerContextValue = useContext(BannerUpdateContext);
 
   useEffect(() => {
     setBackArray(categoryMeta.screen, true);
+    console.log('focused asset data null');
+    updateFocusedAssetContextValue(null, true);
   }, [category])
 
   useEffect(() => {

@@ -30,9 +30,9 @@ import { useContext, useEffect } from "react";
         categoryState,
         hasMoreRows
       } = useContentWithBanner(category,focusKey);
+  
 
-
-      const isFocusedAssetEmpty = useContext(IsFocusedAssetEmptyContext);
+      // const isFocusedAssetEmpty = useContext(IsFocusedAssetEmptyContext);
   
       if(isLoading || data.length == 0)
       {
@@ -46,7 +46,7 @@ import { useContext, useEffect } from "react";
       <div ref = {ref} className="content-with-banner" style={{position:'relative', width: '100%', height: '100%'}}>
 
         <Banner focusKey={'BANNER_FOCUS_KEY'} isBannerLoadedRef={isBannerLoadedRef} />
-        <div className="assetContent" style={{position: 'absolute', height: isFocusedAssetEmpty ? `40vh` : `55vh`, bottom: 0, width: '100%', transition: 'all 0.3s ease'}}>
+        <div className="assetContent" style={{position: 'absolute', height:  `55vh`, bottom: 0, width: '100%', transition: 'all 0.3s ease'}}>
         <Content 
           data={data} 
           setData={setData} 

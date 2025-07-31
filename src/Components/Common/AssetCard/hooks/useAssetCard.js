@@ -76,7 +76,7 @@ const useAssetCard = (
     focusKey,
     onEnterPress,
     onFocus: () => {
-      const el = ref.current;
+      const el = ref.current.offsetParent;
       if (el) {
         console.log('<<< focused');
         // Horizontal scroll container
@@ -89,7 +89,8 @@ const useAssetCard = (
         const itemRect = el.getBoundingClientRect();
 
         // Scroll padding
-        const scrollPadding = 40;
+        const verticalScrollPadding = 40;
+        const horizonatalScrollPadding  = 40;
 
         // --- Horizontal scroll ---
         if (horizontalContainer) {
@@ -101,10 +102,10 @@ const useAssetCard = (
 
           console.log('<<scrolled');
 
-          if (offsetLeft < scrollLeft + scrollPadding) {
-        horizontalContainer.scrollLeft = offsetLeft - scrollPadding;
-          } else if (offsetLeft + itemWidth > scrollLeft + containerWidth - scrollPadding) {
-        horizontalContainer.scrollLeft = offsetLeft + itemWidth - containerWidth + scrollPadding;
+          if (offsetLeft < scrollLeft + horizonatalScrollPadding) {
+        horizontalContainer.scrollLeft = offsetLeft - horizonatalScrollPadding;
+          } else if (offsetLeft + itemWidth > scrollLeft + containerWidth - horizonatalScrollPadding) {
+        horizontalContainer.scrollLeft = offsetLeft + itemWidth - containerWidth + horizonatalScrollPadding;
           }
         }
 
@@ -118,10 +119,10 @@ const useAssetCard = (
           const offsetTop = horizontalContainer.offsetTop; // relative to vertical container
           const itemHeight = itemRect.height;
 
-          if (offsetTop < scrollTop + scrollPadding) {
-            verticalContainer.scrollTop = offsetTop - scrollPadding;
-          } else if (offsetTop + itemHeight > scrollTop + containerHeight - scrollPadding) {
-            verticalContainer.scrollTop = offsetTop + itemHeight - containerHeight + scrollPadding;
+          if (offsetTop < scrollTop + verticalScrollPadding) {
+            verticalContainer.scrollTop = offsetTop - verticalScrollPadding;
+          } else if (offsetTop + itemHeight > scrollTop + containerHeight - verticalScrollPadding) {
+            verticalContainer.scrollTop = offsetTop + itemHeight - containerHeight + verticalScrollPadding;
           }
         }
 
