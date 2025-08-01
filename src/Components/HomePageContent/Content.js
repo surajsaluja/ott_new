@@ -8,6 +8,7 @@ import "./Content.css";
 import { calculateDimensions } from "../../Utils";
 import Spinner from "../Common/Spinner";
 import React, { useCallback, useRef, useEffect, useMemo, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
 
 const ContentRow = ({
   title,
@@ -22,7 +23,9 @@ const ContentRow = ({
   isCircular,
   changeBanner,
   parentScrollingRef,
-  isPlayListForTopContent = false
+  isPlayListForTopContent = false,
+   rowIndex,
+  onRowFocus = () =>{}
 }) => {
 
   const [rowDimensions, setRowDimensions] = useState({});
@@ -42,7 +45,7 @@ const ContentRow = ({
     currentFocusKey,
     hasFocusedChild,
     scrollingRowRef,
-  } = useContentRow(focusKey);
+  } = useContentRow(focusKey,onRowFocus, rowIndex);
 
   const containerHeight = useMemo(() =>
     `${rowDimensions.containerHeight + (showTitle ? 70 : 0)}px`,
@@ -54,6 +57,19 @@ const ContentRow = ({
     [rowDimensions.itemHeight, showTitle]
   );
 
+   const controls = useAnimation();
+
+  const scrollToIndex = (index) => {
+    const itemWidth = rowDimensions.itemWidth;
+    const spacing = 20;
+    const targetX = index * (itemWidth + spacing);
+
+    controls.start({
+      x: -targetX,
+      transition: { type: "spring", stiffness: 300, damping: 35 }
+    });
+  };
+
   return (
     <FocusContext.Provider value={currentFocusKey}>
       <div
@@ -62,8 +78,10 @@ const ContentRow = ({
         style={{ height: containerHeight }}
       >
         {rowDimensions && Object.keys(rowDimensions).length > 0 && <><div className="ContentRowTitle">{title}</div>
-          <div
-            className="ContentRowScrollingWrapper"
+          <motion.div
+              className="ContentRowScrollingContent"
+              animate={controls}
+              initial={{ x: 0 }} 
             ref={scrollingRowRef}
             style={{ height: scrollingWrapperHeight }}
           >
@@ -86,11 +104,12 @@ const ContentRow = ({
                     // changeBanner = {changeBanner}
                     changeBanner={changeBanner}
                     isPlayListForTopContent={isPlayListForTopContent}
+                    onAssetFocus={() => scrollToIndex(index)}
                   />
                
               ))}
             </div>
-          </div></>}
+          </motion.div></>}
       </div>
     </FocusContext.Provider>
   );
@@ -127,6 +146,20 @@ const Content = ({
   );
 
   const lastRowChangeRef = useRef(Date.now());
+  
+   const controls = useAnimation();
+
+  const rowHeights = 400; // Approximate height of each row
+  const spacing = 20;
+
+  const scrollToRow = useCallback((rowIndex) => {
+    const offsetY = (rowIndex * rowHeights) + spacing;
+
+    controls.start({
+      y: -offsetY,
+      transition: { type: "spring", stiffness: 200, damping: 30 }
+    });
+  }, []);
 
   const renderRow = useCallback((item, index) => {
     return (<>
@@ -134,6 +167,7 @@ const Content = ({
         {item.playlistItems.length > 0 && (
           <ContentRow
             key={`${item.playListId}_${index}`}
+            rowIndex={index}
             title={item.playlistName}
             onFocus={onRowFocus}
             data={item.playlistItems}
@@ -144,6 +178,7 @@ const Content = ({
             lastRowChangeRef={lastRowChangeRef}
             showTitle={showTitle}
             isCircular={isCircular}
+            onRowFocus={scrollToRow}
             isPlayListForTopContent={item.isPlayListForTopContent}
             focusKey={`CONTENT_ROW_${item.playListId}_${index}`}
             changeBanner={changeBanner}
@@ -162,12 +197,20 @@ const Content = ({
   return (
     <FocusContext.Provider value={focusKey}>
       <div className={`ContentWrapper ${userClass ?? ''}`} id='homeContentWrapper'>
-        <div className="ContentRow" id="contentRowWrapper" ref={ref}>
+        <div className="ScrollableArea">
+        <motion.div
+         className="ContentRow"
+          id="contentRowWrapper" 
+          ref={ref}
+          animate={controls}
+          initial={{ y: 0 }}
+          >
           {movieRowsData?.map(renderRow)}
           {isPagination && hasMoreRows && (
             <div ref={loadMoreRef} style={{ height: '25px' }} />
           )}
           {loadingSpinner && <Spinner />}
+        </motion.div>
         </div>
       </div>
     </FocusContext.Provider>

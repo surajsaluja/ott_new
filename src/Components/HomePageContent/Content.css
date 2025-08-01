@@ -60,3 +60,10 @@
   overflow-y: auto;
   flex-direction: column;
 }
+
+
+.RowsContainer {
+  position: absolute;
+  width: 100%;
+  will-change: transform;
+}

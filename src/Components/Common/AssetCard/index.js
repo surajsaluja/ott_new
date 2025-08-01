@@ -46,7 +46,8 @@ const AssetCard = (props) => {
     onEnterPress,
     focusKey,
     changeBanner,
-    parentScrollingRef
+    parentScrollingRef,
+    index
   );
 
   const borderRadius = isCircular ? "50%" : "0.5em";

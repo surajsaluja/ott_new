@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { FocusedAssetUpdateContext } from "../../../Context/movieBannerContext";
 const SCROLL_OFFSET = 80;
 
-const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
+const useContentRow = (focusKey, onRowFocus, rowIndex) => {
   const {
     ref,
     focusKey: currentFocusKey,
@@ -15,6 +15,7 @@ const useContentRow = (focusKey, onFocus, handleAssetFocus) => {
     focusKey,
     // trackChildren: true,
     saveLastFocusedChild: false,
+    onFocus:() => {onRowFocus(rowIndex)}
   });
 
   const scrollingRowRef = useRef(null);

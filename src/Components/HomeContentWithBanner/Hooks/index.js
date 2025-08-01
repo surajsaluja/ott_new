@@ -248,19 +248,19 @@ const loadMoreRows = useCallback(async () => {
     };
   }, [loadInitialData]);
 
-  // useEffect(() => {
-  //   if (
-  //     !didFocusSelfOnce.current &&
-  //     page === 1 &&
-  //     (bannerData.length > 0 || data.length > 0)
-  //     && bannerData[0].bannerType != 'DoNothing'
-  //   ) {
-  //     setTimeout(()=>{
-  //     didFocusSelfOnce.current = true;
-  //     focusSelf();
-  //     },350);
-  //   }
-  // }, [data, focusSelf]);
+  useEffect(() => {
+    if (
+      !didFocusSelfOnce.current &&
+      page === 1 &&
+      (bannerData.length > 0 || data.length > 0)
+      && bannerData[0].bannerType != 'DoNothing'
+    ) {
+      setTimeout(()=>{
+      didFocusSelfOnce.current = true;
+      focusSelf();
+      },350);
+    }
+  }, [data, focusSelf]);
 
   useEffect(() => {
     didFocusSelfOnce.current = false;

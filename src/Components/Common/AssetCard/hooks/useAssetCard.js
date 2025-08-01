@@ -15,7 +15,8 @@ const useAssetCard = (
   onEnterPress,
   focusKey,
   changeBanner,
-  parentScrollingRef
+  parentScrollingRef,
+  index
 ) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -52,85 +53,91 @@ const useAssetCard = (
   }, [imageUrl]);
 
   function smoothScrollTo(element, target, duration = 50) {
-  const start = element.scrollLeft;
-  const change = target - start;
-  const startTime = performance.now();
+    const start = element.scrollLeft;
+    const change = target - start;
+    const startTime = performance.now();
 
-  function animateScroll(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const ease = 0.5 - Math.cos(progress * Math.PI) / 2; // easeInOut
+    function animateScroll(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 0.5 - Math.cos(progress * Math.PI) / 2; // easeInOut
 
-    element.scrollLeft = start + change * ease;
+      element.scrollLeft = start + change * ease;
 
-    if (progress < 1) {
-      requestAnimationFrame(animateScroll);
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      }
     }
-  }
 
-  requestAnimationFrame(animateScroll);
-}
+    requestAnimationFrame(animateScroll);
+  }
 
 
   const { ref, focused } = useFocusable({
     focusKey,
     onEnterPress,
     onFocus: () => {
-      const el = ref.current.offsetParent;
-      if (el) {
-        console.log('<<< focused');
-        // Horizontal scroll container
-        const horizontalContainer = el.offsetParent;
-
-        // Fallback to grandparent for vertical scroll
-        const verticalContainer = parentScrollingRef == null ? document.getElementById("contentRowWrapper") : parentScrollingRef.current;
-        const containerId  = verticalContainer.id;
-
-        const itemRect = el.getBoundingClientRect();
-
-        // Scroll padding
-        const verticalScrollPadding = 40;
-        const horizonatalScrollPadding  = 40;
-
-        // --- Horizontal scroll ---
-        if (horizontalContainer) {
-          const containerRect = horizontalContainer.getBoundingClientRect();
-          const containerWidth = horizontalContainer.clientWidth;
-          const scrollLeft = horizontalContainer.scrollLeft;
-          const offsetLeft = el.offsetLeft;
-          const itemWidth = itemRect.width;
-
-          console.log('<<scrolled');
-
-          if (offsetLeft < scrollLeft + horizonatalScrollPadding) {
-        horizontalContainer.scrollLeft = offsetLeft - horizonatalScrollPadding;
-          } else if (offsetLeft + itemWidth > scrollLeft + containerWidth - horizonatalScrollPadding) {
-        horizontalContainer.scrollLeft = offsetLeft + itemWidth - containerWidth + horizonatalScrollPadding;
-          }
-        }
-
-        if(containerId === 'full-page-asset-scroll-container' && parentScrollingRef != null){
-          let top =  el?.offsetTop - parentScrollingRef?.current?.offsetTop - 20;
-          parentScrollingRef.current.scrollTop = top;
-        }else if (verticalContainer) {
-          const containerRect = verticalContainer.getBoundingClientRect();
-          const containerHeight = verticalContainer.clientHeight;
-          const scrollTop = verticalContainer.scrollTop;
-          const offsetTop = horizontalContainer.offsetTop; // relative to vertical container
-          const itemHeight = itemRect.height;
-
-          if (offsetTop < scrollTop + verticalScrollPadding) {
-            verticalContainer.scrollTop = offsetTop - verticalScrollPadding;
-          } else if (offsetTop + itemHeight > scrollTop + containerHeight - verticalScrollPadding) {
-            verticalContainer.scrollTop = offsetTop + itemHeight - containerHeight + verticalScrollPadding;
-          }
-        }
-
-        console.log('chnage Banner value in asset', changeBanner)
-        if(changeBanner == true){
+      onAssetFocus(index);
+      if (changeBanner == true) {
         updateFocusedAssetContextValue(assetData);
-        }
       }
+      // const el = ref.current.offsetParent;
+      // if (el) {
+      //   console.log('<<< focused');
+      //   // Horizontal scroll container
+      //   const horizontalContainer = el.offsetParent;
+
+      //   // Fallback to grandparent for vertical scroll
+      //   const verticalContainer = parentScrollingRef == null ? document.getElementById("contentRowWrapper") : parentScrollingRef.current;
+      //   const containerId  = verticalContainer.id;
+
+      //   const itemRect = el.getBoundingClientRect();
+
+      //   // Scroll padding
+      //   const verticalScrollPadding = 40;
+      //   const horizonatalScrollPadding  = 40;
+
+      //   // --- Horizontal scroll ---
+      //   if (horizontalContainer) {
+      //     let targetScroll = null;
+      //     const containerRect = horizontalContainer.getBoundingClientRect();
+      //     const containerWidth = horizontalContainer.clientWidth;
+      //     const scrollLeft = horizontalContainer.scrollLeft;
+      //     const offsetLeft = el.offsetLeft;
+      //     const itemWidth = itemRect.width;
+
+      //     console.log('<<scrolled');
+
+      //     if (offsetLeft < scrollLeft + horizonatalScrollPadding) {
+      //    targetScroll = offsetLeft - horizonatalScrollPadding;
+      //     } else if (offsetLeft + itemWidth > scrollLeft + containerWidth - horizonatalScrollPadding) {
+      //   targetScroll = offsetLeft + itemWidth - containerWidth + horizonatalScrollPadding;
+      //     }
+
+      //   // horizontalContainer.style.transform = `translateX(-${targetScroll}px)`;
+
+      //   }
+
+      //   if(containerId === 'full-page-asset-scroll-container' && parentScrollingRef != null){
+      //     let top =  el?.offsetTop - parentScrollingRef?.current?.offsetTop - 20;
+      //     parentScrollingRef.current.scrollTop = top;
+      //   }else if (verticalContainer) {
+      //     const containerRect = verticalContainer.getBoundingClientRect();
+      //     const containerHeight = verticalContainer.clientHeight;
+      //     const scrollTop = verticalContainer.scrollTop;
+      //     const offsetTop = horizontalContainer.offsetTop; // relative to vertical container
+      //     const itemHeight = itemRect.height;
+
+      //     if (offsetTop < scrollTop + verticalScrollPadding) {
+      //       verticalContainer.scrollTop = offsetTop - verticalScrollPadding;
+      //     } else if (offsetTop + itemHeight > scrollTop + containerHeight - verticalScrollPadding) {
+      //       verticalContainer.scrollTop = offsetTop + itemHeight - containerHeight + verticalScrollPadding;
+      //     }
+      //   }
+
+      //   console.log('chnage Banner value in asset', changeBanner)
+
+      // }
     },
     onArrowPress: (direction) => {
       if (!focused) return false;
