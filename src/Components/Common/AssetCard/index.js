@@ -50,8 +50,8 @@ const AssetCard = (props) => {
   );
 
   const borderRadius = isCircular ? "50%" : "0.5em";
-  const topTenImageUrl = `https://images.kableone.com/Images/Top10/img1/`;
-  const topTenFillUrl = `https://images.kableone.com/Images/Top10/filledimage/`
+  // const topTenImageUrl = `https://images.kableone.com/Images/Top10/img1/`;
+  // const topTenFillUrl = `https://images.kableone.com/Images/Top10/filledimage/`
 
   const containerStyles = useMemo(() => ({
     width: `${dimensions.itemWidth}px`,
@@ -95,7 +95,7 @@ const AssetCard = (props) => {
          <div className="asset-relative-wrapper" style={{ position: "relative"}}>
     {isPlayListForTopContent && (
       <div className="top-ten-playlist">
-        <img src={`${topTenFillUrl}${index + 1}.png`} alt={`Rank ${index + 1}`} />
+        <img src={focused? require(`../../../assets/top_10_images/filled/${index+1}.png`) : require(`../../../assets/top_10_images/unfilled/${index+1}.png`)} />
       </div>
     )}
    
